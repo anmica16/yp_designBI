@@ -1,0 +1,245 @@
+<template>
+  <el-popover
+    ref="popover"
+    placement="top-end"
+    trigger="click"
+    width="422"
+    transition="fade22"
+    popper-class="message-pop"
+  >
+    <el-button slot="reference" class="msgBtn">
+      <span class="fa fa-info"></span>
+      消息（{{ items.length }}）
+      <div v-show="noSeeItems" class="count">
+        {{ noSeeItems }}
+      </div>
+    </el-button>
+    <el-scrollbar v-show="expand" class="message-tab-inner">
+      <transition-group class="theUl" name="list22" tag="ul">
+        <li
+          v-for="item in items"
+          :key="item.keyvalue + '_' + item.menuid"
+          class="list22-item theLi"
+        >
+          <a class="clickArea" href="javascript:;" @click="clickFn(item)">
+            <div class="inner">
+              <div class="icon">
+                <div
+                  v-if="seeItems.indexOf(item.keyvalue + '_' + item.menuid) < 0"
+                  class="newTip"
+                >
+                  new
+                </div>
+                <div v-else class="fa fa-info"></div>
+              </div>
+              <div class="msg">{{ item.AuditMessages }}</div>
+              <div class="date">{{ item.OperateDate }}</div>
+            </div>
+          </a>
+        </li>
+      </transition-group>
+    </el-scrollbar>
+    <transition name="fade-right">
+      <div class="loadTip" v-show="loading">
+        <span class="fa fa-sync-alt"></span>刷新中...
+      </div>
+    </transition>
+  </el-popover>
+</template>
+
+<script>
+export default {
+  name: "message-tab",
+  data() {
+    return {
+      loading: false,
+      expand: true,
+      items: [],
+      newItems: [],
+
+      seeItems: [],
+      //checkItems: [],
+      timer_refresh: 0,
+      autoRefresh: true
+    };
+  },
+  computed: {
+    userinfo() {
+      return window.Ywp.GetUserInfo();
+    },
+    noSeeItems() {
+      let me = this,
+        count = 0,
+        Yw = window.Yw;
+      Yw.each(me.items, function(item) {
+        if (me.seeItems.indexOf(item.keyvalue + "_" + item.menuid) < 0) {
+          ++count;
+        }
+      });
+      return count;
+    },
+    itemMap() {
+      let me = this,
+        map = {},
+        Yw = window.Yw;
+      Yw.each(me.items, function(item) {
+        map[item.keyvalue + "_" + item.menuid] = item;
+      });
+      return map;
+    }
+  },
+  methods: {
+    // seeMapFn() {
+    //   let me = this,
+    //     Yw = window.Yw;
+    //   console.log(["执行see"]);
+    //   setTimeout(() => {
+    //     Yw.each(me.items, function(item) {
+    //       if (me.seeItems.indexOf(item.keyvalue + "_" + item.menuid) < 0) {
+    //         me.seeItems.push(item.keyvalue + "_" + item.menuid);
+    //       }
+    //     });
+    //   }, 0);
+    // },
+    clickFn(item) {
+      let me = this,
+        Yw = window.Yw,
+        Ywp = window.Ywp,
+        mainCmp = Ywp.down("queryFlag", "vm_main"),
+        card = {
+          xtype: "plugins.BaseAccraditation.WindowCard",
+          ModuleId: item.moduleid,
+          idValue: item.keyvalue,
+          stepcode: item.stepcode,
+          text: item.modulename + "【" + item.keyvalue + "】",
+          canAudit: true
+        };
+
+      if (card.stepcode == "0") {
+        me.$msgbox({
+          type: "info",
+          title: item.modulename + "【" + item.moduleid + "】",
+          message: item.AuditMessages
+        });
+      }
+      //item.messid = 2;
+      else if (item.messid) {
+        if (item.messid == 1) {
+          Yw.require(["plugins.BaseAccraditation.WindowCard"]);
+          card.xtype = "plugins.BaseAccraditation.WindowCard.SimpleCard";
+          //窗口打开
+          Yw.create({
+            xtype: "window",
+            width: 500,
+            height: 350,
+            queryFlag: "BAWindow",
+            title: item.modulename + "【" + item.keyvalue + "】",
+            items: [card]
+          });
+        } else if (item.messid == 2) {
+          card.listeners = {
+            afterRender: function(holder) {
+              let processBox = holder.down("WindowCard.processBox"),
+                applyBtn = processBox.bbar.down("name", "stepApplyText");
+              applyBtn.hide();
+            }
+          };
+
+          mainCmp.activeCard(null, card);
+
+          //表示已查看
+          Ywp.request({
+            url: Ywp.Api.Module,
+            params: {
+              method: Ywp.Api.Module.SeeOneAuditMsg,
+              ModuleId: item.moduleid,
+              idValue: item.keyvalue,
+              userid: me.userinfo.UserId
+            }
+          });
+        }
+      } else {
+        mainCmp.activeCard(null, card);
+      }
+      //【表示已经看过】
+      if (me.seeItems.indexOf(item.keyvalue + "_" + item.menuid) < 0) {
+        me.seeItems.push(item.keyvalue + "_" + item.menuid);
+      }
+    },
+    mouseOverFn() {
+      this.autoRefresh = false;
+    },
+    mouseLeaveFn() {
+      this.autoRefresh = true;
+    },
+    loopRefresh() {
+      let me = this,
+        callback = () => {
+          me.timer_refresh = setTimeout(() => {
+            me.loopRefresh();
+          }, 10000);
+        };
+      if (!me.autoRefresh) {
+        callback();
+      } else {
+        //重复刷新
+        me.refresh(callback);
+      }
+    },
+    refresh(callback) {
+      let Ywp = window.Ywp,
+        me = this;
+      me.loading = true;
+      Ywp.request({
+        url: Ywp.Api.Module,
+        params: {
+          userid: me.userinfo.UserId,
+          method: Ywp.Api.Module.GetAuditMsgTab
+        },
+        OnSuccess(result) {
+          //console.log(["成功", arguments]);
+          let Yw = window.Yw,
+            newItems = [],
+            theItems = result.data;
+          Yw.each(theItems, function(item) {
+            if (!me.itemMap[item.keyvalue + "_" + item.menuid]) {
+              newItems.push(item);
+            }
+          });
+          me.newItems = newItems;
+          me.items = theItems;
+          if (me.newItems.length) {
+            me.$message({
+              type: "success",
+              showClose: true,
+              //iconClass: "el-icon-info",
+              //duration: 2000,
+              customClass: "rightTopMsg",
+              message: "您有" + me.newItems.length + "条新消息"
+            });
+          }
+        },
+        OnFail() {
+          //console.log(["失败", arguments]);
+        },
+        OnComplete() {
+          me.loading = false;
+          if (callback) {
+            callback();
+          }
+        }
+      });
+    }
+  },
+  created() {
+    let me = this;
+    console.log(["开始轮询消息"]);
+    me.loopRefresh();
+  }
+  // mounted() {
+  //   let me = this,
+  //     popover = me.$refs.popover;
+  //   popover.doShow();
+  // }
+};
+</script>

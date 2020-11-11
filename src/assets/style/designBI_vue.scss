@@ -1,0 +1,138 @@
+/*
+Write your variables here. All available variables can be
+found in element-ui/packages/theme-chalk/src/common/var.scss.
+For example, to overwrite the theme color:
+*/
+//$--color-primary: teal;
+
+/* icon font path, required */
+$--font-path: '~element-ui/lib/theme-chalk/fonts';
+
+@import "~element-ui/packages/theme-chalk/src/index";
+
+//~ 3 transition设定
+%transition_fast {
+  transition: all 0.18s;
+}
+%transition_mid {
+  transition: all 0.5s;
+}
+%transition_one {
+  transition: all 1s;
+}
+%transition_two {
+  transition: all 2s;
+}
+//~4-1 仅水平居中
+%center-w {
+  position: relative;
+  left: 50%;
+  -webkit-transform: translate(-50%, 0);
+  -ms-transform: translate(-50%, 0);
+  -o-transform: translate(-50%, 0);
+  transform: translate(-50%, 0);
+  transform-style: preserve-3d;
+}
+//~4-1 仅垂直居中
+%center-h {
+  position: relative;
+  top: 50%;
+  -webkit-transform: translate(0, -50%);
+  -ms-transform: translate(0, -50%);
+  -o-transform: translate(0, -50%);
+  transform: translate(0, -50%);
+  transform-style: preserve-3d;
+}
+//~4 水平垂直居中
+%center-wh {
+  position: relative;
+  top: 50%;
+  left: 50%;
+  -webkit-transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+  -o-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+  transform-style: preserve-3d;
+}
+
+%flex-wh {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+//【=1=】单个格子
+.d-one-cell {
+  width: 100%;
+  height: 100%;
+  > * {
+    width: 100%;
+    height: 100%;
+  }
+  &:not(.added) {
+    cursor: pointer;
+  }
+  &:hover {
+    .tipLayer {
+      opacity: 0.7;
+    }
+  }
+  .tipLayer {
+    @extend %transition_fast;
+    @extend %flex-wh;
+    .fa {
+      font-size: 40px;
+      color: #bbb;
+    }
+  }
+}
+//【=2=】格子地图
+.d-cells-map {
+  width: 100%;
+  height: 100%;
+  position: relative;
+
+  .linesArea,
+  .dotsArea,
+  .contentArea {
+    width: 100%;
+    height: 0;
+  }
+  //~ 1 内容部分
+  .oneRow,
+  .oneCell {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+  }
+
+  //~ 2 控制线
+  .d-divid-line {
+    $w: 4px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: $w;
+    background: rgba(0, 0, 0, 0.1);
+    transition: left 0.12s, top 0.12s, box-shadow 0.18s, height 0.18s, width 0.18s;
+    cursor: pointer;
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.15);
+      box-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.12);
+    }
+
+    &.horizontal {
+      height: $w;
+      width: 100%;
+    }
+    &.dot {
+      $w_dot: $w * 1.5;
+      width: $w_dot;
+      height: $w_dot;
+      border-radius: $w_dot;
+    }
+  }
+}
