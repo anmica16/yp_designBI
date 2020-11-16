@@ -178,7 +178,7 @@ export default {
       }
       return rowCls;
     },
-    stepTable_RowCheck(selects,row) {
+    stepTable_RowCheck(selects, row) {
       let me = this;
       if (row) {
         me.stepTable_RowClick(row);

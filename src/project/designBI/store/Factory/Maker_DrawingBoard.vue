@@ -7,7 +7,7 @@ import tool from "@/plugins/js/tool";
 export default {
   name: "Maker_DrawingBoard",
   data() {
-    return ;
+    return;
   }
 };
 </script>

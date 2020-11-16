@@ -1,19 +1,64 @@
 import tool from "@/plugins/js/tool";
-import { theStore } from '../index';
+import { theStore } from "../index";
+
+//请使用 set的方式设置 RecordParser的rec中属性值!
 export default class RecordParser {
+  //@ 1 基本配置
+  baseCfg = null;
+  //@ 2 new 出来以及后续改动的 record
+  get record() {
+    return this._record;
+  }
+  set record(rec) {
+    this._record = rec;
+    this._recordData = this.getRecordSaveData(rec);
+  }
+  //@ 3 获取时得到的 data形式的 record
+  get recordData() {
+    return this._recordData;
+  }
+  set(val) {
+    let me = this;
+    me.record = tool.apply(me.record, val);
+  }
 
-  BaseCfg = null;
+  setData(data) {
+    let me = this,
+      addRec = me.loadRecordData(data);
+    me.set(addRec);
+  }
 
-  constructor(cfg) {
-    //【1】检测default一定为 fn 或 未定义
-
+  constructor(baseCfg, data) {
+    let me = this;
+    //【+1】检测default一定为 fn 或 未定义
+    tool.each(baseCfg, (key, val) => {
+      if (
+        (val.default && !tool.isFunction(val.default)) ||
+        (val.default_save && !tool.isFunction(val.default_save))
+      ) {
+        console.warn([
+          "RecordParser配置的属性中，default、default_save值设定器必须设置为function形式！",
+          key,
+          val
+        ]);
+      }
+    });
+    //【+2】初始
+    me.baseCfg = baseCfg;
+    let initRec = me.newRecord();
+    if (data) {
+      let dataRec = me.loadRecordData(data);
+      tool.apply(initRec, dataRec);
+    }
+    me.record = initRec;
+    //【+3】如果有
   }
 
   //【1】根据baseCfg初始化一个record，default有用，初始化不用迭代
   newRecord() {
     let me = this,
       rec = {};
-    tool.each(me.BaseCfg, function (key, val) {
+    tool.each(me.baseCfg, function(key, val) {
       let initVal = "";
       if (tool.isFunction(val.default)) {
         initVal = val.default();
@@ -27,7 +72,7 @@ export default class RecordParser {
   loadRecordData(data, inLoop) {
     let me = this,
       rec = {};
-    tool.each(inLoop ? data : me.BaseCfg, function (key, val) {
+    tool.each(inLoop ? data : me.baseCfg, function(key, val) {
       let readVal = data[key],
         resultVal = null;
       //~ 1 数组 分别执行load
@@ -38,9 +83,8 @@ export default class RecordParser {
         });
         resultVal = readValArray;
       }
-      //~ 2 对象 
+      //~ 2 对象
       else if (tool.isObject(readVal)) {
-
         //# 1 带有上下文的对象，要从itemMap里面找，必有propName
         if (readVal.$context) {
           let theObj = theStore.getters.getInstance(readVal.$context);
@@ -75,7 +119,7 @@ export default class RecordParser {
   getRecordSaveData(record, inLoop) {
     let me = this,
       rec = {};
-    tool.each(inLoop ? record : me.BaseCfg, function (key, val) {
+    tool.each(inLoop ? record : me.baseCfg, function(key, val) {
       let initVal = record[key],
         resultVal = null;
       //~ 1 转化为save值
@@ -102,7 +146,8 @@ export default class RecordParser {
       //# 4 对象类型深入
       else if (tool.isObject(initVal)) {
         resultVal = me.getRecordSaveData(initVal, true);
-      } else { //# 5 值类型
+      } else {
+        //# 5 值类型
         resultVal = initVal;
       }
 
@@ -110,5 +155,4 @@ export default class RecordParser {
     });
     return rec;
   }
-
 }

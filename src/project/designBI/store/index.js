@@ -15,7 +15,7 @@ let theStore = new Vuex.Store({
     DesignItemInstance_records: {}
   },
   getters: {
-    getInstance: (state) => (insCode) => {
+    getInstance: state => insCode => {
       return null;
     }
   },

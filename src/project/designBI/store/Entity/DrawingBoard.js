@@ -1,30 +1,27 @@
 import tool from "@/plugins/js/tool";
+import DrawEntityBase from "./DrawEntityBase";
 
 const BaseCfg = {
   //----------------------
   // Section 1 基本参数
   //----------------------
   id: {
-    desp: "数据库id",
-    
+    desp: "数据库id"
   },
   templateCode: {
     desp: "绘板唯一码，表示该实例所属绘板是哪个",
-    $mapItem: true,
+    $mapItem: true
   },
 
   root_instanceCode: {
     desp: "根实例对应code",
-    $mapItem: true,
-    
+    $mapItem: true
   },
   name: {
-    desp: "自定义名称",
-    
+    desp: "自定义名称"
   },
   desp: {
-    desp: "该控件实例的详细描述",
-    
+    desp: "该控件实例的详细描述"
   },
 
   //----------------------
@@ -33,40 +30,33 @@ const BaseCfg = {
   //【++ 1】创建时赋予
   createTime: {
     desp: "创建时间",
-    default: function () {
+    default: function() {
       return tool.Date.format(new Date(), "yyyy-MM-dd HH:mm:ss");
-    },
-    
+    }
   },
   createOper: {
-    desp: "创建者",
-    
+    desp: "创建者"
   },
   createOperId: {
-    desp: "创建者ID",
-    
+    desp: "创建者ID"
   },
   //【++ 2】修改保存时赋予
   editTime: {
     desp: "修改时间",
-    default_save: function () {
+    default_save: function() {
       return tool.Date.format(new Date(), "yyyy-MM-dd HH:mm:ss");
-    },
-    
+    }
   },
   editOper: {
-    desp: "修改者",
-    
+    desp: "修改者"
   },
   editOperId: {
-    desp: "修改者ID",
-    
+    desp: "修改者ID"
   }
 };
 
-export default class DrawingBoard {
-  constructor(cfg) {
-    let me = this;
-    tool.apply(me, cfg);
+export default class DrawingBoard extends DrawEntityBase {
+  constructor(record) {
+    super(BaseCfg, record);
   }
 }
