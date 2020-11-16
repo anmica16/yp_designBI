@@ -31,8 +31,6 @@ module.exports = {
     devtool: "hidden-source-map"
   },
 
-  //publicPath: "/vue-lserp-v8/dist/",
-
   css: {
     extract: {
       filename: `css/[name].css`
@@ -41,5 +39,7 @@ module.exports = {
 
   filenameHashing: false,
 
+  //publicPath: "/pages/designBI/",
+  //outputDir: "../pages/designBI",
   outputDir: "../Lserp_v8/dist"
 };

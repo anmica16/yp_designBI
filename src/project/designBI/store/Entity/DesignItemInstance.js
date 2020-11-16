@@ -1,4 +1,4 @@
-import tool from "../views/drawer/node_modules/@/plugins/js/tool";
+import tool from "@/plugins/js/tool";
 import { DesignVerb, JsonVerb } from "../public/Verbs";
 export default class DesignItemInstance {
   constructor(cfg) {
@@ -26,6 +26,8 @@ export default class DesignItemInstance {
 
   //【1】instanceCode：唯一码，非随机生成，需实现固定查询，每次生成都一致，生成的id其实也能实现这个效果，只要每次新生成的固定下来即可
   instanceCode = "";
+  //【=1.2=】类型id，唯一码，下拉框区别以及树结构的id，作为关联left join的关键字
+  typeCode = "";
   //【2】templateCode：绘板唯一码，表示该实例所属绘板是哪个
   templateCode = "";
   //【3】name：中文名

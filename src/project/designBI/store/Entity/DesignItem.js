@@ -1,4 +1,4 @@
-import tool from "../views/drawer/node_modules/@/plugins/js/tool";
+import tool from "@/plugins/js/tool";
 export default class DesignItem {
   constructor(cfg) {
     let me = this;
@@ -6,6 +6,7 @@ export default class DesignItem {
   }
 
   static JsonFields = ["props"];
+  static VerbFields = ["props->validator"];
 
   //一、props
 

@@ -12,8 +12,8 @@ Vue.use(ElementUI);
 // Section 1 环境框架构建
 //=========--------
 //【~ 1】store数据相关
-import router from "./router";
 import { theStore } from "./store";
+import router from "./router";
 
 //=========--------
 // Section 2 前置部件

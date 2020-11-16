@@ -22,7 +22,15 @@ Vue.prototype.$message = Message;
 import "element-ui/packages/theme-chalk/src/message-box.scss";
 import "element-ui/packages/theme-chalk/src/message.scss";
 
+//【=4=】大型部件
+import { Table, TableColumn } from "element-ui";
+Vue.use(Table);
+Vue.use(TableColumn);
+import "element-ui/packages/theme-chalk/src/table.scss";
+import "element-ui/packages/theme-chalk/src/table-column.scss";
+
 //放后面
 import "./theme/theme.scss";
 
 import "./views/main";
+import "./views/modules";

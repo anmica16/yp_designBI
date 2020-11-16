@@ -150,6 +150,7 @@ export default {
         }
       }
     },
+    //是否显示鼠标提示
     dragResizeMouseMove(e) {
       let me = this;
       if (me.resizable && !me.resizing && !me.dragging) {

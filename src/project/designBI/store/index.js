@@ -4,6 +4,8 @@ import Vuex from "vuex";
 Vue.use(Vuex);
 
 import $ from "@/plugins/js/loader";
+import Api from "./Api/lserp_v8";
+Vue.Api = Api;
 
 let theStore = new Vuex.Store({
   state: {
@@ -12,14 +14,17 @@ let theStore = new Vuex.Store({
     //【2】点开一个绘板之后，获取到的数据就在这里面，key - 数组的形式保存
     DesignItemInstance_records: {}
   },
-  getters: {},
+  getters: {
+    getInstance: (state) => (insCode) => {
+      return null;
+    }
+  },
   actions: {
     refresh_DrawingBoard_records({ state }) {
       return new Promise(res => {
-        let Yw = window.Yw;
         $.ajax({
-          url: Yw.Api.designBI,
-          method: Yw.Api.designBI.DrawingBoardList
+          url: Vue.Api.designBI,
+          method: Vue.Api.designBI.DrawingBoardList
         }).then(result => {
           state.DrawingBoard_records = result.data;
           res();
@@ -28,10 +33,9 @@ let theStore = new Vuex.Store({
     },
     get_DesignItemInstance_records({ state }, params) {
       return new Promise(res => {
-        let Yw = window.Yw;
         $.ajax({
-          url: Yw.Api.designBI,
-          method: Yw.Api.designBI.DesignItemInstanceList,
+          url: Vue.Api.designBI,
+          method: Vue.Api.designBI.DesignItemInstanceList,
           data: {
             templateCode: params.templateCode
           }
