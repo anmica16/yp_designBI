@@ -16,18 +16,11 @@
     </el-button>
     <el-scrollbar v-show="expand" class="message-tab-inner">
       <transition-group class="theUl" name="list22" tag="ul">
-        <li
-          v-for="item in items"
-          :key="item.keyvalue + '_' + item.menuid"
-          class="list22-item theLi"
-        >
+        <li v-for="item in items" :key="item.$key" class="list22-item theLi">
           <a class="clickArea" href="javascript:;" @click="clickFn(item)">
             <div class="inner">
               <div class="icon">
-                <div
-                  v-if="seeItems.indexOf(item.keyvalue + '_' + item.menuid) < 0"
-                  class="newTip"
-                >
+                <div v-if="seeItems.indexOf(item.$key) < 0" class="newTip">
                   new
                 </div>
                 <div v-else class="fa fa-info"></div>
@@ -60,7 +53,7 @@ export default {
       seeItems: [],
       //checkItems: [],
       timer_refresh: 0,
-      autoRefresh: true
+      autoRefresh: true,
     };
   },
   computed: {
@@ -71,8 +64,8 @@ export default {
       let me = this,
         count = 0,
         Yw = window.Yw;
-      Yw.each(me.items, function(item) {
-        if (me.seeItems.indexOf(item.keyvalue + "_" + item.menuid) < 0) {
+      Yw.each(me.items, function (item) {
+        if (me.seeItems.indexOf(item.$key) < 0) {
           ++count;
         }
       });
@@ -82,11 +75,11 @@ export default {
       let me = this,
         map = {},
         Yw = window.Yw;
-      Yw.each(me.items, function(item) {
-        map[item.keyvalue + "_" + item.menuid] = item;
+      Yw.each(me.items, function (item) {
+        map[item.$key] = item;
       });
       return map;
-    }
+    },
   },
   methods: {
     // seeMapFn() {
@@ -95,8 +88,8 @@ export default {
     //   console.log(["执行see"]);
     //   setTimeout(() => {
     //     Yw.each(me.items, function(item) {
-    //       if (me.seeItems.indexOf(item.keyvalue + "_" + item.menuid) < 0) {
-    //         me.seeItems.push(item.keyvalue + "_" + item.menuid);
+    //       if (me.seeItems.indexOf(item.$key) < 0) {
+    //         me.seeItems.push(item.$key);
     //       }
     //     });
     //   }, 0);
@@ -112,58 +105,62 @@ export default {
           idValue: item.keyvalue,
           stepcode: item.stepcode,
           text: item.modulename + "【" + item.keyvalue + "】",
-          canAudit: true
+          canAudit: true,
         };
 
       if (card.stepcode == "0") {
         me.$msgbox({
           type: "info",
           title: item.modulename + "【" + item.moduleid + "】",
-          message: item.AuditMessages
+          message: item.AuditMessages,
         });
       }
       //item.messid = 2;
-      else if (item.messid) {
-        if (item.messid == 1) {
-          Yw.require(["plugins.BaseAccraditation.WindowCard"]);
-          card.xtype = "plugins.BaseAccraditation.WindowCard.SimpleCard";
-          //窗口打开
-          Yw.create({
-            xtype: "window",
-            width: 500,
-            height: 350,
-            queryFlag: "BAWindow",
-            title: item.modulename + "【" + item.keyvalue + "】",
-            items: [card]
-          });
-        } else if (item.messid == 2) {
-          card.listeners = {
-            afterRender: function(holder) {
-              let processBox = holder.down("WindowCard.processBox"),
-                applyBtn = processBox.bbar.down("name", "stepApplyText");
-              applyBtn.hide();
-            }
-          };
+      else if (item.messid == 1) {
+        Yw.require(["plugins.BaseAccraditation.WindowCard"]);
+        card.xtype = "plugins.BaseAccraditation.WindowCard.SimpleCard";
+        //窗口打开
+        Yw.create({
+          xtype: "window",
+          width: 500,
+          height: 350,
+          queryFlag: "BAWindow",
+          title: item.modulename + "【" + item.keyvalue + "】",
+          items: [card],
+        });
+      } else if (item.messid == 2) {
+        card.listeners = {
+          afterRender: function (holder) {
+            let processBox = holder.down("WindowCard.processBox"),
+              applyBtn = processBox.bbar.down("name", "stepApplyText");
+            applyBtn.setText("确认");
+            applyBtn.handler = function () {
+              //表示已查看
+              Ywp.request({
+                url: Ywp.Api.Module,
+                mask: true,
+                params: {
+                  method: Ywp.Api.Module.SeeOneAuditMsg,
+                  ModuleId: item.moduleid,
+                  idValue: item.keyvalue,
+                  userid: me.userinfo.UserId,
+                },
+                success(result) {
+                  Ywp.Msg.success("成功", result.msg || "确认成功");
+                  applyBtn.disable();
+                },
+              });
+            };
+          },
+        };
 
-          mainCmp.activeCard(null, card);
-
-          //表示已查看
-          Ywp.request({
-            url: Ywp.Api.Module,
-            params: {
-              method: Ywp.Api.Module.SeeOneAuditMsg,
-              ModuleId: item.moduleid,
-              idValue: item.keyvalue,
-              userid: me.userinfo.UserId
-            }
-          });
-        }
+        mainCmp.activeCard(null, card);
       } else {
         mainCmp.activeCard(null, card);
       }
       //【表示已经看过】
-      if (me.seeItems.indexOf(item.keyvalue + "_" + item.menuid) < 0) {
-        me.seeItems.push(item.keyvalue + "_" + item.menuid);
+      if (me.seeItems.indexOf(item.$key) < 0) {
+        me.seeItems.push(item.$key);
       }
     },
     mouseOverFn() {
@@ -194,15 +191,23 @@ export default {
         url: Ywp.Api.Module,
         params: {
           userid: me.userinfo.UserId,
-          method: Ywp.Api.Module.GetAuditMsgTab
+          method: Ywp.Api.Module.GetAuditMsgTab,
         },
         OnSuccess(result) {
           //console.log(["成功", arguments]);
           let Yw = window.Yw,
             newItems = [],
             theItems = result.data;
-          Yw.each(theItems, function(item) {
-            if (!me.itemMap[item.keyvalue + "_" + item.menuid]) {
+          Yw.each(theItems, function (item) {
+            item.$key = [
+              item.keyvalue,
+              item.stepcode,
+              item.menuid,
+              item.messid,
+              item.UserId,
+              item.AuditMessages,
+            ].join(";");
+            if (!me.itemMap[item.$key]) {
               newItems.push(item);
             }
           });
@@ -215,7 +220,7 @@ export default {
               //iconClass: "el-icon-info",
               //duration: 2000,
               customClass: "rightTopMsg",
-              message: "您有" + me.newItems.length + "条新消息"
+              message: "您有" + me.newItems.length + "条新消息",
             });
           }
         },
@@ -227,15 +232,15 @@ export default {
           if (callback) {
             callback();
           }
-        }
+        },
       });
-    }
+    },
   },
   created() {
     let me = this;
     console.log(["开始轮询消息"]);
     me.loopRefresh();
-  }
+  },
   // mounted() {
   //   let me = this,
   //     popover = me.$refs.popover;

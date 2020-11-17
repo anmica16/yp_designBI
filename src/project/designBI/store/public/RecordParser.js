@@ -1,5 +1,7 @@
 import tool from "@/plugins/js/tool";
 import { theStore } from "../index";
+import $ from "@/plugins/js/loader";
+import Vue from "vue";
 
 //请使用 set的方式设置 RecordParser的rec中属性值!
 export default class RecordParser {
@@ -58,10 +60,10 @@ export default class RecordParser {
   newRecord() {
     let me = this,
       rec = {};
-    tool.each(me.baseCfg, function(key, val) {
+    tool.each(me.baseCfg, function (key, val) {
       let initVal = "";
       if (tool.isFunction(val.default)) {
-        initVal = val.default();
+        initVal = val.default(rec, me.baseCfg);
       }
       rec[key] = initVal;
     });
@@ -72,7 +74,7 @@ export default class RecordParser {
   loadRecordData(data, inLoop) {
     let me = this,
       rec = {};
-    tool.each(inLoop ? data : me.baseCfg, function(key, val) {
+    tool.each(inLoop ? data : me.baseCfg, function (key, val) {
       let readVal = data[key],
         resultVal = null;
       //~ 1 数组 分别执行load
@@ -119,12 +121,12 @@ export default class RecordParser {
   getRecordSaveData(record, inLoop) {
     let me = this,
       rec = {};
-    tool.each(inLoop ? record : me.baseCfg, function(key, val) {
+    tool.each(inLoop ? record : me.baseCfg, function (key, val) {
       let initVal = record[key],
         resultVal = null;
       //~ 1 转化为save值
       if (!inLoop && tool.isFunction(val.default_save)) {
-        initVal = val.default_save();
+        initVal = val.default_save(record, me.baseCfg);
       }
 
       //~ 2 按Array、function、context、普通对象进行JSON化
@@ -154,5 +156,16 @@ export default class RecordParser {
       rec[key] = resultVal;
     });
     return rec;
+  }
+
+  save(options) {
+    let me = this;
+    $.ajax({
+      url: Vue.Api.designBI,
+      data: tool.apply({
+        method: Vue.Api.designBI.AddOrUpd
+      }, options)
+    });
+
   }
 }

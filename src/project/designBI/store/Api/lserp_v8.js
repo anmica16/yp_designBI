@@ -3,9 +3,11 @@ import tool from "@/plugins/js/tool";
 
 let Api_custom = {
   designBI: {
-    url: "/Api/SysUserAjaxApi.ashx",
+    url: "/Api/DesignBIApi.ashx",
     DrawingBoardList: "GetDrawingBoardList",
-    DesignItemInstanceList: "GetDesignItemInstanceList"
+    DesignItemInstanceList: "GetDesignItemInstanceList",
+    AddOrUpd: "AddOrUpdTable",
+
   },
 
   Module: {

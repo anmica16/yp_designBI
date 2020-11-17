@@ -8,16 +8,22 @@ const BaseCfg = tool.apply(
     // Section 1 基本参数
     //----------------------
     id: {
-      desp: "数据库id"
+      desp: "数据库id",
+      readOnly: true
     },
     templateCode: {
       desp: "绘板唯一码，表示该实例所属绘板是哪个",
-      $mapItem: true
+      $context: "board",
+      require: true
     },
 
     root_instanceCode: {
       desp: "根实例对应code",
-      $mapItem: true
+      $context: "item",
+      readOnly: true,
+      // default(rec) {
+        
+      // }
     },
     name: {
       desp: "自定义名称"
