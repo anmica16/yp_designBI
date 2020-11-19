@@ -10,6 +10,7 @@ export default {
   created() {
     let me = this;
     me.$store.dispatch("refresh_DrawingBoard_records");
+    console.log(["app对象", me]);
   }
 };
 </script>

@@ -16,17 +16,19 @@ const BaseCfg = tool.apply(
     //【1】
     instanceCode: {
       desp:
-        "唯一码，非随机生成，需实现固定查询，每次生成都一致，生成的id其实也能实现这个效果，只要每次新生成的固定下来即可"
+        "唯一码，非随机生成，需实现固定查询，每次生成都一致，生成的id其实也能实现这个效果，只要每次新生成的固定下来即可",
+      require: true
     },
 
     //【=1.2=】
-    typeCode: {
-      desp:
-        "类型id，唯一码，下拉框区别以及树结构的id，作为关联left join的关键字"
+    xtype: {
+      desp: "使用时调用的Vue/Yw识别码 Yw为@，Vue为普通",
+      require: true
     },
     //【2】templateCode：
     templateCode: {
-      desp: "绘板唯一码，表示该实例所属绘板是哪个"
+      desp: "绘板唯一码，表示该实例所属绘板是哪个",
+      require: true
     },
     //【3】name：
     name: {
@@ -205,5 +207,10 @@ const BaseCfg = tool.apply(
 export default class DesignItemInstance extends DrawEntityBase {
   constructor(record) {
     super(BaseCfg, record);
+  }
+  save(options) {
+    options = options || {};
+    options.table = "item";
+    return super.save(options);
   }
 }

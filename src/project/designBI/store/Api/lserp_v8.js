@@ -6,8 +6,7 @@ let Api_custom = {
     url: "/Api/DesignBIApi.ashx",
     DrawingBoardList: "GetDrawingBoardList",
     DesignItemInstanceList: "GetDesignItemInstanceList",
-    AddOrUpd: "AddOrUpdTable",
-
+    AddOrUpd: "AddOrUpdTable"
   },
 
   Module: {

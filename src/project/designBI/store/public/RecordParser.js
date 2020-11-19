@@ -19,11 +19,21 @@ export default class RecordParser {
   get recordData() {
     return this._recordData;
   }
+
+  //----------
+  // 二、方法
+  //----------
+
+  //# 1 对record的设置
   set(val) {
     let me = this;
     me.record = tool.apply(me.record, val);
   }
+  get(key) {
+    return this.record[key];
+  }
 
+  //# 2 对 data形式的 record的设置
   setData(data) {
     let me = this,
       addRec = me.loadRecordData(data);
@@ -60,7 +70,7 @@ export default class RecordParser {
   newRecord() {
     let me = this,
       rec = {};
-    tool.each(me.baseCfg, function (key, val) {
+    tool.each(me.baseCfg, function(key, val) {
       let initVal = "";
       if (tool.isFunction(val.default)) {
         initVal = val.default(rec, me.baseCfg);
@@ -74,7 +84,7 @@ export default class RecordParser {
   loadRecordData(data, inLoop) {
     let me = this,
       rec = {};
-    tool.each(inLoop ? data : me.baseCfg, function (key, val) {
+    tool.each(inLoop ? data : me.baseCfg, function(key, val) {
       let readVal = data[key],
         resultVal = null;
       //~ 1 数组 分别执行load
@@ -90,7 +100,7 @@ export default class RecordParser {
         //# 1 带有上下文的对象，要从itemMap里面找，必有propName
         if (readVal.$context) {
           let theObj = theStore.getters.getInstance(readVal.$context);
-          resultVal = theObj[readVal.propName];
+          resultVal = readVal.propName ? theObj[readVal.propName] : theObj;
           //# 1.2 采用如此的形式保留OBJ的参数
           rec["$cfg_" + key] = readVal;
         }
@@ -121,7 +131,7 @@ export default class RecordParser {
   getRecordSaveData(record, inLoop) {
     let me = this,
       rec = {};
-    tool.each(inLoop ? record : me.baseCfg, function (key, val) {
+    tool.each(inLoop ? record : me.baseCfg, function(key, val) {
       let initVal = record[key],
         resultVal = null;
       //~ 1 转化为save值
@@ -160,12 +170,16 @@ export default class RecordParser {
 
   save(options) {
     let me = this;
-    $.ajax({
+    options = options || {};
+    return $.ajax({
       url: Vue.Api.designBI,
-      data: tool.apply({
-        method: Vue.Api.designBI.AddOrUpd
-      }, options)
+      data: tool.apply(
+        {
+          method: Vue.Api.designBI.AddOrUpd,
+          records: JSON.stringify([me.record])
+        },
+        options
+      )
     });
-
   }
 }

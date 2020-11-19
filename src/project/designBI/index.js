@@ -20,6 +20,8 @@ import router from "./router";
 //=========--------
 //【=1=】两个拖拽resize
 import "@/packages/drag-resize";
+import CusMsgBox from "@/packages/message-box";
+Vue.prototype.$msgbox2 = CusMsgBox;
 //【=2=】经典布局
 import RectLayoutV2 from "../../plugins/vue/RectLayoutV2.vue";
 Vue.component("RectLayoutV2", RectLayoutV2);

@@ -39,7 +39,10 @@ module.exports = {
 
   filenameHashing: false,
 
-  //publicPath: "/pages/designBI/",
-  //outputDir: "../pages/designBI",
-  outputDir: "../Lserp_v8/dist"
+  //设计器
+  publicPath: "/pages/designBI/",
+  outputDir: "../pages/designBI"
+
+  //v8文件夹
+  //outputDir: "../Lserp_v8/dist"
 };
