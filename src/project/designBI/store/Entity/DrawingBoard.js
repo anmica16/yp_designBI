@@ -17,15 +17,18 @@ const BaseCfg = tool.apply(
       name: "绘板CODE",
       desp: "绘板识别码ID",
       placeholder: "请输入绘板识别码",
-      rules: [{
-        required: true,
-        message: "请输入绘板识别码",
-        trigger: 'blur'
-      }, {
-        min: 4,
-        message: "绘板识别码至少4位",
-        trigger: 'blur'
-      }],
+      rules: [
+        {
+          required: true,
+          message: "请输入绘板识别码",
+          trigger: "blur"
+        },
+        {
+          min: 4,
+          message: "绘板识别码至少4位",
+          trigger: "blur"
+        }
+      ]
     },
 
     //Code类型会 以context的obj会转化为 实体类型
@@ -33,7 +36,7 @@ const BaseCfg = tool.apply(
       name: "根实例CODE",
       desp: "根实例对应code",
       $jsonFields: {
-        $context: "item",
+        $context: "item"
       },
       disabled: true
       // default(rec) {
@@ -57,7 +60,6 @@ const BaseCfg = tool.apply(
 );
 
 export default class DrawingBoard extends DrawEntityBase {
-
   //# 1 实例树结构，仅是record的树，不过record一旦进行实体化了就会有对应的 $el引用
   instanceRoot = null;
   constructor(record) {

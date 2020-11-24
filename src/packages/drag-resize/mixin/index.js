@@ -232,7 +232,7 @@ export default {
     }
   },
 
-  data: function () {
+  data: function() {
     return {
       left: this.x,
       top: this.y,
@@ -264,7 +264,7 @@ export default {
     };
   },
 
-  created: function () {
+  created: function() {
     // eslint-disable-next-line
     if (this.maxWidth && this.minWidth > this.maxWidth)
       console.warn(
@@ -278,7 +278,7 @@ export default {
 
     this.resetBoundsAndMouseState();
   },
-  mounted: function () {
+  mounted: function() {
     if (!this.enableNativeDrag) {
       this.$el.ondragstart = () => false;
     }
@@ -305,7 +305,7 @@ export default {
 
     addEvent(window, "resize", this.checkParentSize);
   },
-  beforeDestroy: function () {
+  beforeDestroy: function() {
     removeEvent(document.documentElement, "mousedown", this.deselect);
     removeEvent(document.documentElement, "touchstart", this.handleUp);
     removeEvent(document.documentElement, "mousemove", this.move);
@@ -438,28 +438,28 @@ export default {
           Math.floor(
             (this.parentWidth - this.width - this.left) / this.grid[0]
           ) *
-          this.grid[0] +
+            this.grid[0] +
           this.left,
         minRight: this.right % this.grid[0],
         maxRight:
           Math.floor(
             (this.parentWidth - this.width - this.right) / this.grid[0]
           ) *
-          this.grid[0] +
+            this.grid[0] +
           this.right,
         minTop: this.top % this.grid[1],
         maxTop:
           Math.floor(
             (this.parentHeight - this.height - this.top) / this.grid[1]
           ) *
-          this.grid[1] +
+            this.grid[1] +
           this.top,
         minBottom: this.bottom % this.grid[1],
         maxBottom:
           Math.floor(
             (this.parentHeight - this.height - this.bottom) / this.grid[1]
           ) *
-          this.grid[1] +
+            this.grid[1] +
           this.bottom
       };
     },
@@ -658,12 +658,12 @@ export default {
       const tmpDeltaX =
         axis && axis !== "y"
           ? mouseClickPosition.mouseX -
-          (e.touches ? e.touches[0].pageX : e.pageX)
+            (e.touches ? e.touches[0].pageX : e.pageX)
           : 0;
       const tmpDeltaY =
         axis && axis !== "x"
           ? mouseClickPosition.mouseY -
-          (e.touches ? e.touches[0].pageY : e.pageY)
+            (e.touches ? e.touches[0].pageY : e.pageY)
           : 0;
 
       const [deltaX, deltaY] = snapToGrid(
@@ -880,7 +880,7 @@ export default {
 
       removeEvent(document.documentElement, eventsFor.move, this.handleResize);
     },
-    //section 2 
+    //section 2
 
     dragResizeMouseDown(e) {
       this.dragResizeDown(e, true);
@@ -898,25 +898,27 @@ export default {
         borderResizeWidth = me.borderResizeWidth,
         borders = me.actualBorders;
       let atRight =
-        borders.indexOf("e") > -1
-          ? (e.pageX > off.left + el.offsetWidth - borderResizeWidth) && (e.pageX <= off.left + el.offsetWidth)
-          : false,
+          borders.indexOf("e") > -1
+            ? e.pageX > off.left + el.offsetWidth - borderResizeWidth &&
+              e.pageX <= off.left + el.offsetWidth
+            : false,
         atLeft =
           borders.indexOf("w") > -1
-            ? (e.pageX < off.left + borderResizeWidth) && (e.pageX >= off.left)
+            ? e.pageX < off.left + borderResizeWidth && e.pageX >= off.left
             : false,
         atTop =
           borders.indexOf("n") > -1
-            ? (e.pageY < off.top + borderResizeWidth) && (e.pageY >= off.top)
+            ? e.pageY < off.top + borderResizeWidth && e.pageY >= off.top
             : false,
         atBottom =
           borders.indexOf("s") > -1
-            ? (e.pageY > off.top + el.offsetHeight - borderResizeWidth) && (e.pageY <= off.top + el.offsetHeight)
+            ? e.pageY > off.top + el.offsetHeight - borderResizeWidth &&
+              e.pageY <= off.top + el.offsetHeight
             : false,
         allAt = [atRight, atLeft, atTop, atBottom],
         count = 0;
 
-      allAt.forEach(function (a) {
+      allAt.forEach(function(a) {
         if (a) {
           ++count;
         }
@@ -1004,9 +1006,9 @@ export default {
           borderResizeWidth = me.borderResizeWidth,
           borders = me.actualBorders;
         let atRight =
-          borders.indexOf("e") > -1
-            ? e.pageX > off.left + el.offsetWidth - borderResizeWidth
-            : false,
+            borders.indexOf("e") > -1
+              ? e.pageX > off.left + el.offsetWidth - borderResizeWidth
+              : false,
           atLeft =
             borders.indexOf("w") > -1
               ? e.pageX < off.left + borderResizeWidth
@@ -1022,7 +1024,7 @@ export default {
           allAt = [atRight, atLeft, atTop, atBottom],
           count = 0;
 
-        allAt.forEach(function (a) {
+        allAt.forEach(function(a) {
           if (a) {
             ++count;
           }
@@ -1116,7 +1118,7 @@ export default {
       );
     },
 
-    //section 2 
+    //section 2
     actualBorders() {
       if (!this.resizable) return [];
       return this.borders;

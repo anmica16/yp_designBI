@@ -5,7 +5,7 @@
       <router-link
         :to="{
           name: 'DesignEdit',
-          params: { templateCode: recordData.templateCode },
+          params: { templateCode: recordData.templateCode }
         }"
       >
         绘板：{{ recordData.name }}；描述：{{ recordData.desp }}；绘板ID：{{
@@ -30,7 +30,7 @@ export default {
     return {
       boardMaker: null,
       showMaker: false,
-      recordData: null,
+      recordData: null
     };
   },
   methods: {
@@ -45,15 +45,15 @@ export default {
           data() {
             return {
               showMaker: false,
-              isAdd: true,
+              isAdd: true
             };
           },
           methods: {
             submitForm(recordData, maker) {
               //console.log(["通过？", this, arguments]);
               me.recordData = recordData;
-            },
-          },
+            }
+          }
         });
         let id = tool.uniqueStr(),
           addDiv = $(`<div id="${id}"></div>`);
@@ -61,15 +61,14 @@ export default {
         me.boardMaker.$mount(addDiv[0]);
       }
       me.showMaker = true;
-    },
+    }
   },
   watch: {
     showMaker(newVal) {
       this.boardMaker.showMaker = newVal;
-    },
-  },
+    }
+  }
 };
 </script>
 
-<style>
-</style>
+<style></style>

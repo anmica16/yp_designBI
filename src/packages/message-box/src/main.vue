@@ -61,7 +61,7 @@
             <div
               class="el-message-box__errormsg"
               :style="{
-                visibility: !!editorErrorMessage ? 'visible' : 'hidden',
+                visibility: !!editorErrorMessage ? 'visible' : 'hidden'
               }"
             >
               {{ editorErrorMessage }}
@@ -112,7 +112,7 @@ let typeMap = {
   success: "success",
   info: "info",
   warning: "warning",
-  error: "error",
+  error: "error"
 };
 
 export default {
@@ -120,37 +120,37 @@ export default {
 
   props: {
     modal: {
-      default: true,
+      default: true
     },
     lockScroll: {
-      default: true,
+      default: true
     },
     showClose: {
       type: Boolean,
-      default: true,
+      default: true
     },
     closeOnClickModal: {
-      default: true,
+      default: true
     },
     closeOnPressEscape: {
-      default: true,
+      default: true
     },
     closeOnHashChange: {
-      default: true,
+      default: true
     },
     center: {
       default: false,
-      type: Boolean,
+      type: Boolean
     },
     roundButton: {
       default: false,
-      type: Boolean,
-    },
+      type: Boolean
+    }
   },
 
   components: {
     ElInput,
-    ElButton,
+    ElButton
   },
 
   computed: {
@@ -166,7 +166,7 @@ export default {
     },
     cancelButtonClasses() {
       return `${this.cancelButtonClass}`;
-    },
+    }
   },
 
   methods: {
@@ -264,19 +264,19 @@ export default {
     handleClose() {
       this.handleAction("close");
     },
-    mousedownFn() {},
+    mousedownFn() {}
   },
 
   watch: {
     inputValue: {
       immediate: true,
       handler(val) {
-        this.$nextTick((_) => {
+        this.$nextTick(_ => {
           if (this.$type === "prompt" && val !== null) {
             this.validate();
           }
         });
-      },
+      }
     },
 
     visible(val) {
@@ -307,7 +307,7 @@ export default {
         this.editorErrorMessage = "";
         removeClass(this.getInputElement(), "invalid");
       }
-    },
+    }
   },
 
   mounted() {
@@ -357,8 +357,8 @@ export default {
       dangerouslyUseHTMLString: false,
       focusAfterClosed: null,
       isOnComposition: false,
-      distinguishCancelAndClose: false,
+      distinguishCancelAndClose: false
     };
-  },
+  }
 };
 </script>

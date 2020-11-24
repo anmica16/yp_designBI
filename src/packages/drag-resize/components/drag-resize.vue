@@ -20,10 +20,11 @@
 </template>
 
 <script>
-import DragResizeBase from '../mixin';"vue-draggable-resizable";
+import DragResizeBase from "../mixin";
+("vue-draggable-resizable");
 
 export default {
   name: "DragResize",
-  mixins: [DragResizeBase],
+  mixins: [DragResizeBase]
 };
 </script>

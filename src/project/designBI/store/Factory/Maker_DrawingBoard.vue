@@ -33,15 +33,15 @@ export default {
     record: Object,
     isAdd: {
       type: Boolean,
-      default: true,
-    },
+      default: true
+    }
   },
   data() {
     return {
       board: null,
       formItems: [],
       form: {},
-      rules: {},
+      rules: {}
     };
   },
   computed: {},
@@ -70,7 +70,7 @@ export default {
     },
     submitForm() {
       let me = this;
-      me.$refs.theForm.validate(function (valid) {
+      me.$refs.theForm.validate(function(valid) {
         //console.log(["创建是否同通过？", arguments]);
         if (valid) {
           me.board.setData(me.form);
@@ -92,7 +92,7 @@ export default {
     },
     resetForm() {
       this.$refs.theForm.resetFields();
-    },
+    }
   },
   mounted() {
     let me = this;
@@ -101,6 +101,6 @@ export default {
     me.board = new DrawingBoard(me.record);
     //~ 2 子项按配置加入
     me.initFormItems();
-  },
+  }
 };
 </script>

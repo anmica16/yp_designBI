@@ -5,5 +5,5 @@ import DragResizeMouse from "./components/drag-resize.vue";
 Vue.component("DragResizeDom", DragResizeDom);
 Vue.component("DragResizeMouse", DragResizeMouse);
 
-import panelDR from './components/panel-drag-resize.vue';
+import panelDR from "./components/panel-drag-resize.vue";
 Vue.component("panel-drag-resize", panelDR);

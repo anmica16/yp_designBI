@@ -71,7 +71,7 @@ export default class RecordParser {
     let me = this,
       hasProp = false,
       rec = {};
-    tool.each(jsonFields ? jsonFields : me.baseCfg, function (key, val) {
+    tool.each(jsonFields ? jsonFields : me.baseCfg, function(key, val) {
       //不对$属性采取措施
       if (key && key[0] === "$") {
         return;
@@ -104,7 +104,7 @@ export default class RecordParser {
   loadRecordData(data, inLoop) {
     let me = this,
       rec = {};
-    tool.each(inLoop ? data : me.baseCfg, function (key, val) {
+    tool.each(inLoop ? data : me.baseCfg, function(key, val) {
       let readVal = data[key],
         resultVal = null;
       //~ 1 数组 分别执行load
@@ -152,54 +152,60 @@ export default class RecordParser {
     let me = this,
       rec = {};
     //@@ 1 循环且未传入 jsonFields时，读record
-    tool.each(inLoop && !jsonFields ? record : jsonFields || me.baseCfg, function (key, val) {
-      //~ 0 save时的jsonFields的 save钩子触发,先是内部
-      if (!inLoop) {
-        if (val.$jsonFields && record[key]) {
-          record[key] = me.getRecordSaveData(record[key], false, val.$jsonFields);
+    tool.each(
+      inLoop && !jsonFields ? record : jsonFields || me.baseCfg,
+      function(key, val) {
+        //~ 0 save时的jsonFields的 save钩子触发,先是内部
+        if (!inLoop) {
+          if (val.$jsonFields && record[key]) {
+            record[key] = me.getRecordSaveData(
+              record[key],
+              false,
+              val.$jsonFields
+            );
+          }
+
+          //~ 1 后是外头， 转化为save值
+          if (!inLoop && tool.isFunction(val.default_save)) {
+            record[key] = val.default_save(record, jsonFields || me.baseCfg);
+          }
+          //@@ 2 如果是传入jsonFields的，那么下面的步骤就不走了，因为会重复，仅转换下 save钩子即可
+          if (jsonFields) {
+            rec[key] = record[key];
+            return;
+          }
         }
 
-        //~ 1 后是外头， 转化为save值
-        if (!inLoop && tool.isFunction(val.default_save)) {
-          record[key] = val.default_save(record, jsonFields || me.baseCfg);
-        }
-        //@@ 2 如果是传入jsonFields的，那么下面的步骤就不走了，因为会重复，仅转换下 save钩子即可
-        if (jsonFields) {
-          rec[key] = record[key];
-          return;
-        }
-      }
+        let initVal = record[key],
+          resultVal = null;
 
-      let initVal = record[key],
-        resultVal = null;
-
-      //~ 2 按Array、function、context、普通对象进行JSON化
-      if (tool.isArray(initVal)) {
-        let valArray = [];
-        tool.each(initVal, oneProp => {
-          valArray.push(me.getRecordSaveData(oneProp, true));
-        });
-        resultVal = valArray;
-      }
-      //# 2 Func
-      else if (tool.isFunction(initVal)) {
-        resultVal = initVal.toString();
-      }
-      else if (tool.isObject(initVal)) {
-        //# 3 如果有cfg的 key配置，那么是一个context的对象
-        if (initVal["$cfg_" + key]) {
-          resultVal = initVal["$cfg_" + key];
+        //~ 2 按Array、function、context、普通对象进行JSON化
+        if (tool.isArray(initVal)) {
+          let valArray = [];
+          tool.each(initVal, oneProp => {
+            valArray.push(me.getRecordSaveData(oneProp, true));
+          });
+          resultVal = valArray;
+        }
+        //# 2 Func
+        else if (tool.isFunction(initVal)) {
+          resultVal = initVal.toString();
+        } else if (tool.isObject(initVal)) {
+          //# 3 如果有cfg的 key配置，那么是一个context的对象
+          if (initVal["$cfg_" + key]) {
+            resultVal = initVal["$cfg_" + key];
+          } else {
+            //# 4 对象类型深入
+            resultVal = me.getRecordSaveData(initVal, true);
+          }
         } else {
-          //# 4 对象类型深入
-          resultVal = me.getRecordSaveData(initVal, true);
+          //# 5 值类型
+          resultVal = initVal;
         }
-      } else {
-        //# 5 值类型
-        resultVal = initVal;
-      }
 
-      rec[key] = resultVal;
-    });
+        rec[key] = resultVal;
+      }
+    );
     return rec;
   }
 
@@ -216,12 +222,17 @@ export default class RecordParser {
           },
           options
         )
-      }).then(result => {
-        theStore.commit("AddOrUpdBoard", { table: "board", recordData: me.recordData });
-        res(result);
-      }).catch(result => {
-        rej(result);
-      });
-    })
+      })
+        .then(result => {
+          theStore.commit("AddOrUpdBoard", {
+            table: "board",
+            recordData: me.recordData
+          });
+          res(result);
+        })
+        .catch(result => {
+          rej(result);
+        });
+    });
   }
 }

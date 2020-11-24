@@ -8,9 +8,9 @@
         [classNameDragging]: dragging,
         [classNameResizing]: resizing,
         [classNameDraggable]: draggable,
-        [classNameResizable]: resizable,
+        [classNameResizable]: resizable
       },
-      className,
+      className
     ]"
     @mousedown="resizeDownFn($event, true)"
     @mousemove="dragResizeMouseMove"
@@ -36,7 +36,7 @@ export default {
   name: "panel-drag-resize",
   mixins: [DragResizeBase],
   props: {
-    title: String,
-  },
+    title: String
+  }
 };
 </script>

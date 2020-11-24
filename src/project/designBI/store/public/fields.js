@@ -16,12 +16,12 @@ const createAndTime = {
   createOper: {
     name: "创建者",
     desp: "创建者",
-    disabled: true,
+    disabled: true
   },
   createOperId: {
     name: "创建者ID",
     desp: "创建者ID",
-    disabled: true,
+    disabled: true
   },
   //【++ 2】修改保存时赋予
   editTime: {
@@ -35,12 +35,12 @@ const createAndTime = {
   editOper: {
     name: "修改者",
     desp: "修改者",
-    disabled: true,
+    disabled: true
   },
   editOperId: {
     name: "修改者ID",
     desp: "修改者ID",
-    disabled: true,
+    disabled: true
   }
 };
 

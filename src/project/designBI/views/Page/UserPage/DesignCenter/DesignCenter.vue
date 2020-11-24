@@ -5,14 +5,12 @@
 </template>
 
 <script>
-import AttachBoard from './AttachBoard';
+import AttachBoard from "./AttachBoard";
 export default {
   components: {
     AttachBoard
   }
-}
+};
 </script>
 
-<style>
-
-</style>
+<style></style>

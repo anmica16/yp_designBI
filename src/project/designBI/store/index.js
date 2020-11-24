@@ -29,7 +29,7 @@ let theStore = new Vuex.Store({
       } else {
         return false;
       }
-      let at = records.indexOf(recordData)
+      let at = records.indexOf(recordData);
       if (at < 0) {
         records.push(recordData);
       } else {
@@ -77,11 +77,7 @@ let theStore = new Vuex.Store({
             templateCode: params.templateCode
           }
         }).then(result => {
-          Vue.set(
-            state.Instance_records,
-            params.templateCode,
-            result.data
-          );
+          Vue.set(state.Instance_records, params.templateCode, result.data);
           res();
         });
       });
@@ -91,5 +87,5 @@ let theStore = new Vuex.Store({
 
 export { theStore };
 
-import Maker_DrawingBoard from './Factory/Maker_DrawingBoard.vue';
+import Maker_DrawingBoard from "./Factory/Maker_DrawingBoard.vue";
 Vue.component("Maker_DrawingBoard", Maker_DrawingBoard);
