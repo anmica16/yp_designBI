@@ -33,7 +33,7 @@ const routes = [
             component: DesignCenter
           },
           {
-            path: "edit",
+            path: "edit/:templateCode",
             name: "DesignEdit",
             component: DesignEdit
           }

@@ -12,9 +12,9 @@
       },
       className,
     ]"
-    @mousedown.stop.prevent="resizeDownFn($event, true)"
+    @mousedown="resizeDownFn($event, true)"
     @mousemove="dragResizeMouseMove"
-    @touchstart.stop.prevent="resizeDownFn($event, false)"
+    @touchstart="resizeDownFn($event, false)"
   >
     <div
       v-if="title"

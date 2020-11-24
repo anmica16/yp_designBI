@@ -6,29 +6,41 @@ const createAndTime = {
   //----------------------
   //【++ 1】创建时赋予
   createTime: {
+    name: "创建时间",
     desp: "创建时间",
+    disabled: true,
     default: function() {
       return tool.Date.format(new Date(), "yyyy-MM-dd HH:mm:ss");
     }
   },
   createOper: {
-    desp: "创建者"
+    name: "创建者",
+    desp: "创建者",
+    disabled: true,
   },
   createOperId: {
-    desp: "创建者ID"
+    name: "创建者ID",
+    desp: "创建者ID",
+    disabled: true,
   },
   //【++ 2】修改保存时赋予
   editTime: {
+    name: "修改时间",
     desp: "修改时间",
+    disabled: true,
     default_save: function() {
       return tool.Date.format(new Date(), "yyyy-MM-dd HH:mm:ss");
     }
   },
   editOper: {
-    desp: "修改者"
+    name: "修改者",
+    desp: "修改者",
+    disabled: true,
   },
   editOperId: {
-    desp: "修改者ID"
+    name: "修改者ID",
+    desp: "修改者ID",
+    disabled: true,
   }
 };
 

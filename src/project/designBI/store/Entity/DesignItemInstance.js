@@ -62,11 +62,14 @@ const BaseCfg = tool.apply(
     // Section 2 父子级
     //----------------------
     //【7】parent_instanceCode：
-    parent_instanceCode: {
-      desp: "父级inscode"
+    parent: {
+      desp: "父级inscode",
+      $jsonFields: {
+        $context: "item"
+      }
     },
     //【8】【JSON】item_instanceCodes：
-    item_instanceCodes: {
+    items: {
       desp: "子集顺序和位置记录",
       $json: Array,
       $jsonFields: {
@@ -78,9 +81,9 @@ const BaseCfg = tool.apply(
         desp: {
           desp: "关于位置的说明"
         },
-        instanceCode: {
-          desp: "子控件实例识别码"
-        } //
+        instance: {
+          $context: "item"
+        }
       }
     },
 

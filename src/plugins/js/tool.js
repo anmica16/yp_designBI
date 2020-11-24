@@ -345,6 +345,9 @@ let tool = {
       }
     }
     return result;
+  },
+  uniqueStr: function () {
+    return Date.now() + "_" + Math.random().toFixed(5).substr(2);
   }
 };
 

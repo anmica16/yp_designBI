@@ -67,24 +67,44 @@ export default class RecordParser {
   }
 
   //【1】根据baseCfg初始化一个record，default有用，初始化不用迭代
-  newRecord() {
+  newRecord(jsonFields) {
     let me = this,
+      hasProp = false,
       rec = {};
-    tool.each(me.baseCfg, function(key, val) {
-      let initVal = "";
+    tool.each(jsonFields ? jsonFields : me.baseCfg, function (key, val) {
+      //不对$属性采取措施
+      if (key && key[0] === "$") {
+        return;
+      }
+      hasProp = true;
+      let initVal = null;
       if (tool.isFunction(val.default)) {
         initVal = val.default(rec, me.baseCfg);
       }
+
+      //~ 2 jsonFileds处理
+      if (val) {
+        if (val.$json === Array) {
+          initVal = [];
+          if (val.$jsonFields) {
+            //@@ 2 保存到record上 作为添加时的准则属性
+            rec["$jsonFields_" + key] = val.$jsonFields;
+          }
+        } else if (val.$jsonFields) {
+          initVal = me.newRecord(val.$jsonFields);
+        }
+      }
+
       rec[key] = initVal;
     });
-    return rec;
+    return hasProp ? rec : null;
   }
 
   //【2-1】根据对象化的 data进行赋值
   loadRecordData(data, inLoop) {
     let me = this,
       rec = {};
-    tool.each(inLoop ? data : me.baseCfg, function(key, val) {
+    tool.each(inLoop ? data : me.baseCfg, function (key, val) {
       let readVal = data[key],
         resultVal = null;
       //~ 1 数组 分别执行load
@@ -128,16 +148,30 @@ export default class RecordParser {
   }
 
   //【3】根据实例record 转化为data，触发save
-  getRecordSaveData(record, inLoop) {
+  getRecordSaveData(record, inLoop, jsonFields) {
     let me = this,
       rec = {};
-    tool.each(inLoop ? record : me.baseCfg, function(key, val) {
+    //@@ 1 循环且未传入 jsonFields时，读record
+    tool.each(inLoop && !jsonFields ? record : jsonFields || me.baseCfg, function (key, val) {
+      //~ 0 save时的jsonFields的 save钩子触发,先是内部
+      if (!inLoop) {
+        if (val.$jsonFields && record[key]) {
+          record[key] = me.getRecordSaveData(record[key], false, val.$jsonFields);
+        }
+
+        //~ 1 后是外头， 转化为save值
+        if (!inLoop && tool.isFunction(val.default_save)) {
+          record[key] = val.default_save(record, jsonFields || me.baseCfg);
+        }
+        //@@ 2 如果是传入jsonFields的，那么下面的步骤就不走了，因为会重复，仅转换下 save钩子即可
+        if (jsonFields) {
+          rec[key] = record[key];
+          return;
+        }
+      }
+
       let initVal = record[key],
         resultVal = null;
-      //~ 1 转化为save值
-      if (!inLoop && tool.isFunction(val.default_save)) {
-        initVal = val.default_save(record, me.baseCfg);
-      }
 
       //~ 2 按Array、function、context、普通对象进行JSON化
       if (tool.isArray(initVal)) {
@@ -151,13 +185,14 @@ export default class RecordParser {
       else if (tool.isFunction(initVal)) {
         resultVal = initVal.toString();
       }
-      //# 3 如果有cfg的 key配置，那么是一个context的对象
-      else if (initVal["$cfg_" + key]) {
-        resultVal = initVal["$cfg_" + key];
-      }
-      //# 4 对象类型深入
       else if (tool.isObject(initVal)) {
-        resultVal = me.getRecordSaveData(initVal, true);
+        //# 3 如果有cfg的 key配置，那么是一个context的对象
+        if (initVal["$cfg_" + key]) {
+          resultVal = initVal["$cfg_" + key];
+        } else {
+          //# 4 对象类型深入
+          resultVal = me.getRecordSaveData(initVal, true);
+        }
       } else {
         //# 5 值类型
         resultVal = initVal;
@@ -171,15 +206,22 @@ export default class RecordParser {
   save(options) {
     let me = this;
     options = options || {};
-    return $.ajax({
-      url: Vue.Api.designBI,
-      data: tool.apply(
-        {
-          method: Vue.Api.designBI.AddOrUpd,
-          records: JSON.stringify([me.record])
-        },
-        options
-      )
-    });
+    return new Promise((res, rej) => {
+      $.ajax({
+        url: Vue.Api.designBI,
+        data: tool.apply(
+          {
+            method: Vue.Api.designBI.AddOrUpd,
+            records: JSON.stringify([me.recordData])
+          },
+          options
+        )
+      }).then(result => {
+        theStore.commit("AddOrUpdBoard", { table: "board", recordData: me.recordData });
+        res(result);
+      }).catch(result => {
+        rej(result);
+      });
+    })
   }
 }

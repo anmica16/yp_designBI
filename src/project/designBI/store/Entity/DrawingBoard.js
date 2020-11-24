@@ -9,28 +9,43 @@ const BaseCfg = tool.apply(
     // Section 1 基本参数
     //----------------------
     id: {
+      name: "ID",
       desp: "数据库id",
-      readOnly: true
+      disabled: true
     },
     templateCode: {
+      name: "绘板CODE",
       desp: "绘板识别码ID",
-      $context: "board",
-      require: true
+      placeholder: "请输入绘板识别码",
+      rules: [{
+        required: true,
+        message: "请输入绘板识别码",
+        trigger: 'blur'
+      }, {
+        min: 4,
+        message: "绘板识别码至少4位",
+        trigger: 'blur'
+      }],
     },
 
     //Code类型会 以context的obj会转化为 实体类型
-    root_instanceCode: {
+    rootInstance: {
+      name: "根实例CODE",
       desp: "根实例对应code",
-      $context: "item",
-      readOnly: true
+      $jsonFields: {
+        $context: "item",
+      },
+      disabled: true
       // default(rec) {
 
       // }
     },
     name: {
+      name: "绘板名称",
       desp: "自定义名称"
     },
     desp: {
+      name: "备注",
       desp: "该控件实例的详细描述"
     }
   },
@@ -42,24 +57,34 @@ const BaseCfg = tool.apply(
 );
 
 export default class DrawingBoard extends DrawEntityBase {
+
+  //# 1 实例树结构，仅是record的树，不过record一旦进行实体化了就会有对应的 $el引用
+  instanceRoot = null;
   constructor(record) {
     super(BaseCfg, record);
     let me = this,
-      insKey = "root_instanceCode",
+      insKey = "rootInstance",
       ins = me.get(insKey);
+
+    //~ 1 绑定this到record
+    me.set({ $el: me });
 
     if (!ins) {
       //~ 2 会转化为 cfg后面的 值
       me.setData({
         [insKey]: {
+          //~ 2.2 根据以下参数在 store中寻找，如果没找到，那么根据以下可选参数进行新建一个实例
           $context: {
             type: "item",
-            instanceCode: "root",
+            instanceCode: "root_" + tool.uniqueStr(),
             templateCode: me.templateCode
           }
         }
       });
     }
+    //~ 3 实例树的root
+    ins = me.get(insKey);
+    me.instanceRoot = ins;
   }
 
   save(options) {
