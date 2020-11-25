@@ -1,7 +1,7 @@
 import Vue from "vue";
 window.D = window.D || {}; //我的设计器总空间
 
-import "../../assets/style/designBI_vue.scss";
+import "./assets/theme/designBI_vue.scss";
 //设计器所需 各个模块的引入
 
 //【~ 1】完整引入 element看看

@@ -8,9 +8,9 @@
         [classNameDragging]: dragging,
         [classNameResizing]: resizing,
         [classNameDraggable]: draggable,
-        [classNameResizable]: resizable
+        [classNameResizable]: resizable,
       },
-      className
+      className,
     ]"
     @mousedown="resizeDownFn($event, true)"
     @mousemove="dragResizeMouseMove"
@@ -24,7 +24,9 @@
     >
       <div class="dragArea-title">{{ title }}</div>
     </div>
-    <slot></slot>
+    <div class="inner">
+      <slot></slot>
+    </div>
   </div>
 </template>
 
@@ -36,7 +38,24 @@ export default {
   name: "panel-drag-resize",
   mixins: [DragResizeBase],
   props: {
-    title: String
-  }
+    title: String,
+  },
 };
 </script>
+
+<style lang="scss">
+.panel-drag-resize {
+  position: relative; //会被里面的 absolute替代
+  .dragArea {
+    height: 100%;
+    width: 100%;
+  }
+  .inner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+}
+</style>

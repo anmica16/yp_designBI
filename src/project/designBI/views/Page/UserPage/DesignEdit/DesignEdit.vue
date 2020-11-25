@@ -1,14 +1,24 @@
 <template>
-  <div class="d-page-design-edit" style="width: 100%; height: 100%;">
-    <RectLayoutV2 ref="rect">
-      <template #n>
-        <theHeader></theHeader>
-      </template>
-      <template #w>
-        <div>west</div>
-      </template>
-      <template #c>
-        <el-tabs ref="tabpanel" type="card" v-model="activeName">
+  <div class="DesignEdit" style="width: 100%; height: 100%">
+    <div v-if="!nowBoard">
+      您访问了一个不存在的绘板！请<router-link :to="{ name: 'DesignCenter' }"
+        >返回</router-link
+      >
+    </div>
+    <template v-else>
+      <RectLayoutV2 ref="rect">
+        <template #n>
+          <theHeader></theHeader>
+        </template>
+        <template #w>
+          <div class="leftBar">
+            <el-button>
+              
+            </el-button>
+          </div>
+        </template>
+        <template #c>
+          <!-- <el-tabs ref="tabpanel" type="card" v-model="activeName">
           <el-tab-pane
             v-for="item in drawingBoards"
             :key="item.name"
@@ -21,28 +31,59 @@
               :config="item"
             ></DrawingBoard>
           </el-tab-pane>
-        </el-tabs>
-      </template>
-      <template #e>
-        <div>east</div>
-      </template>
-    </RectLayoutV2>
+        </el-tabs> -->
+        </template>
+        <template #e>
+          <div>east</div>
+        </template>
+      </RectLayoutV2>
+    </template>
   </div>
 </template>
 
 <script>
 import theHeader from "./header";
 export default {
-  name: "d-page-design-edit",
+  name: "DesignEdit",
   components: {
-    theHeader
+    theHeader,
   },
   data() {
     return {
       queryFlag: "DesignEdit",
-      activeName: "",
-      drawingBoards: []
+      //activeName: "",
+      //drawingBoards: [],
+      //在router进行切换的时候 切换
+      // nowBoard: null,
+      // nowInstances: null,
     };
-  }
+  },
+  computed: {
+    //在router进行切换的时候 切换
+    nowTemplateCode() {
+      let me = this,
+        params = me.$route.params,
+        templateCode = params.templateCode;
+      return templateCode;
+    },
+    nowBoard() {
+      let me = this,
+        templateCode = me.nowTemplateCode;
+      return me.$store.getters.getBoard(templateCode);
+    },
+    nowInstances() {
+      let me = this,
+        templateCode = me.nowTemplateCode,
+        items = me.$store.getters.getInstances(templateCode);
+      //# 1 第一次就新增一个
+
+
+      return items;
+    },
+  },
+  mounted() {
+    let me = this;
+    console.log(["$route.params", me.$route.params]);
+  },
 };
 </script>

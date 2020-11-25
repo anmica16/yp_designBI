@@ -9,7 +9,7 @@ export default {
   name: "BI-application-page",
   created() {
     let me = this;
-    me.$store.dispatch("refresh_DrawingBoard_records");
+    me.$store.dispatch("refreshBoardRecords");
     console.log(["app对象", me]);
   }
 };

@@ -224,9 +224,12 @@ export default class RecordParser {
         )
       })
         .then(result => {
-          theStore.commit("AddOrUpdBoard", {
-            table: "board",
-            recordData: me.recordData
+          console.log(["测试save", result]);
+          theStore.commit("AddOrUpdRecords", {
+            recordData: me.recordData,
+            table: options.table,
+            //item 附加
+            templateCode: options.templateCode
           });
           res(result);
         })

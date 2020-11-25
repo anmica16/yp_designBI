@@ -1067,6 +1067,7 @@ export default {
       };
       if (this.isAbsolute) {
         Object.assign(css, {
+          position: "absolute",
           top: `${this.top}px`,
           left: `${this.left}px`
         });

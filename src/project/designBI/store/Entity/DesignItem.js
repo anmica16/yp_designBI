@@ -9,18 +9,26 @@ const BaseCfg = tool.apply({
   // Section 1 基本参数
   //----------------------
   id: {
-    desp: "数据库id"
+    name: "ID",
+    desp: "数据库id",
+    disabled: true
   },
   //【=1=】
-  xtype: { desp: "使用时调用的Vue/Yw识别码 Yw为@，Vue为普通" },
+  xtype: {
+    desp: "使用时调用的Vue/Yw识别码 Yw为@，Vue为普通"
+  },
   //【=2=】
   typeCode: {
     desp: "类型id，唯一码，下拉框区别以及树结构的id，作为关联left join的关键字"
   },
   //【3】name：
-  name: { desp: "中文名" },
+  name: {
+    desp: "中文名"
+  },
   //【4】desp：
-  desp: { desp: "该控件的详细描述" },
+  desp: {
+    desp: "该控件的详细描述"
+  },
   //【5】props：
   props: {
     desp:

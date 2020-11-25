@@ -52,6 +52,7 @@ export default {
             submitForm(recordData, maker) {
               //console.log(["通过？", this, arguments]);
               me.recordData = recordData;
+              this.showMaker = false;
             }
           }
         });
