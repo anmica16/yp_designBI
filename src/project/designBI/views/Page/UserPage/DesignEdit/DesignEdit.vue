@@ -12,12 +12,11 @@
         </template>
         <template #w>
           <div class="leftBar">
-            <el-button>
-              
-            </el-button>
+            <el-button> </el-button>
           </div>
         </template>
         <template #c>
+          <!-- <Bubble></Bubble> -->
           <!-- <el-tabs ref="tabpanel" type="card" v-model="activeName">
           <el-tab-pane
             v-for="item in drawingBoards"
@@ -43,14 +42,16 @@
 
 <script>
 import theHeader from "./header";
+import DesignItem from "@designBI/store/Entity/DesignItem.js";
+import DesignItemInstance from "@designBI/store/Entity/DesignItemInstance";
 export default {
   name: "DesignEdit",
   components: {
-    theHeader,
+    theHeader
   },
   data() {
     return {
-      queryFlag: "DesignEdit",
+      queryFlag: "DesignEdit"
       //activeName: "",
       //drawingBoards: [],
       //在router进行切换的时候 切换
@@ -76,14 +77,20 @@ export default {
         templateCode = me.nowTemplateCode,
         items = me.$store.getters.getInstances(templateCode);
       //# 1 第一次就新增一个
-
+      if (items && !items.length) {
+        let rootIns = new DesignItemInstance({
+          ...me.nowBoard.rootInstance.$context,
+          xtype: "Simple"
+        });
+        items.push(rootIns);
+      }
 
       return items;
-    },
+    }
   },
   mounted() {
     let me = this;
     console.log(["$route.params", me.$route.params]);
-  },
+  }
 };
 </script>

@@ -115,12 +115,18 @@ const BaseCfg = tool.apply(
     //【11-1】【JSON】style：
     style: {
       desp: "样式对象，可保持相互更新",
-      $json: Object
+      $json: Object,
+      default() {
+        return {};
+      }
     },
     //【11-2】【JSON】class：样式名，可保持相互更新
     class: {
       desp: "样式名，可保持相互更新",
-      $json: Object
+      $json: Object,
+      default() {
+        return {};
+      }
     },
     //【12】【JSON】【将弃用】config_yw：
     config_yw: {

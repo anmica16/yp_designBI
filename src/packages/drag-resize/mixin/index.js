@@ -1,4 +1,5 @@
 import $ from "jquery";
+import tool from "@/plugins/js/tool";
 import {
   matchesSelectorToParentElements,
   getComputedSize,
@@ -92,6 +93,10 @@ export default {
       default: true
     },
     resizable: {
+      type: Boolean,
+      default: true
+    },
+    dropable: {
       type: Boolean,
       default: true
     },
@@ -1053,7 +1058,24 @@ export default {
           }
         }
       } //[if] resizeable
-    } //mousemove Fn
+    }, //mousemove Fn
+    dragResizeMouseMoveNotHover() {
+      let me = this,
+        el = me.$el;
+      //console.log(["看卡咋不触发over？"]);
+      el.style.cursor = "default";
+    },
+    decodeStyle(styleObj) {
+      let me = this;
+      if (!styleObj) {
+        return;
+      }
+      //初版，绝对值模式
+      tool.isNumber(styleObj.width) && (me.width = styleObj.width);
+      tool.isNumber(styleObj.height) && (me.hegiht = styleObj.height);
+      tool.isNumber(styleObj.left) && (me.left = styleObj.left);
+      tool.isNumber(styleObj.top) && (me.top = styleObj.top);
+    }
   },
   computed: {
     style() {

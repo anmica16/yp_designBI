@@ -11,9 +11,10 @@
       },
       className
     ]"
-    @mousedown.stop.prevent="dragResizeMouseDown"
-    @mousemove="dragResizeMouseMove"
-    @touchstart.stop.prevent="dragResizeTouchDown"
+    @mousedown.prevent="dragResizeMouseDown"
+    @mousemove.self="dragResizeMouseMove"
+    @mouseout="dragResizeMouseMoveNotHover"
+    @touchstart.prevent="dragResizeTouchDown"
   >
     <slot></slot>
   </div>

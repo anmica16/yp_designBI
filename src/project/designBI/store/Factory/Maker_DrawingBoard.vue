@@ -33,15 +33,15 @@ export default {
     record: Object,
     isAdd: {
       type: Boolean,
-      default: true,
-    },
+      default: true
+    }
   },
   data() {
     return {
       board: null,
       formItems: [],
       form: {},
-      rules: {},
+      rules: {}
     };
   },
   computed: {},
@@ -55,6 +55,9 @@ export default {
       let recordData = me.board.recordData,
         baseCfg = me.board.baseCfg;
       tool.each(baseCfg, (key, val) => {
+        if (val.hidden) {
+          return;
+        }
         //#3 自身tag配置
         items.push(tool.apply({ $key: key }, val));
         //#1 form值
@@ -70,18 +73,18 @@ export default {
     },
     submitForm() {
       let me = this;
-      me.$refs.theForm.validate(function (valid) {
+      me.$refs.theForm.validate(function(valid) {
         //console.log(["创建是否同通过？", arguments]);
         if (valid) {
           me.board.setData(me.form);
           me.setForm(me.board.recordData);
           me.board
             .save()
-            .then(function () {
+            .then(function() {
               console.log(["成功 board.save()", arguments]);
               me.$emit("submitForm", me.board.recordData, me);
             })
-            .catch((result) => {
+            .catch(result => {
               console.log(["失败 board.save()", arguments]);
             });
         } else {
@@ -92,7 +95,7 @@ export default {
     },
     setForm(vals) {
       let me = this;
-      tool.each(me.form, (key) => {
+      tool.each(me.form, key => {
         if (vals[key]) {
           me.form[key] = vals[key];
         }
@@ -100,7 +103,7 @@ export default {
     },
     resetForm() {
       this.$refs.theForm.resetFields();
-    },
+    }
   },
   mounted() {
     let me = this;
@@ -109,6 +112,6 @@ export default {
     me.board = new DrawingBoard(me.record);
     //~ 2 子项按配置加入
     me.initFormItems();
-  },
+  }
 };
 </script>

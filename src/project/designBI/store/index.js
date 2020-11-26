@@ -13,7 +13,7 @@ let theStore = new Vuex.Store({
     //Board_records: [],
     //Instance_records: [],
     //【3】点开一个绘板之后，获取到的数据就在这里面，key - 数组的形式保存
-    templateMap: {},
+    templateMap: {}
   },
   getters: {
     getBoard: state => templateCode => {
@@ -33,7 +33,7 @@ let theStore = new Vuex.Store({
       if (!state.templateMap[templateCode].items) {
         Vue.set(state.templateMap[templateCode], "items", []);
       }
-      
+
       return state.templateMap[templateCode].items;
     },
     getInstance: (state, getters) => (insCode, templateCode) => {
@@ -101,8 +101,12 @@ let theStore = new Vuex.Store({
         }).then(result => {
           if (result.data && result.data.length) {
             tool.each(result.data, board => {
-              commit("AddOrUpdRecords", {table: "board", recordData: board, templateCode: board.templateCode });
-            })
+              commit("AddOrUpdRecords", {
+                table: "board",
+                recordData: board,
+                templateCode: board.templateCode
+              });
+            });
           }
           res();
         });

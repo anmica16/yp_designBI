@@ -11,24 +11,17 @@ const BaseCfg = tool.apply(
     id: {
       name: "ID",
       desp: "数据库id",
-      disabled: true
+      disabled: true,
+      hidden: true
     },
     templateCode: {
       name: "绘板CODE",
       desp: "绘板识别码ID",
-      placeholder: "请输入绘板识别码",
-      rules: [
-        {
-          required: true,
-          message: "请输入绘板识别码",
-          trigger: "blur"
-        },
-        {
-          min: 4,
-          message: "绘板识别码至少4位",
-          trigger: "blur"
-        }
-      ]
+      //hidden: true,
+      disabled: true,
+      default() {
+        return "board_" + tool.uniqueStr();
+      }
     },
 
     //Code类型会 以context的obj会转化为 实体类型
@@ -38,6 +31,7 @@ const BaseCfg = tool.apply(
       $jsonFields: {
         $context: "item"
       },
+      hidden: true,
       disabled: true
       // default(rec) {
 
@@ -45,7 +39,20 @@ const BaseCfg = tool.apply(
     },
     name: {
       name: "绘板名称",
-      desp: "自定义名称"
+      desp: "自定义名称",
+      placeholder: "请输入绘板名称",
+      rules: [
+        {
+          required: true,
+          message: "请输入绘板名称",
+          trigger: "blur"
+        }
+        // {
+        //   min: 4,
+        //   message: "绘板识别码至少4位",
+        //   trigger: "blur"
+        // }
+      ]
     },
     desp: {
       name: "备注",
@@ -79,7 +86,7 @@ export default class DrawingBoard extends DrawEntityBase {
           $context: {
             type: "item",
             instanceCode: "root_" + tool.uniqueStr(),
-            templateCode: me.templateCode
+            templateCode: me.record.templateCode
           }
         }
       });

@@ -7,27 +7,35 @@ import Vue from "vue";
 export default class RecordParser {
   //@ 1 基本配置
   baseCfg = null;
+  _record = {};
+  _recordData = {};
   //@ 2 new 出来以及后续改动的 record
   get record() {
     return this._record;
   }
-  set record(rec) {
-    this._record = rec;
-    this._recordData = this.getRecordSaveData(rec);
-  }
+  // set record(rec) {
+  //   this._record = rec;
+  //   this._recordData = this.getRecordSaveData(rec);
+  // }
   //@ 3 获取时得到的 data形式的 record
   get recordData() {
     return this._recordData;
+  }
+  //@ 3-2 部分影响到record 上，record上还有其他属性
+  set recordData(recData) {
+    this._recordData = recData;
+    tool.merge(this._record, this.loadRecordData(this._recordData));
   }
 
   //----------
   // 二、方法
   //----------
 
-  //# 1 对record的设置
+  //# 1 对record的设置，不影响到recData上
   set(val) {
     let me = this;
-    me.record = tool.apply(me.record, val);
+    tool.merge(me._record, val);
+    //me.record = tool.apply(me.record, val);
   }
   get(key) {
     return this.record[key];
@@ -35,9 +43,15 @@ export default class RecordParser {
 
   //# 2 对 data形式的 record的设置
   setData(data) {
-    let me = this,
-      addRec = me.loadRecordData(data);
-    me.set(addRec);
+    let me = this;
+    //addRec = me.loadRecordData(data, true);
+    console.log(["setData的问题"]);
+    //me.set(addRec);
+    me.recordData = tool.merge(me._recordData, data);
+  }
+
+  getData(key) {
+    return this._recordData[key];
   }
 
   constructor(baseCfg, data) {
@@ -57,49 +71,74 @@ export default class RecordParser {
     });
     //【+2】初始
     me.baseCfg = baseCfg;
-    let initRec = me.newRecord();
-    if (data) {
-      let dataRec = me.loadRecordData(data);
-      tool.apply(initRec, dataRec);
+    let initRec = me.newRecordData();
+    if (data && tool.isObject(data)) {
+      tool.merge(initRec, data);
+
+      //let dataRec = me.loadRecordData(data);
+      //tool.apply(initRec, dataRec);
     }
-    me.record = initRec;
+    me.recordData = initRec;
+
+    //me.record = initRec;
     //【+3】如果有
   }
 
   //【1】根据baseCfg初始化一个record，default有用，初始化不用迭代
-  newRecord(jsonFields) {
+  newRecordData(jsonFields) {
     let me = this,
-      hasProp = false,
+      //hasProp = false,
       rec = {};
+    console.log(["newRecordData 的问题"]);
     tool.each(jsonFields ? jsonFields : me.baseCfg, function(key, val) {
       //不对$属性采取措施
       if (key && key[0] === "$") {
         return;
       }
-      hasProp = true;
+      //hasProp = true;
       let initVal = null;
+      //#1 只有拥有default函数的，才有初始值，其他均为 null
       if (tool.isFunction(val.default)) {
         initVal = val.default(rec, me.baseCfg);
       }
 
       //~ 2 jsonFileds处理
       if (val) {
+        //#2 数组形式的，暂不添加
         if (val.$json === Array) {
           initVal = [];
+          // if (val.$jsonFields) {
+          //   //@@ 2 保存到record上 作为添加时的准则属性 不用
+          //   rec["$jsonFields_" + key] = val.$jsonFields;
+          // }
+        } else if (val.$json === Object) {
+          //#3 对象形式的，可按设置来一波默认值
           if (val.$jsonFields) {
-            //@@ 2 保存到record上 作为添加时的准则属性
-            rec["$jsonFields_" + key] = val.$jsonFields;
+            initVal = me.newRecordData(val.$jsonFields);
+          } else {
+            initVal = {};
           }
-        } else if (val.$jsonFields) {
-          initVal = me.newRecord(val.$jsonFields);
         }
       }
 
       rec[key] = initVal;
     });
-    return hasProp ? rec : null;
+    return rec; //hasProp ? rec : null;
   }
 
+  loadContextByProp(sourceObj, propArray) {
+    if (!propArray || !propArray.length) {
+      return null;
+    }
+    let me = this,
+      deepObj = sourceObj[propArray[0]];
+    propArray.splice(0, 1);
+    if (propArray.length > 0) {
+      return me.loadContextByProp(deepObj, propArray);
+    } else {
+      return deepObj;
+    }
+  }
   //【2-1】根据对象化的 data进行赋值
   loadRecordData(data, inLoop) {
     let me = this,
@@ -120,7 +159,15 @@ export default class RecordParser {
         //# 1 带有上下文的对象，要从itemMap里面找，必有propName
         if (readVal.$context) {
           let theObj = theStore.getters.getInstance(readVal.$context);
-          resultVal = readVal.propName ? theObj[readVal.propName] : theObj;
+          //# 1.3 如果存在深入选择 那么进行深入
+          if (readVal.$propNames && readVal.$propNames.length) {
+            resultVal = me.loadContextByProp(
+              theObj,
+              tool.clone(readVal.$propNames)
+            );
+          } else {
+            resultVal = theObj;
+          }
           //# 1.2 采用如此的形式保留OBJ的参数
           rec["$cfg_" + key] = readVal;
         }
@@ -176,7 +223,9 @@ export default class RecordParser {
           }
         }
 
-        let initVal = record[key],
+        //~ 3 对，这个值应该是 data的值，只是放在了 $cfg上
+        //如果有cfg的 key配置，那么是一个context的对象 再转化为对应key上
+        let initVal = record["$cfg_" + key] || record[key],
           resultVal = null;
 
         //~ 2 按Array、function、context、普通对象进行JSON化
@@ -191,13 +240,8 @@ export default class RecordParser {
         else if (tool.isFunction(initVal)) {
           resultVal = initVal.toString();
         } else if (tool.isObject(initVal)) {
-          //# 3 如果有cfg的 key配置，那么是一个context的对象
-          if (initVal["$cfg_" + key]) {
-            resultVal = initVal["$cfg_" + key];
-          } else {
-            //# 4 对象类型深入
-            resultVal = me.getRecordSaveData(initVal, true);
-          }
+          //# 4 对象类型深入
+          resultVal = me.getRecordSaveData(initVal, true);
         } else {
           //# 5 值类型
           resultVal = initVal;

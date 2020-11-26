@@ -6,3 +6,9 @@ Vue.component("d-one-cell", oneCell);
 //【=1.2=】格子表格
 import cellsMap from "./layout/cells-map/cells-map.vue";
 Vue.component("d-cells-map", cellsMap);
+
+//---------
+// 组件
+//---------
+import Simple from "./base/simple.vue";
+Vue.component("Simple", Simple);

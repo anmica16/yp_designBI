@@ -351,7 +351,11 @@ let tool = {
       Date.now() +
       "_" +
       Math.random()
-        .toFixed(5)
+        .toFixed(8)
+        .substr(2) +
+      "_" +
+      Math.random()
+        .toFixed(8)
         .substr(2)
     );
   }
