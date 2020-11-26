@@ -29,7 +29,17 @@ const BaseCfg = tool.apply(
       name: "根实例CODE",
       desp: "根实例对应code",
       $jsonFields: {
-        $context: "item"
+        $context: {
+          $jsonFields: {
+            type: {
+              default() {
+                return "item";
+              }
+            },
+            templateCode: "",
+            instanceCode: "",
+          }
+        }
       },
       hidden: true,
       disabled: true
@@ -68,7 +78,7 @@ const BaseCfg = tool.apply(
 
 export default class DrawingBoard extends DrawEntityBase {
   //# 1 实例树结构，仅是record的树，不过record一旦进行实体化了就会有对应的 $el引用
-  instanceRoot = null;
+  //instanceRoot = null;
   constructor(record) {
     super(BaseCfg, record);
     let me = this,
@@ -92,8 +102,8 @@ export default class DrawingBoard extends DrawEntityBase {
       });
     }
     //~ 3 实例树的root
-    ins = me.get(insKey);
-    me.instanceRoot = ins;
+    // ins = me.get(insKey);
+    // me.instanceRoot = ins;
   }
 
   save(options) {

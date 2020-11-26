@@ -1,9 +1,11 @@
 <template>
   <DragResizeMouse
     ref="dragDom"
-    :draggable="recordData.drag_resize_cfg.can_drag"
+    :dragFlag="recordData.drag_resize_cfg.can_drag"
+    :draggable="recordData.drag_resize_cfg.can_drag != ''"
+    :dropFlag="recordData.drag_resize_cfg.can_drop"
+    :dropable="recordData.drag_resize_cfg.can_drop != ''"
     :resizable="recordData.drag_resize_cfg.can_resize"
-    :dropable="recordData.drag_resize_cfg.can_drop"
     class="BubbleDragResize"
     :class="recordData.class"
   >
@@ -32,8 +34,8 @@ import tool from "@/plugins/js/tool";
 export default {
   name: "Bubble",
   props: {
-    //#1 必须传递，且实例依照该rec进行展现，改变的地方也在外面，由外至内部改变
-    recordData: {
+    //#1 必须传递该实例，且实例依照该rec进行展现，改变的地方也在外面，由外至内部改变
+    Entity: {
       type: Object,
       required: true
     }
@@ -45,6 +47,10 @@ export default {
     };
   },
   computed: {
+    //#2 实例的 recordData
+    recordData() {
+      return this.Entity.recordData;
+    },
     instanceCode() {
       return this.recordData.instanceCode;
     },
@@ -57,7 +63,9 @@ export default {
         //~1 直接放入prop
         ...me.recordData.propsData,
         //~2 剩余备用 传入
-        recordData: me.recordData
+        Entity: me.Entity,
+        //~3 source数据
+        source: me.recordData.source
       };
     }
   },

@@ -16,11 +16,14 @@ export default class DrawEntityBase {
   get record() {
     return this.parser.record;
   }
-  set record(val) {
-    this.parser.record = val;
-  }
+  // set record(val) {
+  //   this.parser.record = val;
+  // }
   get recordData() {
     return this.parser.recordData;
+  }
+  set recordData(val) {
+    this.parser.recordData = val;
   }
   get $isNew() {
     return this.record.id + "" === "";
@@ -37,6 +40,9 @@ export default class DrawEntityBase {
   }
   setData(data) {
     this.parser.setData(data);
+  }
+  getData(key) {
+    return this.parser.getData(key);
   }
   save(options) {
     return this.parser.save(options);

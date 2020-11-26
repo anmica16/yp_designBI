@@ -1,27 +1,33 @@
 import tool from "@/plugins/js/tool";
 //管理拽入的控件
 let itemManager = {
-  records: [],
+  items: [],
 
-  add(el) {
-    this.records.push(el);
+  add(newItem) {
+    if (!newItem.recordData.xtype) {
+      throw `未设定xtype，请检查！`;
+    }
+    let me = this,
+      find = me.items.find(item => item.recordData.xtype === newItem.recordData.xtype);
+    if (!find) {
+      this.items.push(newItem);
+    } else {
+      throw `重复的xtype：${newItem.xtype}，请重新命名后再生成！`;
+    }
   },
 
-  remove(el) {
-    if (tool.isNumber(el)) {
-      if (el < this.records.length) {
-        this.records.splice(el, 1);
+  remove(item) {
+    if (tool.isNumber(item)) {
+      if (item < this.items.length) {
+        this.items.splice(item, 1);
       }
     } else {
-      let at = this.records.indexOf(el);
+      let at = this.items.indexOf(item);
       if (at > -1) {
-        this.records.splice(at, 1);
+        this.items.splice(at, 1);
       }
     }
   }
 };
-
-window.D = window.D || {};
-window.D.itemManager = itemManager;
 
 export default itemManager;

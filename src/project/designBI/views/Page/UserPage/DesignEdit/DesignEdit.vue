@@ -16,6 +16,11 @@
           </div>
         </template>
         <template #c>
+          <Bubble
+            v-for="item in nowInstances"
+            :key="item.instanceCode"
+            :Entity="item"
+          ></Bubble>
           <!-- <Bubble></Bubble> -->
           <!-- <el-tabs ref="tabpanel" type="card" v-model="activeName">
           <el-tab-pane
@@ -47,11 +52,11 @@ import DesignItemInstance from "@designBI/store/Entity/DesignItemInstance";
 export default {
   name: "DesignEdit",
   components: {
-    theHeader
+    theHeader,
   },
   data() {
     return {
-      queryFlag: "DesignEdit"
+      queryFlag: "DesignEdit",
       //activeName: "",
       //drawingBoards: [],
       //在router进行切换的时候 切换
@@ -80,17 +85,24 @@ export default {
       if (items && !items.length) {
         let rootIns = new DesignItemInstance({
           ...me.nowBoard.rootInstance.$context,
-          xtype: "Simple"
+          xtype: "Simple",
+          propsData: {
+            pro1: "custom pro1"
+          },
+          source: {
+            slot1: "测试值1"
+          }
         });
+        console.log(["尝试改变值", rootIns]);
         items.push(rootIns);
       }
 
       return items;
-    }
+    },
   },
   mounted() {
     let me = this;
     console.log(["$route.params", me.$route.params]);
-  }
+  },
 };
 </script>

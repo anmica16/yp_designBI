@@ -100,6 +100,14 @@ export default {
       type: Boolean,
       default: true
     },
+    dragFlag: {
+      type: String,
+      default: "defaultFlag",
+    },
+    dropFlag: {
+      type: String,
+      default: "defaultFlag",
+    },
     lockAspectRatio: {
       type: Boolean,
       default: false

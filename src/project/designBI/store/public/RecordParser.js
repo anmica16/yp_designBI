@@ -89,12 +89,12 @@ export default class RecordParser {
     let me = this,
       //hasProp = false,
       rec = {};
-    console.log(["newRecordData 的问题"]);
+    //console.log(["newRecordData 的问题"]);
     tool.each(jsonFields ? jsonFields : me.baseCfg, function(key, val) {
-      //不对$属性采取措施
-      if (key && key[0] === "$") {
-        return;
-      }
+      //不对$属性采取措施 --- 因recData 取消该限制
+      // if (key && key[0] === "$") {
+      //   return;
+      // }
       //hasProp = true;
       let initVal = null;
       //#1 只有拥有default函数的，才有初始值，其他均为 null
@@ -111,7 +111,7 @@ export default class RecordParser {
           //   //@@ 2 保存到record上 作为添加时的准则属性 不用
           //   rec["$jsonFields_" + key] = val.$jsonFields;
           // }
-        } else if (val.$json === Object) {
+        } else if (val.$json === Object || val.$jsonFields) {
           //#3 对象形式的，可按设置来一波默认值
           if (val.$jsonFields) {
             initVal = me.newRecordData(val.$jsonFields);

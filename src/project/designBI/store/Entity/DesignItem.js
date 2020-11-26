@@ -33,7 +33,7 @@ const BaseCfg = tool.apply({
   props: {
     desp:
       "可传参数列表，形如Vue，作为提醒的重要一环; 一般Yw的变量不需要特别验证，传给vue的才需要如下设定",
-    $json: Object,
+    $json: Map,
     $jsonFields: {
       type: {
         desp: "类型",
@@ -63,7 +63,7 @@ const BaseCfg = tool.apply({
   source_influence: {
     desp:
       "数据源所产生的影响，主要是产生的子控件、零件的描述; 数组，所包含的为对象；无则表示数据源不产生任何结果；",
-    $json: Object,
+    $json: Array,
     $jsonFields: {
       slot: {
         desp:
