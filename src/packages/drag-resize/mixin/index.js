@@ -102,11 +102,11 @@ export default {
     },
     dragFlag: {
       type: String,
-      default: "defaultFlag",
+      default: "defaultFlag"
     },
     dropFlag: {
       type: String,
-      default: "defaultFlag",
+      default: "defaultFlag"
     },
     lockAspectRatio: {
       type: Boolean,
@@ -120,7 +120,7 @@ export default {
           return val > 0;
         }
 
-        return val === "auto";
+        return val === "auto" || (val.length && val[val.length - 1] === "%");
       }
     },
     h: {
@@ -131,7 +131,7 @@ export default {
           return val > 0;
         }
 
-        return val === "auto";
+        return val === "auto" || (val.length && val[val.length - 1] === "%");
       }
     },
     minWidth: {
@@ -155,12 +155,26 @@ export default {
       validator: val => val >= 0
     },
     x: {
-      type: Number,
-      default: 0
+      type: [Number, String],
+      default: 0,
+      validator: val => {
+        if (typeof val === "number") {
+          return true;
+        }
+
+        return val.length && val[val.length - 1] === "%";
+      }
     },
     y: {
-      type: Number,
-      default: 0
+      type: [Number, String],
+      default: 0,
+      validator: val => {
+        if (typeof val === "number") {
+          return true;
+        }
+
+        return val.length && val[val.length - 1] === "%";
+      }
     },
     z: {
       type: [String, Number],
@@ -249,8 +263,8 @@ export default {
     return {
       left: this.x,
       top: this.y,
-      right: null,
-      bottom: null,
+      //right: null,
+      //bottom: null,
 
       width: null,
       height: null,
@@ -307,11 +321,14 @@ export default {
       (this.w !== "auto" ? this.w : width) /
       (this.h !== "auto" ? this.h : height);
 
-    this.width = this.w !== "auto" ? this.w : width;
-    this.height = this.h !== "auto" ? this.h : height;
+    this.width = this.initWH(true);
+    this.height = this.initWH(false);
 
-    this.right = this.parentWidth - this.width - this.left;
-    this.bottom = this.parentHeight - this.height - this.top;
+    this.left = this.initLT(true);
+    this.top = this.initLT(false);
+
+    // this.right = this.parentWidth - this.width - this.left;
+    // this.bottom = this.parentHeight - this.height - this.top;
 
     addEvent(document.documentElement, "mousedown", this.deselect);
     addEvent(document.documentElement, "touchend touchcancel", this.deselect);
@@ -334,6 +351,48 @@ export default {
   },
 
   methods: {
+    initWH(isWidth = true) {
+      let me = this;
+      if (isWidth) {
+        switch (me.wMode) {
+          case "num":
+            return me.w;
+          case "per":
+            return (me.parentWidth / 100) * parseFloat(me.w);
+          case "auto":
+            return "auto";
+        }
+      } else {
+        switch (me.hMode) {
+          case "num":
+            return me.h;
+          case "per":
+            return (me.parentHeight / 100) * parseFloat(me.h);
+          case "auto":
+            return "auto";
+        }
+      }
+      return 200;
+    },
+    initLT(isLeft = true) {
+      let me = this;
+      if (isLeft) {
+        switch (me.xMode) {
+          case "num":
+            return me.x;
+          case "per":
+            return (me.parentWidth / 100) * parseFloat(me.x);
+        }
+      } else {
+        switch (me.yMode) {
+          case "num":
+            return me.y;
+          case "per":
+            return (me.parentHeight / 100) * parseFloat(me.y);
+        }
+      }
+      return 0;
+    },
     resetBoundsAndMouseState() {
       this.mouseClickPosition = {
         mouseX: 0,
@@ -701,21 +760,21 @@ export default {
         return;
       }
 
-      const right = restrictToBounds(
-        mouseClickPosition.right + deltaX,
-        bounds.minRight,
-        bounds.maxRight
-      );
-      const bottom = restrictToBounds(
-        mouseClickPosition.bottom + deltaY,
-        bounds.minBottom,
-        bounds.maxBottom
-      );
+      // const right = restrictToBounds(
+      //   mouseClickPosition.right + deltaX,
+      //   bounds.minRight,
+      //   bounds.maxRight
+      // );
+      // const bottom = restrictToBounds(
+      //   mouseClickPosition.bottom + deltaY,
+      //   bounds.minBottom,
+      //   bounds.maxBottom
+      // );
 
       this.left = left;
       this.top = top;
-      this.right = right;
-      this.bottom = bottom;
+      //this.right = right;
+      //this.bottom = bottom;
 
       this.$emit("dragging", this.left, this.top);
     },
@@ -729,7 +788,7 @@ export default {
       );
 
       this.left = left;
-      this.right = this.parentWidth - this.width - left;
+      //this.right = this.parentWidth - this.width - left;
     },
     moveVertically(val) {
       const [_, deltaY] = snapToGrid(this.grid, this.left, val, this.scale);
@@ -741,7 +800,7 @@ export default {
       );
 
       this.top = top;
-      this.bottom = this.parentHeight - this.height - top;
+      //this.bottom = this.parentHeight - this.height - top;
     },
     handleResize(e) {
       let left = this.left;
@@ -826,8 +885,8 @@ export default {
 
       this.left = left;
       this.top = top;
-      this.right = right;
-      this.bottom = bottom;
+      //this.right = right;
+      //this.bottom = bottom;
       this.width = width;
       this.height = height;
 
@@ -849,9 +908,9 @@ export default {
 
       const width = computeWidth(this.parentWidth, this.left, right);
       const height = computeHeight(this.parentHeight, this.top, bottom);
-
-      this.right = right;
-      this.bottom = bottom;
+      console.log(["宽度改变", width]);
+      //this.right = right;
+      //this.bottom = bottom;
       this.width = width;
       this.height = height;
     },
@@ -871,9 +930,10 @@ export default {
 
       const width = computeWidth(this.parentWidth, this.left, right);
       const height = computeHeight(this.parentHeight, this.top, bottom);
+      console.log(["高度改变", height]);
 
-      this.right = right;
-      this.bottom = bottom;
+      //this.right = right;
+      //this.bottom = bottom;
       this.width = width;
       this.height = height;
     },
@@ -1086,6 +1146,52 @@ export default {
     }
   },
   computed: {
+    right() {
+      return this.parentWidth - this.width - this.left;
+    },
+    bottom() {
+      return this.parentHeight - this.height - this.top;
+    },
+    wMode() {
+      let me = this;
+      if (tool.isNumber(me.w)) {
+        return "num";
+      } else if (tool.isString(me.w)) {
+        if (me.w === "auto" || !me.parent) {
+          return "auto";
+        } else {
+          return "per";
+        }
+      }
+    },
+    hMode() {
+      let me = this;
+      if (tool.isNumber(me.h)) {
+        return "num";
+      } else if (tool.isString(me.h)) {
+        if (me.h === "auto" || !me.parent) {
+          return "auto";
+        } else {
+          return "per";
+        }
+      }
+    },
+    xMode() {
+      let me = this;
+      if (tool.isNumber(me.x)) {
+        return "num";
+      } else if (tool.isString(me.x)) {
+        return "per";
+      }
+    },
+    yMode() {
+      let me = this;
+      if (tool.isNumber(me.y)) {
+        return "num";
+      } else if (tool.isString(me.y)) {
+        return "per";
+      }
+    },
     style() {
       let css = {
         width: this.computedWidth,
@@ -1098,12 +1204,12 @@ export default {
       if (this.isAbsolute) {
         Object.assign(css, {
           position: "absolute",
-          top: `${this.top}px`,
-          left: `${this.left}px`
+          top: this.computedTop,
+          left: this.computedLeft
         });
       } else {
         Object.assign(css, {
-          transform: `translate(${this.left}px, ${this.top}px)`
+          transform: `translate(${this.computedLeft}, ${this.computedTop})`
         });
       }
       return css;
@@ -1114,22 +1220,71 @@ export default {
       return this.handles;
     },
     computedWidth() {
-      if (this.w === "auto") {
-        if (!this.widthTouched) {
-          return "auto";
-        }
+      let me = this;
+      switch (me.wMode) {
+        case "num":
+          return me.width + "px";
+        case "per":
+          return ((me.width / me.parentWidth) * 100).toFixed(2) + "%";
+        case "auto":
+          if (!me.widthTouched) {
+            return "auto";
+          }
+          break;
       }
+      return me.width + "px";
 
-      return this.width + "px";
+      // if (this.wMode === "auto") {
+      //   if (!this.widthTouched) {
+      //     return "auto";
+      //   }
+      // } else if (this.wMode === "per") {
+      //   return this.width;
+      // }
+
+      // return this.width + "px";
     },
     computedHeight() {
-      if (this.h === "auto") {
-        if (!this.heightTouched) {
-          return "auto";
-        }
+      let me = this;
+      switch (me.hMode) {
+        case "num":
+          return me.height + "px";
+        case "per":
+          return ((me.height / me.parentHeight) * 100).toFixed(2) + "%";
+        case "auto":
+          if (!me.heightTouched) {
+            return "auto";
+          }
+          break;
       }
+      return me.height + "px";
+      // if (this.h === "auto") {
+      //   if (!this.heightTouched) {
+      //     return "auto";
+      //   }
+      // }
 
-      return this.height + "px";
+      // return this.height + "px";
+    },
+    computedLeft() {
+      let me = this;
+      switch (me.xMode) {
+        case "num":
+        default:
+          return me.left + "px";
+        case "per":
+          return ((me.left / me.parentWidth) * 100).toFixed(2) + "%";
+      }
+    },
+    computedTop() {
+      let me = this;
+      switch (me.yMode) {
+        case "num":
+        default:
+          return me.top + "px";
+        case "per":
+          return ((me.top / me.parentHeight) * 100).toFixed(2) + "%";
+      }
     },
     resizingOnX() {
       return (

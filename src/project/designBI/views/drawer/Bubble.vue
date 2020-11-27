@@ -1,10 +1,15 @@
 <template>
   <DragResizeMouse
     ref="dragDom"
+    :parent="true"
+    :w="recordData.style.width"
+    :h="recordData.style.height"
+    :x="recordData.style.left"
+    :y="recordData.style.top"
     :dragFlag="recordData.drag_resize_cfg.can_drag"
     :draggable="recordData.drag_resize_cfg.can_drag != ''"
     :dropFlag="recordData.drag_resize_cfg.can_drop"
-    :dropable="recordData.drag_resize_cfg.can_drop != ''"
+    :dropable="canDrop"
     :resizable="recordData.drag_resize_cfg.can_resize"
     class="BubbleDragResize"
     :class="recordData.class"
@@ -17,7 +22,8 @@
     >
       测试区域
     </div> -->
-    <div ref="slot"></div>
+    <!-- <div ref="slot"></div> -->
+    <div :is="xtype" v-bind="propsData"></div>
     <div class="attachTool" @mousedown.stop @touchstart.stop>
       <el-button>提示</el-button>
       <el-button>实例信息</el-button>
@@ -28,18 +34,13 @@
 <script>
 import Vue from "vue";
 import tool from "@/plugins/js/tool";
+import Entity from "@designBI/views/mixins/Entity.js";
 // import DesignItem from "@designBI/store/Entity/DesignItem.js";
 // import DesignItemInstance from "@designBI/store/Entity/DesignItemInstance";
 //像一个泡泡一样，可以到处移动，也可以拖拽等
 export default {
   name: "Bubble",
-  props: {
-    //#1 必须传递该实例，且实例依照该rec进行展现，改变的地方也在外面，由外至内部改变
-    Entity: {
-      type: Object,
-      required: true
-    }
-  },
+  mixins: [Entity],
   data() {
     return {
       //slotStr: tool.uniqueStr()
@@ -47,15 +48,8 @@ export default {
     };
   },
   computed: {
-    //#2 实例的 recordData
-    recordData() {
-      return this.Entity.recordData;
-    },
-    instanceCode() {
-      return this.recordData.instanceCode;
-    },
-    xtype() {
-      return this.recordData.xtype;
+    canDrop() {
+      return this.recordData.drag_resize_cfg.can_drop != "" && !this.host;
     },
     propsData() {
       let me = this;
@@ -77,15 +71,15 @@ export default {
   mounted() {
     let me = this;
     //#1 部分属性要放置进去
-    me.$refs.dragDom.decodeStyle(me.recordData.style);
+    //me.$refs.dragDom.decodeStyle(me.recordData.style);
     //#2 加入到自身
-    let xtypeCrt = Vue.options.components[me.xtype];
-    if (xtypeCrt) {
-      me.host = new xtypeCrt({
-        propsData: me.propsData,
-        el: me.$refs.slot
-      });
-    }
+    // let xtypeCrt = Vue.options.components[me.xtype];
+    // if (xtypeCrt) {
+    //   me.host = new xtypeCrt({
+    //     propsData: me.propsData,
+    //     el: me.$refs.slot,
+    //   });
+    // }
     //#3 事件
     me.$emit("mounted", me, me.host);
   }
@@ -94,6 +88,7 @@ export default {
 
 <style lang="scss">
 .BubbleDragResize {
+  border: 1px dashed rgb(161, 193, 226);
   > .attachTool {
     position: absolute;
     left: 100%;

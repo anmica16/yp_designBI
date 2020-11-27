@@ -29,7 +29,7 @@ Vue.component("RectLayoutV2", RectLayoutV2);
 //=========--------
 // Section 3 BI构成
 //=========--------
-import itemManager from './views/drawer/itemManager';
+import itemManager from "./views/drawer/itemManager";
 Vue.$itemManager = itemManager;
 //【1】BI基础元素
 import "./views/drawer";

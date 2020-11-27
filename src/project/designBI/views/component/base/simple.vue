@@ -13,9 +13,9 @@ export default {
   name: "Simple",
   props: {
     source: {
-      type: Object,
+      type: Object
     },
-    pro1: String,
+    pro1: String
   },
   computed: {
     slot1() {
@@ -26,8 +26,8 @@ export default {
     },
     slot3() {
       return this.source && this.source.slot3;
-    },
-  },
+    }
+  }
 };
 </script>
 

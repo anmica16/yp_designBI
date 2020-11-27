@@ -18,7 +18,7 @@
         <template #c>
           <Bubble
             v-for="item in nowInstances"
-            :key="item.instanceCode"
+            :key="item.getData('instanceCode')"
             :Entity="item"
           ></Bubble>
           <!-- <Bubble></Bubble> -->
@@ -47,16 +47,15 @@
 
 <script>
 import theHeader from "./header";
-import DesignItem from "@designBI/store/Entity/DesignItem.js";
 import DesignItemInstance from "@designBI/store/Entity/DesignItemInstance";
 export default {
   name: "DesignEdit",
   components: {
-    theHeader,
+    theHeader
   },
   data() {
     return {
-      queryFlag: "DesignEdit",
+      queryFlag: "DesignEdit"
       //activeName: "",
       //drawingBoards: [],
       //在router进行切换的时候 切换
@@ -84,25 +83,29 @@ export default {
       //# 1 第一次就新增一个
       if (items && !items.length) {
         let rootIns = new DesignItemInstance({
-          ...me.nowBoard.rootInstance.$context,
-          xtype: "Simple",
-          propsData: {
-            pro1: "custom pro1"
-          },
-          source: {
-            slot1: "测试值1"
-          }
+          ...me.nowBoard.getData("rootInstance").$context,
+          xtype: "BaseBubble"
+          // propsData: {
+          //   pro1: "custom pro1"
+          // },
+          // source: {
+          //   slot1: "测试值1"
+          // }
         });
+        //# 2 保存和添加到map，然后重新获取
+        rootIns.save();
+        //#3 加入后刷新一下root引用
+        me.nowBoard.refreshRecord();
         console.log(["尝试改变值", rootIns]);
-        items.push(rootIns);
+        //items.push(rootIns);
       }
 
       return items;
-    },
+    }
   },
   mounted() {
     let me = this;
     console.log(["$route.params", me.$route.params]);
-  },
+  }
 };
 </script>

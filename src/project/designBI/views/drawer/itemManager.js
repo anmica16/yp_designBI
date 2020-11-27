@@ -8,12 +8,20 @@ let itemManager = {
       throw `未设定xtype，请检查！`;
     }
     let me = this,
-      find = me.items.find(item => item.recordData.xtype === newItem.recordData.xtype);
+      find = me.items.find(
+        item => item.recordData.xtype === newItem.recordData.xtype
+      );
     if (!find) {
       this.items.push(newItem);
     } else {
       throw `重复的xtype：${newItem.xtype}，请重新命名后再生成！`;
     }
+  },
+
+  get(xtype) {
+    let me = this,
+      find = me.items.find(item => item.recordData.xtype === xtype);
+    return find;
   },
 
   remove(item) {

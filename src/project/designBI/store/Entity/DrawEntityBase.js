@@ -2,6 +2,7 @@
 import tool from "../../../../plugins/js/tool";
 import RecordParser from "../public/RecordParser";
 export default class DrawEntityBase {
+  parser = null;
   constructor(baseCfg, record) {
     let me = this;
     me.parser = new RecordParser(baseCfg, record);
@@ -45,6 +46,11 @@ export default class DrawEntityBase {
     return this.parser.getData(key);
   }
   save(options) {
-    return this.parser.save(options);
+    options = options || {};
+    //options.table = options.table || this.table;
+    return this.parser.save(options, this);
+  }
+  refreshRecord() {
+    this.parser.refreshRecord();
   }
 }

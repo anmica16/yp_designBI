@@ -76,6 +76,13 @@ const BaseCfg = tool.apply({
         desp: "子控件识别码，与【2】关联，可读取到section 1中描述"
       } //③、
     }
+  },
+
+  //----------------------
+  // Section 3 默认值
+  //----------------------
+  defaultValues: {
+    desp: "每个DesignItem实例的默认初始值。"
   }
 });
 

@@ -7,6 +7,9 @@ import $ from "@/plugins/js/loader";
 import Api from "./Api/lserp_v8";
 Vue.Api = Api;
 
+import DesignItemInstance from "./Entity/DesignItemInstance";
+import DrawingBoard from "./Entity/DrawingBoard";
+
 let theStore = new Vuex.Store({
   state: {
     //【1】绘板列表，按登录信息初始化列表
@@ -47,27 +50,29 @@ let theStore = new Vuex.Store({
     }
   },
   mutations: {
-    AddOrUpdRecords(state, { table, recordData }) {
+    //#1 保存到map，都为实体对象
+    AddOrUpdRecords(state, { Entity }) {
       let records;
-      if (!recordData) {
+      if (!Entity) {
         return false;
       }
+      let recordData = Entity.recordData;
       let templateCode = recordData.templateCode;
       if (!state.templateMap[templateCode]) {
         Vue.set(state.templateMap, templateCode + "", {});
       }
-      if (table === "board") {
-        Vue.set(state.templateMap[templateCode], "board", recordData);
-      } else if (table === "item") {
+      if (Entity instanceof DrawingBoard) {
+        Vue.set(state.templateMap[templateCode], "board", Entity);
+      } else if (Entity instanceof DesignItemInstance) {
         if (!state.templateMap[templateCode].items) {
           Vue.set(state.templateMap[templateCode], "items", []);
         }
         records = state.templateMap[templateCode].items;
-        let at = records.indexOf(recordData);
+        let at = records.indexOf(Entity);
         if (at < 0) {
-          records.push(recordData);
+          records.push(Entity);
         } else {
-          records[at] = recordData;
+          records[at] = Entity;
         }
       }
       return true;

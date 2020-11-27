@@ -253,7 +253,12 @@ export default class RecordParser {
     return rec;
   }
 
-  save(options) {
+  refreshRecord() {
+    let me = this;
+    me.setData({});
+  }
+
+  save(options, Entity) {
     let me = this;
     options = options || {};
     return new Promise((res, rej) => {
@@ -262,7 +267,8 @@ export default class RecordParser {
         data: tool.apply(
           {
             method: Vue.Api.designBI.AddOrUpd,
-            records: JSON.stringify([me.recordData])
+            records: JSON.stringify([me.recordData]),
+            table: Entity.table
           },
           options
         )
@@ -270,10 +276,10 @@ export default class RecordParser {
         .then(result => {
           console.log(["测试save", result]);
           theStore.commit("AddOrUpdRecords", {
-            recordData: me.recordData,
-            table: options.table,
-            //item 附加
-            templateCode: options.templateCode
+            Entity: Entity
+            //table: Entity.table,
+            // //item 附加
+            // templateCode: options.templateCode
           });
           res(result);
         })

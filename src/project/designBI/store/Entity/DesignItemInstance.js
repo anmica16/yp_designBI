@@ -1,6 +1,8 @@
 import tool from "@/plugins/js/tool";
+import Vue from "vue";
 import DrawEntityBase from "./DrawEntityBase";
 import { createAndTime } from "../public/fields";
+import DesignItem from "./DesignItem";
 
 const BaseCfg = tool.apply(
   {
@@ -214,12 +216,50 @@ const BaseCfg = tool.apply(
 );
 
 export default class DesignItemInstance extends DrawEntityBase {
-  constructor(record) {
+  designItem = null;
+  table = "item";
+  constructor(xtype, record) {
+    //#1 配置形式
+    if (tool.isObject(xtype)) {
+      record = xtype;
+      xtype = xtype.xtype;
+    } else if (tool.isString(xtype)) {
+      record = record || {};
+      record.xtype = xtype;
+    } else if (xtype instanceof DesignItem) {
+      record = record || {};
+      record.xtype = xtype.getData("xtype");
+    } else {
+      throw `错误的构造参数：${xtype}，${record}`;
+    }
     super(BaseCfg, record);
+
+    let me = this;
+    //~ 1 xtype确定
+    if (xtype instanceof DesignItem) {
+      me.designItem = xtype;
+    } else {
+      let theDI = null;
+      if (tool.isString(xtype)) {
+        theDI = Vue.$itemManager.get(xtype);
+      }
+      if (theDI) {
+        me.designItem = theDI;
+      } else {
+        throw `未找到对应xtype子控件：${xtype}`;
+      }
+    }
+    //~ 2 默认值赋入
+    let dFn = me.designItem.getData("defaultValues"),
+      defaultValues = tool.isFunction(dFn) && dFn();
+    if (defaultValues) {
+      //#2 考虑record以及默认值的优先级 进行合并
+      me.setData(tool.mergeIf(record, defaultValues));
+    }
   }
-  save(options) {
-    options = options || {};
-    options.table = "item";
-    return super.save(options);
-  }
+  // save(options) {
+  //   //options = options || {};
+  //   //options.table = "item";
+  //   return super.save.call(this, options);
+  // }
 }

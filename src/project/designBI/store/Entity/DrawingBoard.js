@@ -37,7 +37,7 @@ const BaseCfg = tool.apply(
               }
             },
             templateCode: "",
-            instanceCode: "",
+            instanceCode: ""
           }
         }
       },
@@ -79,6 +79,7 @@ const BaseCfg = tool.apply(
 export default class DrawingBoard extends DrawEntityBase {
   //# 1 实例树结构，仅是record的树，不过record一旦进行实体化了就会有对应的 $el引用
   //instanceRoot = null;
+  table = "board";
   constructor(record) {
     super(BaseCfg, record);
     let me = this,
@@ -106,9 +107,9 @@ export default class DrawingBoard extends DrawEntityBase {
     // me.instanceRoot = ins;
   }
 
-  save(options) {
-    options = options || {};
-    options.table = "board";
-    return super.save(options);
-  }
+  // save(options) {
+  //   options = options || {};
+  //   //options.table = "board";
+  //   return super.save.call(this, options);
+  // }
 }

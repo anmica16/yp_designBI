@@ -22,7 +22,7 @@
 
 <script>
 import DragResizeBase from "../mixin";
-("vue-draggable-resizable");
+//("vue-draggable-resizable");
 
 export default {
   name: "DragResize",
