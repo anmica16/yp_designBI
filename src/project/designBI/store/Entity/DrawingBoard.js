@@ -36,8 +36,8 @@ const BaseCfg = tool.apply(
                 return "item";
               }
             },
-            templateCode: "",
-            instanceCode: ""
+            templateCode: "所在绘板",
+            instanceCode: "实例ID"
           }
         }
       },

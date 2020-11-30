@@ -28,10 +28,15 @@ export default {
   // },
   data() {
     return {
+      board: null,
       boardMaker: null,
-      showMaker: false,
-      recordData: null
+      showMaker: false
     };
+  },
+  computed: {
+    recordData() {
+      return this.board && this.board.recordData;
+    }
   },
   methods: {
     createBoard() {
@@ -49,9 +54,11 @@ export default {
             };
           },
           methods: {
-            submitForm(recordData, maker) {
+            //【update】成功之后，是否去除掉？似乎不影响
+            submitForm(board, maker) {
               //console.log(["通过？", this, arguments]);
-              me.recordData = recordData;
+              me.board = board;
+              //me.recordData = recordData;
               this.showMaker = false;
             }
           }

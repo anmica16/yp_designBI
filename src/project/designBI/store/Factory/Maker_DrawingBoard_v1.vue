@@ -1,21 +1,25 @@
 <template>
   <div class="Maker_DrawingBoard">
-    <div class="formArea" v-if="board">
-      <CusForm
-        :form="form"
-        :formItems="formItems"
-        :originForm="form"
-        :Entity="board"
-        class="innerForm"
-        ref="theForm"
-      >
+    <div class="formArea">
+      <el-form :model="form" :rules="rules" ref="theForm" label-width="80px">
+        <template v-for="item in formItems">
+          <el-form-item :label="item.name" :key="item.$key" :prop="item.$key">
+            <el-input
+              :is="item.xtype || 'el-input'"
+              :placeholder="item.placeholder"
+              :readOnly="item.readOnly"
+              :disabled="item.disabled"
+              v-model="form[item.$key]"
+            ></el-input>
+          </el-form-item>
+        </template>
         <el-form-item>
           <el-button type="primary" @click="submitForm" class="saveBtn">{{
             isAdd ? "确认创建" : "保存修改"
           }}</el-button>
           <el-button @click="resetForm">恢复默认</el-button>
         </el-form-item>
-      </CusForm>
+      </el-form>
     </div>
   </div>
 </template>
@@ -23,14 +27,9 @@
 <script>
 import tool from "@/plugins/js/tool";
 import DrawingBoard from "../Entity/DrawingBoard";
-//import CusForm from './Maker_tools/CusForm';
 export default {
   name: "Maker_DrawingBoard",
-  // components: {
-  //   CusForm
-  // },
   props: {
-    //可以是 实体 也可以是 rec，也可无
     record: Object,
     isAdd: {
       type: Boolean,
@@ -41,9 +40,8 @@ export default {
     return {
       board: null,
       formItems: [],
-      form: {}
-      //【update】基于此，需新建一个cusForm
-      //rules: {},
+      form: {},
+      rules: {}
     };
   },
   computed: {},
@@ -61,23 +59,21 @@ export default {
           return;
         }
         //#3 自身tag配置
-        //【update】无须$key设定
-        items.push(val);
+        items.push(tool.apply({ $key: key }, val));
         //#1 form值
-        //me.$set(me.form, key, recordData[key]);
+        me.$set(me.form, key, recordData[key]);
         //#2 规则设定
-        // if (val.rules) {
-        //   me.$set(me.rules, key, val.rules);
-        // }
+        if (val.rules) {
+          me.$set(me.rules, key, val.rules);
+        }
       });
       me.formItems = items;
 
       return items;
     },
-    //#core 1 对一个Board实体进行确认，然后放入store，且emit该board
     submitForm() {
       let me = this;
-      me.$refs.theForm.$refs.form.validate(function(valid) {
+      me.$refs.theForm.validate(function(valid) {
         //console.log(["创建是否同通过？", arguments]);
         if (valid) {
           me.board.setData(me.form);
@@ -86,7 +82,7 @@ export default {
             .save()
             .then(function() {
               console.log(["成功 board.save()", arguments]);
-              me.$emit("submitForm", me.board, me);
+              me.$emit("submitForm", me.board.recordData, me);
             })
             .catch(result => {
               console.log(["失败 board.save()", arguments]);
@@ -106,27 +102,14 @@ export default {
       });
     },
     resetForm() {
-      this.$refs.theForm.$refs.form.resetFields();
+      this.$refs.theForm.resetFields();
     }
   },
   mounted() {
     let me = this;
     console.log(["开始探究初始过程", me]);
     //~ 1 board初始
-    if (me.record) {
-      if (me.record instanceof DrawingBoard) {
-        me.board = me.record;
-      } else if (me.record.templateCode) {
-        let theBoard = me.$store.getters.getBoard(me.record.templateCode);
-        if (theBoard) {
-          me.board = theBoard;
-        }
-      }
-    }
-    //~ 1.2 未找到才新建
-    if (!me.board) {
-      me.board = new DrawingBoard(me.record);
-    }
+    me.board = new DrawingBoard(me.record);
     //~ 2 子项按配置加入
     me.initFormItems();
   }

@@ -66,6 +66,11 @@ let tool = {
     );
   },
 
+  //仅针对 null 和 undefined的检查
+  isNull(value) {
+    return value === null || value === undefined;
+  },
+
   isArray:
     "isArray" in Array
       ? Array.isArray
@@ -157,10 +162,11 @@ let tool = {
   },
 
   //不同于 apply，是深入的 apply
-  mergeBase: function(ifClone, ifCheckIf, destination) {
+  mergeBase: function(ifClone, ifCheckIf, setFn, destination) {
     let me = this,
-      i = 3,
+      i = 4,
       ln = arguments.length,
+      hasSetFn = me.isFunction(setFn),
       mergeFn = me.mergeBase.bind(me),
       cloneFn = val => {
         return ifClone ? me.clone(val) : val;
@@ -185,31 +191,53 @@ let tool = {
           if (value && value.constructor === Object) {
             sourceKey = destination[key];
             if (sourceKey && me.isObject(sourceKey)) {
-              mergeFn(ifClone, ifCheckIf, sourceKey, value);
+              mergeFn(ifClone, ifCheckIf, setFn, sourceKey, value);
             } else {
-              destination[key] = ifCheckIf
+              //#2 补充setFn函数模式
+              let result = ifCheckIf
                 ? destination[key] || cloneFn(value)
                 : cloneFn(value);
+              if (hasSetFn) {
+                setFn(destination, key, result);
+              } else {
+                destination[key] = result;
+              }
             }
           } else if (value && value.constructor === Array) {
             //merge array
             sourceKey = destination[key];
-            if (!sourceKey || sourceKey.constructor !== Array)
-              destination[key] = cloneFn(value);
-            else {
+            if (!sourceKey || sourceKey.constructor !== Array) {
+              let result = cloneFn(value);
+              if (hasSetFn) {
+                setFn(destination, key, result);
+              } else {
+                destination[key] = result;
+              }
+            } else {
               me.each(value, function(val, i) {
                 arrayKey = sourceKey[i];
                 if (!arrayKey) {
                   sourceKey[i] = cloneFn(val);
                 } else {
-                  sourceKey[i] = mergeFn(ifClone, ifCheckIf, sourceKey[i], val);
+                  sourceKey[i] = mergeFn(
+                    ifClone,
+                    ifCheckIf,
+                    setFn,
+                    sourceKey[i],
+                    val
+                  );
                 }
               });
             }
           } else {
-            destination[key] = ifCheckIf
+            let result = ifCheckIf
               ? destination[key] || cloneFn(value)
               : cloneFn(value);
+            if (hasSetFn) {
+              setFn(destination, key, result);
+            } else {
+              destination[key] = result;
+            }
           }
         }
       }
@@ -217,9 +245,9 @@ let tool = {
 
     return destination;
   },
-  mergeBaseBefore(ifClone, ifCheckIf, args) {
+  mergeBaseBefore(ifClone, ifCheckIf, setFn = null, args) {
     let me = this,
-      theArgs = [ifClone, ifCheckIf];
+      theArgs = [ifClone, ifCheckIf, setFn];
     for (let i = 0; i < args.length; ++i) {
       let arg = args[i];
       theArgs.push(arg);
@@ -228,19 +256,43 @@ let tool = {
   },
   //【=1=】非复制，全覆盖式 深入 apply
   merge() {
-    return this.mergeBaseBefore.apply(this, [false, false].concat(arguments));
+    return this.mergeBaseBefore.apply(
+      this,
+      [false, false, null].concat(arguments)
+    );
   },
   //【=2=】非复制，if 覆盖式 深入 applyIf
   mergeIf() {
-    return this.mergeBaseBefore.apply(this, [false, true].concat(arguments));
+    return this.mergeBaseBefore.apply(
+      this,
+      [false, true, null].concat(arguments)
+    );
   },
   //【=3=】深度复制，全覆盖式 深入 apply
   mergeClone() {
-    return this.mergeBaseBefore.apply(this, [true, false].concat(arguments));
+    return this.mergeBaseBefore.apply(
+      this,
+      [true, false, null].concat(arguments)
+    );
   },
   //【=4=】深度复制，if 覆盖式 深入 applyIf
   mergeCloneIf() {
-    return this.mergeBaseBefore.apply(this, [true, true].concat(arguments));
+    return this.mergeBaseBefore.apply(
+      this,
+      [true, true, null].concat(arguments)
+    );
+  },
+  //#2 模式二，带有setFn的模式
+  mergeSet(setFn = null) {
+    let args = [];
+    for (let i = 1; i < arguments.length; ++i) {
+      let arg = arguments[i];
+      args.push(arg);
+    }
+    return this.mergeBaseBefore.apply(
+      this,
+      [false, false, setFn].concat([args])
+    );
   },
 
   /** ---------------------------------------------------

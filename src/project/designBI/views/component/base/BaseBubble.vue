@@ -9,11 +9,11 @@
 </template>
 
 <script>
-import Entity from "@designBI/views/mixins/Entity.js";
+import { Instance } from "@designBI/views/mixins/Entity.js";
 
 export default {
   name: "BaseBubble",
-  mixins: [Entity]
+  mixins: [Instance]
 };
 </script>
 

@@ -3,12 +3,14 @@ import Vuex from "vuex";
 
 Vue.use(Vuex);
 
+import tool from "@/plugins/js/tool";
 import $ from "@/plugins/js/loader";
 import Api from "./Api/lserp_v8";
 Vue.Api = Api;
 
 import DesignItemInstance from "./Entity/DesignItemInstance";
 import DrawingBoard from "./Entity/DrawingBoard";
+import DrawEntityBase from "./Entity/DrawEntityBase";
 
 let theStore = new Vuex.Store({
   state: {
@@ -39,14 +41,27 @@ let theStore = new Vuex.Store({
 
       return state.templateMap[templateCode].items;
     },
-    getInstance: (state, getters) => (insCode, templateCode) => {
-      let items = getters.getInstances(templateCode);
-      if (!items) return null;
-      else {
-        return items.find(item => {
-          return item.instanceCode === insCode;
-        });
+    //~ 3 实例 现只有 board和 items两种
+    getInstance: (state, getters) => params => {
+      let type = params.type;
+      //console.log(["检测$context获得 的 getter", type, instanceCode, templateCode]);
+      if (params instanceof DrawEntityBase) {
+        type = params.table;
+        params = params.recordData;
       }
+      if (type === "item") {
+        let { instanceCode, templateCode } = params;
+        let items = getters.getInstances(templateCode);
+        if (!items || !items.length) return null;
+        else {
+          return items.find(item => {
+            return item.getData("instanceCode") === instanceCode;
+          });
+        }
+      } else if (type === "board") {
+        return getters.getBoard(params.templateCode);
+      }
+      return null;
     }
   },
   mutations: {
@@ -137,6 +152,4 @@ let theStore = new Vuex.Store({
 
 export { theStore };
 
-import Maker_DrawingBoard from "./Factory/Maker_DrawingBoard.vue";
-import tool from "../../../plugins/js/tool";
-Vue.component("Maker_DrawingBoard", Maker_DrawingBoard);
+import "./Factory";

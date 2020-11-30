@@ -59,6 +59,8 @@ export default {
     return {
       queryFlag: "DesignEdit",
       loadRoot: false,
+      nowBoard: null,
+      nowBoardRoot: null,
       nowInstances: null
       //activeName: "",
       //drawingBoards: [],
@@ -73,28 +75,17 @@ export default {
       let me = this,
         params = me.$route.params,
         templateCode = params.templateCode;
+      console.log(["这个变化没", me, templateCode]);
       return templateCode;
-    },
-    nowBoard() {
-      let me = this,
-        templateCode = me.nowTemplateCode;
-      return me.$store.getters.getBoard(templateCode);
-    },
-    nowBoardRoot() {
-      let me = this;
-      if (!me.nowBoard) {
-        return null;
-      } else {
-        return me.nowBoard.record.rootInstance;
-      }
     }
   },
   watch: {
-    nowBoard(newBoard) {
+    async nowTemplateCode(newVal) {
       let me = this;
-      if (newBoard) {
-        me.nowInstances = me.getNowInstances();
-      }
+      console.log(["监听成功没", me, newVal]);
+      me.nowBoard = me.getNowBoard(newVal);
+      me.nowInstances = await me.getNowInstances();
+      me.nowBoardRoot = me.getNowBoardRoot();
     }
   },
   // mounted() {
@@ -102,13 +93,28 @@ export default {
   //   console.log(["$route.params", me.$route.params]);
   // },
   methods: {
-    getNowInstances() {
+    getNowBoard(newVal) {
+      let me = this,
+        templateCode = newVal;
+      return me.$store.getters.getBoard(templateCode);
+    },
+    getNowBoardRoot() {
+      let me = this;
+      if (!me.nowBoard) {
+        return null;
+      } else {
+        return me.nowBoard.record.rootInstance;
+      }
+    },
+    async getNowInstances() {
       let me = this,
         templateCode = me.nowTemplateCode,
         //不一定会反应过来
         items = me.$store.getters.getInstances(templateCode);
+      console.log(["这里运行得？之前"]);
       //# 1 第一次就新增一个
       if (items && !items.length) {
+        console.log(["这里运行得？"]);
         let rootIns = new DesignItemInstance({
           ...me.nowBoard.getData("rootInstance").$context,
           xtype: "BaseBubble"
@@ -120,26 +126,25 @@ export default {
           // }
         });
         //# 2 保存和添加到map，然后重新获取
-        me.refreshRoot(rootIns);
-        console.log(["尝试改变值", rootIns]);
+        await me.refreshRoot(rootIns);
+        console.log(["尝试改变值", me.nowBoardRoot, me.nowBoard, rootIns]);
         //items.push(rootIns);
       }
 
       return items;
     },
-    refreshRoot(rootIns) {
+    async refreshRoot(rootIns) {
       let me = this;
       //# 2 保存和添加到map，然后重新获取
-      rootIns.save().then(() => {
-        //#3 加入后刷新一下root引用
-        me.nowBoard.refreshRecord();
-        //me.$forceUpdate();
+      return new Promise((res, rej) => {
+        rootIns.save().then(() => {
+          //#3 加入后刷新一下root引用
+          me.nowBoard.refreshRecord();
+          //me.$forceUpdate();
+          res();
+        });
       });
     }
-  },
-  mounted() {
-    let me = this;
-    me.nowInstances = me.getNowInstances();
   }
 };
 </script>

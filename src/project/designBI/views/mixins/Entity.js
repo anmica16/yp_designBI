@@ -1,8 +1,9 @@
-import DesignItemInstance from "@designBI/store/Entity/DesignItemInstance.js";
-export default {
+import DrawEntityBase from "@designBI/store/Entity/DrawEntityBase.js";
+import tool from "@/plugins/js/tool";
+let Base = {
   props: {
     Entity: {
-      type: Object,
+      type: DrawEntityBase,
       required: true
     }
   },
@@ -18,6 +19,43 @@ export default {
     record() {
       return this.Entity.record;
     },
+    id() {
+      return this.recordData.id;
+    },
+    name() {
+      return this.recordData.name;
+    },
+    desp() {
+      return this.recordData.desp;
+    }
+  },
+  created() {
+    let me = this;
+    //console.log(["这个 instanceof有点问题"]);
+    //# 1 这里表示 临时的未save的 也可以
+    if (me.Entity instanceof DrawEntityBase) {
+      // if (me.Entity.$DNA && me.Entity.$DNA === "DesignItemInstance") {
+      me.Instance = me.Entity;
+    } else {
+      //+ 1 要改成 getter的形式
+      me.Instance = me.$store.getters.getInstance(me.Entity);
+    }
+  }
+};
+
+let Board = tool.mergeClone({}, Base, {
+  computed: {
+    templateCode() {
+      return this.recordData.templateCode;
+    },
+    rootInstance() {
+      return this.record.rootInstance;
+    }
+  }
+});
+
+let Instance = tool.mergeClone({}, Base, {
+  computed: {
     instanceCode() {
       return this.recordData.instanceCode;
     },
@@ -32,15 +70,7 @@ export default {
     items() {
       return this.record.items;
     }
-  },
-  created() {
-    let me = this;
-    //console.log(["这个 instanceof有点问题"]);
-    if (me.Entity instanceof DesignItemInstance) {
-      // if (me.Entity.$DNA && me.Entity.$DNA === "DesignItemInstance") {
-      me.Instance = me.Entity;
-    } else {
-      me.Instance = new DesignItemInstance(me.Entity);
-    }
   }
-};
+});
+
+export { Base, Board, Instance };

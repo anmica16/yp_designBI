@@ -7,8 +7,8 @@ import Vue from "vue";
 export default class RecordParser {
   //@ 1 基本配置
   baseCfg = null;
-  _record = {};
-  _recordData = {};
+  _record = null;
+  _recordData = null;
   //@ 2 new 出来以及后续改动的 record
   get record() {
     return this._record;
@@ -23,8 +23,11 @@ export default class RecordParser {
   }
   //@ 3-2 部分影响到record 上，record上还有其他属性
   set recordData(recData) {
-    this._recordData = recData;
-    tool.merge(this._record, this.loadRecordData(this._recordData));
+    Vue.set(this, "_recordData", recData);
+    //this._recordData = recData;
+    tool.mergeSet(Vue.set, this._record, this.loadRecordData(this._recordData));
+    //Vue.set(this, "_record", tool.merge(this._record, this.loadRecordData(this._recordData)));
+    //this._record = ;
   }
 
   //----------
@@ -34,7 +37,8 @@ export default class RecordParser {
   //# 1 对record的设置，不影响到recData上
   set(val) {
     let me = this;
-    tool.merge(me._record, val);
+    tool.mergeSet(Vue.set, me._record, val);
+    //Vue.set(this, "_record", tool.merge(me._record, val));
     //me.record = tool.apply(me.record, val);
   }
   get(key) {
@@ -47,7 +51,7 @@ export default class RecordParser {
     //addRec = me.loadRecordData(data, true);
     console.log(["setData的问题"]);
     //me.set(addRec);
-    me.recordData = tool.merge(me._recordData, data);
+    me.recordData = tool.mergeSet(Vue.set, me._recordData, data);
   }
 
   getData(key) {
@@ -56,6 +60,8 @@ export default class RecordParser {
 
   constructor(baseCfg, data) {
     let me = this;
+    //【+4】配置标准化【update】待测试
+    me.stdBaseCfg(baseCfg);
     //【+1】检测default一定为 fn 或 未定义
     tool.each(baseCfg, (key, val) => {
       if (
@@ -70,10 +76,15 @@ export default class RecordParser {
       }
     });
     //【+2】初始
-    me.baseCfg = baseCfg;
+    Vue.set(me, "baseCfg", baseCfg);
+    Vue.set(me, "_record", {});
+    Vue.set(me, "_recordData", {});
+
+    console.log(["有问题"]);
+
     let initRec = me.newRecordData();
     if (data && tool.isObject(data)) {
-      tool.merge(initRec, data);
+      tool.mergeSet(Vue.set, initRec, data);
 
       //let dataRec = me.loadRecordData(data);
       //tool.apply(initRec, dataRec);
@@ -82,6 +93,40 @@ export default class RecordParser {
 
     //me.record = initRec;
     //【+3】如果有
+  }
+
+  //【5】将字符串转化为对象
+  stdBaseCfg(theCfg, propsArray) {
+    let me = this;
+    propsArray = propsArray || [];
+    tool.each(theCfg, (key, val) => {
+      let keyPropsArray = propsArray.concat([key]);
+      //~ 1 转化
+      if (!tool.isObject(val)) {
+        if (!val) {
+          console.log(["这里调试"]);
+          throw `配置不允许毫无描述！key：${key}`;
+        }
+        theCfg[key] = {
+          name: val + "",
+          desp: val + ""
+        };
+      }
+      //~ 3 公共附加属性
+      tool.apply(theCfg[key], {
+        $key: key,
+        propsArray: keyPropsArray
+      });
+
+      //~ 2 是否有 $jsonFields
+      if (theCfg[key].$jsonFields) {
+        theCfg[key].$jsonFields = me.stdBaseCfg(
+          theCfg[key].$jsonFields,
+          keyPropsArray
+        );
+      }
+    });
+    return theCfg;
   }
 
   //【1】根据baseCfg初始化一个record，default有用，初始化不用迭代
@@ -121,20 +166,24 @@ export default class RecordParser {
         }
       }
 
-      rec[key] = initVal;
+      //#4 需要响应式的
+      Vue.set(rec, key, initVal);
+      //rec[key] = initVal;
     });
     return rec; //hasProp ? rec : null;
   }
 
-  loadContextByProp(sourceObj, propArray) {
-    if (!propArray || !propArray.length) {
+  loadContextByProp(sourceObj, originPropsArray) {
+    if (!originPropsArray || !originPropsArray.length) {
       return null;
     }
+    //# 0 避免源 propsArray被剥削
+    let propsArray = tool.clone(originPropsArray);
     let me = this,
-      deepObj = sourceObj[propArray[0]];
-    propArray.splice(0, 1);
-    if (propArray.length > 0) {
-      return me.loadContextByProp(deepObj, propArray);
+      deepObj = sourceObj[propsArray[0]];
+    propsArray.splice(0, 1);
+    if (propsArray.length > 0) {
+      return me.loadContextByProp(deepObj, propsArray);
     } else {
       return deepObj;
     }
@@ -158,13 +207,11 @@ export default class RecordParser {
       else if (tool.isObject(readVal)) {
         //# 1 带有上下文的对象，要从itemMap里面找，必有propName
         if (readVal.$context) {
+          //console.log(["检测$context获得", readVal.$context]);
           let theObj = theStore.getters.getInstance(readVal.$context);
           //# 1.3 如果存在深入选择 那么进行深入
-          if (readVal.$propNames && readVal.$propNames.length) {
-            resultVal = me.loadContextByProp(
-              theObj,
-              tool.clone(readVal.$propNames)
-            );
+          if (readVal.$propsArray && readVal.$propsArray.length) {
+            resultVal = me.loadContextByProp(theObj, readVal.$propsArray);
           } else {
             resultVal = theObj;
           }
@@ -189,7 +236,9 @@ export default class RecordParser {
         resultVal = readVal;
       }
 
-      rec[key] = resultVal;
+      //#4 需要响应式的
+      Vue.set(rec, key, resultVal);
+      //rec[key] = resultVal;
     });
     return rec;
   }
@@ -247,7 +296,9 @@ export default class RecordParser {
           resultVal = initVal;
         }
 
-        rec[key] = resultVal;
+        //#4 需要响应式的
+        Vue.set(rec, key, resultVal);
+        //rec[key] = resultVal;
       }
     );
     return rec;
