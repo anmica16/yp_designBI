@@ -12,7 +12,17 @@
         </template>
         <template #w>
           <div class="leftBar">
-            <el-button> </el-button>
+            <el-popover ref="popover" placement="right-start" trigger="click">
+              <el-button slot="reference">新增子控件</el-button>
+
+              <el-table :data="addTable" @row-click="handleAddTip">
+                <el-table-column
+                  v-for="col in addTableColumns"
+                  :key="col.prop"
+                  v-bind="col"
+                ></el-table-column>
+              </el-table>
+            </el-popover>
           </div>
         </template>
         <template #c>
@@ -48,8 +58,10 @@
 </template>
 
 <script>
+import Vue from "vue";
 import theHeader from "./header";
 import DesignItemInstance from "@designBI/store/Entity/DesignItemInstance";
+import tool from "@/plugins/js/tool";
 export default {
   name: "DesignEdit",
   components: {
@@ -87,9 +99,79 @@ export default {
       } else {
         return me.nowBoard.record.rootInstance;
       }
+    },
+    addTable() {
+      let me = this,
+        items = Vue.$itemManager.items,
+        data = [];
+      tool.each(items, item => {
+        let rec = tool.clone(item.recordData);
+        let props = [];
+        tool.each(rec.props, (key, val) => {
+          //#1 一个prop的配置 必为对象
+          if (tool.isObject(val)) {
+            let prop = {
+              key: key,
+              //类型都有名称
+              type: val.type.name,
+              default: (val.default && val.default()) || "无",
+              required: val.required,
+              desp: val.desp
+            };
+            props.push(prop);
+          }
+        });
+        let propsString = [];
+        tool.each(props, prop => {
+          let str = [
+            prop.required ? "[必须]" : "[可选]",
+            prop.key + ":" + "(" + prop.type + ")",
+            prop.desp ? prop.desp : "",
+            " 默认值:" + prop.default
+          ].join("");
+          propsString.push(str);
+        });
+        rec.props = propsString.length ? propsString.join("\r\n") : "无";
+
+        data.push(rec);
+      });
+
+      return data;
+    },
+    addTableColumns() {
+      let me = this,
+        //items = Vue.$itemManager.items,
+        //inCols = ["name", "xtype", "desp"],
+        cols = [
+          {
+            prop: "name",
+            label: "名称",
+            width: 80
+          },
+          {
+            prop: "xtype",
+            label: "类名",
+            width: 100
+          },
+          {
+            prop: "desp",
+            label: "描述",
+            width: 150
+          },
+          {
+            prop: "props",
+            label: "传入属性",
+            width: 225
+          }
+        ];
+      //#1 常规
+
+      //#2 "props"
+      return cols;
     }
   },
   watch: {
+    //#3 手动触发 带动联动
     nowBoard(newBoard) {
       let me = this;
       if (newBoard) {
@@ -121,7 +203,7 @@ export default {
         });
         //# 2 保存和添加到map，然后重新获取
         me.refreshRoot(rootIns);
-        console.log(["尝试改变值", rootIns]);
+        //console.log(["尝试改变值", rootIns]);
         //items.push(rootIns);
       }
 
@@ -135,6 +217,9 @@ export default {
         me.nowBoard.refreshRecord();
         //me.$forceUpdate();
       });
+    },
+    handleAddTip(oneItem) {
+      console.log(["点击提示，打开window进行细项添加", oneItem, arguments]);
     }
   },
   mounted() {

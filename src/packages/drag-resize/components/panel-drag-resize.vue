@@ -22,7 +22,8 @@
       @mousedown.stop.prevent="dragResizeMouseDown"
       @touchstart.stop.prevent="dragResizeTouchDown"
     >
-      <div class="dragArea-title">{{ title }}</div>
+      <div v-if="title !== true" class="dragArea-title">{{ title }}</div>
+      <slot v-if="title === true" name="title"></slot>
     </div>
     <slot></slot>
   </div>
@@ -36,7 +37,7 @@ export default {
   name: "panel-drag-resize",
   mixins: [DragResizeBase],
   props: {
-    title: String
+    title: [Boolean, String]
   }
 };
 </script>

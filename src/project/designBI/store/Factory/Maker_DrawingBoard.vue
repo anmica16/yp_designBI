@@ -46,7 +46,7 @@ export default {
       //rules: {},
     };
   },
-  computed: {},
+  //computed: {},
   methods: {
     initFormItems() {
       let me = this,

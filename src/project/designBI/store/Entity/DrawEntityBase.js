@@ -2,7 +2,7 @@
 import tool from "@/plugins/js/tool";
 import RecordParser from "../public/RecordParser";
 export default class DrawEntityBase {
-  table = null;
+  table = "base";
   parser = null;
   constructor(baseCfg, record) {
     let me = this;

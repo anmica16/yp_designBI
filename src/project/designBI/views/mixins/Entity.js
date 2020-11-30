@@ -2,8 +2,9 @@ import DrawEntityBase from "@designBI/store/Entity/DrawEntityBase.js";
 import tool from "@/plugins/js/tool";
 let Base = {
   props: {
+    //是否不必须 交给使用者覆盖
     Entity: {
-      type: DrawEntityBase,
+      type: Object,
       required: true
     }
   },
@@ -31,6 +32,7 @@ let Base = {
   },
   created() {
     let me = this;
+    //console.log(["执行created Base start"]);
     //console.log(["这个 instanceof有点问题"]);
     //# 1 这里表示 临时的未save的 也可以
     if (me.Entity instanceof DrawEntityBase) {
@@ -40,6 +42,7 @@ let Base = {
       //+ 1 要改成 getter的形式
       me.Instance = me.$store.getters.getInstance(me.Entity);
     }
+    //console.log(["执行created Base end"]);
   }
 };
 

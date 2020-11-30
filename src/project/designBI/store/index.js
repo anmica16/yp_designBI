@@ -43,6 +43,9 @@ let theStore = new Vuex.Store({
     },
     //~ 3 实例 现只有 board和 items两种
     getInstance: (state, getters) => params => {
+      if (!params) {
+        return null;
+      }
       let type = params.type;
       //console.log(["检测$context获得 的 getter", type, instanceCode, templateCode]);
       if (params instanceof DrawEntityBase) {

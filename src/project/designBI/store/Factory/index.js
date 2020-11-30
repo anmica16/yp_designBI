@@ -12,3 +12,6 @@ Vue.component("CusFormItem", CusFormItem);
 // maker
 import Maker_DrawingBoard from "./Maker_DrawingBoard.vue";
 Vue.component("Maker_DrawingBoard", Maker_DrawingBoard);
+
+import Maker_Entity from "./Maker_Entity.vue";
+Vue.component("Maker_Entity", Maker_Entity);

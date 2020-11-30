@@ -52,7 +52,8 @@ const BaseCfg = tool.apply({
       validator: {
         desp: "验证函数，返回是否为true",
         type: Function
-      }
+      },
+      desp: "描述"
     }
   },
 
@@ -87,6 +88,7 @@ const BaseCfg = tool.apply({
 });
 
 export default class DesignItem extends DrawEntityBase {
+  table = "item_tip";
   constructor(record) {
     super(BaseCfg, record);
   }

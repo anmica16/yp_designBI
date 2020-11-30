@@ -25,6 +25,9 @@ Vue.prototype.$msgbox2 = CusMsgBox;
 //【=2=】经典布局
 import RectLayoutV2 from "../../plugins/vue/RectLayoutV2.vue";
 Vue.component("RectLayoutV2", RectLayoutV2);
+//【=3=】Window
+import Window from "@/packages/window/Window.vue";
+Vue.component("Window", Window);
 
 //=========--------
 // Section 3 BI构成

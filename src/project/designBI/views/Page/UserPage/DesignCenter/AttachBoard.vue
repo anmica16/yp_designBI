@@ -21,6 +21,7 @@
 import Vue from "vue";
 import tool from "@/plugins/js/tool";
 import $ from "jquery";
+import DrawingBoard from "@designBI/store/Entity/DrawingBoard";
 export default {
   name: "AttachBoard",
   // components: {
@@ -42,14 +43,16 @@ export default {
     createBoard() {
       let me = this;
       if (!me.boardMaker) {
-        me.boardMaker = new Vue({
-          template: `<panel-drag-resize title="新建绘板" v-show="showMaker">
-            <Maker_DrawingBoard :isAdd="isAdd" 
-            @submitForm="submitForm"></Maker_DrawingBoard>
-          </panel-drag-resize>`,
+        let cfg = {
+          template: `<Window title="新建绘板" v-show="showMaker">
+            <Maker_Entity 
+            :EntityClass="DrawingBoard"
+            @submitForm="submitForm"></Maker_Entity>
+          </Window>`,
           data() {
             return {
-              showMaker: false,
+              DrawingBoard,
+              showMaker: true,
               isAdd: true
             };
           },
@@ -62,11 +65,20 @@ export default {
               this.showMaker = false;
             }
           }
-        });
-        let id = tool.uniqueStr(),
-          addDiv = $(`<div id="${id}"></div>`);
-        $("body").append(addDiv);
-        me.boardMaker.$mount(addDiv[0]);
+        };
+        //【update】可行！
+        let VerbWin = Vue.extend(cfg);
+        me.boardMaker = Vue.$windowManager.add(VerbWin);
+        // me.boardMaker = new Vue({
+        //   components: {
+        //     VerbWin
+        //   },
+        //   template: `<VerbWin></VerbWin>`
+        // });
+        // let id = tool.uniqueStr(),
+        //   addDiv = $(`<div id="${id}"></div>`);
+        // $("body").append(addDiv);
+        // me.boardMaker.$mount(addDiv[0]);
       }
       me.showMaker = true;
     }

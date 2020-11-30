@@ -97,6 +97,9 @@ export default {
   &:not(.isRoot) {
     border: 1px dashed rgb(161, 193, 226);
   }
+  &.isRoot {
+    background: azure;
+  }
   > .attachTool {
     position: absolute;
     left: 100%;

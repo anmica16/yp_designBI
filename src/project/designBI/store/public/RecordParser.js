@@ -49,7 +49,7 @@ export default class RecordParser {
   setData(data) {
     let me = this;
     //addRec = me.loadRecordData(data, true);
-    console.log(["setData的问题"]);
+    //console.log(["setData的问题"]);
     //me.set(addRec);
     me.recordData = tool.mergeSet(Vue.set, me._recordData, data);
   }
@@ -80,7 +80,7 @@ export default class RecordParser {
     Vue.set(me, "_record", {});
     Vue.set(me, "_recordData", {});
 
-    console.log(["有问题"]);
+    //console.log(["有问题"]);
 
     let initRec = me.newRecordData();
     if (data && tool.isObject(data)) {
@@ -112,6 +112,8 @@ export default class RecordParser {
           desp: val + ""
         };
       }
+      //名称
+      theCfg[key].name = theCfg[key].name || theCfg[key].desp;
       //~ 3 公共附加属性
       tool.apply(theCfg[key], {
         $key: key,
