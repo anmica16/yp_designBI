@@ -33,28 +33,28 @@ const BaseCfg = tool.apply({
   props: {
     desp:
       "可传参数列表，形如Vue，作为提醒的重要一环; 一般Yw的变量不需要特别验证，传给vue的才需要如下设定",
-    $json: Map,
-    $jsonFields: {
-      type: {
-        desp: "类型",
-        type: "type"
-      }, // ①、type：
-      default: {
-        desp: "默认值，引用类型则要function返回",
-        type: Function
-      }, //②、default ：
-      required: {
-        desp: "是否必须",
-        default() {
-          return true;
-        }
-      }, //③、required：
-      validator: {
-        desp: "验证函数，返回是否为true",
-        type: Function
-      },
-      desp: "描述"
-    }
+    $json: Map
+    // $jsonFields: {
+    //   type: {
+    //     desp: "类型",
+    //     type: "type"
+    //   }, // ①、type：
+    //   default: {
+    //     desp: "默认值，引用类型则要function返回",
+    //     type: Function
+    //   }, //②、default ：
+    //   required: {
+    //     desp: "是否必须",
+    //     default() {
+    //       return true;
+    //     }
+    //   }, //③、required：
+    //   validator: {
+    //     desp: "验证函数，返回是否为true",
+    //     type: Function
+    //   },
+    //   desp: "描述"
+    // }
   },
 
   //----------------------

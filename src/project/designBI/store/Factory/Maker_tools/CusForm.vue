@@ -18,13 +18,13 @@
 <script>
 import { Base } from "@designBI/views/mixins/Entity";
 import tool from "@/plugins/js/tool";
-import CusFormItem from "./CusFormItem";
+//import CusFormItem from "./CusFormItem";
 export default {
   name: "CusForm",
   mixins: [Base],
-  components: {
-    CusFormItem
-  },
+  // components: {
+  //   CusFormItem
+  // },
   props: {
     level: {
       type: Number,

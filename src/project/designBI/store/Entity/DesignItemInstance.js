@@ -19,7 +19,11 @@ const BaseCfg = tool.apply(
     instanceCode: {
       desp:
         "唯一码，非随机生成，需实现固定查询，每次生成都一致，生成的id其实也能实现这个效果，只要每次新生成的固定下来即可",
-      required: true
+      //required: true
+      disabled: true,
+      default() {
+        return "item_" + tool.uniqueStr();
+      }
     },
 
     //【=1.2=】

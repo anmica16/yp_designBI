@@ -106,6 +106,7 @@ export default {
         data = [];
       tool.each(items, item => {
         let rec = tool.clone(item.recordData);
+        rec.Entity = item;
         let props = [];
         tool.each(rec.props, (key, val) => {
           //#1 一个prop的配置 必为对象
@@ -219,7 +220,50 @@ export default {
       });
     },
     handleAddTip(oneItem) {
+      let me = this;
+      me.$refs.popover.handleBlur();
       console.log(["点击提示，打开window进行细项添加", oneItem, arguments]);
+      let itemMaker = Vue.extend({
+        template: `<Window title="新建子控件" ref="win">
+            <Maker_Entity 
+            :Entity="Entity"
+            :EntityClass="DesignItemInstance"
+            @submitForm="submitForm"></Maker_Entity>
+          </Window>`,
+        data() {
+          return {
+            DesignItemInstance,
+            Entity: {
+              parent: {
+                $context: {
+                  type: "item",
+                  instanceCode: me.nowBoardRoot.instanceCode,
+                  templateCode: me.nowBoardRoot.templateCode
+                }
+              },
+              xtype: oneItem.xtype,
+              templateCode: me.nowBoardRoot.templateCode
+            }
+          };
+        },
+        methods: {
+          //经过保存的 instance
+          //【update】应该在保存的时候，对父类进行子项添加！
+          submitForm(Instance) {
+            let theWin = this;
+            console.log(["尝试添加！"]);
+            me.nowBoardRoot.getData("items").push({
+              $context: {
+                type: "item",
+                instanceCode: Instance.instanceCode,
+                templateCode: Instance.templateCode
+              }
+            });
+            theWin.$refs.win.close();
+          }
+        }
+      });
+      Vue.$windowManager.add(itemMaker);
     }
   },
   mounted() {

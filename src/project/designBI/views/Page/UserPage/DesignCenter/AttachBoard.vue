@@ -42,52 +42,58 @@ export default {
   methods: {
     createBoard() {
       let me = this;
-      if (!me.boardMaker) {
-        let cfg = {
-          template: `<Window title="新建绘板" v-show="showMaker">
+      if (me.board || me.boardMaker) {
+        return;
+      }
+      //if (!me.boardMaker) {
+      let cfg = {
+        name: "DrawingBoardCg",
+        template: `<Window title="新建绘板" v-show="showMaker">
             <Maker_Entity 
             :EntityClass="DrawingBoard"
             @submitForm="submitForm"></Maker_Entity>
           </Window>`,
-          data() {
-            return {
-              DrawingBoard,
-              showMaker: true,
-              isAdd: true
-            };
-          },
-          methods: {
-            //【update】成功之后，是否去除掉？似乎不影响
-            submitForm(board, maker) {
-              //console.log(["通过？", this, arguments]);
-              me.board = board;
-              //me.recordData = recordData;
-              this.showMaker = false;
-            }
+        data() {
+          return {
+            DrawingBoard,
+            showMaker: true,
+            isAdd: true
+          };
+        },
+        methods: {
+          //【update】成功之后，是否去除掉？似乎不影响
+          submitForm(board, maker) {
+            //console.log(["通过？", this, arguments]);
+            me.board = board;
+            //me.recordData = recordData;
+            this.showMaker = false;
+            me.boardMaker = false;
           }
-        };
-        //【update】可行！
-        let VerbWin = Vue.extend(cfg);
-        me.boardMaker = Vue.$windowManager.add(VerbWin);
-        // me.boardMaker = new Vue({
-        //   components: {
-        //     VerbWin
-        //   },
-        //   template: `<VerbWin></VerbWin>`
-        // });
-        // let id = tool.uniqueStr(),
-        //   addDiv = $(`<div id="${id}"></div>`);
-        // $("body").append(addDiv);
-        // me.boardMaker.$mount(addDiv[0]);
-      }
-      me.showMaker = true;
-    }
-  },
-  watch: {
-    showMaker(newVal) {
-      this.boardMaker.showMaker = newVal;
+        }
+      };
+      //【update】可行！
+      let VerbWin = Vue.extend(cfg);
+      Vue.$windowManager.add(VerbWin);
+      me.boardMaker = true;
+      // me.boardMaker = new Vue({
+      //   components: {
+      //     VerbWin
+      //   },
+      //   template: `<VerbWin></VerbWin>`
+      // });
+      // let id = tool.uniqueStr(),
+      //   addDiv = $(`<div id="${id}"></div>`);
+      // $("body").append(addDiv);
+      // me.boardMaker.$mount(addDiv[0]);
+      //}
+      //me.showMaker = true;
     }
   }
+  // watch: {
+  //   showMaker(newVal) {
+  //     this.boardMaker.showMaker = newVal;
+  //   }
+  // }
 };
 </script>
 

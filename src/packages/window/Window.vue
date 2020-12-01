@@ -1,12 +1,22 @@
 <template>
-  <PDR class="Window" v-bind="dragProps_pass" ref="dragDom">
-    <template #title v-if="title === true">
-      <slot name="title"></slot>
-    </template>
-    <div class="Window-inner">
-      <slot></slot>
-    </div>
-  </PDR>
+  <transition v-if="isShow">
+    <PDR class="Window" v-bind="dragProps_pass" ref="dragDom">
+      <template #title>
+        <div class="Window-title">
+          <div class="title-body">
+            <slot v-if="title === true" name="title"></slot>
+            <div v-if="title && title !== true">{{ title }}</div>
+          </div>
+          <div class="triggerArea">
+            <span v-if="closeAble" class="close" @click="close">close</span>
+          </div>
+        </div>
+      </template>
+      <div class="Window-inner">
+        <slot></slot>
+      </div>
+    </PDR>
+  </transition>
 </template>
 
 <script>
@@ -24,6 +34,10 @@ export default {
         return {};
       }
     },
+    closeAble: {
+      type: Boolean,
+      default: true
+    },
     title: {
       type: [Boolean, String],
       default() {
@@ -39,14 +53,28 @@ export default {
       default: "auto"
     }
   },
+  data() {
+    return {
+      isShow: true
+    };
+  },
   computed: {
     dragProps_pass() {
       let me = this;
       return tool.applyIf({}, me.dragProps, {
-        title: me.title,
+        title: true,
         w: me.width,
         h: me.height
       });
+    }
+  },
+  methods: {
+    close() {
+      let me = this;
+      me.$emit("close");
+      me.isShow = false;
+      //me.$el.remove();
+      //me.$destroy();
     }
   }
 };

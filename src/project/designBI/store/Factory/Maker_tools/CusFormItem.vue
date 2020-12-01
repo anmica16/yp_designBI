@@ -54,15 +54,15 @@
 import Vue from "vue";
 import { Base } from "@designBI/views/mixins/Entity";
 import tool from "@/plugins/js/tool";
-import CusForm from "./CusForm";
+//import CusForm from "./CusForm.vue";
 //----------
 // 通过 propArray取 Entity的 值，保存到form对象上，然后保存时，返回到Entity上
 export default {
   name: "CusFormItem",
   mixins: [Base],
-  components: {
-    CusForm
-  },
+  // components: {
+  //   CusForm
+  // },
   props: {
     //# 0 由form指定的 当前深入层次
     level: {
@@ -219,14 +219,21 @@ export default {
   },
   created() {
     let me = this;
+    console.log(["model有些是 {}的会报错？"]);
     //#1 深入初始 form值，有 set get的
     let modelVal = me.getModelVal();
+    if (me.$jsonFields.length && tool.isObject(modelVal)) {
+      console.log(["应该不会是对象！", modelVal, me.item.propsArray]);
+    }
     // if (me.$jsonFields.length) {
     //   //#2【update】从"" 到 {} 这个会纳入 响应中去吗
     //   modelVal = {};
     // }
     //#3 赋值过来【update】form的有关能正确反应吗？
     modelVal = me.loadContextByProp(me.Instance.recordData, me.propsArray);
+    if (me.$jsonFields.length && tool.isObject(modelVal)) {
+      console.log(["应该是对象！", modelVal, me.item.propsArray]);
+    }
     me.modelVal = modelVal;
   }
 };

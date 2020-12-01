@@ -1,12 +1,19 @@
 //import tool from "@/plugins/js/tool";
 import tool from "@/plugins/js/tool";
-import RecordParser from "../public/RecordParser";
+import Vue from "vue";
+import RecordParserVue from "../public/RecordParser.vue";
+let RecordParser = Vue.extend(RecordParserVue);
 export default class DrawEntityBase {
   table = "base";
   parser = null;
   constructor(baseCfg, record) {
     let me = this;
-    me.parser = new RecordParser(baseCfg, record);
+    me.parser = new RecordParser({
+      propsData: {
+        baseConfig: baseCfg,
+        baseData: record || {}
+      }
+    });
   }
 
   //----------
@@ -28,7 +35,7 @@ export default class DrawEntityBase {
     this.parser.recordData = val;
   }
   get $isNew() {
-    return this.record.id + "" === "";
+    return this.recordData.id + "" === "";
   }
 
   //----------
