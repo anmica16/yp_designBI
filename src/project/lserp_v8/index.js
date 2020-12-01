@@ -4,13 +4,15 @@ import ElScrollbar from "@/packages/scrollbar"; //"element-ui/packages/scrollbar
 Vue.use(ElScrollbar);
 import "element-ui/packages/theme-chalk/src/scrollbar.scss";
 
-import { Button, Loading, Popover } from "element-ui";
+import { Button, Input, Loading, Popover } from "element-ui";
 Vue.use(Loading);
 Vue.use(Popover);
 Vue.use(Button);
+Vue.use(Input);
 import "element-ui/packages/theme-chalk/src/loading.scss";
 import "element-ui/packages/theme-chalk/src/popover.scss";
 import "element-ui/packages/theme-chalk/src/button.scss";
+import "element-ui/packages/theme-chalk/src/input.scss";
 
 // //【=2=】提示message
 import { Message, MessageBox } from "element-ui";

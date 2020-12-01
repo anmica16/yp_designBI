@@ -1,4 +1,6 @@
+import Vue from "vue";
 import tool from "@/plugins/js/tool";
+import { theStore } from "../index";
 import DrawEntityBase from "./DrawEntityBase";
 import { createAndTime } from "../public/fields";
 //import DesignItemInstance from './DesignItemInstance';
@@ -112,4 +114,27 @@ export default class DrawingBoard extends DrawEntityBase {
   //   //options.table = "board";
   //   return super.save.call(this, options);
   // }
+
+  delete(options) {
+    let me = this;
+    options = options || {};
+    tool.apply(options, {
+      method: Vue.Api.designBI.DeleteBoard,
+      templateCode: me.recordData.templateCode
+    });
+    return new Promise((res, rej) => {
+      super.delete
+        .call(this, options)
+        .then(result => {
+          console.log(["测试 delete Board位置"]);
+          theStore.commit("DeleteRecord", {
+            Entity: me
+          });
+          res(result);
+        })
+        .catch(result => {
+          rej(result);
+        });
+    });
+  }
 }

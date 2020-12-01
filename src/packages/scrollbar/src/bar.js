@@ -7,8 +7,10 @@ export default {
 
   props: {
     vertical: Boolean,
-    size: String,
-    move: Number
+    size: Number,
+    move: Number,
+    expand: Number,
+    pxsize: Number
   },
 
   computed: {
@@ -22,7 +24,7 @@ export default {
   },
 
   render(h) {
-    const { size, move, bar } = this;
+    const { size, move, bar, expand } = this;
 
     return (
       <div
@@ -33,7 +35,7 @@ export default {
           ref="thumb"
           class="el-scrollbar__thumb"
           onMousedown={this.clickThumbHandler}
-          style={renderThumbStyle({ size, move, bar })}
+          style={renderThumbStyle({ size, move, bar, expand })}
         ></div>
       </div>
     );
@@ -59,7 +61,8 @@ export default {
       );
       const thumbHalf = this.$refs.thumb[this.bar.offset] / 2;
       const thumbPositionPercentage =
-        ((offset - thumbHalf) * 100) / this.$el[this.bar.offset];
+        ((offset - thumbHalf) * 100) /
+        (this.$el[this.bar.offset] - this.pxsize);
 
       this.wrap[this.bar.scroll] =
         (thumbPositionPercentage * this.wrap[this.bar.scrollSize]) / 100;
@@ -86,7 +89,8 @@ export default {
         -1;
       const thumbClickPosition = this.$refs.thumb[this.bar.offset] - prevPage;
       const thumbPositionPercentage =
-        ((offset - thumbClickPosition) * 100) / this.$el[this.bar.offset];
+        ((offset - thumbClickPosition) * 100) /
+        (this.$el[this.bar.offset] - this.pxsize);
 
       this.wrap[this.bar.scroll] =
         (thumbPositionPercentage * this.wrap[this.bar.scrollSize]) / 100;

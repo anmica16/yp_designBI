@@ -15,7 +15,7 @@ export default {
   },
   created() {
     let me = this;
-    me.$store.dispatch("refreshBoardRecords");
+    me.$store.dispatch("getBoardsInDB");
     console.log(["app对象", me]);
     Vue.$root = me;
   }

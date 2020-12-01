@@ -58,6 +58,11 @@ export default class DrawEntityBase {
     //options.table = options.table || this.table;
     return this.parser.save(options, this);
   }
+  delete(options) {
+    options = options || {};
+    //options.table = options.table || this.table;
+    return this.parser.delete(options, this);
+  }
   refreshRecord() {
     this.parser.refreshRecord();
   }

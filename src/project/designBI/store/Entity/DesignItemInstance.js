@@ -134,9 +134,9 @@ const BaseCfg = tool.apply(
         return {};
       }
     },
-    //【12】【JSON】【将弃用】config_yw：
-    config_yw: {
-      desp: "设计时涉及Yw的变量",
+    //【12】【JSON】【将弃用】config_more：
+    config_more: {
+      desp: "设计时涉及更多的变量",
       $json: Object
     },
     //【12-2】【JSON】drag_resize_cfg：

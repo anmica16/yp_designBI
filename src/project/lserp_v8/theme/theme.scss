@@ -41,11 +41,42 @@
 
 //【1】底部
 .message-pop {
-  height: 300px;
-  padding: 5px;
+  $head: 40px;
+  $body: 300px;
+
+  height: #{$head + $body};
+  padding: 0px;
   padding-right: 0;
-  .message-tab-inner {
+
+  .bar-wrap {
     height: 100%;
+    .bar-header {
+      padding: 2px 5px;
+      height: $head;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+      box-shadow: 0 3px 4px -2px rgba(0, 0, 0, 0.11);
+      //padding: 2px 0;
+      .searchInput {
+        width: 60%;
+        .el-input__inner {
+          height: 30px;
+          line-height: 30px;
+        }
+      }
+      .refreshHandle {
+        padding: 10px 20px;
+        margin-left: 15px;
+      }
+    }
+    .message-tab-wrap {
+      height: $body;
+      padding: 0 0px 5px 5px;
+      .message-tab-inner {
+        height: 100%;
+      }
+    }
+  }
+  .message-tab-inner {
     .theUl {
       .theLi {
         width: calc(100% - 7px);
@@ -117,6 +148,7 @@
       top: 0;
       bottom: 0;
       opacity: 0.3;
+      width: 8px;
       background: rgba(0, 0, 0, 0.12);
     } //
   }

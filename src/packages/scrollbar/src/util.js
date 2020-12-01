@@ -21,11 +21,12 @@ export const BAR_MAP = {
   }
 };
 
-export function renderThumbStyle({ move, size, bar }) {
+export function renderThumbStyle({ move, size, bar, expand }) {
   const style = {};
   const translate = `translate${bar.axis}(${move}%)`;
+  const theSize = `${size * expand}%`;
 
-  style[bar.size] = size;
+  style[bar.size] = size === 100 ? "" : theSize;
   style.transform = translate;
   style.msTransform = translate;
   style.webkitTransform = translate;

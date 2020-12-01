@@ -36,11 +36,11 @@ export default {
   },
   watch: {
     recordData(newVal) {
-      console.log(["刷新了！recordData"]);
+      //console.log(["刷新了！recordData"]);
       this.triggerSave(newVal);
     },
     recordMid(newVal) {
-      console.log(["刷新了！recordMid"]);
+      //console.log(["刷新了！recordMid"]);
       tool.mergeSet(Vue.set, this.record, newVal);
     }
   },
@@ -208,7 +208,7 @@ export default {
         }
       });
     },
-    //【4】保存函数
+    //【4】保存到数据库
     save(options, Entity) {
       let me = this;
       options = options || {};
@@ -226,12 +226,50 @@ export default {
         })
           .then(result => {
             console.log(["测试save", result]);
-            theStore.commit("AddOrUpdRecords", {
+            theStore.commit("AddOrUpdRecord", {
               Entity: Entity
               //table: Entity.table,
               // //item 附加
               // templateCode: options.templateCode
             });
+            res(result);
+          })
+          .catch(result => {
+            rej(result);
+          });
+      });
+    },
+    //【5】从数据库中删除
+    delete(options, Entity) {
+      let me = this;
+      options = options || {};
+      return new Promise((res, rej) => {
+        //# 5 交给后台判断
+        // if (!me.recordData.id) {
+        //   rej({ success: false, msg: "所传递id值为空" });
+        //   return;
+        // }
+
+        $.ajax({
+          url: Vue.Api.designBI,
+          data: tool.apply(
+            {
+              method: Vue.Api.designBI.Delete,
+              ids: JSON.stringify([me.recordData.id]),
+              table: Entity.table
+            },
+            options
+          )
+        })
+          //#1 delete 就把后续操作交给 实体自己了
+          .then(result => {
+            console.log(["测试delete", result]);
+            // theStore.commit("DeleteRecord", {
+            //   Entity: Entity,
+            //   //table: Entity.table,
+            //   // //item 附加
+            //   // templateCode: options.templateCode
+            // });
             res(result);
           })
           .catch(result => {

@@ -69,8 +69,13 @@ let theStore = new Vuex.Store({
   },
   mutations: {
     //#1 保存到map，都为实体对象
-    AddOrUpdRecords(state, { Entity }) {
-      let records;
+    AddOrUpdRecord(state, payload) {
+      let records, Entity;
+      if (payload instanceof DrawEntityBase) {
+        Entity = payload;
+      } else {
+        Entity = payload.Entity;
+      }
       if (!Entity) {
         return false;
       }
@@ -94,29 +99,45 @@ let theStore = new Vuex.Store({
         }
       }
       return true;
+    },
+    //#2 有新增就有删除
+    DeleteRecord(state, payload) {
+      let Entity;
+      console.log(["这里咋回事"]);
+      if (payload instanceof DrawEntityBase) {
+        Entity = payload;
+      } else {
+        Entity = payload.Entity;
+      }
+      if (!Entity) {
+        return false;
+      }
+      let recordData = Entity.recordData;
+      let templateCode = recordData.templateCode;
+      if (Entity instanceof DrawingBoard) {
+        state.templateMap[templateCode] = null;
+        delete state.templateMap[templateCode];
+        return true;
+      } else if (Entity instanceof DesignItemInstance) {
+        if (!state.templateMap[templateCode].items) {
+          return false;
+        }
+        let records = state.templateMap[templateCode].items;
+        let at = records.indexOf(Entity);
+        if (at < 0) {
+          return false;
+        } else {
+          records.splice(at, 1);
+          return true;
+        }
+      }
+      //到这里说明 没删除啥
+      return false;
     }
   },
   actions: {
-    //~ 1 对象，添加进，首先进行数据库交互，然后ok后进行操作【交给实体的save函数】
-    // AddOrUpdRecords({ commit }, recordData) {
-    //   return new Promise((res, rej) => {
-    //     $.ajax({
-    //       url: Vue.Api.designBI,
-    //       method: Vue.Api.designBI.AddOrUpdRecords,
-    //       data: {
-    //         recordData: recordData,
-    //         table: "board"
-    //       }
-    //     }).then(result => {
-    //       commit("AddOrUpdRecords", recordData);
-    //       res();
-    //     }).catch(() => {
-    //       rej();
-    //     });
-    //   });
-    // },
     //@1 进来第一个获取
-    refreshBoardRecords({ state, commit }) {
+    getBoardsInDB({ state, commit }) {
       return new Promise(res => {
         $.ajax({
           url: Vue.Api.designBI,
@@ -124,10 +145,12 @@ let theStore = new Vuex.Store({
         }).then(result => {
           if (result.data && result.data.length) {
             tool.each(result.data, board => {
-              commit("AddOrUpdRecords", {
-                table: "board",
-                recordData: board,
-                templateCode: board.templateCode
+              let boardEntity = new DrawingBoard(board);
+
+              commit("AddOrUpdRecord", {
+                //table: "board",
+                Entity: boardEntity
+                //templateCode: board.templateCode
               });
             });
           }

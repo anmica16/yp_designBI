@@ -1,6 +1,6 @@
 <template>
-  <div class="AttachBoard">
-    <div v-if="!recordData" class="addTip" @click="createBoard">新增绘板</div>
+  <div class="AttachBoard" v-if="isAdd || (!isAdd && board)">
+    <div v-if="isAdd" class="addTip" @click="createBoard">新增绘板</div>
     <div v-else class="BoardPost">
       <router-link
         :to="{
@@ -12,21 +12,25 @@
           recordData.templateCode
         }}</router-link
       >
+      <el-button @click="deleteBoard">删除</el-button>
     </div>
   </div>
 </template>
 
 <script>
-//import Maker_DrawingBoard from "@designBI/store/Factory/Maker_DrawingBoard.vue";
 import Vue from "vue";
 import tool from "@/plugins/js/tool";
 import $ from "jquery";
 import DrawingBoard from "@designBI/store/Entity/DrawingBoard";
 export default {
   name: "AttachBoard",
-  // components: {
-  //   Maker_DrawingBoard
-  // },
+  props: {
+    Entity: DrawingBoard,
+    isAdd: {
+      type: Boolean,
+      default: false
+    }
+  },
   data() {
     return {
       board: null,
@@ -87,13 +91,29 @@ export default {
       // me.boardMaker.$mount(addDiv[0]);
       //}
       //me.showMaker = true;
+    },
+    deleteBoard() {
+      let me = this;
+      me.$msgbox({
+        type: "warning",
+        title: "确认",
+        message: "真的要删除该绘板吗？",
+        showCancelButton: true
+      })
+        .then(() => {
+          me.board.delete().then(() => {
+            me.board = null;
+          });
+        })
+        .catch(() => {});
+    }
+  },
+  created() {
+    let me = this;
+    if (me.Entity) {
+      me.board = me.Entity;
     }
   }
-  // watch: {
-  //   showMaker(newVal) {
-  //     this.boardMaker.showMaker = newVal;
-  //   }
-  // }
 };
 </script>
 

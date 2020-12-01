@@ -32,14 +32,6 @@ module.exports = {
     devtool: "hidden-source-map"
   },
 
-  chainWebpack: config => {
-    //设计器
-    config.plugin("html").tap(options => {
-      options[0].template = "./src/project/designBI/assets/designBi.html";
-      return options;
-    });
-  },
-
   css: {
     extract: {
       filename: `css/[name].css`
@@ -49,6 +41,13 @@ module.exports = {
   filenameHashing: false,
 
   //设计器
+  chainWebpack: config => {
+    //设计器
+    config.plugin("html").tap(options => {
+      options[0].template = "./src/project/designBI/assets/designBi.html";
+      return options;
+    });
+  },
   publicPath: "/pages/designBI/",
   outputDir: "../pages/designBI"
 

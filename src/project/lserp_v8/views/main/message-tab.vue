@@ -14,24 +14,46 @@
         {{ noSeeItems }}
       </div>
     </el-button>
-    <el-scrollbar v-show="expand" class="message-tab-inner">
-      <transition-group class="theUl" name="list22" tag="ul">
-        <li v-for="item in items" :key="item.$key" class="list22-item theLi">
-          <a class="clickArea" href="javascript:;" @click="clickFn(item)">
-            <div class="inner">
-              <div class="icon">
-                <div v-if="seeItems.indexOf(item.$key) < 0" class="newTip">
-                  new
+    <div class="bar-wrap">
+      <div class="bar-header">
+        <el-input
+          class="searchInput"
+          v-model="search"
+          placeholder="输入以筛选"
+        ></el-input>
+        <el-button
+          v-loading="loading"
+          type="primary"
+          class="refreshHandle"
+          @click="refresh"
+          >刷新</el-button
+        >
+      </div>
+      <div class="message-tab-wrap">
+        <el-scrollbar v-show="expand" class="message-tab-inner">
+          <transition-group class="theUl" name="list22" tag="ul">
+            <li
+              v-for="item in filterItems"
+              :key="item.$key"
+              class="list22-item theLi"
+            >
+              <a class="clickArea" href="javascript:;" @click="clickFn(item)">
+                <div class="inner">
+                  <div class="icon">
+                    <div v-if="seeItems.indexOf(item.$key) < 0" class="newTip">
+                      new
+                    </div>
+                    <div v-else class="fa fa-info"></div>
+                  </div>
+                  <div class="msg">{{ item.AuditMessages }}</div>
+                  <div class="date">{{ item.OperateDate }}</div>
                 </div>
-                <div v-else class="fa fa-info"></div>
-              </div>
-              <div class="msg">{{ item.AuditMessages }}</div>
-              <div class="date">{{ item.OperateDate }}</div>
-            </div>
-          </a>
-        </li>
-      </transition-group>
-    </el-scrollbar>
+              </a>
+            </li>
+          </transition-group>
+        </el-scrollbar>
+      </div>
+    </div>
     <transition name="fade-right">
       <div class="loadTip" v-show="loading">
         <span class="fa fa-sync-alt"></span>刷新中...
@@ -41,6 +63,7 @@
 </template>
 
 <script>
+import tool from "@/plugins/js/tool";
 export default {
   name: "message-tab",
   data() {
@@ -53,7 +76,10 @@ export default {
       seeItems: [],
       //checkItems: [],
       timer_refresh: 0,
-      autoRefresh: true
+      autoRefresh: true,
+
+      //【12-1】新增需求
+      search: ""
     };
   },
   computed: {
@@ -79,6 +105,14 @@ export default {
         map[item.$key] = item;
       });
       return map;
+    },
+    filterItems() {
+      let me = this,
+        items = me.items.filter(a => {
+          return !me.search || a.AuditMessages.includes(me.search);
+        });
+
+      return items;
     }
   },
   methods: {
@@ -174,7 +208,7 @@ export default {
         callback = () => {
           me.timer_refresh = setTimeout(() => {
             me.loopRefresh();
-          }, 10000);
+          }, 20000);
         };
       if (!me.autoRefresh) {
         callback();
@@ -229,7 +263,7 @@ export default {
         },
         OnComplete() {
           me.loading = false;
-          if (callback) {
+          if (tool.isFunction(callback)) {
             callback();
           }
         }

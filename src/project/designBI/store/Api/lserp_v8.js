@@ -6,7 +6,9 @@ let Api_custom = {
     url: "/Api/DesignBIApi.ashx",
     BoardList: "GetBoardList",
     InstanceList: "GetInstanceList",
-    AddOrUpd: "AddOrUpdTable"
+    AddOrUpd: "AddOrUpdTable",
+    Delete: "DeleteRecords",
+    DeleteBoard: "DeleteBoard"
   },
 
   Module: {
