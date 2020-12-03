@@ -100,6 +100,10 @@ export default {
       type: Boolean,
       default: true
     },
+    canDragTo: {
+      type: Boolean,
+      default: true
+    },
     dragFlag: {
       type: String,
       default: "defaultFlag"
@@ -776,10 +780,21 @@ export default {
       //this.right = right;
       //this.bottom = bottom;
 
-      this.$emit("dragging", this.left, this.top);
+      this.$emit(
+        "dragging",
+        this,
+        this.left,
+        this.top,
+        this.width,
+        this.height
+      );
     },
-    moveHorizontally(val) {
+    moveHorizontally(_val) {
+      let val = this.initLT(true);
       const [deltaX, _] = snapToGrid(this.grid, val, this.top, this.scale);
+      if (!tool.isNumber(deltaX)) {
+        return;
+      }
 
       const left = restrictToBounds(
         deltaX,
@@ -790,8 +805,12 @@ export default {
       this.left = left;
       //this.right = this.parentWidth - this.width - left;
     },
-    moveVertically(val) {
+    moveVertically(_val) {
+      let val = this.initLT(false);
       const [_, deltaY] = snapToGrid(this.grid, this.left, val, this.scale);
+      if (!tool.isNumber(deltaY)) {
+        return;
+      }
 
       const top = restrictToBounds(
         deltaY,
@@ -892,8 +911,12 @@ export default {
 
       this.$emit("resizing", this.left, this.top, this.width, this.height);
     },
-    changeWidth(val) {
+    changeWidth(_val) {
+      let val = this.initWH(true);
       const [newWidth, _] = snapToGrid(this.grid, val, 0, this.scale);
+      if (!tool.isNumber(newWidth)) {
+        return;
+      }
 
       let right = restrictToBounds(
         this.parentWidth - newWidth - this.left,
@@ -914,8 +937,12 @@ export default {
       this.width = width;
       this.height = height;
     },
-    changeHeight(val) {
+    changeHeight(_val) {
+      let val = this.initWH(false);
       const [_, newHeight] = snapToGrid(this.grid, 0, val, this.scale);
+      if (!tool.isNumber(newHeight)) {
+        return;
+      }
 
       let bottom = restrictToBounds(
         this.parentHeight - newHeight - this.top,
@@ -944,11 +971,25 @@ export default {
 
       if (this.resizing) {
         this.resizing = false;
-        this.$emit("resizestop", this.left, this.top, this.width, this.height);
+        this.$emit(
+          "resizestop",
+          this,
+          this.left,
+          this.top,
+          this.width,
+          this.height
+        );
       }
       if (this.dragging) {
         this.dragging = false;
-        this.$emit("dragstop", this.left, this.top);
+        this.$emit(
+          "dragstop",
+          this,
+          this.left,
+          this.top,
+          this.width,
+          this.height
+        );
       }
 
       removeEvent(document.documentElement, eventsFor.move, this.handleResize);
@@ -1133,16 +1174,19 @@ export default {
       //console.log(["看卡咋不触发over？"]);
       el.style.cursor = "default";
     },
-    decodeStyle(styleObj) {
-      let me = this;
-      if (!styleObj) {
-        return;
-      }
-      //初版，绝对值模式
-      tool.isNumber(styleObj.width) && (me.width = styleObj.width);
-      tool.isNumber(styleObj.height) && (me.hegiht = styleObj.height);
-      tool.isNumber(styleObj.left) && (me.left = styleObj.left);
-      tool.isNumber(styleObj.top) && (me.top = styleObj.top);
+    getSyncStyle() {
+      let me = this,
+        style = {};
+      style.width =
+        me.wMode == "num" ? parseFloat(me.computedWidth) : me.computeWidth;
+      style.height =
+        me.hMode == "num" ? parseFloat(me.computedHeight) : me.computedHeight;
+      style.left =
+        me.xMode == "num" ? parseFloat(me.computedLeft) : me.computedLeft;
+      style.top =
+        me.yMode == "num" ? parseFloat(me.computedTop) : me.computedTop;
+
+      return style;
     }
   },
   computed: {
@@ -1220,19 +1264,23 @@ export default {
       return this.handles;
     },
     computedWidth() {
-      let me = this;
+      let me = this,
+        temp;
       switch (me.wMode) {
         case "num":
-          return me.width + "px";
+          temp = me.width || 10;
+          return temp + "px";
         case "per":
-          return ((me.width / me.parentWidth) * 100).toFixed(2) + "%";
+          temp = me.width / me.parentWidth || 0.1;
+          return (temp * 100).toFixed(2) + "%";
         case "auto":
           if (!me.widthTouched) {
             return "auto";
           }
           break;
       }
-      return me.width + "px";
+      temp = me.width || 10;
+      return temp + "px";
 
       // if (this.wMode === "auto") {
       //   if (!this.widthTouched) {
@@ -1245,19 +1293,23 @@ export default {
       // return this.width + "px";
     },
     computedHeight() {
-      let me = this;
+      let me = this,
+        temp;
       switch (me.hMode) {
         case "num":
-          return me.height + "px";
+          temp = me.height || 10;
+          return temp + "px";
         case "per":
-          return ((me.height / me.parentHeight) * 100).toFixed(2) + "%";
+          temp = me.height / me.parentHeight || 0.1;
+          return (temp * 100).toFixed(2) + "%";
         case "auto":
           if (!me.heightTouched) {
             return "auto";
           }
           break;
       }
-      return me.height + "px";
+      temp = me.height || 10;
+      return temp + "px";
       // if (this.h === "auto") {
       //   if (!this.heightTouched) {
       //     return "auto";
@@ -1267,23 +1319,29 @@ export default {
       // return this.height + "px";
     },
     computedLeft() {
-      let me = this;
+      let me = this,
+        temp;
       switch (me.xMode) {
         case "num":
         default:
-          return me.left + "px";
+          temp = me.left || 0;
+          return temp + "px";
         case "per":
-          return ((me.left / me.parentWidth) * 100).toFixed(2) + "%";
+          temp = me.left / me.parentWidth || 0;
+          return (temp * 100).toFixed(2) + "%";
       }
     },
     computedTop() {
-      let me = this;
+      let me = this,
+        temp;
       switch (me.yMode) {
         case "num":
         default:
-          return me.top + "px";
+          temp = me.top || 0;
+          return temp + "px";
         case "per":
-          return ((me.top / me.parentHeight) * 100).toFixed(2) + "%";
+          temp = me.top / me.parentHeight || 0;
+          return (temp * 100).toFixed(2) + "%";
       }
     },
     resizingOnX() {

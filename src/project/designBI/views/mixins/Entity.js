@@ -71,7 +71,17 @@ let Instance = tool.mergeClone({}, Base, {
     },
     //因为 record里面会自动转化 data的 $context选项,转化为一个 实体
     items() {
-      return this.record.items;
+      console.log([
+        "items数量有变！",
+        this.record.items,
+        this.record.items && this.record.items.length
+      ]);
+      let theItems = this.record.items || [];
+
+      return theItems.filter(i => i);
+    },
+    canDrop() {
+      return this.recordData.drag_resize_cfg.can_drop != "";
     }
   }
 });

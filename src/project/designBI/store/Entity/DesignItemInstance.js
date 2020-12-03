@@ -12,7 +12,9 @@ const BaseCfg = tool.apply(
     // Section 1 基本参数
     //----------------------
     id: {
-      desp: "数据库id"
+      desp: "数据库id",
+      disabled: true,
+      hidden: true
     },
 
     //【1】
@@ -34,7 +36,9 @@ const BaseCfg = tool.apply(
     //【2】templateCode：
     templateCode: {
       desp: "绘板唯一码，表示该实例所属绘板是哪个",
-      required: true
+      required: true,
+      disabled: true,
+      hidden: true
     },
     //【3】name：
     name: {
@@ -50,13 +54,17 @@ const BaseCfg = tool.apply(
         "-1 私有加入子控件； 0 普通子控件；1 整体可调用，无其他子控件以来；2 root控件，也是绘板的最顶层1类型控件，默认为0",
       default() {
         return 0;
-      }
+      },
+      disabled: true,
+      hidden: true
     },
     //【6】【JSON】propsData：
     propsData: {
       desp:
         "【JSON】自身控件传递的实参：名称 对应 DesignVerb，获取和上传时要通过DesignVerb来翻译",
-      $json: Object //一个Pro的 参数形式
+      $json: Object, //一个Pro的 参数形式
+      disabled: true,
+      hidden: true
     }
   },
   //----------------------
@@ -72,7 +80,9 @@ const BaseCfg = tool.apply(
       desp: "父级inscode",
       $jsonFields: {
         $context: "item"
-      }
+      },
+      disabled: true,
+      hidden: true
     },
     //【8】【JSON】item_instanceCodes：
     items: {
@@ -90,7 +100,9 @@ const BaseCfg = tool.apply(
         instance: {
           $context: "item"
         }
-      }
+      },
+      disabled: true,
+      hidden: true
     },
 
     //----------------------
@@ -98,21 +110,27 @@ const BaseCfg = tool.apply(
     //----------------------
     //【9】source：
     source: {
-      desp: "4种数据类型，同桌面BI的逻辑"
+      desp: "4种数据类型，同桌面BI的逻辑",
+      disabled: true,
+      hidden: true
     },
     //【9.2】source_type：
     source_type: {
       desp: "0 自定义（默认）；1 普通sql“@”;2 存储过程“#”; 3 模块编号 “d+”",
       default() {
         return 0;
-      }
+      },
+      disabled: true,
+      hidden: true
     },
     //【10】source_enable：
     source_enable: {
       desp: "是否开启数据源，默认1开启",
       default() {
         return true;
-      }
+      },
+      disabled: true,
+      hidden: true
     },
 
     //----------------------
@@ -124,7 +142,9 @@ const BaseCfg = tool.apply(
       $json: Object,
       default() {
         return {};
-      }
+      },
+      disabled: true,
+      hidden: true
     },
     //【11-2】【JSON】class：样式名，可保持相互更新
     class: {
@@ -132,12 +152,16 @@ const BaseCfg = tool.apply(
       $json: Object,
       default() {
         return {};
-      }
+      },
+      disabled: true,
+      hidden: true
     },
     //【12】【JSON】【将弃用】config_more：
     config_more: {
       desp: "设计时涉及更多的变量",
-      $json: Object
+      $json: Object,
+      disabled: true,
+      hidden: true
     },
     //【12-2】【JSON】drag_resize_cfg：
     drag_resize_cfg: {
@@ -148,6 +172,12 @@ const BaseCfg = tool.apply(
           desp: "拖拽标识，是否可拖拽",
           default() {
             return "defaultFlag";
+          }
+        }, //
+        can_dragTo: {
+          desp: "是否可拖拽到另一个组件",
+          default() {
+            return true;
           }
         }, //
         can_drop: {
@@ -162,7 +192,9 @@ const BaseCfg = tool.apply(
             return true;
           }
         } //
-      }
+      },
+      disabled: true,
+      hidden: true
     },
 
     //----------------------
@@ -188,7 +220,9 @@ const BaseCfg = tool.apply(
           desp: "（4）监听事件触发函数",
           $context: true
         }
-      }
+      },
+      disabled: true,
+      hidden: true
     },
     //【14】【JSON】event_life：
     event_life: {
@@ -214,7 +248,9 @@ const BaseCfg = tool.apply(
           desp: "（4）监听生命周期事件触发函数",
           $context: true
         }
-      }
+      },
+      disabled: true,
+      hidden: true
     }
   }
 );
@@ -222,6 +258,8 @@ const BaseCfg = tool.apply(
 export default class DesignItemInstance extends DrawEntityBase {
   designItem = null;
   table = "item";
+  instanceCode = null;
+  templateCode = null;
   constructor(xtype, record) {
     //#1 配置形式
     if (tool.isObject(xtype)) {
@@ -258,8 +296,56 @@ export default class DesignItemInstance extends DrawEntityBase {
       defaultValues = tool.isFunction(dFn) && dFn();
     if (defaultValues) {
       //#2 考虑record以及默认值的优先级 进行合并
-      me.setData(tool.mergeIf(record, defaultValues));
+      me.setDataIf(defaultValues);
     }
+    //~ 3 传出值
+    Vue.set(me, "templateCode", me.recordData.templateCode);
+    Vue.set(me, "instanceCode", me.recordData.instanceCode);
+  }
+
+  checkType(Instance) {
+    if (!(Instance instanceof DesignItemInstance)) {
+      throw `add时给了错误类型的参数！`;
+    }
+  }
+  setParent(Instance) {
+    let me = this;
+    me.checkType(Instance);
+    me.setData({
+      parent: {
+        $context: {
+          type: "item",
+          //接受方 2个都接受
+          instanceCode: Instance.instanceCode,
+          templateCode: Instance.templateCode
+        }
+      }
+    });
+    me.save();
+  }
+  //解决部分不响应items的组件
+  refreshItems() {
+    let me = this;
+    Vue.set(me.record, "items", me.record.items);
+  }
+  add(Instance) {
+    let me = this;
+    me.checkType(Instance);
+    //# 1 一是，自身items加入一个
+    me.recordData.items.push({
+      $context: {
+        type: "item",
+        //输出方 绘板按照自己
+        instanceCode: Instance.instanceCode,
+        templateCode: me.templateCode
+      }
+    });
+    me.save().then(() => {
+      me.refreshItems();
+    });
+
+    //# 2 而是，对方parent设定
+    Instance.setParent(me);
   }
   // save(options) {
   //   //options = options || {};

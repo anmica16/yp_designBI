@@ -159,17 +159,24 @@ let theStore = new Vuex.Store({
       });
     },
     //@2 从数据库中获取一次 template的 items数据
-    getInstanceRecords({ state }, params) {
+    getInstancesInDB({ state, getters }, params) {
+      let templateCode = tool.isString(params) ? params : params.templateCode;
       return new Promise(res => {
         $.ajax({
           url: Vue.Api.designBI,
           method: Vue.Api.designBI.InstanceList,
           data: {
-            templateCode: params.templateCode
+            templateCode: templateCode
           }
         }).then(result => {
-          Vue.set(state.templateMap[params.templateCode], "items", result.data);
-          res();
+          let items = getters.getInstances(templateCode);
+          //console.log(["咋是2个？"]);
+          tool.each(result.data, item => {
+            let itemEntity = new DesignItemInstance(item);
+            items.push(itemEntity);
+          });
+          //Vue.set(state.templateMap[params.templateCode], "items", result.data);
+          res(items);
         });
       });
     }

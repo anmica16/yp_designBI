@@ -173,9 +173,9 @@ export default {
   },
   watch: {
     //#3 手动触发 带动联动
-    nowBoard(newBoard) {
+    nowBoard(newBoard, oldBoard) {
       let me = this;
-      if (newBoard) {
+      if (newBoard && newBoard != oldBoard) {
         me.nowInstances = me.getNowInstances();
       }
     }
@@ -192,32 +192,22 @@ export default {
         items = me.$store.getters.getInstances(templateCode);
       //# 1 第一次就新增一个
       if (items && !items.length) {
-        let rootIns = new DesignItemInstance({
-          ...me.nowBoard.getData("rootInstance").$context,
-          xtype: "BaseBubble"
-          // propsData: {
-          //   pro1: "custom pro1"
-          // },
-          // source: {
-          //   slot1: "测试值1"
-          // }
-        });
-        //# 2 保存和添加到map，然后重新获取
-        me.refreshRoot(rootIns);
-        //console.log(["尝试改变值", rootIns]);
-        //items.push(rootIns);
+        me.$store
+          .dispatch("getInstancesInDB", { templateCode })
+          .then(theItems => {
+            console.log(["数据库获取一次！检查数量！", theItems]);
+            if (!theItems.length) {
+              let rootIns = new DesignItemInstance({
+                ...me.nowBoard.getData("rootInstance").$context,
+                xtype: "BaseBubble"
+              });
+              //# 2 保存和添加到map，然后重新获取
+              rootIns.save();
+            }
+          });
       }
 
       return items;
-    },
-    refreshRoot(rootIns) {
-      let me = this;
-      //# 2 保存和添加到map，然后重新获取
-      rootIns.save().then(() => {
-        //#3 加入后刷新一下root引用
-        me.nowBoard.refreshRecord();
-        //me.$forceUpdate();
-      });
     },
     handleAddTip(oneItem) {
       let me = this;
@@ -234,15 +224,8 @@ export default {
           return {
             DesignItemInstance,
             Entity: {
-              parent: {
-                $context: {
-                  type: "item",
-                  instanceCode: me.nowBoardRoot.instanceCode,
-                  templateCode: me.nowBoardRoot.templateCode
-                }
-              },
               xtype: oneItem.xtype,
-              templateCode: me.nowBoardRoot.templateCode
+              templateCode: me.nowBoardRoot.recordData.templateCode
             }
           };
         },
@@ -252,13 +235,7 @@ export default {
           submitForm(Instance) {
             let theWin = this;
             console.log(["尝试添加！"]);
-            me.nowBoardRoot.getData("items").push({
-              $context: {
-                type: "item",
-                instanceCode: Instance.instanceCode,
-                templateCode: Instance.templateCode
-              }
-            });
+            me.nowBoardRoot.add(Instance);
             theWin.$refs.win.close();
           }
         }

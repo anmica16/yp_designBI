@@ -1,6 +1,6 @@
 <template>
   <DragResizeMouse
-    ref="dragDom"
+    ref="dragNode"
     :parent="true"
     :w="isRoot ? '100%' : recordData.style.width"
     :h="isRoot ? '100%' : recordData.style.height"
@@ -9,6 +9,7 @@
     :dragFlag="recordData.drag_resize_cfg.can_drag"
     :draggable="!isRoot && recordData.drag_resize_cfg.can_drag != ''"
     :dropFlag="recordData.drag_resize_cfg.can_drop"
+    :canDragTo="canDragTo"
     :dropable="canDrop"
     :resizable="!isRoot && recordData.drag_resize_cfg.can_resize"
     class="BubbleDragResize"
@@ -23,7 +24,7 @@
       测试区域
     </div> -->
     <!-- <div ref="slot"></div> -->
-    <div :is="xtype" v-bind="propsData"></div>
+    <div ref="host" :is="xtype" v-bind="propsData"></div>
     <div v-if="!isRoot" class="attachTool" @mousedown.stop @touchstart.stop>
       <el-button>提示</el-button>
       <el-button>实例信息</el-button>
@@ -35,8 +36,7 @@
 import Vue from "vue";
 import tool from "@/plugins/js/tool";
 import { Instance } from "@designBI/views/mixins/Entity.js";
-// import DesignItem from "@designBI/store/Entity/DesignItem.js";
-// import DesignItemInstance from "@designBI/store/Entity/DesignItemInstance";
+import dropManager from "@designBI/views/drawer/dropManager";
 //像一个泡泡一样，可以到处移动，也可以拖拽等
 export default {
   name: "Bubble",
@@ -49,13 +49,16 @@ export default {
   },
   data() {
     return {
-      //slotStr: tool.uniqueStr()
       host: null
     };
   },
   computed: {
     canDrop() {
-      return this.recordData.drag_resize_cfg.can_drop != "" && !this.host;
+      //要看内部能不能Drop
+      return this.host && this.host.canDrop;
+    },
+    canDragTo() {
+      return this.recordData.drag_resize_cfg.can_dragTo;
     },
     propsData() {
       let me = this;
@@ -67,27 +70,63 @@ export default {
         //~3 source数据
         source: me.recordData.source
       };
+    },
+    //【update】mixin
+    dropManager() {
+      return dropManager;
     }
   },
   methods: {
     mousedownFn() {
       //console.log(["mousedownFn执行"]);
+    },
+    //拖拽层的 save调用
+    save() {
+      let me = this;
+      //~ 1 拖拽的 style数据同步进去
+      let style = me.$refs.dragNode.getSyncStyle();
+      me.Instance.setData({
+        style
+      });
+      return new Promise((res, rej) => {
+        me.Instance.save()
+          .then(r => {
+            res(r);
+          })
+          .catch(r => {
+            rej(r);
+          });
+      });
     }
   },
+
+  //【update】mixin
   mounted() {
     let me = this;
-    //#1 部分属性要放置进去
-    //me.$refs.dragDom.decodeStyle(me.recordData.style);
-    //#2 加入到自身
-    // let xtypeCrt = Vue.options.components[me.xtype];
-    // if (xtypeCrt) {
-    //   me.host = new xtypeCrt({
-    //     propsData: me.propsData,
-    //     el: me.$refs.slot,
-    //   });
-    // }
-    //#3 事件
-    me.$emit("mounted", me, me.host);
+
+    //@ 0 host设定
+    me.host = me.$refs.dragNode;
+
+    //@ 1 如果是可drop进去的
+    if (me.canDrop) {
+      dropManager.set(me, me.$refs.dragNode);
+    }
+    //@ 2 正常的 松开手指 drop判定
+    me.$refs.dragNode.$on("dragstop", function(dragNode) {
+      //~ 1 看看能不能拽入进去，随后就save
+      me.dropManager.checkDragStop(me, dragNode).finally(() => {
+        console.log(["dragstop 的 保存！"]);
+        me.save();
+      });
+    });
+    //@ 2-2 resize 松开手指
+    me.$refs.dragNode.$on("resizestop", function(dragNode) {
+      //~ 1 看看能不能拽入进去，随后就save
+      me.dropManager.checkResizeStop(me, dragNode).finally(() => {
+        console.log(["resizestop 的 保存！"]);
+        me.save();
+      });
+    });
   }
 };
 </script>

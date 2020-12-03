@@ -81,32 +81,34 @@ const BaseCfg = tool.apply(
 export default class DrawingBoard extends DrawEntityBase {
   //# 1 实例树结构，仅是record的树，不过record一旦进行实体化了就会有对应的 $el引用
   //instanceRoot = null;
+  templateCode = null;
   table = "board";
   constructor(record) {
     super(BaseCfg, record);
     let me = this,
       insKey = "rootInstance",
-      ins = me.get(insKey);
+      ins = me.getData(insKey);
 
     //~ 1 绑定this到record
     me.set({ $el: me });
 
-    if (!ins) {
+    //console.log(["加入的时候，子控件", me.recordData.templateCode]);
+    if (!ins.$context.instanceCode) {
       //~ 2 会转化为 cfg后面的 值
       me.setData({
         [insKey]: {
           //~ 2.2 根据以下参数在 store中寻找，如果没找到，那么根据以下可选参数进行新建一个实例
           $context: {
             type: "item",
+            useType: 2,
             instanceCode: "root_" + tool.uniqueStr(),
-            templateCode: me.record.templateCode
+            templateCode: me.recordData.templateCode
           }
         }
       });
     }
-    //~ 3 实例树的root
-    // ins = me.get(insKey);
-    // me.instanceRoot = ins;
+    //~ 3 传出值
+    Vue.set(me, "templateCode", me.recordData.templateCode);
   }
 
   // save(options) {

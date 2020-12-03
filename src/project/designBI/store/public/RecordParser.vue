@@ -144,7 +144,12 @@ export default {
         if (tool.isArray(readVal)) {
           let readValArray = [];
           tool.each(readVal, rData => {
-            readValArray.push(me.loadRecordData(rData, true));
+            //console.log(["针对Items进行检查", rData]);
+            //# 1 因为内部的 $context是需要一个壳才能进入each中转化的，所以这里提供一个rData壳。
+            let resultObj = me.loadRecordData({ rData }, true);
+            if (resultObj) {
+              readValArray.push(resultObj.rData);
+            }
           });
           resultVal = readValArray;
         }
@@ -225,12 +230,14 @@ export default {
           )
         })
           .then(result => {
-            console.log(["测试save", result]);
+            console.log(["测试成功的save", result]);
+            //有些没有id的应该在保存之后设定
+            //console.log(["这里咋不对 $isNew"]);
+            if (Entity.$isNew) {
+              Entity.setData({ id: result.other });
+            }
             theStore.commit("AddOrUpdRecord", {
               Entity: Entity
-              //table: Entity.table,
-              // //item 附加
-              // templateCode: options.templateCode
             });
             res(result);
           })
@@ -285,7 +292,7 @@ export default {
     //# 1 对record的设置，不影响到recData上
     set(val) {
       let me = this;
-      tool.mergeSet(Vue.set, me.record, val);
+      me.record = tool.mergeSet(Vue.set, me.record, val);
     },
     get(key) {
       return this.record[key];
@@ -295,11 +302,15 @@ export default {
       let me = this;
       me.recordData = tool.mergeSet(Vue.set, me.recordData, data);
     },
+    setDataIf(data) {
+      let me = this;
+      me.recordData = tool.mergeSetIf(Vue.set, me.recordData, data);
+    },
     getData(key) {
       return this.recordData[key];
     },
     //# 3 主动根据 recordData 刷新一次record 以及 save
-    refreshRecord() {
+    refreshData() {
       let me = this;
       me.setData({});
     }
@@ -318,6 +329,7 @@ export default {
       }
     });
 
+    //console.log(["奇幻的 转换", data]);
     //【+2】初始
     let initRec = me.newRecordData();
     if (data && tool.isObject(data)) {

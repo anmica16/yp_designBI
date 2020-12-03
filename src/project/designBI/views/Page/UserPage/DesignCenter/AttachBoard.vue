@@ -54,6 +54,7 @@ export default {
         name: "DrawingBoardCg",
         template: `<Window title="新建绘板" v-show="showMaker">
             <Maker_Entity 
+            :newSave="true"
             :EntityClass="DrawingBoard"
             @submitForm="submitForm"></Maker_Entity>
           </Window>`,
@@ -68,7 +69,7 @@ export default {
           //【update】成功之后，是否去除掉？似乎不影响
           submitForm(board, maker) {
             //console.log(["通过？", this, arguments]);
-            me.board = board;
+            //me.board = board;
             //me.recordData = recordData;
             this.showMaker = false;
             me.boardMaker = false;

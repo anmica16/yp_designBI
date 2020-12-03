@@ -7,11 +7,13 @@ export default class DrawEntityBase {
   table = "base";
   parser = null;
   constructor(baseCfg, record) {
-    let me = this;
+    let me = this,
+      theRec = tool.parseObject(record);
+
     me.parser = new RecordParser({
       propsData: {
         baseConfig: baseCfg,
-        baseData: record || {}
+        baseData: theRec || {}
       }
     });
   }
@@ -35,7 +37,7 @@ export default class DrawEntityBase {
     this.parser.recordData = val;
   }
   get $isNew() {
-    return this.recordData.id + "" === "";
+    return !this.recordData.id;
   }
 
   //----------
@@ -50,6 +52,9 @@ export default class DrawEntityBase {
   setData(data) {
     this.parser.setData(data);
   }
+  setDataIf(data) {
+    this.parser.setDataIf(data);
+  }
   getData(key) {
     return this.parser.getData(key);
   }
@@ -63,7 +68,7 @@ export default class DrawEntityBase {
     //options.table = options.table || this.table;
     return this.parser.delete(options, this);
   }
-  refreshRecord() {
-    this.parser.refreshRecord();
+  refreshData() {
+    this.parser.refreshData();
   }
 }

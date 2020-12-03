@@ -39,6 +39,10 @@ export default {
       // default() {
       //   return {};
       // }
+    },
+    newSave: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -79,14 +83,18 @@ export default {
         if (valid) {
           me.Instance.setData(me.form);
           //me.setForm(me.Instance.recordData);
-          me.Instance.save()
-            .then(function() {
-              console.log(["成功 Instance.save()", arguments]);
-              me.$emit("submitForm", me.Instance, me);
-            })
-            .catch(result => {
-              console.log(["失败 Instance.save()", arguments]);
-            });
+          if (me.newSave) {
+            me.Instance.save()
+              .then(function() {
+                console.log(["成功 Instance.save()", arguments]);
+                me.$emit("submitForm", me.Instance, me);
+              })
+              .catch(result => {
+                console.log(["失败 Instance.save()", arguments]);
+              });
+          } else {
+            me.$emit("submitForm", me.Instance, me);
+          }
         } else {
           //console.log("error submit!!");
           return false;

@@ -1,4 +1,6 @@
 import tool from "@/plugins/js/tool";
+
+//#1 在 最外层的 index.js中引用
 //管理拽入的控件
 let itemManager = {
   items: [],

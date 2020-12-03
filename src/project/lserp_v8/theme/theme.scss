@@ -67,6 +67,12 @@
         padding: 10px 20px;
         margin-left: 15px;
       }
+      .refresh-ok {
+        margin-left: 5px;
+        &, * {
+          color: rgb(80, 246, 102);
+        }
+      }
     }
     .message-tab-wrap {
       height: $body;

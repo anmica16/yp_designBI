@@ -25,9 +25,14 @@
           v-loading="loading"
           type="primary"
           class="refreshHandle"
-          @click="refresh"
+          @click="handleRefresh"
           >刷新</el-button
         >
+        <transition name="fade-right">
+          <span class="refresh-ok" v-show="handleLoading">
+            <span class="fa fa-check"></span>已刷新
+          </span>
+        </transition>
       </div>
       <div class="message-tab-wrap">
         <el-scrollbar v-show="expand" class="message-tab-inner">
@@ -69,6 +74,8 @@ export default {
   data() {
     return {
       loading: false,
+      handleLoading: false,
+      handleLoading_timer: 0,
       expand: true,
       items: [],
       newItems: [],
@@ -166,7 +173,17 @@ export default {
         card.listeners = {
           afterRender: function(holder) {
             let processBox = holder.down("WindowCard.processBox"),
+              removeItems = [],
               applyBtn = processBox.bbar.down("name", "stepApplyText");
+            tool.each(processBox.bbar.items, item => {
+              if (applyBtn !== item) {
+                removeItems.push(item);
+              }
+            });
+            tool.each(removeItems, item => {
+              processBox.bbar.remove(item);
+            });
+
             applyBtn.setText("确认");
             applyBtn.handler = function() {
               //表示已查看
@@ -194,8 +211,25 @@ export default {
       }
       //【表示已经看过】
       if (me.seeItems.indexOf(item.$key) < 0) {
-        me.seeItems.push(item.$key);
+        me.SeeOver(item);
       }
+    },
+    SeeOver(item) {
+      let me = this,
+        Ywp = window.Ywp;
+      me.seeItems.push(item.$key);
+      //console.log(["奇怪，怎么没运行？"]);
+      Ywp.request({
+        url: Ywp.Api.Module,
+        params: {
+          userid: me.userinfo.UserId,
+          method: Ywp.Api.Module.SeeOveOneMsg,
+          record: JSON.stringify(item)
+        }
+        // OnSuccess(result) {
+
+        // },
+      });
     },
     mouseOverFn() {
       this.autoRefresh = false;
@@ -216,6 +250,18 @@ export default {
         //重复刷新
         me.refresh(callback);
       }
+    },
+    handleRefresh() {
+      let me = this;
+      me.handleLoading = true;
+      me.refresh(() => {
+        if (me.handleLoading_timer) {
+          clearTimeout(me.handleLoading_timer);
+        }
+        me.handleLoading_timer = setTimeout(() => {
+          me.handleLoading = false;
+        }, 1000);
+      });
     },
     refresh(callback) {
       let Ywp = window.Ywp,
@@ -246,7 +292,8 @@ export default {
             }
           });
           me.newItems = newItems;
-          me.items = theItems;
+          //# 3 新消息加入，旧消息当前不删
+          me.items = me.newItems.concat(me.items); //theItems;
           if (me.newItems.length) {
             me.$message({
               type: "success",

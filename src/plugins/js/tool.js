@@ -177,13 +177,20 @@ let tool = {
       sourceKey,
       arrayKey;
 
+    //【=1=】对于目标为非 数组、对象类型时
+    if (!me.isObject(destination) && !me.isArray(destination)) {
+      throw `不允许对非数组、对象类型进行merge操作,destination:${destination}`;
+    }
+
     for (; i < ln; i++) {
       object = arguments[i];
-      //【=1=】对于目标为非 数组、对象类型时
-      if (!me.isObject(destination) && !me.isArray(destination)) {
-        destination = cloneFn(object);
+
+      //【=1.2=】对于是扩展对象的深入 要慎重
+      if (me.isObject(object) && !me.isSimpleObject(object)) {
+        //暂不操作
         continue;
       }
+
       //【=2=】正常情况
       for (key in object) {
         if (Object.hasOwnProperty.call(object, key)) {
@@ -215,17 +222,28 @@ let tool = {
               }
             } else {
               me.each(value, function(val, i) {
+                let tempVal;
                 arrayKey = sourceKey[i];
                 if (!arrayKey) {
-                  sourceKey[i] = cloneFn(val);
+                  tempVal = cloneFn(val);
                 } else {
-                  sourceKey[i] = mergeFn(
+                  tempVal = mergeFn(
                     ifClone,
                     ifCheckIf,
                     setFn,
                     sourceKey[i],
                     val
                   );
+                }
+                //对于多的，要进行push操作，而不是i取值操作
+                if (i > sourceKey.length - 1) {
+                  //console.log(["这儿的push检查"]);
+                  if (me.isNull(tempVal)) {
+                    return;
+                  }
+                  sourceKey.push(tempVal);
+                } else {
+                  sourceKey[i] = tempVal;
                 }
               });
             }
@@ -294,6 +312,17 @@ let tool = {
       [false, false, setFn].concat([args])
     );
   },
+  mergeSetIf(setFn = null) {
+    let args = [];
+    for (let i = 1; i < arguments.length; ++i) {
+      let arg = arguments[i];
+      args.push(arg);
+    }
+    return this.mergeBaseBefore.apply(
+      this,
+      [false, true, setFn].concat([args])
+    );
+  },
 
   /** ---------------------------------------------------
    ** 遍历方法补充 对象 or 数组
@@ -328,6 +357,48 @@ let tool = {
       }
     } else {
       return false;
+    }
+  },
+  // 不改变源对象，生成一个克隆的
+  parseObject(target, ifDeep = true) {
+    let me = this,
+      reg = /^[{|[]/;
+    if (me.isString(target)) {
+      //#1 只有 json字符串才进行 深入
+      if (reg.test(target)) {
+        let cTarget = JSON.parse(target);
+        //#1.2 只有parse后的json字符串，才会形成obj和array的情况，再进行深入
+        if (ifDeep) {
+          return me.parseObject(cTarget, ifDeep);
+        } else {
+          return cTarget;
+        }
+      } else {
+        //#2 普通字符串
+        return target;
+      }
+    }
+    //#3 数组
+    else if (me.isArray(target)) {
+      let result = [];
+      me.each(target, item => {
+        let cItem = me.parseObject(item, ifDeep);
+        result.push(cItem);
+      });
+      return result;
+    }
+    //#4 对象
+    else if (me.isObject(target)) {
+      let result = {};
+      me.each(target, (key, val) => {
+        let cVal = me.parseObject(val, ifDeep);
+        result[key] = cVal;
+      });
+      return result;
+    }
+    //#5 值类型
+    else {
+      return target;
     }
   },
   /** ---------------------------------------------------

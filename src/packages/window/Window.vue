@@ -87,6 +87,7 @@ export default {
     padding: 2px;
     border-radius: 5px;
     box-shadow: aliceblue 0px 0px 10px 0px;
+    background: rgb(255, 255, 255);
 
     .dragArea {
       cursor: grab;
