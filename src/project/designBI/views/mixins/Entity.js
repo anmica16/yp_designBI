@@ -69,6 +69,9 @@ let Instance = tool.mergeClone({}, Base, {
     parent() {
       return this.record.parent;
     },
+    parentCode() {
+      return this.recordData.parent && this.recordData.parent.$context && this.recordData.parent.$context.instanceCode;
+    },
     //因为 record里面会自动转化 data的 $context选项,转化为一个 实体
     items() {
       console.log([

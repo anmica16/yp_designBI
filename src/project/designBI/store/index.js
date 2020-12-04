@@ -172,8 +172,12 @@ let theStore = new Vuex.Store({
           let items = getters.getInstances(templateCode);
           //console.log(["咋是2个？"]);
           tool.each(result.data, item => {
-            let itemEntity = new DesignItemInstance(item);
-            items.push(itemEntity);
+            try {
+              let itemEntity = new DesignItemInstance(item);
+              items.push(itemEntity);
+            } catch (e) {
+              console.error(["初始化-getInstances-new实例错误：", item]);
+            }
           });
           //Vue.set(state.templateMap[params.templateCode], "items", result.data);
           res(items);

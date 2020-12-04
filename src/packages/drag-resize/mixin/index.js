@@ -273,6 +273,9 @@ export default {
       width: null,
       height: null,
 
+      //bounds: null,
+      //mouseClickPosition: null,
+
       widthTouched: false,
       heightTouched: false,
 
@@ -342,8 +345,8 @@ export default {
   beforeDestroy: function() {
     removeEvent(document.documentElement, "mousedown", this.deselect);
     removeEvent(document.documentElement, "touchstart", this.handleUp);
-    removeEvent(document.documentElement, "mousemove", this.move);
-    removeEvent(document.documentElement, "touchmove", this.move);
+    removeEvent(document.documentElement, "mousemove", this.moveFn);
+    removeEvent(document.documentElement, "touchmove", this.moveFn);
     removeEvent(document.documentElement, "mouseup", this.handleUp);
     removeEvent(
       document.documentElement,
@@ -503,7 +506,7 @@ export default {
         if (this.parent) {
           this.bounds = this.calcDragLimits();
         }
-        addEvent(document.documentElement, eventsFor.move, this.move);
+        addEvent(document.documentElement, eventsFor.move, this.moveFn);
         addEvent(document.documentElement, eventsFor.stop, this.handleUp);
       }
     },
@@ -554,7 +557,7 @@ export default {
         removeEvent(
           document.documentElement,
           eventsFor.move,
-          this.handleResize
+          this.handleResizeFn
         );
       }
 
@@ -595,7 +598,7 @@ export default {
 
       this.bounds = this.calcResizeLimits();
 
-      addEvent(document.documentElement, eventsFor.move, this.handleResize);
+      addEvent(document.documentElement, eventsFor.move, this.handleResizeFn);
       addEvent(document.documentElement, eventsFor.stop, this.handleUp);
     },
     calcResizeLimits() {
@@ -973,26 +976,20 @@ export default {
         this.resizing = false;
         this.$emit(
           "resizestop",
-          this,
-          this.left,
-          this.top,
-          this.width,
-          this.height
+          e,
+          this
         );
       }
       if (this.dragging) {
         this.dragging = false;
         this.$emit(
           "dragstop",
-          this,
-          this.left,
-          this.top,
-          this.width,
-          this.height
+          e,
+          this
         );
       }
 
-      removeEvent(document.documentElement, eventsFor.move, this.handleResize);
+      removeEvent(document.documentElement, eventsFor.move, this.handleResizeFn);
     },
     //section 2
 
@@ -1185,6 +1182,9 @@ export default {
         me.xMode == "num" ? parseFloat(me.computedLeft) : me.computedLeft;
       style.top =
         me.yMode == "num" ? parseFloat(me.computedTop) : me.computedTop;
+      
+      //# 2 z
+      style.zIndex = me.zIndex;
 
       return style;
     }
@@ -1366,7 +1366,28 @@ export default {
     actualBorders() {
       if (!this.resizable) return [];
       return this.borders;
+    },
+    moveFn(e) {
+      let me = this,
+        callback = function (ev) { 
+          //console.log(["看看move"]);
+          me.move(ev);
+        };
+      //100帧左右
+      let tFn = tool.throttle(callback, 10);
+      return tFn;
+    },
+    handleResizeFn(e) {
+      let me = this,
+        callback = function (ev) {
+          //console.log(["看看resize"]);
+          me.handleResize(ev);
+        };
+      //100帧左右
+      let tFn = tool.throttle(callback, 10);
+      return tFn;
     }
+
   },
 
   watch: {

@@ -4,8 +4,9 @@
     :parent="true"
     :w="isRoot ? '100%' : recordData.style.width"
     :h="isRoot ? '100%' : recordData.style.height"
-    :x="isRoot ? 0 : recordData.style.left"
-    :y="isRoot ? 0 : recordData.style.top"
+    :x="isRoot ? 0 : recordData.style.left || 0"
+    :y="isRoot ? 0 : recordData.style.top || 0"
+    :z="isRoot ? 0 : recordData.style.zIndex || 0"
     :dragFlag="recordData.drag_resize_cfg.can_drag"
     :draggable="!isRoot && recordData.drag_resize_cfg.can_drag != ''"
     :dropFlag="recordData.drag_resize_cfg.can_drop"
@@ -28,6 +29,7 @@
     <div v-if="!isRoot" class="attachTool" @mousedown.stop @touchstart.stop>
       <el-button>提示</el-button>
       <el-button>实例信息</el-button>
+      <el-button @click="deleteFn">删除</el-button>
     </div>
   </DragResizeMouse>
 </template>
@@ -44,12 +46,12 @@ export default {
   props: {
     isRoot: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
   data() {
     return {
-      host: null
+      host: null,
     };
   },
   computed: {
@@ -68,13 +70,13 @@ export default {
         //~2 剩余备用 传入
         Entity: me.Entity,
         //~3 source数据
-        source: me.recordData.source
+        source: me.recordData.source,
       };
     },
     //【update】mixin
     dropManager() {
       return dropManager;
-    }
+    },
   },
   methods: {
     mousedownFn() {
@@ -86,18 +88,32 @@ export default {
       //~ 1 拖拽的 style数据同步进去
       let style = me.$refs.dragNode.getSyncStyle();
       me.Instance.setData({
-        style
+        style,
       });
       return new Promise((res, rej) => {
         me.Instance.save()
-          .then(r => {
+          .then((r) => {
             res(r);
           })
-          .catch(r => {
+          .catch((r) => {
             rej(r);
           });
       });
-    }
+    },
+    deleteFn() {
+      let me = this;
+
+      me.$msgbox({
+        showCancelButton: true,
+        type: "warning",
+        message: "确认删除该子控件？",
+        title: "确认",
+      })
+        .then(() => {
+          me.Instance.delete();
+        })
+        .catch(() => {});
+    },
   },
 
   //【update】mixin
@@ -105,29 +121,34 @@ export default {
     let me = this;
 
     //@ 0 host设定
-    me.host = me.$refs.dragNode;
+    me.host = me.$refs.host;
 
     //@ 1 如果是可drop进去的
     if (me.canDrop) {
       dropManager.set(me, me.$refs.dragNode);
     }
     //@ 2 正常的 松开手指 drop判定
-    me.$refs.dragNode.$on("dragstop", function(dragNode) {
+    me.$refs.dragNode.$on("dragstop", function (e, dragNode) {
       //~ 1 看看能不能拽入进去，随后就save
-      me.dropManager.checkDragStop(me, dragNode).finally(() => {
-        console.log(["dragstop 的 保存！"]);
-        me.save();
-      });
+      me.dropManager
+        .checkDragStop(e, me, dragNode)
+        .catch(() => {
+          console.log(["未找到合适的parent加入！"]);
+        })
+        .finally(() => {
+          console.log(["dragstop 的 保存！"]);
+          me.save();
+        });
     });
     //@ 2-2 resize 松开手指
-    me.$refs.dragNode.$on("resizestop", function(dragNode) {
+    me.$refs.dragNode.$on("resizestop", function (e, dragNode) {
       //~ 1 看看能不能拽入进去，随后就save
-      me.dropManager.checkResizeStop(me, dragNode).finally(() => {
+      me.dropManager.checkResizeStop(e, me, dragNode).finally(() => {
         console.log(["resizestop 的 保存！"]);
         me.save();
       });
     });
-  }
+  },
 };
 </script>
 

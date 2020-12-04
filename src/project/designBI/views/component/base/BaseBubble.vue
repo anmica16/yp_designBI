@@ -2,7 +2,7 @@
   <div class="BaseBubble">
     <Bubble
       v-for="item in items"
-      :key="item.getData(instanceCode)"
+      :key="item.recordData.instanceCode"
       :Entity="item"
     ></Bubble>
   </div>

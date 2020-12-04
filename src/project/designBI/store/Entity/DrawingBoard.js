@@ -102,7 +102,10 @@ export default class DrawingBoard extends DrawEntityBase {
             type: "item",
             useType: 2,
             instanceCode: "root_" + tool.uniqueStr(),
-            templateCode: me.recordData.templateCode
+            templateCode: me.recordData.templateCode,
+            drag_resize_cfg: {
+              can_dragTo: false
+            }
           }
         }
       });

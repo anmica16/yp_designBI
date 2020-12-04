@@ -2,6 +2,7 @@ import tool from "@/plugins/js/tool";
 import Vue from "vue";
 import DrawEntityBase from "./DrawEntityBase";
 import { createAndTime } from "../public/fields";
+import { theStore } from "../index";
 import DesignItem from "./DesignItem";
 
 const BaseCfg = tool.apply(
@@ -260,6 +261,13 @@ export default class DesignItemInstance extends DrawEntityBase {
   table = "item";
   instanceCode = null;
   templateCode = null;
+
+  //----------
+  // 二、过程中使用的变量
+  //----------
+  //@ 1 父亲链，用于拖拽比较最前端item
+  parentsList = [];
+
   constructor(xtype, record) {
     //#1 配置形式
     if (tool.isObject(xtype)) {
@@ -311,6 +319,7 @@ export default class DesignItemInstance extends DrawEntityBase {
   setParent(Instance) {
     let me = this;
     me.checkType(Instance);
+    //~ 1 Data处理
     me.setData({
       parent: {
         $context: {
@@ -322,15 +331,38 @@ export default class DesignItemInstance extends DrawEntityBase {
       }
     });
     me.save();
+    //~ 2 父亲链处理
+    let targetPL = Instance.parentsList;
+    me.parentsList = targetPL.concat([Instance]);
   }
   //解决部分不响应items的组件
   refreshItems() {
     let me = this;
     Vue.set(me.record, "items", me.record.items);
   }
+  leaveParent() {
+    let me = this,
+      meInsCode = me.getData("instanceCode"),
+      parent = me.get("parent");
+    console.log(["开始离开父亲"]);
+    if (parent && parent instanceof DesignItemInstance) {
+      let pItemsData = parent.getData("items"),
+        at = pItemsData.findIndex(item => item.$context && item.$context.instanceCode === meInsCode);
+      if (at > -1) {
+        pItemsData.splice(at, 1);
+        //parent.refreshItems();
+        return true;
+      }
+    }
+    return false;
+  }
   add(Instance) {
     let me = this;
     me.checkType(Instance);
+
+    //# 3 后续加入 之前的父亲去除本 Entity
+    Instance.leaveParent();
+
     //# 1 一是，自身items加入一个
     me.recordData.items.push({
       $context: {
@@ -340,16 +372,34 @@ export default class DesignItemInstance extends DrawEntityBase {
         templateCode: me.templateCode
       }
     });
-    me.save().then(() => {
-      me.refreshItems();
-    });
+    me.save();
+    //   .then(() => {
+    //   me.refreshItems();
+    // });
 
     //# 2 而是，对方parent设定
     Instance.setParent(me);
   }
-  // save(options) {
-  //   //options = options || {};
-  //   //options.table = "item";
-  //   return super.save.call(this, options);
-  // }
+  delete(options) {
+    let me = this;
+    return new Promise((res, rej) => {
+      super.delete.call(this, options).then((r) => {
+        console.log(["测试 delete Instance"]);
+        //#2 store中删除
+        theStore.commit("DeleteRecord", me);
+        //#3 parent中删除
+        me.leaveParent();
+
+        //#4 再save一下
+        me.save().then((rs) => {
+          res(rs);
+        }).catch(rs => {
+          rej(rs);
+        });
+      }).catch((r) => {
+        rej(r);
+      })
+
+    });
+  }
 }
