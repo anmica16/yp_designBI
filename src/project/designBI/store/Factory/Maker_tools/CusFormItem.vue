@@ -219,7 +219,7 @@ export default {
   },
   created() {
     let me = this;
-    console.log(["model有些是 {}的会报错？"]);
+    //console.log(["model有些是 {}的会报错？"]);
     //#1 深入初始 form值，有 set get的
     let modelVal = me.getModelVal();
     if (me.$jsonFields.length && tool.isObject(modelVal)) {

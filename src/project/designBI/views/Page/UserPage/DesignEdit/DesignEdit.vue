@@ -26,13 +26,23 @@
           </div>
         </template>
         <template #c>
-          <div v-loading="loadRoot" class="editCenter">
-            <Bubble
-              v-if="nowBoardRoot"
-              :Entity="nowBoardRoot"
-              :isRoot="true"
-            ></Bubble>
-          </div>
+          <Scrollbar style="width: 100%; height: 100%;">
+            <div
+              v-loading="loadRoot"
+              :style="{
+                width: rootWidth,
+                height: rootHeight,
+                position: 'relative'
+              }"
+              class="editCenter"
+            >
+              <Bubble
+                v-if="nowBoardRoot"
+                :Entity="nowBoardRoot"
+                :isRoot="true"
+              ></Bubble>
+            </div>
+          </Scrollbar>
           <!-- <Bubble></Bubble> -->
           <!-- <el-tabs ref="tabpanel" type="card" v-model="activeName">
           <el-tab-pane
@@ -99,6 +109,23 @@ export default {
       } else {
         return me.nowBoard.record.rootInstance;
       }
+    },
+    rootWidth() {
+      let me = this,
+        nowBoardRoot = me.nowBoardRoot;
+
+      return (
+        (nowBoardRoot && nowBoardRoot.recordData.style.width + "px") || "auto"
+      );
+    },
+
+    rootHeight() {
+      let me = this,
+        nowBoardRoot = me.nowBoardRoot;
+
+      return (
+        (nowBoardRoot && nowBoardRoot.recordData.style.height + "px") || "auto"
+      );
     },
     addTable() {
       let me = this,

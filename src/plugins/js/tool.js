@@ -224,18 +224,16 @@ let tool = {
               //# 2 也存在删除的情况
               let removeItems = [],
                 theI = -1;
-              me.each(value, function (val, i) {
+              me.each(value, function(val, i) {
                 theI = i;
                 let tempVal;
                 arrayKey = sourceKey[i];
                 if (!arrayKey) {
                   tempVal = cloneFn(val);
-                }
-                else if (me.isNull(val)) {
+                } else if (me.isNull(val)) {
                   removeItems.push(sourceKey[i]);
                   return;
-                }
-                else {
+                } else {
                   tempVal = mergeFn(
                     ifClone,
                     ifCheckIf,
@@ -265,7 +263,7 @@ let tool = {
               }
               //# 3 删除对应的
               if (removeItems.length) {
-                me.each(removeItems, function (item) {
+                me.each(removeItems, function(item) {
                   let at = sourceKey.indexOf(item);
                   sourceKey.splice(at, 1);
                 });

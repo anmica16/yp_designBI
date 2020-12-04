@@ -103,7 +103,7 @@ let theStore = new Vuex.Store({
     //#2 有新增就有删除
     DeleteRecord(state, payload) {
       let Entity;
-      console.log(["这里咋回事"]);
+      //console.log(["这里咋回事"]);
       if (payload instanceof DrawEntityBase) {
         Entity = payload;
       } else {

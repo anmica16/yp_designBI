@@ -4,7 +4,7 @@ import DrawEntityBase from "./DrawEntityBase";
 import { createAndTime } from "../public/fields";
 import { theStore } from "../index";
 import DesignItem from "./DesignItem";
-import InstanceVueCfg from './InstanceVue.vue';
+import InstanceVueCfg from "./InstanceVue.vue";
 const InstanceVue = Vue.extend(InstanceVueCfg);
 
 const BaseCfg = tool.apply(
@@ -364,7 +364,9 @@ export default class DesignItemInstance extends DrawEntityBase {
     console.log(["开始离开父亲"]);
     if (parent && parent instanceof DesignItemInstance) {
       let pItemsData = parent.getData("items"),
-        at = pItemsData.findIndex(item => item.$context && item.$context.instanceCode === meInsCode);
+        at = pItemsData.findIndex(
+          item => item.$context && item.$context.instanceCode === meInsCode
+        );
       if (at > -1) {
         pItemsData.splice(at, 1);
         //# 2 父亲要保存一下
@@ -401,18 +403,20 @@ export default class DesignItemInstance extends DrawEntityBase {
   delete(options) {
     let me = this;
     return new Promise((res, rej) => {
-      super.delete.call(this, options).then((r) => {
-        console.log(["测试 delete Instance"]);
-        //#2 store中删除
-        theStore.commit("DeleteRecord", me);
-        //#3 parent中删除
-        me.leaveParent();
+      super.delete
+        .call(this, options)
+        .then(r => {
+          console.log(["测试 delete Instance"]);
+          //#2 store中删除
+          theStore.commit("DeleteRecord", me);
+          //#3 parent中删除
+          me.leaveParent();
 
-        res(r);
-      }).catch((r) => {
-        rej(r);
-      })
-
+          res(r);
+        })
+        .catch(r => {
+          rej(r);
+        });
     });
   }
 }

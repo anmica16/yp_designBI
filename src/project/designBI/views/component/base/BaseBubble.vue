@@ -14,7 +14,7 @@ import { Instance } from "@designBI/views/mixins/Entity.js";
 
 export default {
   name: "BaseBubble",
-  mixins: [Instance],
+  mixins: [Instance]
   // watch:{
   //   items(newVal) {
   //     if (newVal && newVal.length) {

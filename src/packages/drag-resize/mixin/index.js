@@ -427,6 +427,14 @@ export default {
       if (this.parent) {
         const [newParentWidth, newParentHeight] = this.getParentSize();
 
+        //对per模式的高宽要进行处理
+        if (this.wMode === "per") {
+          this.width = (newParentWidth / this.parentWidth) * this.width;
+        }
+        if (this.hMode === "per") {
+          this.height = (newParentHeight / this.parentHeight) * this.height;
+        }
+
         this.parentWidth = newParentWidth;
         this.parentHeight = newParentHeight;
       }
@@ -977,22 +985,18 @@ export default {
 
       if (this.resizing) {
         this.resizing = false;
-        this.$emit(
-          "resizestop",
-          e,
-          this
-        );
+        this.$emit("resizestop", e, this);
       }
       if (this.dragging) {
         this.dragging = false;
-        this.$emit(
-          "dragstop",
-          e,
-          this
-        );
+        this.$emit("dragstop", e, this);
       }
 
-      removeEvent(document.documentElement, eventsFor.move, this.handleResizeFn);
+      removeEvent(
+        document.documentElement,
+        eventsFor.move,
+        this.handleResizeFn
+      );
     },
     //section 2
 
@@ -1178,14 +1182,14 @@ export default {
       let me = this,
         style = {};
       style.width =
-        me.wMode == "num" ? parseFloat(me.computedWidth) : me.computeWidth;
+        me.wMode == "num" ? parseFloat(me.computedWidth) : me.computedWidth;
       style.height =
         me.hMode == "num" ? parseFloat(me.computedHeight) : me.computedHeight;
       style.left =
         me.xMode == "num" ? parseFloat(me.computedLeft) : me.computedLeft;
       style.top =
         me.yMode == "num" ? parseFloat(me.computedTop) : me.computedTop;
-      
+
       //# 2 z
       style.zIndex = me.zIndex;
 
@@ -1372,7 +1376,7 @@ export default {
     },
     moveFn(e) {
       let me = this,
-        callback = function (ev) { 
+        callback = function(ev) {
           //console.log(["看看move"]);
           me.move(ev);
         };
@@ -1382,7 +1386,7 @@ export default {
     },
     handleResizeFn(e) {
       let me = this,
-        callback = function (ev) {
+        callback = function(ev) {
           //console.log(["看看resize"]);
           me.handleResize(ev);
         };
@@ -1390,7 +1394,6 @@ export default {
       let tFn = tool.throttle(callback, 10);
       return tFn;
     }
-
   },
 
   watch: {

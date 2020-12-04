@@ -97,11 +97,11 @@ let dropManagerCfg = {
       for (let i = 0; i < fitOwners.length; ++i) {
         let isParent = false;
         for (let j = 0; j < fitOwners.length; ++j) {
-          if (i == j) continue;//这个是相同的情况。
+          if (i == j) continue; //这个是相同的情况。
           isParent = me.findIfChild(fitOwners[i], fitOwners[j]);
           //=1= 如果找到了是包含了 任一group的，那么这个 parent就是有child的
           if (isParent) {
-            break;//=2=也就可以跳出来进行下一个的 循环了
+            break; //=2=也就可以跳出来进行下一个的 循环了
           }
         }
         //=3= 找遍了所有 都没有找到 所包含的子集，那么这个就是 最底层的 非父级部件了。
@@ -117,7 +117,7 @@ let dropManagerCfg = {
           return xyOkItems[0];
         }
         //=4.1= zIndex比较
-        xyOkItems.sort(function (a, b) {
+        xyOkItems.sort(function(a, b) {
           let aIns = a.Instance,
             bIns = b.Instance,
             p1s = a.parentsList,
@@ -137,7 +137,9 @@ let dropManagerCfg = {
         return xyOkItems[xyOkItems.length - 1];
       }
       //不应该走到这里，应该是能找到的。
-      console.error("应该是能找到 最下层子级的，但是没找到，可能是父子级 items关系没整对");
+      console.error(
+        "应该是能找到 最下层子级的，但是没找到，可能是父子级 items关系没整对"
+      );
       return false;
     },
 
@@ -150,13 +152,15 @@ let dropManagerCfg = {
           stopY = e.clientY;
         //~ 1 该区域有哪些可选 能drop进的组件
         let fitOwners = [];
-        me.items.forEach(function (dNode, holderNode) {
+        me.items.forEach(function(dNode, holderNode) {
           //# 1 排除自己、
           if (ownerNode == holderNode) {
             return;
           }
           //# 1-2 以及自己内部
-          let findInner = holderNode.instanceCode ? ownerNode.down("instanceCode", holderNode.instanceCode) : false;
+          let findInner = holderNode.instanceCode
+            ? ownerNode.down("instanceCode", holderNode.instanceCode)
+            : false;
           if (findInner) {
             return;
           }
@@ -173,7 +177,12 @@ let dropManagerCfg = {
             rectW = dNode.width,
             rectH = dNode.height;
           //console.log(["比较与client的点 X", stopX, rectX, "Y", stopY, rectY]);
-          if (stopX > rectX && stopX < (rectX + rectW) && stopY > rectY && stopY < (rectY + rectH)) {
+          if (
+            stopX > rectX &&
+            stopX < rectX + rectW &&
+            stopY > rectY &&
+            stopY < rectY + rectH
+          ) {
             fitOwners.push(holderNode);
           }
         });
@@ -187,7 +196,12 @@ let dropManagerCfg = {
             return;
           }
 
-          console.log(["找到最前端的 子控件了！ check!", fitOwners, theOwner, me]);
+          console.log([
+            "找到最前端的 子控件了！ check!",
+            fitOwners,
+            theOwner,
+            me
+          ]);
           //【4】加入！
           theOwner && theOwner.Instance.add(ownerNode.Instance);
           res();
@@ -202,7 +216,7 @@ let dropManagerCfg = {
     //--------
     // drop管理器事件体系：
     //【1】有一个组件触发了 drop判定
-    me.$on("dragstop", function (draggingNode, l, t, w, h) {
+    me.$on("dragstop", function(draggingNode, l, t, w, h) {
       //~ 1 该区域有哪些可选 能drop进的组件
       //~ 2 选择图层最前的元素 ==》 这个交给图层数来判断，父亲链
       //~ 3 进行拽入，传入Entity

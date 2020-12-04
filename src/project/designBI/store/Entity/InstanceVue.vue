@@ -1,6 +1,6 @@
 <script>
 import { Instance } from "@designBI/views/mixins/Entity.js";
-import DesignItemInstance from './DesignItemInstance';
+import DesignItemInstance from "./DesignItemInstance";
 export default {
   name: "InstanceVue",
   mixins: [Instance],
@@ -8,7 +8,7 @@ export default {
     //# 1 改写 Ins的 Entity，直接 是这个类型
     Entity: {
       type: DesignItemInstance,
-      required: true,
+      required: true
     }
   },
   computed: {
@@ -23,9 +23,7 @@ export default {
         list = me.parent.instanceVue.parentsList.concat(me.parent);
       }
       return list;
-    },
+    }
   }
-
-}
+};
 </script>
-

@@ -7,6 +7,9 @@ import "./assets/theme/designBI_vue.scss";
 //【~ 1】完整引入 element看看
 import ElementUI from "element-ui";
 Vue.use(ElementUI);
+import Scrollbar from "@/packages/scrollbar/src/main.js"; //"element-ui/packages/scrollbar";
+Vue.component("Scrollbar", Scrollbar);
+//import "element-ui/packages/theme-chalk/src/scrollbar.scss";
 
 //=========--------
 // Section 1 环境框架构建

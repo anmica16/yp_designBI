@@ -33,7 +33,7 @@ export default {
       let me = this,
         theRec = me.loadRecordData(me.recordData);
       return theRec;
-    },
+    }
   },
   watch: {
     recordData(newVal) {

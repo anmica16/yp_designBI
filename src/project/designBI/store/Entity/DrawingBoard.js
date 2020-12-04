@@ -105,6 +105,10 @@ export default class DrawingBoard extends DrawEntityBase {
             templateCode: me.recordData.templateCode,
             drag_resize_cfg: {
               can_dragTo: false
+            },
+            style: {
+              width: 1080,
+              height: 720
             }
           }
         }
@@ -131,7 +135,7 @@ export default class DrawingBoard extends DrawEntityBase {
       super.delete
         .call(this, options)
         .then(result => {
-          console.log(["测试 delete Board位置"]);
+          //console.log(["测试 delete Board位置"]);
           theStore.commit("DeleteRecord", {
             Entity: me
           });
