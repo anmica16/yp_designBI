@@ -62,6 +62,9 @@ export default {
     canDragTo() {
       return this.recordData.drag_resize_cfg.can_dragTo;
     },
+    itemsData() {
+      return this.recordData.items;
+    },
     propsData() {
       let me = this;
       return {

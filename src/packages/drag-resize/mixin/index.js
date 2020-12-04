@@ -317,6 +317,8 @@ export default {
       this.$el.ondragstart = () => false;
     }
 
+    console.log(["dragresize 的 mounted过程"]);
+
     const [parentWidth, parentHeight] = this.getParentSize();
 
     this.parentWidth = parentWidth;
@@ -511,6 +513,7 @@ export default {
       }
     },
     calcDragLimits() {
+      this.checkParentSize();
       return {
         minLeft: this.left % this.grid[0],
         maxLeft:

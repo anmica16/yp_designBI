@@ -15,10 +15,10 @@ let Base = {
   },
   computed: {
     recordData() {
-      return this.Entity.recordData;
+      return this.Instance.recordData;
     },
     record() {
-      return this.Entity.record;
+      return this.Instance.record;
     },
     id() {
       return this.recordData.id;
@@ -59,6 +59,9 @@ let Board = tool.mergeClone({}, Base, {
 
 let Instance = tool.mergeClone({}, Base, {
   computed: {
+    instanceVue() {
+      return this.Instance.instanceVue;
+    },
     instanceCode() {
       return this.recordData.instanceCode;
     },
@@ -71,6 +74,11 @@ let Instance = tool.mergeClone({}, Base, {
     },
     parentCode() {
       return this.recordData.parent && this.recordData.parent.$context && this.recordData.parent.$context.instanceCode;
+    },
+    //【update 1204】该变量放在单独的ins.vue里面
+    parentsList() {
+      let me = this;
+      return me.instanceVue.parentsList;
     },
     //因为 record里面会自动转化 data的 $context选项,转化为一个 实体
     items() {

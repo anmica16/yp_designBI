@@ -2,7 +2,7 @@
 import tool from "@/plugins/js/tool";
 import Vue from "vue";
 import RecordParserVue from "../public/RecordParser.vue";
-let RecordParser = Vue.extend(RecordParserVue);
+const RecordParser = Vue.extend(RecordParserVue);
 export default class DrawEntityBase {
   table = "base";
   parser = null;

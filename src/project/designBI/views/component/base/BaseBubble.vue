@@ -10,10 +10,21 @@
 
 <script>
 import { Instance } from "@designBI/views/mixins/Entity.js";
+//import tool from '@/plugins/js/tool';
 
 export default {
   name: "BaseBubble",
-  mixins: [Instance]
+  mixins: [Instance],
+  // watch:{
+  //   items(newVal) {
+  //     if (newVal && newVal.length) {
+  //     tool.each(newVal, item =>{
+  //       item.set
+  //     })
+
+  //     }
+  //   }
+  // }
 };
 </script>
 

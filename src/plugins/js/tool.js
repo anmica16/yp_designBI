@@ -223,7 +223,7 @@ let tool = {
             } else {
               //# 2 也存在删除的情况
               let removeItems = [],
-                theI = 0;
+                theI = -1;
               me.each(value, function (val, i) {
                 theI = i;
                 let tempVal;

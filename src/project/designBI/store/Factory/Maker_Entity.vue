@@ -13,7 +13,7 @@
           <el-button type="primary" @click="submitForm" class="saveBtn">{{
             isAdd ? "确认创建" : "保存修改"
           }}</el-button>
-          <el-button @click="resetForm">恢复默认</el-button>
+          <!-- <el-button @click="resetForm">恢复默认</el-button> -->
         </el-form-item>
       </CusForm>
     </div>

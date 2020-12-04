@@ -76,12 +76,10 @@ let dropManagerCfg = {
     //【drag 3】
     findIfChild(parent, child) {
       let me = this,
-        pIns = parent.Instance,
-        cIns = child.Instance,
-        cInsPL = cIns.parentsList;
-      if (cInsPL.length) {
+        childPL = child.parentsList;
+      if (childPL.length) {
         //# 1 如果 child的 父亲链中 有parent的 ins，那么确定其为父亲
-        if (cInsPL.indexOf(pIns) > -1) {
+        if (childPL.indexOf(parent.Instance) > -1) {
           return true;
         }
       }
@@ -122,8 +120,8 @@ let dropManagerCfg = {
         xyOkItems.sort(function (a, b) {
           let aIns = a.Instance,
             bIns = b.Instance,
-            p1s = aIns.parentsList,
-            p2s = bIns.parentsList,
+            p1s = a.parentsList,
+            p2s = b.parentsList,
             findP = me.findLastParent(p1s, p2s);
           if (findP) {
             let z1 = findP[0].recordData.style.zIndex || 0,

@@ -4,6 +4,8 @@ import DrawEntityBase from "./DrawEntityBase";
 import { createAndTime } from "../public/fields";
 import { theStore } from "../index";
 import DesignItem from "./DesignItem";
+import InstanceVueCfg from './InstanceVue.vue';
+const InstanceVue = Vue.extend(InstanceVueCfg);
 
 const BaseCfg = tool.apply(
   {
@@ -262,11 +264,14 @@ export default class DesignItemInstance extends DrawEntityBase {
   instanceCode = null;
   templateCode = null;
 
+  //# 1 新vue
+  instanceVue = null;
+
   //----------
   // 二、过程中使用的变量
   //----------
   //@ 1 父亲链，用于拖拽比较最前端item
-  parentsList = [];
+  //parentsList = [];
 
   constructor(xtype, record) {
     //#1 配置形式
@@ -309,6 +314,12 @@ export default class DesignItemInstance extends DrawEntityBase {
     //~ 3 传出值
     Vue.set(me, "templateCode", me.recordData.templateCode);
     Vue.set(me, "instanceCode", me.recordData.instanceCode);
+    //~ 4 新增vue部分：
+    me.instanceVue = new InstanceVue({
+      propsData: {
+        Entity: me
+      }
+    });
   }
 
   checkType(Instance) {
@@ -316,6 +327,13 @@ export default class DesignItemInstance extends DrawEntityBase {
       throw `add时给了错误类型的参数！`;
     }
   }
+  // setParentsList(Instance) {
+  //   let me = this;
+  //   //if (me.parentsList.indexOf(Instance) < 0) {
+  //   let targetPL = Instance.parentsList;
+  //   me.parentsList = targetPL.concat([Instance]);
+  //   //}
+  // }
   setParent(Instance) {
     let me = this;
     me.checkType(Instance);
@@ -332,13 +350,12 @@ export default class DesignItemInstance extends DrawEntityBase {
     });
     me.save();
     //~ 2 父亲链处理
-    let targetPL = Instance.parentsList;
-    me.parentsList = targetPL.concat([Instance]);
+    //me.setParentsList(Instance);
   }
   //解决部分不响应items的组件
   refreshItems() {
     let me = this;
-    Vue.set(me.record, "items", me.record.items);
+    Vue.set(me.recordData, "items", me.recordData.items);
   }
   leaveParent() {
     let me = this,
@@ -350,7 +367,8 @@ export default class DesignItemInstance extends DrawEntityBase {
         at = pItemsData.findIndex(item => item.$context && item.$context.instanceCode === meInsCode);
       if (at > -1) {
         pItemsData.splice(at, 1);
-        //parent.refreshItems();
+        //# 2 父亲要保存一下
+        parent.save();
         return true;
       }
     }
@@ -390,12 +408,7 @@ export default class DesignItemInstance extends DrawEntityBase {
         //#3 parent中删除
         me.leaveParent();
 
-        //#4 再save一下
-        me.save().then((rs) => {
-          res(rs);
-        }).catch(rs => {
-          rej(rs);
-        });
+        res(r);
       }).catch((r) => {
         rej(r);
       })

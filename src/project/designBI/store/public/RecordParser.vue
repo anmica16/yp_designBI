@@ -3,6 +3,7 @@ import tool from "@/plugins/js/tool";
 import Vue from "vue";
 import { theStore } from "../index";
 import $ from "@/plugins/js/loader";
+import DesignItemInstance from "@designBI/store/Entity/DesignItemInstance.js";
 export default {
   name: "RecordParser",
   props: {
@@ -32,7 +33,7 @@ export default {
       let me = this,
         theRec = me.loadRecordData(me.recordData);
       return theRec;
-    }
+    },
   },
   watch: {
     recordData(newVal) {
