@@ -348,7 +348,7 @@ export default class DesignItemInstance extends DrawEntityBase {
         }
       }
     });
-    me.save();
+    return me.save();
     //~ 2 父亲链处理
     //me.setParentsList(Instance);
   }
@@ -362,26 +362,69 @@ export default class DesignItemInstance extends DrawEntityBase {
       meInsCode = me.getData("instanceCode"),
       parent = me.get("parent");
     console.log(["开始离开父亲"]);
-    if (parent && parent instanceof DesignItemInstance) {
-      let pItemsData = parent.getData("items"),
-        at = pItemsData.findIndex(
-          item => item.$context && item.$context.instanceCode === meInsCode
-        );
-      if (at > -1) {
-        pItemsData.splice(at, 1);
-        //# 2 父亲要保存一下
-        parent.save();
-        return true;
+    return new Promise((res, rej) => {
+      if (parent && parent instanceof DesignItemInstance) {
+        let pItemsData = parent.getData("items"),
+          at = pItemsData.findIndex(
+            item => item.$context && item.$context.instanceCode === meInsCode
+          );
+        if (at > -1) {
+          pItemsData.splice(at, 1);
+          //# 2 父亲要保存一下
+          parent
+            .save()
+            .then(r => {
+              res(r);
+            })
+            .catch(r => {
+              rej(r);
+            });
+          return;
+        }
       }
-    }
-    return false;
+      //没有父亲就算做 ok
+      res();
+    });
   }
+  // getSavePro(saveFn) {
+  //   let me = this,
+  //     savePro =
+
+  // }
   add(Instance) {
     let me = this;
     me.checkType(Instance);
 
+    let makePro = function(Entity, savePro) {
+      return new Promise((res, rej) => {
+        savePro
+          .then(r => {
+            //Entity 为parent时，出现下列情况时一定存在
+            if (r && r.type === "abort") {
+              //# 4 存在保存时中断之前保存的操作，这里就统一以 成功保存为准，不管中断多少次
+              Entity.parser.$once("save-success", () => {
+                adding && (theStore.state.progress += 30);
+                res(r);
+              });
+            } else {
+              adding && (theStore.state.progress += 30);
+              res(r);
+            }
+          })
+          .catch(r => {
+            rej(r);
+          });
+      });
+    };
+
+    let adding = true;
+    //@ 1 开始
+    theStore.state.progress = 0;
+
+    let pros = [];
     //# 3 后续加入 之前的父亲去除本 Entity
-    Instance.leaveParent();
+    let pro1 = makePro(Instance.get("parent"), Instance.leaveParent());
+    pros.push(pro1);
 
     //# 1 一是，自身items加入一个
     me.recordData.items.push({
@@ -392,16 +435,39 @@ export default class DesignItemInstance extends DrawEntityBase {
         templateCode: me.templateCode
       }
     });
-    me.save();
-    //   .then(() => {
-    //   me.refreshItems();
-    // });
+    let pro2 = makePro(me, me.save());
+    pros.push(pro2);
 
-    //# 2 而是，对方parent设定
-    Instance.setParent(me);
+    //# 2 二是，对方parent设定
+    let pro3 = makePro(Instance, Instance.setParent(me));
+    pros.push(pro3);
+
+    return new Promise((res, rej) => {
+      Promise.all(pros)
+        .then(r => {
+          //theStore.state.progress = 100;
+          res(r);
+        })
+        .catch(r => {
+          console.log(["add的中间过程出现了 rejection ", r]);
+          //theStore.state.progress = 100;
+          rej(r);
+        })
+        .finally(() => {
+          adding = false;
+          theStore.state.progress = 100;
+        });
+    });
   }
   delete(options) {
     let me = this;
+    //# 2 已标记deleted 不再deleted
+    if (me.parser.deleted) {
+      return Promise.resolve("已经删除，请勿重复删除");
+    }
+    //# 3 先标记已删除
+    me.parser.deleted = true;
+
     return new Promise((res, rej) => {
       super.delete
         .call(this, options)
@@ -415,6 +481,9 @@ export default class DesignItemInstance extends DrawEntityBase {
           res(r);
         })
         .catch(r => {
+          //# 4 失败了的删除，就应该返回deleted状态
+          //先不管删除到了哪一步。都可以通过保留的web信息进行保存回来。
+          me.parser.deleted = false;
           rej(r);
         });
     });

@@ -7,9 +7,23 @@
     </div>
     <template v-else>
       <RectLayoutV2 ref="rect">
+        <!-- 【3】上部 标题 工具栏 -->
         <template #n>
-          <theHeader></theHeader>
+          <div class="header-wrap">
+            <theHeader></theHeader>
+            <transition name="fade">
+              <div class="progressBar-wrap" v-show="progressShow">
+                <div
+                  class="progressBar"
+                  :class="{ fullfilled: !progressShow }"
+                  :style="progressStyle"
+                ></div>
+              </div>
+            </transition>
+          </div>
         </template>
+
+        <!-- 【2】左侧工具栏 -->
         <template #w>
           <div class="leftBar">
             <el-popover ref="popover" placement="right-start" trigger="click">
@@ -25,8 +39,10 @@
             </el-popover>
           </div>
         </template>
+
+        <!-- 【1】中间部分 绘板 -->
         <template #c>
-          <Scrollbar style="width: 100%; height: 100%;">
+          <Scrollbar style="width: 100%; height: 100%">
             <div
               v-loading="loadRoot"
               :style="{
@@ -43,21 +59,6 @@
               ></Bubble>
             </div>
           </Scrollbar>
-          <!-- <Bubble></Bubble> -->
-          <!-- <el-tabs ref="tabpanel" type="card" v-model="activeName">
-          <el-tab-pane
-            v-for="item in drawingBoards"
-            :key="item.name"
-            :label="item.label"
-            :name="item.name"
-            :closable="item.closable"
-          >
-            <DrawingBoard
-              :is="item.xtype || 'el-tab-pane'"
-              :config="item"
-            ></DrawingBoard>
-          </el-tab-pane>
-        </el-tabs> -->
         </template>
         <template #e>
           <div>east</div>
@@ -81,7 +82,8 @@ export default {
     return {
       queryFlag: "DesignEdit",
       loadRoot: false,
-      nowInstances: null
+      nowInstances: null,
+      progressShow: false
       //activeName: "",
       //drawingBoards: [],
       //在router进行切换的时候 切换
@@ -90,6 +92,28 @@ export default {
     };
   },
   computed: {
+    //@ 1 进度条
+    progress() {
+      let me = this,
+        val = me.$store.state.progress;
+
+      return val === null ? 100 : val;
+    },
+    // progressShow() {
+    //   return tool.isNumber(this.progress);
+    // },
+    progressStyle() {
+      let me = this,
+        style = {};
+      if (me.progressShow) {
+        tool.apply(style, {
+          width: me.progress + "%"
+        });
+      }
+
+      return style;
+    },
+
     //在router进行切换的时候 切换
     nowTemplateCode() {
       let me = this,
@@ -205,6 +229,17 @@ export default {
       if (newBoard && newBoard != oldBoard) {
         me.nowInstances = me.getNowInstances();
       }
+    },
+    //# 4 store 进度条监听
+    "$store.state.progress": function(newVal, oldVal) {
+      let me = this;
+      //console.log(["能顾监听progress变化", newVal, oldVal]);
+      if (newVal === 100 || newVal < 0 || newVal > 100) {
+        me.progressShow = false;
+        me.$store.state.progress = null;
+      } else if (tool.isNumber(newVal) && newVal < 100) {
+        me.progressShow = true;
+      }
     }
   },
   // mounted() {
@@ -278,6 +313,27 @@ export default {
 </script>
 
 <style lang="scss">
+.header-wrap {
+  height: 100%;
+  width: 100%;
+  position: relative;
+  .progressBar-wrap {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 4px;
+    width: 100%;
+
+    .progressBar {
+      height: 100%;
+      transition: all 0.5s;
+      background: goldenrod;
+      &.fullfilled {
+        transition: none;
+      }
+    }
+  }
+}
 .editCenter {
   height: 100%;
   width: 100%;

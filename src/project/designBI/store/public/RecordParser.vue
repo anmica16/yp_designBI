@@ -9,19 +9,26 @@ export default {
   props: {
     baseConfig: {
       type: Object,
-      required: true
+      required: true,
     },
     baseData: {
       type: Object,
       default() {
         return {};
-      }
-    }
+      },
+    },
   },
   data() {
     return {
       record: {},
-      recordData: {}
+      recordData: {},
+
+      //【=1=】个体更新状态
+      //# 1 如果在save，那么ajax赋给他
+      updating: false,
+      showLoad_upd: false,
+      //# 2 如果已标记deleted，那么中断且 不可再save
+      deleted: false,
     };
   },
   computed: {
@@ -33,7 +40,10 @@ export default {
       let me = this,
         theRec = me.loadRecordData(me.recordData);
       return theRec;
-    }
+    },
+    storeLoading() {
+      return theStore.getters.loading;
+    },
   },
   watch: {
     recordData(newVal) {
@@ -43,7 +53,7 @@ export default {
     recordMid(newVal) {
       //console.log(["刷新了！recordMid"]);
       tool.mergeSet(Vue.set, this.record, newVal);
-    }
+    },
   },
   methods: {
     //【5】将字符串转化为对象
@@ -60,7 +70,7 @@ export default {
           }
           theCfg[key] = {
             name: val + "",
-            desp: val + ""
+            desp: val + "",
           };
         }
         //名称
@@ -68,7 +78,7 @@ export default {
         //~ 3 公共附加属性
         tool.apply(theCfg[key], {
           $key: key,
-          propsArray: keyPropsArray
+          propsArray: keyPropsArray,
         });
 
         //~ 2 是否有 $jsonFields
@@ -87,7 +97,7 @@ export default {
       let me = this,
         rec = {};
       //console.log(["newRecordData 的问题"]);
-      tool.each(jsonFields ? jsonFields : me.baseCfg, function(key, val) {
+      tool.each(jsonFields ? jsonFields : me.baseCfg, function (key, val) {
         let initVal = null;
         //#1 只有拥有default函数的，才有初始值，其他均为 null
         if (tool.isFunction(val.default)) {
@@ -138,13 +148,13 @@ export default {
     loadRecordData(data, inLoop) {
       let me = this,
         rec = {};
-      tool.each(inLoop ? data : me.baseCfg, function(key, val) {
+      tool.each(inLoop ? data : me.baseCfg, function (key, val) {
         let readVal = data[key],
           resultVal = null;
         //~ 1 数组 分别执行load
         if (tool.isArray(readVal)) {
           let readValArray = [];
-          tool.each(readVal, rData => {
+          tool.each(readVal, (rData) => {
             //console.log(["针对Items进行检查", rData]);
             //# 1 因为内部的 $context是需要一个壳才能进入each中转化的，所以这里提供一个rData壳。
             let resultObj = me.loadRecordData({ rData }, true);
@@ -207,7 +217,7 @@ export default {
           if (tool.isObject(recordData[key])) {
             me.triggerSave(recordData[key], val.$jsonFields);
           } else if (tool.isArray(recordData[key])) {
-            recordData[key].forEach(item => {
+            recordData[key].forEach((item) => {
               me.triggerSave(item, val.$jsonFields);
             });
           }
@@ -217,60 +227,90 @@ export default {
     //【4】保存到数据库
     save(options, Entity) {
       let me = this;
+
+      //# 2 已标记deleted 不再save
+      if (me.deleted) {
+        return Promise.resolve("已删除，保存或更新失败");
+      }
+
+      //# 3 单独的 更新状态管理
+      //~ 3.1 上一次的状态
+      let canShow = me.showLoad_upd;
+      me.showLoad_upd = !me.storeLoading;
+
+      //# 1 正在save的，中断然后再save
+      if (me.updating) {
+        me.updating.abort();
+        me.updating = null;
+
+        // ~ 3.1-2 传递上一次状态到这一次
+        me.showLoad_upd = canShow;
+      }
+
       options = options || {};
+      me.showLoad_upd && (theStore.state.progress = 20);
       return new Promise((res, rej) => {
-        $.ajax({
+        me.updating = $.ajax({
           url: Vue.Api.designBI,
           data: tool.apply(
             {
               method: Vue.Api.designBI.AddOrUpd,
               records: JSON.stringify([me.recordData]),
-              table: Entity.table
+              table: Entity.table,
             },
             options
-          )
-        })
-          .then(result => {
-            console.log(["测试成功的save", result]);
-            //有些没有id的应该在保存之后设定
-            //console.log(["这里咋不对 $isNew"]);
+          ),
+        });
+        me.updating
+          .then((result) => {
+            console.log(["成功的save", result]);
+            me.updating = null;
+            me.showLoad_upd && (theStore.state.progress = 100);
             if (Entity.$isNew) {
+              //# 4 有些没有id的应该在保存之后设定
               Entity.setData({ id: result.other });
             }
             theStore.commit("AddOrUpdRecord", {
-              Entity: Entity
+              Entity: Entity,
             });
+            me.$emit("save-success");
             res(result);
           })
-          .catch(result => {
-            rej(result);
+          .catch((result) => {
+            //console.log(["中断的理由？ 【++4】", arguments]);
+            //# 5 中断的，要将中断的信息传递出去，为wrap式多项save操作 提供一个数据参考，如【add】方法
+            if (result && result.statusText === "abort") {
+              me.showLoad_upd && (theStore.state.progress = 40);
+              res({ result, type: "abort" });
+            } else {
+              rej(result);
+            }
           });
       });
     },
-    //【5】从数据库中删除
+    //【5】从数据库中删除，不会有多次，只考虑一次情况
     delete(options, Entity) {
       let me = this;
-      options = options || {};
-      return new Promise((res, rej) => {
-        //# 5 交给后台判断
-        // if (!me.recordData.id) {
-        //   rej({ success: false, msg: "所传递id值为空" });
-        //   return;
-        // }
 
+      let showLoad = !me.storeLoading;
+
+      options = options || {};
+      showLoad && (theStore.state.progress = 20);
+      return new Promise((res, rej) => {
+        //# 5 交给后台判断 是否有ID
         $.ajax({
           url: Vue.Api.designBI,
           data: tool.apply(
             {
               method: Vue.Api.designBI.Delete,
               ids: JSON.stringify([me.recordData.id]),
-              table: Entity.table
+              table: Entity.table,
             },
             options
-          )
+          ),
         })
           //#1 delete 就把后续操作交给 实体自己了
-          .then(result => {
+          .then((result) => {
             console.log(["测试delete", result]);
             // theStore.commit("DeleteRecord", {
             //   Entity: Entity,
@@ -280,8 +320,14 @@ export default {
             // });
             res(result);
           })
-          .catch(result => {
+          .catch((result) => {
+            Vue.$alert("失败", "删除失败！")
+              .then(() => {})
+              .catch(() => {});
             rej(result);
+          })
+          .finally(() => {
+            showLoad && (theStore.state.progress = 100);
           });
       });
     },
@@ -314,7 +360,7 @@ export default {
     refreshData() {
       let me = this;
       me.setData({});
-    }
+    },
   },
   created() {
     let me = this,
@@ -337,6 +383,6 @@ export default {
       tool.merge(initRec, data);
     }
     me.recordData = initRec;
-  }
+  },
 };
 </script>

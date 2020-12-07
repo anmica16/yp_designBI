@@ -127,6 +127,18 @@ export default class DrawingBoard extends DrawEntityBase {
   delete(options) {
     let me = this;
     options = options || {};
+
+    //# 2 已标记deleted 不再deleted
+    if (me.parser.deleted) {
+      return Promise.resolve("已经删除，请勿重复删除");
+    }
+    //# 3 先标记已删除 包括所有template为 该绘板的子控件，主要针对已获取并实例化进map的子控件items。
+    me.parser.deleted = true;
+    let items = theStore.getters.getInstances(me.templateCode);
+    tool.each(items, item => {
+      item.parser.deleted = true;
+    });
+
     tool.apply(options, {
       method: Vue.Api.designBI.DeleteBoard,
       templateCode: me.recordData.templateCode
@@ -142,6 +154,13 @@ export default class DrawingBoard extends DrawEntityBase {
           res(result);
         })
         .catch(result => {
+          //# 4 失败了的删除，就应该返回deleted状态
+          //先不管删除到了哪一步。都可以通过保留的web信息进行保存回来。
+          me.parser.deleted = false;
+          tool.each(items, item => {
+            item.parser.deleted = false;
+          });
+
           rej(result);
         });
     });

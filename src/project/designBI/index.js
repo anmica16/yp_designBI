@@ -7,6 +7,17 @@ import "./assets/theme/designBI_vue.scss";
 //【~ 1】完整引入 element看看
 import ElementUI from "element-ui";
 Vue.use(ElementUI);
+
+// //【=2=】提示message
+import { Message, MessageBox } from "element-ui";
+Vue.$msgbox = MessageBox;
+Vue.$alert = MessageBox.alert;
+Vue.$confirm = MessageBox.confirm;
+Vue.$prompt = MessageBox.prompt;
+Vue.$message = Message;
+// import "element-ui/packages/theme-chalk/src/message-box.scss";
+// import "element-ui/packages/theme-chalk/src/message.scss";
+
 import Scrollbar from "@/packages/scrollbar/src/main.js"; //"element-ui/packages/scrollbar";
 Vue.component("Scrollbar", Scrollbar);
 //import "element-ui/packages/theme-chalk/src/scrollbar.scss";

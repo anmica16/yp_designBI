@@ -11,6 +11,12 @@ export default {
       required: true
     }
   },
+  data() {
+    return {
+      //记录一次保存进度的verb
+      //prog_add: 0
+    };
+  },
   computed: {
     // parent() {
     //   return this.Entity.reocrd.parent;

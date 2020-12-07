@@ -192,22 +192,41 @@ let dropManagerCfg = {
 
           //# 1-4 排除现有父亲
           if (theOwner.instanceCode === ownerNode.parentCode) {
-            res();
+            rej({
+              type: "notFind",
+              message: "sameParent"
+            });
             return;
           }
 
-          console.log([
-            "找到最前端的 子控件了！ check!",
-            fitOwners,
-            theOwner,
-            me
-          ]);
+          // console.log([
+          //   "找到最前端的 子控件了！ check!",
+          //   fitOwners,
+          //   theOwner,
+          //   me
+          // ]);
           //【4】加入！
-          theOwner && theOwner.Instance.add(ownerNode.Instance);
-          res();
-        }
+          if (theOwner) {
+            theOwner.Instance.add(ownerNode.Instance)
+              .then(r => {
+                //3个save都完成了
 
-        rej();
+                res({
+                  r,
+                  type: "add"
+                });
+              })
+              .catch(r => {
+                rej({
+                  r,
+                  type: "error"
+                });
+              });
+            return;
+          }
+        }
+        //只有add进去的才是res
+        rej({ type: "notFind" });
       });
     }
   },

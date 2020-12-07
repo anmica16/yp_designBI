@@ -89,10 +89,12 @@ export default {
     save() {
       let me = this;
       //~ 1 拖拽的 style数据同步进去
-      let style = me.$refs.dragNode.getSyncStyle();
-      me.Instance.setData({
-        style
-      });
+      let style = me.$refs.dragNode && me.$refs.dragNode.getSyncStyle();
+      if (style) {
+        me.Instance.setData({
+          style
+        });
+      }
       return new Promise((res, rej) => {
         me.Instance.save()
           .then(r => {
@@ -135,13 +137,22 @@ export default {
       //~ 1 看看能不能拽入进去，随后就save
       me.dropManager
         .checkDragStop(e, me, dragNode)
-        .catch(() => {
-          console.log(["未找到合适的parent加入！"]);
+        .then(result => {
+          if (!(result && result.type === "add")) {
+            console.error(["不会到达这里 dragstop then save"]);
+            me.save();
+          }
         })
-        .finally(() => {
-          console.log(["dragstop 的 保存！"]);
-          me.save();
+        .catch(result => {
+          if (result && result.type === "notFind") {
+            console.log(["未找到合适的parent加入！"]);
+            me.save();
+          }
         });
+      // .finally(() => {
+      //   console.log(["dragstop 的 保存！"]);
+      //   me.save();
+      // });
     });
     //@ 2-2 resize 松开手指
     me.$refs.dragNode.$on("resizestop", function(e, dragNode) {

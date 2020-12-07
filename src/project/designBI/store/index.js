@@ -14,11 +14,10 @@ import DrawEntityBase from "./Entity/DrawEntityBase";
 
 let theStore = new Vuex.Store({
   state: {
-    //【1】绘板列表，按登录信息初始化列表
-    //Board_records: [],
-    //Instance_records: [],
-    //【3】点开一个绘板之后，获取到的数据就在这里面，key - 数组的形式保存
-    templateMap: {}
+    //【1】点开一个绘板之后，获取到的数据就在这里面，key - 数组的形式保存
+    templateMap: {},
+    //【2】进度条，用于显示一次加载请求的进度情况，null表示无，数字0~100表示一次开始到结束
+    progress: null
   },
   getters: {
     getBoard: state => templateCode => {
@@ -65,6 +64,11 @@ let theStore = new Vuex.Store({
         return getters.getBoard(params.templateCode);
       }
       return null;
+    },
+    //--------------
+    // 二、computed变量
+    loading(state) {
+      return state.progress === null ? false : true;
     }
   },
   mutations: {
