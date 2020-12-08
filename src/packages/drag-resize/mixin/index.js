@@ -263,7 +263,7 @@ export default {
     },
     throttleDiv: {
       type: Number,
-      default: 12
+      default: 1
     }
   },
 

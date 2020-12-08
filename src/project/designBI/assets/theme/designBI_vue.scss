@@ -87,13 +87,13 @@ body {
 //--------------
 //四、 动画
 //--------------
-.fade-enter-active, .fade-leave-active {
-  transition: opacity .5s;
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s;
 }
 .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
   opacity: 0;
 }
-
 
 //--------------
 //二、 单实例
@@ -181,19 +181,132 @@ body {
 .BI-application-page {
   width: 100%;
   height: 100%;
-  .UserPage {
+  background: white;
+  .DesignCenter {
     width: 100%;
     height: 100%;
-    $h: 60px;
+    $h: 40px;
+    $w: 70px;
     > .topH {
       height: $h;
+      .centerHeadWrap {
+        height: 100%;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+
+        .leftIcon {
+          flex-grow: 0;
+          height: 100%;
+          width: $w;
+          background: rgb(0, 174, 255);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          font-size: 20px;
+          i {
+            color: white;
+          }
+        }
+        .app-title {
+          flex-grow: 1;
+          .app-title-text {
+            padding-left: 10px;
+            font-size: 16px;
+            font-weight: normal;
+          }
+        }
+        .rightItems {
+          height: 100%;
+          flex-grow: 0;
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          .oneItem {
+            padding: 0 10px;
+            margin-right: 10px;
+            &.user {
+              .el-link--inner {
+                .el-icon-user-solid {
+                  padding: 5px;
+                  background: rgb(77, 215, 250);
+                  border-radius: 50px;
+                  margin-right: 6px;
+                  color: white;
+                }
+                .text {
+                  margin-right: 3px;
+                }
+              }
+            }
+          }
+        } //right
+      }
     }
     > .theBody {
       height: calc(100% - #{$h});
-      .DesignEdit {
+      .centerBody {
         height: 100%;
-        width: 100%;
-      }//edit
-    }//boty
+        > .el-tabs__header {
+          margin-right: 0;
+          width: 70px;
+          background: rgb(29, 46, 73);
+          .el-tabs__nav-wrap {
+            .el-tabs__nav {
+              margin-top: 8px;
+            }
+            //~ 1 右侧边框取消
+            &::after {
+              content: none;
+            }
+            //~ 2
+            .el-tabs__active-bar {
+              left: 0;
+              right: auto;
+              width: 4px;
+              border-radius: 6px;
+              background-color: white;
+            }
+            //~ 3
+            .el-tabs__item {
+              height: 105px;
+              box-sizing: border-box;
+              padding: 0;
+              padding-top: 16px;
+              color: rgb(150, 158, 172);
+              &.is-active,
+              &:hover {
+                color: white;
+              }
+              .item {
+                text-align: center;
+                .icon {
+                  font-size: 24px;
+                }
+                .text {
+                  font-size: 12px;
+                }
+              }
+            } //_item
+          }
+        }
+        > .el-tabs__content {
+          height: 100%;
+          box-shadow: inset 0 15px 10px -15px rgba(35, 46, 64, 0.1);
+          .el-tab-pane {
+            height: 100%;
+            //这下面最好有ScrollBar
+
+            //# 一、选择绘板页
+            .BoardsList-inner {
+              height: 100%;
+              background-color: #f7f8fa;
+              padding: 0 10px 10px 10px;
+
+            }//BoardsList
+          }
+        }//content
+      }
+    } //boty
   }
 }

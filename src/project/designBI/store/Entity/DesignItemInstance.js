@@ -395,7 +395,7 @@ export default class DesignItemInstance extends DrawEntityBase {
       // 0 对应目标上升 + 的终点
       // 1 对应 下降开始 - 到me的起点
       lastParents = dropManager.findLastParent(insParents, meParents);
-    console.log(["syncPositionToMe 检查"]);
+    //console.log(["syncPositionToMe 检查"]);
     //~ 1 只有是root是 me的时候，才会不存在，不存在就设为0
     let parentAt = lastParents && lastParents[1] || 0,
     //# 0 起点坐标

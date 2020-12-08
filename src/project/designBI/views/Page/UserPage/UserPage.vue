@@ -1,15 +1,9 @@
 <template>
-  <div class="UserPage">
-    <div class="topH">
-      <h2>User {{ $route.params.id }} 欢迎登录</h2>
-    </div>
-    <div class="theBody">
-      <router-view></router-view>
-    </div>
-  </div>
+  <router-view></router-view>
 </template>
 
 <script>
+//（1）用户信息加入到store
 export default {
   name: "UserPage"
 };

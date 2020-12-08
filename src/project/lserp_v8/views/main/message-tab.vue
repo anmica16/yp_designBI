@@ -308,6 +308,9 @@ export default {
         OnFail() {
           //console.log(["失败", arguments]);
         },
+        OnError() {
+
+        },
         OnComplete() {
           me.loading = false;
           if (tool.isFunction(callback)) {
