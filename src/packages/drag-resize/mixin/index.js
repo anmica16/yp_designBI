@@ -260,6 +260,10 @@ export default {
     borderResizeWidth: {
       type: Number,
       default: 10
+    },
+    throttleDiv: {
+      type: Number,
+      default: 12
     }
   },
 
@@ -317,7 +321,7 @@ export default {
       this.$el.ondragstart = () => false;
     }
 
-    console.log(["dragresize 的 mounted过程"]);
+    //console.log(["dragresize 的 mounted过程"]);
 
     const [parentWidth, parentHeight] = this.getParentSize();
 
@@ -499,6 +503,7 @@ export default {
 
         if (this.draggable) {
           this.dragging = true;
+          this.lastDragEvent = e;
         }
 
         this.mouseClickPosition.mouseX = e.touches
@@ -740,21 +745,18 @@ export default {
       }
     },
     handleDrag(e) {
+      let me = this;
       const axis = this.axis;
       const grid = this.grid;
       const bounds = this.bounds;
       const mouseClickPosition = this.mouseClickPosition;
+      const nowX = e.touches ? e.touches[0].pageX : e.pageX,
+        nowY = e.touches ? e.touches[0].pageY : e.pageY;
 
       const tmpDeltaX =
-        axis && axis !== "y"
-          ? mouseClickPosition.mouseX -
-            (e.touches ? e.touches[0].pageX : e.pageX)
-          : 0;
+        axis && axis !== "y" ? mouseClickPosition.mouseX - nowX : 0;
       const tmpDeltaY =
-        axis && axis !== "x"
-          ? mouseClickPosition.mouseY -
-            (e.touches ? e.touches[0].pageY : e.pageY)
-          : 0;
+        axis && axis !== "x" ? mouseClickPosition.mouseY - nowY : 0;
 
       const [deltaX, deltaY] = snapToGrid(
         grid,
@@ -766,13 +768,39 @@ export default {
       const left = restrictToBounds(
         mouseClickPosition.left - deltaX,
         bounds.minLeft,
-        bounds.maxLeft
+        bounds.maxLeft,
+        15
       );
       const top = restrictToBounds(
         mouseClickPosition.top - deltaY,
         bounds.minTop,
-        bounds.maxTop
+        bounds.maxTop,
+        15
       );
+      //【update】后续开放
+      //# 1 粘性 速度
+      //（1）通过返回值判断是否粘性状态
+      //（2）通过速度来确定是否位移
+      //（3）通过上一次的e来判断速度mouseClickPosition
+      // let lastE = this.lastDragEvent;
+      // if (lastE) {
+      //   let _pastX = lastE.touches ? lastE.touches[0].pageX : lastE.pageX,
+      //     _pastY = lastE.touches ? lastE.touches[0].pageY : lastE.pageY,
+      //     [pastX, pastY] = snapToGrid(
+      //       grid,
+      //       _pastX,
+      //       _pastY,
+      //       this.scale
+      //     ),
+      //     speedX = Math.abs((nowX - pastX) / me.throttleDiv * 1000),
+      //     speedY = Math.abs((nowY - pastY) / me.throttleDiv * 1000);
+      //   let speed = Math.pow(Math.pow(speedX, 2) + Math.pow(speedY, 2), 1 / 2);
+      //   if ((left === bounds.minLeft || left === bounds.maxLeft) && (top === bounds.minTop || top === bounds.maxTop)) {
+      //     console.log(["这个鼠标位移的速度 px/s", speedX, speedY, speed]);
+      //   }
+      // }
+      //（4）记录上一次event
+      this.lastDragEvent = e;
 
       if (this.onDrag(left, top) === false) {
         return;
@@ -1193,6 +1221,14 @@ export default {
       //# 2 z
       style.zIndex = me.zIndex;
 
+      //# 3 基本px的 信息
+      tool.apply(style, {
+        widthPx: me.width,
+        heightPx: me.height,
+        leftPx: me.left,
+        topPx: me.top
+      });
+
       return style;
     }
   },
@@ -1381,7 +1417,7 @@ export default {
           me.move(ev);
         };
       //100帧左右
-      let tFn = tool.throttle(callback, 10);
+      let tFn = tool.throttle(callback, me.throttleDiv);
       return tFn;
     },
     handleResizeFn(e) {
@@ -1391,7 +1427,7 @@ export default {
           me.handleResize(ev);
         };
       //100帧左右
-      let tFn = tool.throttle(callback, 10);
+      let tFn = tool.throttle(callback, me.throttleDiv);
       return tFn;
     }
   },

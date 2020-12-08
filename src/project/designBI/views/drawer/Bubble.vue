@@ -89,12 +89,9 @@ export default {
     save() {
       let me = this;
       //~ 1 拖拽的 style数据同步进去
-      let style = me.$refs.dragNode && me.$refs.dragNode.getSyncStyle();
-      if (style) {
-        me.Instance.setData({
-          style
-        });
-      }
+      me.syncStyle();
+
+      //~ 2 进行save;
       return new Promise((res, rej) => {
         me.Instance.save()
           .then(r => {
@@ -118,6 +115,15 @@ export default {
           me.Instance.delete();
         })
         .catch(() => {});
+    },
+    syncStyle() {
+      let me = this;
+      let style = me.$refs.dragNode && me.$refs.dragNode.getSyncStyle();
+      if (style) {
+        me.Instance.setData({
+          style
+        });
+      }
     }
   },
 
@@ -134,6 +140,9 @@ export default {
     }
     //@ 2 正常的 松开手指 drop判定
     me.$refs.dragNode.$on("dragstop", function(e, dragNode) {
+      //~ 2 先将对应的 style放入
+      me.syncStyle();
+
       //~ 1 看看能不能拽入进去，随后就save
       me.dropManager
         .checkDragStop(e, me, dragNode)
@@ -145,7 +154,7 @@ export default {
         })
         .catch(result => {
           if (result && result.type === "notFind") {
-            console.log(["未找到合适的parent加入！"]);
+            //console.log(["未找到合适的parent加入！"]);
             me.save();
           }
         });
@@ -156,12 +165,16 @@ export default {
     });
     //@ 2-2 resize 松开手指
     me.$refs.dragNode.$on("resizestop", function(e, dragNode) {
+      //~ 2 先将对应的 style放入
+      me.syncStyle();
       //~ 1 看看能不能拽入进去，随后就save
       me.dropManager.checkResizeStop(e, me, dragNode).finally(() => {
         console.log(["resizestop 的 保存！"]);
         me.save();
       });
     });
+    //@ 3 对style进行补充
+    me.syncStyle();
   }
 };
 </script>

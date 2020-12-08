@@ -9,14 +9,14 @@ export default {
   props: {
     baseConfig: {
       type: Object,
-      required: true,
+      required: true
     },
     baseData: {
       type: Object,
       default() {
         return {};
-      },
-    },
+      }
+    }
   },
   data() {
     return {
@@ -28,7 +28,7 @@ export default {
       updating: false,
       showLoad_upd: false,
       //# 2 如果已标记deleted，那么中断且 不可再save
-      deleted: false,
+      deleted: false
     };
   },
   computed: {
@@ -43,7 +43,7 @@ export default {
     },
     storeLoading() {
       return theStore.getters.loading;
-    },
+    }
   },
   watch: {
     recordData(newVal) {
@@ -53,7 +53,7 @@ export default {
     recordMid(newVal) {
       //console.log(["刷新了！recordMid"]);
       tool.mergeSet(Vue.set, this.record, newVal);
-    },
+    }
   },
   methods: {
     //【5】将字符串转化为对象
@@ -70,7 +70,7 @@ export default {
           }
           theCfg[key] = {
             name: val + "",
-            desp: val + "",
+            desp: val + ""
           };
         }
         //名称
@@ -78,7 +78,7 @@ export default {
         //~ 3 公共附加属性
         tool.apply(theCfg[key], {
           $key: key,
-          propsArray: keyPropsArray,
+          propsArray: keyPropsArray
         });
 
         //~ 2 是否有 $jsonFields
@@ -97,7 +97,7 @@ export default {
       let me = this,
         rec = {};
       //console.log(["newRecordData 的问题"]);
-      tool.each(jsonFields ? jsonFields : me.baseCfg, function (key, val) {
+      tool.each(jsonFields ? jsonFields : me.baseCfg, function(key, val) {
         let initVal = null;
         //#1 只有拥有default函数的，才有初始值，其他均为 null
         if (tool.isFunction(val.default)) {
@@ -148,13 +148,13 @@ export default {
     loadRecordData(data, inLoop) {
       let me = this,
         rec = {};
-      tool.each(inLoop ? data : me.baseCfg, function (key, val) {
+      tool.each(inLoop ? data : me.baseCfg, function(key, val) {
         let readVal = data[key],
           resultVal = null;
         //~ 1 数组 分别执行load
         if (tool.isArray(readVal)) {
           let readValArray = [];
-          tool.each(readVal, (rData) => {
+          tool.each(readVal, rData => {
             //console.log(["针对Items进行检查", rData]);
             //# 1 因为内部的 $context是需要一个壳才能进入each中转化的，所以这里提供一个rData壳。
             let resultObj = me.loadRecordData({ rData }, true);
@@ -217,7 +217,7 @@ export default {
           if (tool.isObject(recordData[key])) {
             me.triggerSave(recordData[key], val.$jsonFields);
           } else if (tool.isArray(recordData[key])) {
-            recordData[key].forEach((item) => {
+            recordData[key].forEach(item => {
               me.triggerSave(item, val.$jsonFields);
             });
           }
@@ -256,13 +256,13 @@ export default {
             {
               method: Vue.Api.designBI.AddOrUpd,
               records: JSON.stringify([me.recordData]),
-              table: Entity.table,
+              table: Entity.table
             },
             options
-          ),
+          )
         });
         me.updating
-          .then((result) => {
+          .then(result => {
             console.log(["成功的save", result]);
             me.updating = null;
             me.showLoad_upd && (theStore.state.progress = 100);
@@ -271,12 +271,12 @@ export default {
               Entity.setData({ id: result.other });
             }
             theStore.commit("AddOrUpdRecord", {
-              Entity: Entity,
+              Entity: Entity
             });
             me.$emit("save-success");
             res(result);
           })
-          .catch((result) => {
+          .catch(result => {
             //console.log(["中断的理由？ 【++4】", arguments]);
             //# 5 中断的，要将中断的信息传递出去，为wrap式多项save操作 提供一个数据参考，如【add】方法
             if (result && result.statusText === "abort") {
@@ -304,13 +304,13 @@ export default {
             {
               method: Vue.Api.designBI.Delete,
               ids: JSON.stringify([me.recordData.id]),
-              table: Entity.table,
+              table: Entity.table
             },
             options
-          ),
+          )
         })
           //#1 delete 就把后续操作交给 实体自己了
-          .then((result) => {
+          .then(result => {
             console.log(["测试delete", result]);
             // theStore.commit("DeleteRecord", {
             //   Entity: Entity,
@@ -320,7 +320,7 @@ export default {
             // });
             res(result);
           })
-          .catch((result) => {
+          .catch(result => {
             Vue.$alert("失败", "删除失败！")
               .then(() => {})
               .catch(() => {});
@@ -360,7 +360,7 @@ export default {
     refreshData() {
       let me = this;
       me.setData({});
-    },
+    }
   },
   created() {
     let me = this,
@@ -383,6 +383,6 @@ export default {
       tool.merge(initRec, data);
     }
     me.recordData = initRec;
-  },
+  }
 };
 </script>

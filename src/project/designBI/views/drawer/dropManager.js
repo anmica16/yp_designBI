@@ -63,14 +63,14 @@ let dropManagerCfg = {
     findLastParent(parents1, parents2) {
       let me = this,
         lastSame = -1;
-      for (let i = 0; i < parents1.length; ++i) {
+      for (let i = 0; i < parents1.length && i < parents2.length; ++i) {
         if (parents1[i] === parents2[i]) {
           lastSame = i;
         } else {
-          return [parents1[i], parents2[i], lastSame];
+          return [parents1[lastSame], lastSame];
         }
       }
-      return false;
+      return lastSame === -1 ? false : [parents1[lastSame], lastSame];
     },
 
     //【drag 3】
@@ -124,8 +124,16 @@ let dropManagerCfg = {
             p2s = b.parentsList,
             findP = me.findLastParent(p1s, p2s);
           if (findP) {
-            let z1 = findP[0].recordData.style.zIndex || 0,
-              z2 = findP[1].recordData.style.zIndex || 0;
+            let z1 =
+                (p1s.length > findP[1] + 1 &&
+                  p1s[findP[1] + 1].recordData.style.zIndex) ||
+                aIns.recordData.style.zIndex ||
+                0,
+              z2 =
+                (p2s.length > findP[1] + 1 &&
+                  p2s[findP[1] + 1].recordData.style.zIndex) ||
+                bIns.recordData.style.zIndex ||
+                0;
             return z1 - z2;
           } else {
             let z1 = aIns.recordData.style.zIndex || 0,
@@ -229,18 +237,10 @@ let dropManagerCfg = {
         rej({ type: "notFind" });
       });
     }
-  },
-  created() {
-    let me = this;
-    //--------
-    // drop管理器事件体系：
-    //【1】有一个组件触发了 drop判定
-    me.$on("dragstop", function(draggingNode, l, t, w, h) {
-      //~ 1 该区域有哪些可选 能drop进的组件
-      //~ 2 选择图层最前的元素 ==》 这个交给图层数来判断，父亲链
-      //~ 3 进行拽入，传入Entity
-    });
   }
+  // created() {
+  //   let me = this;
+  // }
 };
 let dropManagerCtor = Vue.extend(dropManagerCfg);
 const dropManager = new dropManagerCtor();

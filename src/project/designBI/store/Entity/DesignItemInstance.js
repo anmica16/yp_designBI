@@ -5,6 +5,8 @@ import { createAndTime } from "../public/fields";
 import { theStore } from "../index";
 import DesignItem from "./DesignItem";
 import InstanceVueCfg from "./InstanceVue.vue";
+import dropManager from "@designBI/views/drawer/dropManager";
+
 const InstanceVue = Vue.extend(InstanceVueCfg);
 
 const BaseCfg = tool.apply(
@@ -386,16 +388,57 @@ export default class DesignItemInstance extends DrawEntityBase {
       res();
     });
   }
-  // getSavePro(saveFn) {
-  //   let me = this,
-  //     savePro =
+  syncPositionToMe(Instance) {
+    let me = this,
+      meParents = me.instanceVue.parentsList,
+      insParents = Instance.instanceVue.parentsList,
+      // 0 对应目标上升 + 的终点
+      // 1 对应 下降开始 - 到me的起点
+      lastParents = dropManager.findLastParent(insParents, meParents);
+    console.log(["syncPositionToMe 检查"]);
+    //~ 1 只有是root是 me的时候，才会不存在，不存在就设为0
+    let parentAt = lastParents && lastParents[1] || 0,
+    //# 0 起点坐标
+      style = Instance.getData("style"),
+      resultLeft = style.leftPx,
+      resultTop = style.topPx;
 
-  // }
+    //# 1 上升累积 +
+    for (let i = insParents.length - 1; i > parentAt; --i) {
+      let theP = insParents[i],
+        theStyle = theP.getData("style");
+      resultLeft += theStyle.leftPx;
+      resultTop += theStyle.topPx;
+    }
+
+    //# 2 下降累积 -
+    if (parentAt + 1 < meParents.length) {
+      for (let j = parentAt + 1; j < meParents.length; ++j) {
+        let theP = meParents[j],
+          theStyle = theP.getData("style");
+        resultLeft -= theStyle.leftPx;
+        resultTop -= theStyle.topPx;
+      }
+    }
+
+    //# 3 再减去me -
+    let meStyle = me.getData("style");
+    resultLeft -= meStyle.leftPx;
+    resultTop -= meStyle.topPx;
+
+    //# 4 设定Instance
+    Instance.setData({
+      style: {
+        left: resultLeft,
+        top: resultTop
+      }
+    });
+  }
   add(Instance) {
     let me = this;
     me.checkType(Instance);
 
-    let makePro = function(Entity, savePro) {
+    let makePro = function (Entity, savePro) {
       return new Promise((res, rej) => {
         savePro
           .then(r => {
@@ -420,6 +463,9 @@ export default class DesignItemInstance extends DrawEntityBase {
     let adding = true;
     //@ 1 开始
     theStore.state.progress = 0;
+
+    //# 4 在离开父亲之前，先进行Left、Top转换
+    me.syncPositionToMe(Instance);
 
     let pros = [];
     //# 3 后续加入 之前的父亲去除本 Entity

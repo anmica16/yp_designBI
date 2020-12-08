@@ -26,13 +26,23 @@ export function computeHeight(parentHeight, top, bottom) {
   return parentHeight - top - bottom;
 }
 
-export function restrictToBounds(value, min, max) {
-  if (min !== null && value < min) {
-    return min;
-  }
+export function restrictToBounds(value, min, max, stick = false) {
+  if (stick) {
+    if (min !== null && value < min && value > min - stick) {
+      return min;
+    }
 
-  if (max !== null && max < value) {
-    return max;
+    if (max !== null && max < value && value < max + stick) {
+      return max;
+    }
+  } else {
+    if (min !== null && value < min) {
+      return min;
+    }
+
+    if (max !== null && max < value) {
+      return max;
+    }
   }
 
   return value;
