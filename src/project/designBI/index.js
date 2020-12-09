@@ -18,9 +18,13 @@ Vue.$message = Message;
 // import "element-ui/packages/theme-chalk/src/message-box.scss";
 // import "element-ui/packages/theme-chalk/src/message.scss";
 
+//# 1 滚动条
 import Scrollbar from "@/packages/scrollbar/src/main.js"; //"element-ui/packages/scrollbar";
 Vue.component("Scrollbar", Scrollbar);
 //import "element-ui/packages/theme-chalk/src/scrollbar.scss";
+//# 2 分页
+import Pager from '@/packages/pager';
+Vue.component("Pager", Pager);
 
 //=========--------
 // Section 1 环境框架构建

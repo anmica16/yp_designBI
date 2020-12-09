@@ -14,7 +14,9 @@
           </div>
           <div class="oneItem user">
             <el-link :underline="false"
-              ><i class="el-icon-user-solid"></i><span class="text">{{ $route.params.id || "用户" }}</span><i class="el-icon-arrow-down"></i
+              ><i class="el-icon-user-solid"></i
+              ><span class="text">{{ $route.params.id || "用户" }}</span
+              ><i class="el-icon-arrow-down"></i
             ></el-link>
           </div>
         </dir>
@@ -39,7 +41,11 @@
               <div class="rightPart"></div>
             </div>
             <div class="bodyArea">
-              <el-table :data="boardDatas">
+              <el-table
+                height="100%"
+                :data="boardDatasPager"
+                @row-click="rowClickFn"
+              >
                 <el-table-column type="selection" width="50">
                   <template #header>
                     <div>全选</div>
@@ -59,10 +65,11 @@
                   label="最后修改时间"
                 ></el-table-column>
               </el-table>
-              <el-pagination
+              <Pager
+                ref="pager"
                 :total="boardDatas.length"
                 :page-size="10"
-              ></el-pagination>
+              ></Pager>
             </div>
           </div>
           <!-- <template v-for="board in boards">
@@ -100,6 +107,11 @@ export default {
   components: {
     AttachBoard,
   },
+  data() {
+    return {
+      windowMap: {},
+    };
+  },
   computed: {
     boards() {
       let me = this,
@@ -119,6 +131,37 @@ export default {
       });
 
       return list;
+    },
+    boardDatasPager() {
+      let me = this,
+        datas = me.boardDatas,
+        pager = me.$refs.pager;
+      if (pager) {
+        return datas.slice(pager.start, pager.end);
+      } else {
+        return datas;
+      }
+    },
+    editLocBase() {
+      let me = this,
+        loc = window.location,
+        editLoc = loc.pathname + "#/user/" + me.$route.params.id + "/edit/";
+      return editLoc;
+    },
+  },
+  methods: {
+    rowClickFn(row) {
+      let me = this,
+        map = me.windowMap,
+        tempCode = row.templateCode;
+      //【update】以后注意 session
+      if (!map[tempCode] || !map[tempCode].window.location.pathname) {
+        let toLoc = me.editLocBase + tempCode,
+          newWin = window.open(toLoc);
+        map[tempCode] = newWin;
+      } else {
+        map[tempCode].window.location.reload();
+      }
     },
   },
 };

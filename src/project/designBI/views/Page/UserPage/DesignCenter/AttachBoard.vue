@@ -1,6 +1,6 @@
 <template>
   <div class="AttachBoard" v-if="isAdd || (!isAdd && board)">
-    <div v-if="isAdd" class="addTip" @click="createBoard"><i class="el-icon-brush"></i><span class="text">新增绘板</span></div>
+    <el-link :underline="false" v-if="isAdd" class="addTip" @click="createBoard"><i class="el-icon-brush"></i><span class="text">新增绘板</span></el-link>
     <div v-else class="BoardPost">
       <router-link
         :to="{
