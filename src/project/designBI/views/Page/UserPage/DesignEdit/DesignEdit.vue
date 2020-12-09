@@ -6,63 +6,127 @@
       >
     </div>
     <template v-else>
-      <RectLayoutV2 ref="rect">
+      <RectLayoutV2 ref="rect" wWidth="60px" nHeight="36px">
         <!-- 【3】上部 标题 工具栏 -->
-        <template #n>
-          <div class="header-wrap">
-            <theHeader></theHeader>
-            <transition name="fade">
-              <div class="progressBar-wrap" v-show="progressShow">
-                <div
-                  class="progressBar"
-                  :class="{ fullfilled: !progressShow }"
-                  :style="progressStyle"
-                ></div>
+        <div slot="n" class="EditHeader">
+          <div class="leftPart">
+            <!-- ~ 1 绘板名 -->
+            <div class="item">
+              <i class="el-icon-edit"></i>
+              <span class="text">{{ nowBoard.recordData.name }}</span>
+            </div>
+
+            <!-- ~ 2 导出 撤销、还原 预留 -->
+            <PopOver placement="bottom-start" trigger="hover">
+              <div slot="reference" class="item">
+                <i class="el-icon-document-add"></i>
+                <span class="text">导出</span>
               </div>
-            </transition>
+              <div class="outType">
+                <div class="option">
+                  <i class="el-icon-date"></i>
+                  <span class="text">导出Excel</span>
+                </div>
+                <div class="option">
+                  <i class="el-icon-collection"></i>
+                  <span class="text">导出Pdf</span>
+                </div>
+              </div>
+            </PopOver>
+
+            <div class="item">
+              <i class="el-icon-caret-left"></i>
+              <span class="text">撤销</span>
+            </div>
+
+            <div class="item">
+              <i class="el-icon-caret-right"></i>
+              <span class="text">还原</span>
+            </div>
+
+            <div class="divid"></div>
+
+            <div class="item">
+              <i class="el-icon-magic-stick"></i>
+              <span class="text">绘板样式</span>
+            </div>
+
+            <PopOver trigger="hover" :offset="100" placement="bottom-start">
+              <div slot="reference" class="item">
+                <i class="el-icon-more"></i>
+                <span class="text">更多</span>
+              </div>
+              <div class="outType">
+                <div class="option">
+                  <i class="el-icon-picture-outline"></i>
+                  <span class="text">选项1</span>
+                </div>
+                <div class="option">
+                  <i class="el-icon-camera"></i>
+                  <span class="text">选项2</span>
+                </div>
+              </div>
+            </PopOver>
           </div>
-        </template>
+          <dir class="rightPart">
+            <div class="item">
+              <i class="el-icon-data-analysis"></i>
+              <span class="text">预览绘板</span>
+            </div>
+          </dir>
+        </div>
 
         <!-- 【2】左侧工具栏 -->
-        <template #w>
-          <div class="leftBar">
-            <el-popover ref="popover" placement="right-start" trigger="click">
-              <el-button slot="reference">新增子控件</el-button>
+        <div class="EditLeftBar" slot="w">
+          <PopOver ref="popover" placement="right-start" trigger="click">
+            <div slot="reference" class="barItem">
+              <dir class="icon">
+                <i class="el-icon-circle-plus-outline"></i>
+              </dir>
+              <dir class="text">子控件</dir>
+            </div>
 
-              <el-table :data="addTable" @row-click="handleAddTip">
-                <el-table-column
-                  v-for="col in addTableColumns"
-                  :key="col.prop"
-                  v-bind="col"
-                ></el-table-column>
-              </el-table>
-            </el-popover>
-          </div>
-        </template>
+            <el-table :data="addTable" @row-click="handleAddTip">
+              <el-table-column
+                v-for="col in addTableColumns"
+                :key="col.prop"
+                v-bind="col"
+              ></el-table-column>
+            </el-table>
+          </PopOver>
+          <PopOver ref="popover" placement="right-start">
+            <div class="barItem" slot="reference">
+              <dir class="icon">
+                <i class="el-icon-map-location"></i>
+              </dir>
+              <dir class="text">控件树</dir>
+            </div>
+            <div class="treeView">待扩展</div>
+          </PopOver>
+        </div>
 
         <!-- 【1】中间部分 绘板 -->
-        <template #c>
-          <Scrollbar style="width: 100%; height: 100%">
-            <div
-              v-loading="loadRoot"
-              :style="{
-                width: rootWidth,
-                height: rootHeight,
-                position: 'relative'
-              }"
-              class="editCenter"
-            >
-              <Bubble
-                v-if="nowBoardRoot"
-                :Entity="nowBoardRoot"
-                :isRoot="true"
-              ></Bubble>
-            </div>
-          </Scrollbar>
-        </template>
-        <template #e>
-          <div>east</div>
-        </template>
+        <Scrollbar
+          slot="c"
+          class="EditCenter"
+          style="width: 100%; height: 100%"
+        >
+          <div
+            v-loading="loadRoot"
+            :style="{
+              width: rootWidth,
+              height: rootHeight,
+              position: 'relative'
+            }"
+            class="EditCenter-inner"
+          >
+            <Bubble
+              v-if="nowBoardRoot"
+              :Entity="nowBoardRoot"
+              :isRoot="true"
+            ></Bubble>
+          </div>
+        </Scrollbar>
       </RectLayoutV2>
     </template>
   </div>
@@ -70,20 +134,15 @@
 
 <script>
 import Vue from "vue";
-import theHeader from "./header";
 import DesignItemInstance from "@designBI/store/Entity/DesignItemInstance";
 import tool from "@/plugins/js/tool";
 export default {
   name: "DesignEdit",
-  components: {
-    theHeader
-  },
   data() {
     return {
       queryFlag: "DesignEdit",
       loadRoot: false,
-      nowInstances: null,
-      progressShow: false
+      nowInstances: null
       //activeName: "",
       //drawingBoards: [],
       //在router进行切换的时候 切换
@@ -92,28 +151,6 @@ export default {
     };
   },
   computed: {
-    //@ 1 进度条
-    progress() {
-      let me = this,
-        val = me.$store.state.progress;
-
-      return val === null ? 100 : val;
-    },
-    // progressShow() {
-    //   return tool.isNumber(this.progress);
-    // },
-    progressStyle() {
-      let me = this,
-        style = {};
-      if (me.progressShow) {
-        tool.apply(style, {
-          width: me.progress + "%"
-        });
-      }
-
-      return style;
-    },
-
     //在router进行切换的时候 切换
     nowTemplateCode() {
       let me = this,
@@ -229,17 +266,6 @@ export default {
       if (newBoard && newBoard != oldBoard) {
         me.nowInstances = me.getNowInstances();
       }
-    },
-    //# 4 store 进度条监听
-    "$store.state.progress": function(newVal, oldVal) {
-      let me = this;
-      //console.log(["能顾监听progress变化", newVal, oldVal]);
-      if (newVal === 100 || newVal < 0 || newVal > 100) {
-        me.progressShow = false;
-        me.$store.state.progress = null;
-      } else if (tool.isNumber(newVal) && newVal < 100) {
-        me.progressShow = true;
-      }
     }
   },
   // mounted() {
@@ -313,28 +339,7 @@ export default {
 </script>
 
 <style lang="scss">
-.header-wrap {
-  height: 100%;
-  width: 100%;
-  position: relative;
-  .progressBar-wrap {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    height: 4px;
-    width: 100%;
-
-    .progressBar {
-      height: 100%;
-      transition: all 0.5s;
-      background: goldenrod;
-      &.fullfilled {
-        transition: none;
-      }
-    }
-  }
-}
-.editCenter {
+.EditCenter-inner {
   height: 100%;
   width: 100%;
 }

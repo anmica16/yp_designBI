@@ -46,10 +46,10 @@ export default {
     }
   },
   watch: {
-    recordData(newVal) {
-      //console.log(["刷新了！recordData"]);
-      this.triggerSave(newVal);
-    },
+    // recordData(newVal) {
+    //   //console.log(["刷新了！recordData"]);
+    //   this.triggerSave(newVal);
+    // },
     recordMid(newVal) {
       //console.log(["刷新了！recordMid"]);
       tool.mergeSet(Vue.set, this.record, newVal);
@@ -232,6 +232,9 @@ export default {
       if (me.deleted) {
         return Promise.resolve("已删除，保存或更新失败");
       }
+
+      //# 4 save触发
+      me.triggerSave(me.recordData);
 
       //# 3 单独的 更新状态管理
       //~ 3.1 上一次的状态

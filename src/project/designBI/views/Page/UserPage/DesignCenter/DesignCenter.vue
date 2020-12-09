@@ -105,11 +105,11 @@ import AttachBoard from "./AttachBoard";
 export default {
   name: "DesignCenter",
   components: {
-    AttachBoard,
+    AttachBoard
   },
   data() {
     return {
-      windowMap: {},
+      windowMap: {}
     };
   },
   computed: {
@@ -126,7 +126,7 @@ export default {
       let me = this,
         boards = me.boards,
         list = [];
-      boards.forEach((item) => {
+      boards.forEach(item => {
         list.push(item.parser.recordData);
       });
 
@@ -147,7 +147,7 @@ export default {
         loc = window.location,
         editLoc = loc.pathname + "#/user/" + me.$route.params.id + "/edit/";
       return editLoc;
-    },
+    }
   },
   methods: {
     rowClickFn(row) {
@@ -162,8 +162,8 @@ export default {
       } else {
         map[tempCode].window.location.reload();
       }
-    },
-  },
+    }
+  }
 };
 </script>
 

@@ -22,9 +22,14 @@ Vue.$message = Message;
 import Scrollbar from "@/packages/scrollbar/src/main.js"; //"element-ui/packages/scrollbar";
 Vue.component("Scrollbar", Scrollbar);
 //import "element-ui/packages/theme-chalk/src/scrollbar.scss";
+
 //# 2 分页
-import Pager from '@/packages/pager';
+import Pager from "@/packages/pager";
 Vue.component("Pager", Pager);
+
+//# 3 PopOver
+import PopOver from "@/packages/popover/main.vue";
+Vue.component("PopOver", PopOver);
 
 //=========--------
 // Section 1 环境框架构建

@@ -397,8 +397,8 @@ export default class DesignItemInstance extends DrawEntityBase {
       lastParents = dropManager.findLastParent(insParents, meParents);
     //console.log(["syncPositionToMe 检查"]);
     //~ 1 只有是root是 me的时候，才会不存在，不存在就设为0
-    let parentAt = lastParents && lastParents[1] || 0,
-    //# 0 起点坐标
+    let parentAt = (lastParents && lastParents[1]) || 0,
+      //# 0 起点坐标
       style = Instance.getData("style"),
       resultLeft = style.leftPx,
       resultTop = style.topPx;
@@ -438,7 +438,7 @@ export default class DesignItemInstance extends DrawEntityBase {
     let me = this;
     me.checkType(Instance);
 
-    let makePro = function (Entity, savePro) {
+    let makePro = function(Entity, savePro) {
       return new Promise((res, rej) => {
         savePro
           .then(r => {

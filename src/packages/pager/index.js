@@ -1,12 +1,12 @@
-import Pager from 'element-ui/packages/pagination/src/pager.vue';
-import ElSelect from 'element-ui/packages/select';
-import ElOption from 'element-ui/packages/option';
-import ElInput from 'element-ui/packages/input';
-import Locale from 'element-ui/src/mixins/locale';
-import { valueEquals } from 'element-ui/src/utils/util';
+import Pager from "element-ui/packages/pagination/src/pager.vue";
+import ElSelect from "element-ui/packages/select";
+import ElOption from "element-ui/packages/option";
+import ElInput from "element-ui/packages/input";
+import Locale from "element-ui/src/mixins/locale";
+import { valueEquals } from "element-ui/src/utils/util";
 
 export default {
-  name: 'ElPagination',
+  name: "ElPagination",
 
   props: {
     pageSize: {
@@ -23,7 +23,9 @@ export default {
     pagerCount: {
       type: Number,
       validator(value) {
-        return (value | 0) === value && value > 4 && value < 22 && (value % 2) === 1;
+        return (
+          (value | 0) === value && value > 4 && value < 22 && value % 2 === 1
+        );
       },
       default: 7
     },
@@ -34,7 +36,7 @@ export default {
     },
 
     layout: {
-      default: 'prev, pager, next, jumper, ->, total'
+      default: "prev, pager, next, jumper, ->, total"
     },
 
     pageSizes: {
@@ -69,29 +71,48 @@ export default {
   render(h) {
     const layout = this.layout;
     if (!layout) return null;
-    if (this.hideOnSinglePage && (!this.internalPageCount || this.internalPageCount === 1)) return null;
+    if (
+      this.hideOnSinglePage &&
+      (!this.internalPageCount || this.internalPageCount === 1)
+    )
+      return null;
 
-    let template = <div class={['el-pagination', {
-      'is-background': this.background,
-      'el-pagination--small': this.small
-    }]}></div>;
+    let template = (
+      <div
+        class={[
+          "el-pagination",
+          {
+            "is-background": this.background,
+            "el-pagination--small": this.small
+          }
+        ]}
+      ></div>
+    );
     const TEMPLATE_MAP = {
       prev: <prev></prev>,
       jumper: <jumper></jumper>,
-      pager: <pager currentPage={this.internalCurrentPage} pageCount={this.internalPageCount} pagerCount={this.pagerCount} on-change={this.handleCurrentChange} disabled={this.disabled}></pager>,
+      pager: (
+        <pager
+          currentPage={this.internalCurrentPage}
+          pageCount={this.internalPageCount}
+          pagerCount={this.pagerCount}
+          on-change={this.handleCurrentChange}
+          disabled={this.disabled}
+        ></pager>
+      ),
       next: <next></next>,
       sizes: <sizes pageSizes={this.pageSizes}></sizes>,
-      slot: <slot>{this.$slots.default ? this.$slots.default : ''}</slot>,
+      slot: <slot>{this.$slots.default ? this.$slots.default : ""}</slot>,
       total: <total></total>
     };
-    const components = layout.split(',').map((item) => item.trim());
+    const components = layout.split(",").map(item => item.trim());
     const rightWrapper = <div class="el-pagination__rightwrapper"></div>;
     let haveRightWrapper = false;
 
     template.children = template.children || [];
     rightWrapper.children = rightWrapper.children || [];
     components.forEach(compo => {
-      if (compo === '->') {
+      if (compo === "->") {
         haveRightWrapper = true;
         return;
       }
@@ -117,13 +138,16 @@ export default {
           <button
             type="button"
             class="btn-prev"
-            disabled={this.$parent.disabled || this.$parent.internalCurrentPage <= 1}
-            on-click={this.$parent.prev}>
-            {
-              this.$parent.prevText
-                ? <span>{this.$parent.prevText}</span>
-                : <i class="el-icon el-icon-arrow-left"></i>
+            disabled={
+              this.$parent.disabled || this.$parent.internalCurrentPage <= 1
             }
+            on-click={this.$parent.prev}
+          >
+            {this.$parent.prevText ? (
+              <span>{this.$parent.prevText}</span>
+            ) : (
+              <i class="el-icon el-icon-arrow-left"></i>
+            )}
           </button>
         );
       }
@@ -135,13 +159,19 @@ export default {
           <button
             type="button"
             class="btn-next"
-            disabled={this.$parent.disabled || this.$parent.internalCurrentPage === this.$parent.internalPageCount || this.$parent.internalPageCount === 0}
-            on-click={this.$parent.next}>
-            {
-              this.$parent.nextText
-                ? <span>{this.$parent.nextText}</span>
-                : <i class="el-icon el-icon-arrow-right"></i>
+            disabled={
+              this.$parent.disabled ||
+              this.$parent.internalCurrentPage ===
+                this.$parent.internalPageCount ||
+              this.$parent.internalPageCount === 0
             }
+            on-click={this.$parent.next}
+          >
+            {this.$parent.nextText ? (
+              <span>{this.$parent.nextText}</span>
+            ) : (
+              <i class="el-icon el-icon-arrow-right"></i>
+            )}
           </button>
         );
       }
@@ -160,9 +190,10 @@ export default {
           handler(newVal, oldVal) {
             if (valueEquals(newVal, oldVal)) return;
             if (Array.isArray(newVal)) {
-              this.$parent.internalPageSize = newVal.indexOf(this.$parent.pageSize) > -1
-                ? this.$parent.pageSize
-                : this.pageSizes[0];
+              this.$parent.internalPageSize =
+                newVal.indexOf(this.$parent.pageSize) > -1
+                  ? this.$parent.pageSize
+                  : this.pageSizes[0];
             }
           }
         }
@@ -173,18 +204,17 @@ export default {
           <span class="el-pagination__sizes">
             <el-select
               value={this.$parent.internalPageSize}
-              popperClass={this.$parent.popperClass || ''}
+              popperClass={this.$parent.popperClass || ""}
               size="mini"
               on-input={this.handleChange}
-              disabled={this.$parent.disabled}>
-              {
-                this.pageSizes.map(item =>
-                  <el-option
-                    value={item}
-                    label={item + this.t('el.pagination.pagesize')}>
-                  </el-option>
-                )
-              }
+              disabled={this.$parent.disabled}
+            >
+              {this.pageSizes.map(item => (
+                <el-option
+                  value={item}
+                  label={item + this.t("el.pagination.pagesize")}
+                ></el-option>
+              ))}
             </el-select>
           </span>
         );
@@ -200,8 +230,8 @@ export default {
           if (val !== this.$parent.internalPageSize) {
             this.$parent.internalPageSize = val = parseInt(val, 10);
             this.$parent.userChangePageSize = true;
-            this.$parent.$emit('update:pageSize', val);
-            this.$parent.$emit('size-change', val);
+            this.$parent.$emit("update:pageSize", val);
+            this.$parent.$emit("size-change", val);
           }
         }
       }
@@ -219,7 +249,7 @@ export default {
       },
 
       watch: {
-        '$parent.internalCurrentPage'() {
+        "$parent.internalCurrentPage"() {
           this.userInput = null;
         }
       },
@@ -237,7 +267,9 @@ export default {
           this.userInput = value;
         },
         handleChange(value) {
-          this.$parent.internalCurrentPage = this.$parent.getValidCurrentPage(value);
+          this.$parent.internalCurrentPage = this.$parent.getValidCurrentPage(
+            value
+          );
           this.$parent.emitChange();
           this.userInput = null;
         }
@@ -246,18 +278,23 @@ export default {
       render(h) {
         return (
           <span class="el-pagination__jump">
-            { this.t('el.pagination.goto')}
+            {this.t("el.pagination.goto")}
             <el-input
               class="el-pagination__editor is-in-pagination"
               min={1}
               max={this.$parent.internalPageCount}
-              value={this.userInput !== null ? this.userInput : this.$parent.internalCurrentPage}
+              value={
+                this.userInput !== null
+                  ? this.userInput
+                  : this.$parent.internalCurrentPage
+              }
               type="number"
               disabled={this.$parent.disabled}
               nativeOnKeyup={this.handleKeyup}
               onInput={this.handleInput}
-              onChange={this.handleChange} />
-            { this.t('el.pagination.pageClassifier')}
+              onChange={this.handleChange}
+            />
+            {this.t("el.pagination.pageClassifier")}
           </span>
         );
       }
@@ -267,10 +304,12 @@ export default {
       mixins: [Locale],
 
       render(h) {
-        return (
-          typeof this.$parent.total === 'number'
-            ? <span class="el-pagination__total">{this.t('el.pagination.total', { total: this.$parent.total })}</span>
-            : ''
+        return typeof this.$parent.total === "number" ? (
+          <span class="el-pagination__total">
+            {this.t("el.pagination.total", { total: this.$parent.total })}
+          </span>
+        ) : (
+          ""
         );
       }
     },
@@ -289,7 +328,7 @@ export default {
       if (this.disabled) return;
       const newVal = this.internalCurrentPage - 1;
       this.internalCurrentPage = this.getValidCurrentPage(newVal);
-      this.$emit('prev-click', this.internalCurrentPage);
+      this.$emit("prev-click", this.internalCurrentPage);
       this.emitChange();
     },
 
@@ -297,14 +336,14 @@ export default {
       if (this.disabled) return;
       const newVal = this.internalCurrentPage + 1;
       this.internalCurrentPage = this.getValidCurrentPage(newVal);
-      this.$emit('next-click', this.internalCurrentPage);
+      this.$emit("next-click", this.internalCurrentPage);
       this.emitChange();
     },
 
     getValidCurrentPage(value) {
       value = parseInt(value, 10);
 
-      const havePageCount = typeof this.internalPageCount === 'number';
+      const havePageCount = typeof this.internalPageCount === "number";
 
       let resetValue;
       if (!havePageCount) {
@@ -328,8 +367,11 @@ export default {
 
     emitChange() {
       this.$nextTick(() => {
-        if (this.internalCurrentPage !== this.lastEmittedPage || this.userChangePageSize) {
-          this.$emit('current-change', this.internalCurrentPage);
+        if (
+          this.internalCurrentPage !== this.lastEmittedPage ||
+          this.userChangePageSize
+        ) {
+          this.$emit("current-change", this.internalCurrentPage);
           this.lastEmittedPage = this.internalCurrentPage;
           this.userChangePageSize = false;
         }
@@ -339,9 +381,9 @@ export default {
 
   computed: {
     internalPageCount() {
-      if (typeof this.total === 'number') {
+      if (typeof this.total === "number") {
         return Math.max(1, Math.ceil(this.total / this.internalPageSize));
-      } else if (typeof this.pageCount === 'number') {
+      } else if (typeof this.pageCount === "number") {
         return Math.max(1, this.pageCount);
       }
       return null;
@@ -385,7 +427,7 @@ export default {
     internalCurrentPage: {
       immediate: true,
       handler(newVal) {
-        this.$emit('update:currentPage', newVal);
+        this.$emit("update:currentPage", newVal);
         this.lastEmittedPage = -1;
       }
     },
