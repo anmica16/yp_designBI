@@ -503,6 +503,50 @@ let tool = {
         .toFixed(8)
         .substr(2)
     );
+  },
+  len(str) {
+    let me = this,
+      count = 0;
+    if (me.isString(str)) {
+      count = str.length;
+      for (let i = 0; i < str.length; ++i) {
+        if (str.charCodeAt(i) > 255) {
+          ++count;
+        }
+      }
+    } else if (me.isObject(str)) {
+      count = Object.keys(str).length;
+    } else if (me.isArray(str)) {
+      count = str.length;
+    }
+
+    return count;
+  },
+  //汉字范围的 substr 三个参数必须有
+  substr(str, at, len) {
+    let me = this;
+    if (me.isString(str)) {
+      //# 1 可能len过长
+      if (at + len >= str.length) {
+        return str;
+      }
+      //# 2 正常
+      let count = 0,
+        result = "";
+      for (let i = at; i < str.length; ++i) {
+        let n = str.charCodeAt(i) > 255 ? 2 : 1,
+          nextCount = count + n;
+
+        if (nextCount > len) {
+          return result;
+        } else {
+          result = result + str[i];
+          count = nextCount;
+        }
+      }
+    }
+    //# 3 不能对非string操作;
+    return false;
   }
 };
 

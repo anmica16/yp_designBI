@@ -116,6 +116,34 @@ export default {
       type: Boolean,
       default: false
     },
+    widthMode: {
+      type: String,
+      default: "",
+      validator(val) {
+        return ["num", "auto", "per", ""].indexOf(val) > -1;
+      }
+    },
+    heightMode: {
+      type: String,
+      default: "",
+      validator(val) {
+        return ["num", "auto", "per", ""].indexOf(val) > -1;
+      }
+    },
+    leftMode: {
+      type: String,
+      default: "",
+      validator(val) {
+        return ["num", "per", ""].indexOf(val) > -1;
+      }
+    },
+    topMode: {
+      type: String,
+      default: "",
+      validator(val) {
+        return ["num", "per", ""].indexOf(val) > -1;
+      }
+    },
     w: {
       type: [Number, String],
       default: 200,
@@ -1210,13 +1238,21 @@ export default {
       let me = this,
         style = {};
       style.width =
-        me.wMode == "num" ? parseFloat(me.computedWidth) : me.computedWidth;
+        (me.widthMode || me.wMode) == "num"
+          ? parseFloat(me.computedWidth)
+          : me.computedWidth;
       style.height =
-        me.hMode == "num" ? parseFloat(me.computedHeight) : me.computedHeight;
+        (me.heightMode || me.hMode) == "num"
+          ? parseFloat(me.computedHeight)
+          : me.computedHeight;
       style.left =
-        me.xMode == "num" ? parseFloat(me.computedLeft) : me.computedLeft;
+        (me.leftMode || me.xMode) == "num"
+          ? parseFloat(me.computedLeft)
+          : me.computedLeft;
       style.top =
-        me.yMode == "num" ? parseFloat(me.computedTop) : me.computedTop;
+        (me.topMode || me.yMode) == "num"
+          ? parseFloat(me.computedTop)
+          : me.computedTop;
 
       //# 2 z
       style.zIndex = me.zIndex;
@@ -1308,8 +1344,11 @@ export default {
     },
     computedWidth() {
       let me = this,
-        temp;
-      switch (me.wMode) {
+        temp,
+        m = me.widthMode,
+        theMode = m || me.wMode;
+      console.log(["宽度计算问题！", me.width, me.parentWidth]);
+      switch (theMode) {
         case "num":
           temp = me.width || 10;
           return temp + "px";
@@ -1337,8 +1376,10 @@ export default {
     },
     computedHeight() {
       let me = this,
-        temp;
-      switch (me.hMode) {
+        temp,
+        m = me.heightMode,
+        theMode = m || me.hMode;
+      switch (theMode) {
         case "num":
           temp = me.height || 10;
           return temp + "px";
@@ -1363,8 +1404,10 @@ export default {
     },
     computedLeft() {
       let me = this,
-        temp;
-      switch (me.xMode) {
+        temp,
+        m = me.leftMode,
+        theMode = m || me.xMode;
+      switch (theMode) {
         case "num":
         default:
           temp = me.left || 0;
@@ -1376,8 +1419,10 @@ export default {
     },
     computedTop() {
       let me = this,
-        temp;
-      switch (me.yMode) {
+        temp,
+        m = me.topMode,
+        theMode = m || me.yMode;
+      switch (theMode) {
         case "num":
         default:
           temp = me.top || 0;

@@ -2,11 +2,13 @@
   <DragResizeMouse
     ref="dragNode"
     :parent="true"
-    :w="recordData.style.width"
+    :w="isRoot && percentMode ? '100%' : recordData.style.width"
     :h="recordData.style.height"
     :x="isRoot ? 0 : recordData.style.left || 0"
     :y="isRoot ? 0 : recordData.style.top || 0"
     :z="isRoot ? 0 : recordData.style.zIndex || 0"
+    :widthMode="percentMode ? 'per' : ''"
+    :leftMode="percentMode ? 'per' : ''"
     :dragFlag="recordData.drag_resize_cfg.can_drag"
     :draggable="!isRoot && recordData.drag_resize_cfg.can_drag != ''"
     :dropFlag="recordData.drag_resize_cfg.can_drop"
@@ -16,15 +18,6 @@
     class="BubbleDragResize"
     :class="{ ...recordData.class, isRoot }"
   >
-    <!-- <div
-      class="test"
-      style="width: 100%; height: 100%; background: blue"
-      @mousedown.stop="mousedownFn"
-      @touchstart.stop
-    >
-      测试区域
-    </div> -->
-    <!-- <div ref="slot"></div> -->
     <div ref="host" :is="xtype" v-bind="propsData"></div>
     <div v-if="!isRoot" class="attachTool" @mousedown.stop @touchstart.stop>
       <el-button>提示</el-button>
@@ -47,6 +40,11 @@ export default {
     isRoot: {
       type: Boolean,
       default: false
+    },
+    //【1210】百分比模式，仅作用于 水平方向上w l
+    percentMode: {
+      type: Boolean,
+      default: true
     }
   },
   data() {
@@ -73,7 +71,9 @@ export default {
         //~2 剩余备用 传入
         Entity: me.Entity,
         //~3 source数据
-        source: me.recordData.source
+        source: me.recordData.source,
+        //# 1 百分比模式，按照自身来
+        percentMode: me.percentMode
       };
     },
     //【update】mixin
@@ -82,9 +82,6 @@ export default {
     }
   },
   methods: {
-    mousedownFn() {
-      //console.log(["mousedownFn执行"]);
-    },
     //拖拽层的 save调用
     save() {
       let me = this;
@@ -184,9 +181,9 @@ export default {
   &:not(.isRoot) {
     border: 1px dashed rgb(161, 193, 226);
   }
-  &.isRoot {
-    background: azure;
-  }
+  // &.isRoot {
+  //   background: azure;
+  // }
   > .attachTool {
     position: absolute;
     left: 100%;

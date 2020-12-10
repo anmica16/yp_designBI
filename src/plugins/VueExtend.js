@@ -96,11 +96,19 @@ export default {
   // },
 
   // eslint-disable-next-line
-  
-  //【=3=】加入和移除
+  //【=3=】修改Vue的部分内容
+  vueChange(Vue) {
+    let $emit = Vue.prototype.$emit;
+    //# 1 $emit居然没有把自己给 带过去！
+    Vue.prototype.$emit = function() {
+      let caller = this;
+      $emit.apply(caller, [...arguments].concat([caller]));
+    };
+  },
 
   install(Vue, options) {
     this.queryAble(Vue);
     //this.requestAble(Vue);
+    this.vueChange(Vue);
   }
 };

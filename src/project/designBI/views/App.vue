@@ -80,13 +80,14 @@ export default {
     position: absolute;
     top: 0;
     left: 0;
-    height: 4px;
+    height: 2px;
+    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.05);
     width: 100%;
 
     .progressBar {
       height: 100%;
       transition: all 0.5s;
-      background: goldenrod;
+      background: rgb(80, 194, 214);
       &.fullfilled {
         transition: none;
       }

@@ -28,8 +28,8 @@ import Pager from "@/packages/pager";
 Vue.component("Pager", Pager);
 
 //# 3 PopOver
-import PopOver from "@/packages/popover/main.vue";
-Vue.component("PopOver", PopOver);
+// import PopOver from "@/packages/popover/main.vue";
+// Vue.component("PopOver", PopOver);
 
 //=========--------
 // Section 1 环境框架构建

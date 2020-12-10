@@ -15,6 +15,8 @@ $font2: #3d4d66;
 $font2_deep: #232e40;
 $font2_light: #9ea6b2;
 
+$border: #e8eaed;
+
 //~ 3 transition设定
 %transition_fast {
   transition: all 0.18s;
@@ -187,223 +189,311 @@ body {
   width: 100%;
   height: 100%;
   background: white;
+}
+// @@ 1 页面一，选择绘板和数据准备
+.DesignCenter {
+  width: 100%;
+  height: 100%;
+  $h: 40px;
+  $w: 70px;
+  > .topH {
+    height: $h;
+    .centerHeadWrap {
+      height: 100%;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
 
-  // @@ 1 页面一，选择绘板和数据准备
-  .DesignCenter {
-    width: 100%;
-    height: 100%;
-    $h: 40px;
-    $w: 70px;
-    > .topH {
-      height: $h;
-      .centerHeadWrap {
+      .leftIcon {
+        flex-grow: 0;
         height: 100%;
+        width: $w;
+        background: rgb(0, 174, 255);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 20px;
+        i {
+          color: white;
+        }
+      }
+      .app-title {
+        flex-grow: 1;
+        .app-title-text {
+          padding-left: 10px;
+          font-size: 16px;
+          font-weight: normal;
+        }
+      }
+      .rightItems {
+        height: 100%;
+        flex-grow: 0;
         display: flex;
         flex-direction: row;
         align-items: center;
-
-        .leftIcon {
-          flex-grow: 0;
+        .oneItem {
+          padding: 0 10px;
+          margin-right: 10px;
+          &.user {
+            .el-link--inner {
+              .el-icon-user-solid {
+                padding: 5px;
+                background: rgb(77, 215, 250);
+                border-radius: 50px;
+                margin-right: 6px;
+                color: white;
+              }
+              .text {
+                margin-right: 3px;
+              }
+            }
+          }
+        }
+      } //right
+    }
+  }
+  > .theBody {
+    height: calc(100% - #{$h});
+    .centerBody {
+      height: 100%;
+      > .el-tabs__header {
+        margin-right: 0;
+        width: 70px;
+        background: rgb(29, 46, 73);
+        .el-tabs__nav-wrap {
+          .el-tabs__nav {
+            margin-top: 8px;
+          }
+          //~ 1 右侧边框取消
+          &::after {
+            content: none;
+          }
+          //~ 2
+          .el-tabs__active-bar {
+            left: 0;
+            right: auto;
+            width: 4px;
+            border-radius: 6px;
+            background-color: white;
+          }
+          //~ 3
+          .el-tabs__item {
+            height: 105px;
+            box-sizing: border-box;
+            padding: 0;
+            padding-top: 16px;
+            color: rgb(150, 158, 172);
+            &.is-active,
+            &:hover {
+              color: white;
+            }
+            .item {
+              text-align: center;
+              .icon {
+                font-size: 24px;
+              }
+              .text {
+                font-size: 12px;
+              }
+            }
+          } //_item
+        }
+      }
+      > .el-tabs__content {
+        height: 100%;
+        box-shadow: inset 0 15px 10px -15px rgba(35, 46, 64, 0.1);
+        .el-tab-pane {
           height: 100%;
-          width: $w;
-          background: rgb(0, 174, 255);
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          font-size: 20px;
+          //这下面最好有ScrollBar
+
+          //# 一、选择绘板页
+          .BoardsList-inner {
+            height: 100%;
+            background-color: #f7f8fa;
+            padding: 0 10px 10px 10px;
+
+            $h_t: #{$h + 6px};
+
+            .topArea {
+              height: $h_t;
+              display: flex;
+              align-items: center;
+              .addTip {
+                font-size: 12px;
+                .text {
+                  letter-spacing: 0.3px;
+                }
+              }
+              .el-icon-brush {
+                color: rgb(117, 230, 25);
+                margin-right: 2px;
+                font-size: 18px;
+                position: relative;
+                top: 2px;
+                margin-left: 8px;
+              }
+            }
+            .bodyArea {
+              height: calc(100% - #{$h_t});
+              display: flex;
+              flex-direction: column;
+              > .el-table {
+                $h_head: 48px;
+                //~ 1 row
+                .el-table__row {
+                  cursor: pointer;
+                }
+                .el-table__header-wrapper {
+                  height: $h_head;
+                }
+                .el-table__body-wrapper {
+                  height: calc(100% - #{$h_head});
+                }
+              } //table
+              > .el-pagination {
+                margin-bottom: 3px;
+              }
+            }
+          } //BoardsList
+        }
+      } //content
+    }
+  } //boty
+}
+// @@ 2 页面二，绘板、子控件加入拖拽页
+.DesignEdit {
+  %item_normal {
+    @extend %flex-wh;
+    flex-direction: row;
+    color: $font2;
+    padding: 6px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    > i {
+      margin-right: 6px;
+      font-size: 16px;
+    }
+    > .text {
+      font-size: 12px;
+    }
+
+    &:hover {
+      color: $font2_deep;
+      background: rgba(54, 157, 242, 0.05);
+    }
+  }
+  %item_vertical {
+    text-align: center;
+    padding: 10px 0;
+    margin: 10px 0;
+    color: $font2;
+    cursor: pointer;
+    .icon {
+      font-size: 24px;
+    }
+    .text {
+      font-size: 12px;
+      margin-top: 10px;
+    }
+    &:hover {
+      color: $font2_deep;
+      background: rgba(54, 157, 242, 0.05);
+    }
+  }
+  //~ 1
+  .EditHeader {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    height: 100%;
+    border-bottom: 1px solid $border;
+    box-sizing: border-box;
+
+    .leftPart {
+      flex-grow: 1;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+
+      > * {
+        &:not(:first-child) {
+          margin-left: 20px;
+        }
+        &.templateTitle {
+          margin-left: 7px;
+          max-width: 160px;
+          color: $font2_deep;
+          background: none;
+          line-height: 14px;
+          cursor: text;
           i {
+            margin-right: 10px;
+            padding: 5px;
+            border-radius: 50px;
+            background: rgb(50, 155, 216);
             color: white;
           }
         }
-        .app-title {
-          flex-grow: 1;
-          .app-title-text {
-            padding-left: 10px;
-            font-size: 16px;
-            font-weight: normal;
-          }
-        }
-        .rightItems {
-          height: 100%;
-          flex-grow: 0;
-          display: flex;
-          flex-direction: row;
-          align-items: center;
-          .oneItem {
-            padding: 0 10px;
-            margin-right: 10px;
-            &.user {
-              .el-link--inner {
-                .el-icon-user-solid {
-                  padding: 5px;
-                  background: rgb(77, 215, 250);
-                  border-radius: 50px;
-                  margin-right: 6px;
-                  color: white;
-                }
-                .text {
-                  margin-right: 3px;
-                }
-              }
-            }
-          }
-        } //right
+      }
+      > .divid {
+        width: 1px;
+        height: 18px;
+        background: $border;
       }
     }
-    > .theBody {
-      height: calc(100% - #{$h});
-      .centerBody {
-        height: 100%;
-        > .el-tabs__header {
-          margin-right: 0;
-          width: 70px;
-          background: rgb(29, 46, 73);
-          .el-tabs__nav-wrap {
-            .el-tabs__nav {
-              margin-top: 8px;
-            }
-            //~ 1 右侧边框取消
-            &::after {
-              content: none;
-            }
-            //~ 2
-            .el-tabs__active-bar {
-              left: 0;
-              right: auto;
-              width: 4px;
-              border-radius: 6px;
-              background-color: white;
-            }
-            //~ 3
-            .el-tabs__item {
-              height: 105px;
-              box-sizing: border-box;
-              padding: 0;
-              padding-top: 16px;
-              color: rgb(150, 158, 172);
-              &.is-active,
-              &:hover {
-                color: white;
-              }
-              .item {
-                text-align: center;
-                .icon {
-                  font-size: 24px;
-                }
-                .text {
-                  font-size: 12px;
-                }
-              }
-            } //_item
-          }
-        }
-        > .el-tabs__content {
-          height: 100%;
-          box-shadow: inset 0 15px 10px -15px rgba(35, 46, 64, 0.1);
-          .el-tab-pane {
-            height: 100%;
-            //这下面最好有ScrollBar
-
-            //# 一、选择绘板页
-            .BoardsList-inner {
-              height: 100%;
-              background-color: #f7f8fa;
-              padding: 0 10px 10px 10px;
-
-              $h_t: #{$h + 6px};
-
-              .topArea {
-                height: $h_t;
-                display: flex;
-                align-items: center;
-                .addTip {
-                  font-size: 12px;
-                  .text {
-                    letter-spacing: 0.3px;
-                  }
-                }
-                .el-icon-brush {
-                  color: rgb(117, 230, 25);
-                  margin-right: 2px;
-                  font-size: 18px;
-                  position: relative;
-                  top: 2px;
-                  margin-left: 8px;
-                }
-              }
-              .bodyArea {
-                height: calc(100% - #{$h_t});
-                display: flex;
-                flex-direction: column;
-                > .el-table {
-                  $h_head: 48px;
-                  //~ 1 row
-                  .el-table__row {
-                    cursor: pointer;
-                  }
-                  .el-table__header-wrapper {
-                    height: $h_head;
-                  }
-                  .el-table__body-wrapper {
-                    height: calc(100% - #{$h_head});
-                  }
-                } //table
-                > .el-pagination {
-                  margin-bottom: 3px;
-                }
-              }
-            } //BoardsList
-          }
-        } //content
+    .rightPart {
+      .view {
+        margin-right: 16px;
       }
-    } //boty
+    }
+
+    .item {
+      @extend %item_normal;
+      i.el-icon-caret-right {
+        margin-right: 0;
+        margin-left: 6px;
+      }
+    }
   }
-  // @@ 2 页面二，绘板、子控件加入拖拽页
-  .DesignEdit {
-    %item_normal {
-      @extend %flex-wh;
-      flex-direction: row;
-      color: $font2;
-      padding: 5px;
-      border-radius: 3px;
-      > i {
-        margin-right: 3px;
-        font-size: 16px;
-      }
-      > .text {
-        font-size: 12px;
-      }
 
-      &:hover {
-        color: $font2_deep;
-        background: rgba(54, 157, 242, 0.05);
-      }
-    }
-    //~ 1
-    .EditHeader {
-      display: flex;
-      flex-direction: row;
-      flex-wrap: nowrap;
-      align-items: center;
-      .leftPart {
-        flex-grow: 1;
-        flex-shrink: 0;
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-
-        > * {
-          margin-left: 20px;
-        }
-        > .divid {
-          width: 1px;
-          height: 100%;
-          background: #e8eaed;
+  //~ 2 左侧
+  .EditLeftBar {
+    width: 100%;
+    height: 100%;
+    border-right: 1px solid $border;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-items: center;
+    .popover {
+      display: block;
+      width: 100%;
+      &.addItemBtn {
+        border-bottom: 1px solid $border;
+        .barItem {
+          padding: 20px 0;
         }
       }
-      .item {
-        @extend %item_normal;
-      }
     }
-  } //DesignEdit
-}
+    .barItem {
+      @extend %item_vertical;
+    }
+  }
+
+  //~ 3 中间编辑区域
+  .EditCenter {
+    height: 100%;
+    width: 100%;
+    background: #eff1f4;
+    .EditCenter-scorll {
+      > .el-scrollbar__wrap {
+        > .el-scrollbar__view {
+          padding: 10px;
+        }
+      }
+    }//scroll
+  }
+} //DesignEdit

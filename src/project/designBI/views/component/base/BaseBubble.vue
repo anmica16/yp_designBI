@@ -2,6 +2,7 @@
   <div class="BaseBubble">
     <Bubble
       v-for="item in items"
+      :percentMode="percentMode"
       :key="item.recordData.instanceCode"
       :Entity="item"
     ></Bubble>
@@ -14,7 +15,16 @@ import { Instance } from "@designBI/views/mixins/Entity.js";
 
 export default {
   name: "BaseBubble",
-  mixins: [Instance]
+  mixins: [Instance],
+  props: {
+    //【1210】百分比模式，仅作用于 水平方向上w l；传递下去
+    percentMode: {
+      type: Boolean,
+      default: function() {
+        return true;
+      }
+    }
+  }
   // watch:{
   //   items(newVal) {
   //     if (newVal && newVal.length) {

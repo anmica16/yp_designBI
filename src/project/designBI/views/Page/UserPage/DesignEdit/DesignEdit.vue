@@ -11,13 +11,18 @@
         <div slot="n" class="EditHeader">
           <div class="leftPart">
             <!-- ~ 1 绘板名 -->
-            <div class="item">
+            <div class="item templateTitle" :title="nowBoard.recordData.name">
               <i class="el-icon-edit"></i>
-              <span class="text">{{ nowBoard.recordData.name }}</span>
+              <span class="text">{{ limitName }}</span>
             </div>
 
             <!-- ~ 2 导出 撤销、还原 预留 -->
-            <PopOver placement="bottom-start" trigger="hover">
+            <el-popover
+              class="popover"
+              @show="headPopShow"
+              placement="bottom-start"
+              trigger="hover"
+            >
               <div slot="reference" class="item">
                 <i class="el-icon-document-add"></i>
                 <span class="text">导出</span>
@@ -32,7 +37,7 @@
                   <span class="text">导出Pdf</span>
                 </div>
               </div>
-            </PopOver>
+            </el-popover>
 
             <div class="item">
               <i class="el-icon-caret-left"></i>
@@ -40,8 +45,8 @@
             </div>
 
             <div class="item">
-              <i class="el-icon-caret-right"></i>
               <span class="text">还原</span>
+              <i class="el-icon-caret-right"></i>
             </div>
 
             <div class="divid"></div>
@@ -51,7 +56,12 @@
               <span class="text">绘板样式</span>
             </div>
 
-            <PopOver trigger="hover" :offset="100" placement="bottom-start">
+            <el-popover
+              class="popover"
+              @show="headPopShow"
+              trigger="hover"
+              placement="bottom-start"
+            >
               <div slot="reference" class="item">
                 <i class="el-icon-more"></i>
                 <span class="text">更多</span>
@@ -66,10 +76,10 @@
                   <span class="text">选项2</span>
                 </div>
               </div>
-            </PopOver>
+            </el-popover>
           </div>
           <dir class="rightPart">
-            <div class="item">
+            <div class="item view">
               <i class="el-icon-data-analysis"></i>
               <span class="text">预览绘板</span>
             </div>
@@ -78,7 +88,13 @@
 
         <!-- 【2】左侧工具栏 -->
         <div class="EditLeftBar" slot="w">
-          <PopOver ref="popover" placement="right-start" trigger="click">
+          <el-popover
+            class="popover addItemBtn"
+            @show="leftBarPopShow"
+            ref="popover"
+            placement="right-start"
+            trigger="click"
+          >
             <div slot="reference" class="barItem">
               <dir class="icon">
                 <i class="el-icon-circle-plus-outline"></i>
@@ -93,8 +109,13 @@
                 v-bind="col"
               ></el-table-column>
             </el-table>
-          </PopOver>
-          <PopOver ref="popover" placement="right-start">
+          </el-popover>
+          <el-popover
+            class="popover treeBtn"
+            @show="leftBarPopShow"
+            ref="popover"
+            placement="right-start"
+          >
             <div class="barItem" slot="reference">
               <dir class="icon">
                 <i class="el-icon-map-location"></i>
@@ -102,31 +123,32 @@
               <dir class="text">控件树</dir>
             </div>
             <div class="treeView">待扩展</div>
-          </PopOver>
+          </el-popover>
         </div>
 
         <!-- 【1】中间部分 绘板 -->
-        <Scrollbar
-          slot="c"
-          class="EditCenter"
-          style="width: 100%; height: 100%"
-        >
-          <div
-            v-loading="loadRoot"
-            :style="{
-              width: rootWidth,
-              height: rootHeight,
-              position: 'relative'
-            }"
-            class="EditCenter-inner"
+        <div class="EditCenter" slot="c">
+          <Scrollbar
+            class="EditCenter-scorll"
+            style="width: 100%; height: 100%"
           >
-            <Bubble
-              v-if="nowBoardRoot"
-              :Entity="nowBoardRoot"
-              :isRoot="true"
-            ></Bubble>
-          </div>
-        </Scrollbar>
+            <div
+              v-loading="loadRoot"
+              :style="{
+                width: rootWidth,
+                height: rootHeight,
+                position: 'relative'
+              }"
+              class="EditCenter-inner"
+            >
+              <Bubble
+                v-if="nowBoardRoot"
+                :Entity="nowBoardRoot"
+                :isRoot="true"
+              ></Bubble>
+            </div>
+          </Scrollbar>
+        </div>
       </RectLayoutV2>
     </template>
   </div>
@@ -136,18 +158,22 @@
 import Vue from "vue";
 import DesignItemInstance from "@designBI/store/Entity/DesignItemInstance";
 import tool from "@/plugins/js/tool";
+import $ from "jquery";
 export default {
   name: "DesignEdit",
   data() {
     return {
       queryFlag: "DesignEdit",
       loadRoot: false,
-      nowInstances: null
+      nowInstances: null,
       //activeName: "",
       //drawingBoards: [],
       //在router进行切换的时候 切换
       // nowBoard: null,
       // nowInstances: null,
+
+      //# 1 百分比模式？
+      percentMode: true
     };
   },
   computed: {
@@ -175,6 +201,10 @@ export default {
       let me = this,
         nowBoardRoot = me.nowBoardRoot;
 
+      if (me.percentMode) {
+        return "100%";
+      }
+
       return (
         (nowBoardRoot && nowBoardRoot.recordData.style.width + "px") || "auto"
       );
@@ -199,6 +229,10 @@ export default {
         tool.each(rec.props, (key, val) => {
           //#1 一个prop的配置 必为对象
           if (tool.isObject(val)) {
+            if (val.default && !tool.isFunction(val.default)) {
+              throw `注意新增控件prop时，如果设置了default值，必须设置为function返回值的形式！该prop：${key}，请检查对应子控件的vue或js文件配置！`;
+            }
+
             let prop = {
               key: key,
               //类型都有名称
@@ -257,6 +291,15 @@ export default {
 
       //#2 "props"
       return cols;
+    },
+    limitName() {
+      let me = this,
+        limit = 35,
+        name = me.nowBoard.recordData.name,
+        theLen = tool.len(name);
+      //console.log(["这里不对？"]);
+      name = theLen > limit ? tool.substr(name, 0, limit) + "..." : name;
+      return name;
     }
   },
   watch: {
@@ -329,6 +372,16 @@ export default {
         }
       });
       Vue.$windowManager.add(itemMaker);
+    },
+    headPopShow(thePop) {
+      //console.log(["show head", arguments, this]);
+      $(thePop.$refs.popper).css({
+        transform: "translateY(-10px)"
+      });
+    },
+
+    leftBarPopShow() {
+      //console.log(["show leftBarPopShow", arguments, this]);
     }
   },
   mounted() {
