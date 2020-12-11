@@ -306,6 +306,8 @@ export default {
     //#3 手动触发 带动联动
     nowBoard(newBoard, oldBoard) {
       let me = this;
+      //# 4 标题名改变
+      $("title").html(`绘板：${newBoard.recordData.name}`);
       if (newBoard && newBoard != oldBoard) {
         me.nowInstances = me.getNowInstances();
       }

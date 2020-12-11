@@ -17,18 +17,51 @@
     :resizable="!isRoot && recordData.drag_resize_cfg.can_resize"
     class="BubbleDragResize"
     :class="{ ...recordData.class, isRoot, isHover, isSelect }"
+    @mouseover.native.stop="mouseoverFn"
+    @mouseleave.native="mouseleaveFn"
+    @mousedown.native="mousedownFn"
   >
+    <!-- <div
+      class="hostWrap-withLineDot"
+    > -->
     <div
       ref="host"
+      class="hostWrap"
       :class="{ isRoot }"
       :is="xtype"
       v-bind="propsData"
-      @mouseenter.self="mouseenterFn"
     ></div>
-    <div v-if="!isRoot" class="attachTool" @mousedown.stop @touchstart.stop>
-      <el-button>提示</el-button>
-      <el-button>实例信息</el-button>
-      <el-button @click="deleteFn">删除</el-button>
+    <!-- </div> -->
+
+    <div
+      v-if="!isRoot"
+      v-show="isSelect"
+      class="attachTool"
+      @mousedown.stop
+      @touchstart.stop
+    >
+      <div class="toolLayer">
+        <el-button>提示</el-button>
+        <el-button>实例信息</el-button>
+        <el-button @click="deleteFn">删除</el-button>
+      </div>
+    </div>
+
+    <div v-if="!isRoot" v-show="isSelect || isHover" class="attachBorder">
+      <!-- 线 -->
+      <div class="line line-left"></div>
+      <div class="line line-top"></div>
+      <div class="line line-right"></div>
+      <div class="line line-bottom"></div>
+      <!-- 点 -->
+      <div class="dot dot-left"></div>
+      <div class="dot dot-top"></div>
+      <div class="dot dot-right"></div>
+      <div class="dot dot-bottom"></div>
+      <div class="dot dot-lt"></div>
+      <div class="dot dot-rt"></div>
+      <div class="dot dot-lb"></div>
+      <div class="dot dot-rb"></div>
     </div>
   </DragResizeMouse>
 </template>
@@ -141,8 +174,9 @@ export default {
     },
     //# 1 切换 selectManager hover 的 this对象，以便属性菜单刷新
     //（1）优先级弱于 down
-    mouseenterFn() {
+    mouseoverFn() {
       let me = this;
+      //console.log(["咋不运行?"]);
       me.selectManager.changeHover(me);
     },
     mouseleaveFn() {
@@ -214,14 +248,126 @@ export default {
 </script>
 
 <style lang="scss">
+$blue: #35ace4;
 .BubbleDragResize {
-  &:not(.isRoot) {
-    border: 1px dashed rgb(161, 193, 226);
-  }
+  // &:not(.isRoot) {
+  //   border: 1px dashed rgb(161, 193, 226);
+  // }
+  //# 1 右上工具
   > .attachTool {
     position: absolute;
     left: 100%;
     top: 0;
+  }
+  //# 2 边界线 点
+  > .hostWrap-withLineDot {
+    height: 100%;
+    width: 100%;
+  }
+  > .attachBorder {
+    //~ 1 线
+    .line {
+      border: none;
+      &-left {
+        width: 1px;
+        left: -1px;
+        top: 0px;
+        bottom: 0px;
+        position: absolute;
+        border-right: 1px dashed $blue;
+      }
+      &-top {
+        height: 1px;
+        left: 0px;
+        right: 0px;
+        top: -1px;
+        position: absolute;
+        border-bottom: 1px dashed $blue;
+      }
+      &-right {
+        width: 1px;
+        right: -1px;
+        top: 0px;
+        bottom: 0px;
+        position: absolute;
+        border-left: 1px dashed $blue;
+      }
+      &-bottom {
+        height: 1px;
+        left: 0px;
+        right: 0px;
+        bottom: -1px;
+        position: absolute;
+        border-top: 1px dashed $blue;
+      }
+    }
+    //~ 2 点
+    .dot {
+      width: 6px;
+      height: 6px;
+      display: none;
+      position: absolute;
+      border-radius: 30px;
+      background: $blue;
+
+      &-left {
+        left: -3px;
+        top: 50%;
+      }
+      &-top {
+        left: 50%;
+        top: -3px;
+      }
+      &-right {
+        right: -3px;
+        top: 50%;
+      }
+      &-bottom {
+        left: 50%;
+        bottom: -3px;
+      }
+      &-lt {
+        left: -3px;
+        top: -3px;
+      }
+      &-rt {
+        right: -3px;
+        top: -3px;
+      }
+      &-lb {
+        left: -3px;
+        bottom: -3px;
+      }
+      &-rb {
+        right: -3px;
+        bottom: -3px;
+      }
+    }
+  }
+  &.isHover {
+    > .attachBorder {
+      .dot {
+        display: block;
+      }
+    }
+  }
+  &.isSelect {
+    > .attachBorder {
+      .line {
+        &-left {
+          border-right: 1px solid $blue;
+        }
+        &-top {
+          border-bottom: 1px solid $blue;
+        }
+        &-right {
+          border-left: 1px solid $blue;
+        }
+        &-bottom {
+          border-top: 1px solid $blue;
+        }
+      }
+    }
   }
 }
 </style>
