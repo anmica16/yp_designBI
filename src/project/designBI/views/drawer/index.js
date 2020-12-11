@@ -15,6 +15,3 @@ Vue.component("Bubble", Bubble);
 //     source_influence: null
 //   })
 // );
-
-import DrawingBoard from "./DrawingBoard.vue";
-Vue.component("DrawingBoard", DrawingBoard);

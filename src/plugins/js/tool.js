@@ -1,3 +1,4 @@
+import moduleName from "core-js/configurator";
 let objectPrototype = Object.prototype,
   //对象原型
   toString = objectPrototype.toString;
@@ -426,7 +427,7 @@ let tool = {
   /** ---------------------------------------------------
    ** 功能函数
    ** -------------------------------------------------  */
-  //~ 1 限流器
+  //~ 【1】 限流器
   throttle: (function() {
     // Defines minimum timeout before adding a trailing call.
     var requestAnimationFrame$1 = (function() {
@@ -451,6 +452,7 @@ let tool = {
           leadingCall = false;
           callback.apply(scope, args);
         }
+        //# 1 在等待期间如果被唤醒，那么该flag为true，则会在执行完一次后 最后执行一次
         if (trailingCall) {
           proxy.apply(scope, args);
         }
@@ -479,6 +481,101 @@ let tool = {
     };
     return throttle;
   })(),
+  async makePromise(Fn, returnPromise = false, scope, args) {
+    scope = scope || this;
+    args = args || [];
+    let pro = new Promise((res, rej) => {
+      let result = null;
+      if (!returnPromise) {
+        try {
+          result = Fn.apply(scope, args);
+        } catch (e) {
+          rej(e);
+          return;
+        }
+        res(result);
+      } else {
+        Fn.apply(scope, args)
+          .then(r => {
+            res(r);
+          })
+          .catch(r => {
+            rej(r);
+          });
+      }
+    });
+    return pro;
+  },
+  //~ 【2】原子器【粗糙】现在的版本可能有同时运行该函数？
+  atomic: function(Fn, returnPromise = false, waitTime = false) {
+    //++ 1 v2 这样的话就只可能插队
+    let waitPros = new Map(),
+      proResult = [],
+      count = 0,
+      tool = this;
+    waitPros.set(count, Promise.resolve());
+    // # 0 Fn的执行器，每次都是promise执行，可以加then、catch作为后续
+    let proxy = async function() {
+      //# ++ 2 v3 将原子操作放在了这两行，应该很小概率会重复！
+      let lastCount = count++,
+        nowCount = count;
+
+      let me = this,
+        args = arguments;
+
+      //# 1 前一个promise执行？
+      let lastPro = waitPros.get(lastCount);
+      let pro = new Promise((res, rej) => {
+        let begin = Date.now();
+        //# 2.2 与上一个紧密相关
+        lastPro
+          .then(pr => {
+            //# 3 时间限制 如果有，那么就是限流类型的
+            if (waitTime) {
+              let nowTime = Date.now(),
+                wt = nowTime - begin;
+              if (wt > waitTime) {
+                proResult.unshift({
+                  count: nowCount,
+                  type: "超时",
+                  begin,
+                  nowTime,
+                  wt
+                });
+                res(proResult);
+                return;
+              }
+            }
+
+            //# 2.3 上一个ok了后才运行下面的pro
+            tool
+              .makePromise(Fn, returnPromise, me, args)
+              .then(r => {
+                proResult.unshift({
+                  count: nowCount,
+                  result: r
+                });
+                res(proResult);
+              })
+              .catch(r => {
+                proResult.unshift({
+                  count: nowCount,
+                  result: r
+                });
+                rej(proResult);
+              });
+          })
+          .catch(er => {
+            //# 2.4 出错了就拒绝
+            rej(er);
+          });
+      });
+      waitPros.set(nowCount, pro);
+      return pro;
+    };
+    return proxy;
+  },
+
   //~ 2 字符串模板
   format: function() {
     var result = arguments[0],
@@ -491,6 +588,7 @@ let tool = {
     }
     return result;
   },
+  //【update】可升级为 26 * 2 + 10的位数加密
   uniqueStr: function() {
     return (
       Date.now() +
@@ -504,6 +602,7 @@ let tool = {
         .substr(2)
     );
   },
+  //~ 4 汉字count
   len(str) {
     let me = this,
       count = 0;
@@ -522,7 +621,7 @@ let tool = {
 
     return count;
   },
-  //汉字范围的 substr 三个参数必须有
+  //~ 4-2 汉字范围的 substr 三个参数必须有
   substr(str, at, len) {
     let me = this;
     if (me.isString(str)) {

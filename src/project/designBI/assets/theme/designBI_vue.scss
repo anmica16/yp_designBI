@@ -409,6 +409,7 @@ body {
     height: 100%;
     border-bottom: 1px solid $border;
     box-sizing: border-box;
+    overflow: hidden;
 
     .leftPart {
       flex-grow: 1;
@@ -491,7 +492,7 @@ body {
     .EditCenter-scorll {
       > .el-scrollbar__wrap {
         > .el-scrollbar__view {
-          padding: 10px;
+          padding: 6px;
         }
       }
     }//scroll

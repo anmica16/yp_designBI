@@ -1347,7 +1347,7 @@ export default {
         temp,
         m = me.widthMode,
         theMode = m || me.wMode;
-      console.log(["宽度计算问题！", me.width, me.parentWidth]);
+      //console.log(["宽度计算问题！", me.width, me.parentWidth]);
       switch (theMode) {
         case "num":
           temp = me.width || 10;

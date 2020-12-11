@@ -67,7 +67,7 @@ export default {
   created() {
     let me = this;
     me.$store.dispatch("getBoardsInDB");
-    console.log(["app对象", me]);
+    console.log(["app对象", me, tool]);
     Vue.$root = me;
   }
 };

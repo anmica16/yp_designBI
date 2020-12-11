@@ -16,9 +16,15 @@
     :dropable="canDrop"
     :resizable="!isRoot && recordData.drag_resize_cfg.can_resize"
     class="BubbleDragResize"
-    :class="{ ...recordData.class, isRoot }"
+    :class="{ ...recordData.class, isRoot, isHover, isSelect }"
   >
-    <div ref="host" :is="xtype" v-bind="propsData"></div>
+    <div
+      ref="host"
+      :class="{ isRoot }"
+      :is="xtype"
+      v-bind="propsData"
+      @mouseenter.self="mouseenterFn"
+    ></div>
     <div v-if="!isRoot" class="attachTool" @mousedown.stop @touchstart.stop>
       <el-button>提示</el-button>
       <el-button>实例信息</el-button>
@@ -32,6 +38,7 @@ import Vue from "vue";
 import tool from "@/plugins/js/tool";
 import { Instance } from "@designBI/views/mixins/Entity.js";
 import dropManager from "@designBI/views/drawer/dropManager";
+import selectManager from "@designBI/views/drawer/selectManager";
 //像一个泡泡一样，可以到处移动，也可以拖拽等
 export default {
   name: "Bubble",
@@ -76,9 +83,19 @@ export default {
         percentMode: me.percentMode
       };
     },
-    //【update】mixin
+    //# 1 drop 拖拽 管理器
     dropManager() {
       return dropManager;
+    },
+    //# 2 item 切换 管理器
+    selectManager() {
+      return selectManager;
+    },
+    isHover() {
+      return this.selectManager.hoverItem === this;
+    },
+    isSelect() {
+      return this.selectManager.selectItem === this;
     }
   },
   methods: {
@@ -121,6 +138,22 @@ export default {
           style
         });
       }
+    },
+    //# 1 切换 selectManager hover 的 this对象，以便属性菜单刷新
+    //（1）优先级弱于 down
+    mouseenterFn() {
+      let me = this;
+      me.selectManager.changeHover(me);
+    },
+    mouseleaveFn() {
+      let me = this;
+      me.selectManager.changeHover(null);
+    },
+    //# 2 down 切换 selectManager select 的 this对象，以便属性菜单刷新
+    //（1）是否按住ctrl ？ 帆软精致单个拖拽模式不用考虑多个的情况，反而复杂了
+    mousedownFn() {
+      let me = this;
+      me.selectManager.changeSelect(me);
     }
   },
 
@@ -172,6 +205,10 @@ export default {
     });
     //@ 3 对style进行补充
     me.syncStyle();
+    //@ 4 item管理器的响应：
+    // me.$on("hover-on", function() {
+
+    // });
   }
 };
 </script>
@@ -181,9 +218,6 @@ export default {
   &:not(.isRoot) {
     border: 1px dashed rgb(161, 193, 226);
   }
-  // &.isRoot {
-  //   background: azure;
-  // }
   > .attachTool {
     position: absolute;
     left: 100%;

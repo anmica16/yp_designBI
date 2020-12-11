@@ -43,5 +43,8 @@ export default {
 .BaseBubble {
   width: 100%;
   height: 100%;
+  &:not(.isRoot) {
+    background: white;
+  }
 }
 </style>
