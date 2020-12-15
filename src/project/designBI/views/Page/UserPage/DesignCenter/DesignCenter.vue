@@ -55,9 +55,7 @@
                 <el-table-column prop="desp" label="备注"></el-table-column>
                 <el-table-column>
                   <template #default="scope">
-                    <div>
-                      {{ scope.$index }}
-                    </div>
+                    <el-link @click.stop="deleteBoard(scope)">删除</el-link>
                   </template>
                 </el-table-column>
                 <el-table-column
@@ -162,6 +160,21 @@ export default {
       } else {
         map[tempCode].window.location.reload();
       }
+    },
+    deleteBoard(scope) {
+      let me = this;
+      me.$msgbox({
+        type: "warning",
+        title: "确认",
+        message: "真的要删除该绘板吗？",
+        showCancelButton: true
+      })
+        .then(() => {
+          console.log(["删除时的确认", scope, scope.row]);
+          let board = me.$store.getters.getBoard(scope.row.templateCode);
+          board.delete();
+        })
+        .catch(() => {});
     }
   }
 };

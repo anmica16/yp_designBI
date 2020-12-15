@@ -1063,7 +1063,8 @@ export default {
       this.dragResizeDown(e, false);
     },
     //内部超过外框的时候不触发，触发范围缩小
-    getHandleToward(e) {
+    //【v2】外框超过也触发，加参数
+    getHandleToward(e, ifOut) {
       let me = this,
         handle = false,
         el = me.$el,
@@ -1074,20 +1075,20 @@ export default {
       let atRight =
           borders.indexOf("e") > -1
             ? e.pageX > off.left + el.offsetWidth - borderResizeWidth &&
-              e.pageX <= off.left + el.offsetWidth
+          (ifOut || e.pageX <= off.left + el.offsetWidth)
             : false,
         atLeft =
           borders.indexOf("w") > -1
-            ? e.pageX < off.left + borderResizeWidth && e.pageX >= off.left
+            ? e.pageX < off.left + borderResizeWidth && (ifOut || e.pageX >= off.left)
             : false,
         atTop =
           borders.indexOf("n") > -1
-            ? e.pageY < off.top + borderResizeWidth && e.pageY >= off.top
+            ? e.pageY < off.top + borderResizeWidth && (ifOut || e.pageY >= off.top)
             : false,
         atBottom =
           borders.indexOf("s") > -1
             ? e.pageY > off.top + el.offsetHeight - borderResizeWidth &&
-              e.pageY <= off.top + el.offsetHeight
+            (ifOut || e.pageY <= off.top + el.offsetHeight)
             : false,
         allAt = [atRight, atLeft, atTop, atBottom],
         count = 0;
@@ -1135,10 +1136,10 @@ export default {
       return handle;
     },
     //拆分为2个独立函数，便于分离控制
-    resizeDownFn(e, isMouse) {
+    resizeDownFn(e, isMouse, ifOut) {
       let me = this;
       if (me.resizable) {
-        let handle = me.getHandleToward(e);
+        let handle = me.getHandleToward(e, ifOut);
         if (handle) {
           if (isMouse) {
             me.handleDown(handle, e);
@@ -1163,10 +1164,10 @@ export default {
       return false;
     },
     //整合版本的控制器
-    dragResizeDown(e, isMouse) {
+    dragResizeDown(e, isMouse, ifOut) {
       let me = this;
       //没有resize时才执行drag
-      if (!me.resizeDownFn(e, isMouse)) {
+      if (!me.resizeDownFn(e, isMouse, ifOut)) {
         me.dragDownFn(e, isMouse);
       }
     },

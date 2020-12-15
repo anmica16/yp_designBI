@@ -1,5 +1,6 @@
 <template>
-  <div class="test" @mousedown.stop @touchstart.stop>
+  <div class="test" 
+      @mousedown.stop="testFn">
     <div class="first">测试vue组件</div>
     <div>{{ pro1 }}</div>
     <div v-if="slot1" id="slot1">{{ slot1 }}</div>
@@ -27,7 +28,14 @@ export default {
     slot3() {
       return this.source && this.source.slot3;
     }
-  }
+  },
+  methods: {
+    testFn() {
+      let me = this;
+      console.log(["走的 testFn"]);
+      me.$parent.$emit("select");
+    },
+  },
 };
 </script>
 

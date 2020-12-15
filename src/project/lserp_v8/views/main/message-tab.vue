@@ -135,6 +135,15 @@ export default {
     //     });
     //   }, 0);
     // },
+    deleteItem(item) {
+      let me = this,
+        at = me.items.findIndex(a => {
+          return a.$key === item.$key;
+        });
+      if (at > -1) {
+        me.items.splice(at, 1);
+      }
+    },
     clickFn(item) {
       let me = this,
         Yw = window.Yw,
@@ -146,7 +155,14 @@ export default {
           idValue: item.keyvalue,
           stepcode: item.stepcode,
           text: item.modulename + "【" + item.keyvalue + "】",
-          canAudit: true
+          canAudit: true,
+          listeners: {
+            "audit": function() {
+              console.log(["【1214】审核任一操作后要求删除", arguments]);
+              //【1214】要求删除
+              me.deleteItem(item);
+            },
+          }
         };
 
       if (card.stepcode == "0") {
@@ -170,7 +186,7 @@ export default {
           items: [card]
         });
       } else if (item.messid == 2) {
-        card.listeners = {
+        tool.apply(card.listeners,  {
           afterRender: function(holder) {
             let processBox = holder.down("WindowCard.processBox"),
               removeItems = [],
@@ -203,7 +219,7 @@ export default {
               });
             };
           }
-        };
+        });
 
         mainCmp.activeCard(null, card);
       } else {

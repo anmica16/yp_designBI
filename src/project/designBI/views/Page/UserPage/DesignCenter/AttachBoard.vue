@@ -48,13 +48,14 @@ export default {
   methods: {
     createBoard() {
       let me = this;
-      if (me.board || me.boardMaker) {
+      if (me.boardMaker) {
+        me.boardMaker.showMaker = true;
         return;
       }
       //if (!me.boardMaker) {
       let cfg = {
         name: "DrawingBoardCg",
-        template: `<Window title="新建绘板" v-show="showMaker">
+        template: `<Window ref='win' title="新建绘板">
             <Maker_Entity 
             :newSave="true"
             :EntityClass="DrawingBoard"
@@ -80,8 +81,7 @@ export default {
       };
       //【update】可行！
       let VerbWin = Vue.extend(cfg);
-      Vue.$windowManager.add(VerbWin);
-      me.boardMaker = true;
+      me.boardMaker = Vue.$windowManager.add(VerbWin);
       // me.boardMaker = new Vue({
       //   components: {
       //     VerbWin
