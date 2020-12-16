@@ -48,6 +48,10 @@ Vue.prototype.$msgbox2 = CusMsgBox;
 //【=2=】经典布局
 import RectLayoutV2 from "../../plugins/vue/RectLayoutV2.vue";
 Vue.component("RectLayoutV2", RectLayoutV2);
+//【=2.2=】绝对items布局
+import AbsItems from "../../plugins/layout/AbsItems.vue";
+Vue.component("AbsItems", AbsItems);
+
 //【=3=】Window
 import Window from "@/packages/window/Window.vue";
 Vue.component("Window", Window);

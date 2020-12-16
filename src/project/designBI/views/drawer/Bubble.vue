@@ -86,17 +86,17 @@ export default {
   props: {
     isRoot: {
       type: Boolean,
-      default: false,
+      default: false
     },
     //【1210】百分比模式，仅作用于 水平方向上w l
     percentMode: {
       type: Boolean,
-      default: true,
-    },
+      default: true
+    }
   },
   data() {
     return {
-      host: null,
+      host: null
     };
   },
   computed: {
@@ -120,7 +120,7 @@ export default {
         //~3 source数据
         source: me.recordData.source,
         //# 1 百分比模式，按照自身来
-        percentMode: me.percentMode,
+        percentMode: me.percentMode
       };
     },
     //# 1 drop 拖拽 管理器
@@ -136,7 +136,7 @@ export default {
     },
     isSelect() {
       return this.selectManager.selectItem === this;
-    },
+    }
   },
   methods: {
     //拖拽层的 save调用
@@ -148,10 +148,10 @@ export default {
       //~ 2 进行save;
       return new Promise((res, rej) => {
         me.Instance.save()
-          .then((r) => {
+          .then(r => {
             res(r);
           })
-          .catch((r) => {
+          .catch(r => {
             rej(r);
           });
       });
@@ -163,7 +163,7 @@ export default {
         showCancelButton: true,
         type: "warning",
         message: "确认删除该子控件？",
-        title: "确认",
+        title: "确认"
       })
         .then(() => {
           me.Instance.delete();
@@ -175,7 +175,7 @@ export default {
       let style = me.$refs.dragNode && me.$refs.dragNode.getSyncStyle();
       if (style) {
         me.Instance.setData({
-          style,
+          style
         });
       }
     },
@@ -205,7 +205,7 @@ export default {
     },
     dragResizeTouchDown(e) {
       this.$refs.dragNode.resizeDownFn(e, false, true);
-    },
+    }
   },
 
   //【update】mixin
@@ -220,20 +220,20 @@ export default {
       dropManager.set(me, me.$refs.dragNode);
     }
     //@ 2 正常的 松开手指 drop判定
-    me.$refs.dragNode.$on("dragstop", function (e, dragNode) {
+    me.$refs.dragNode.$on("dragstop", function(e, dragNode) {
       //~ 2 先将对应的 style放入
       me.syncStyle();
 
       //~ 1 看看能不能拽入进去，随后就save
       me.dropManager
         .checkDragStop(e, me, dragNode)
-        .then((result) => {
+        .then(result => {
           if (!(result && result.type === "add")) {
             console.error(["不会到达这里 dragstop then save"]);
             me.save();
           }
         })
-        .catch((result) => {
+        .catch(result => {
           if (result && result.type === "notFind") {
             //console.log(["未找到合适的parent加入！"]);
             me.save();
@@ -245,7 +245,7 @@ export default {
       // });
     });
     //@ 2-2 resize 松开手指
-    me.$refs.dragNode.$on("resizestop", function (e, dragNode) {
+    me.$refs.dragNode.$on("resizestop", function(e, dragNode) {
       //~ 2 先将对应的 style放入
       me.syncStyle();
       //~ 1 看看能不能拽入进去，随后就save
@@ -262,10 +262,10 @@ export default {
     // });
     //@ 5 补充事件不完整体系：
     //~ 1 host选中
-    me.$refs.dragNode.$on("select", function () {
+    me.$refs.dragNode.$on("select", function() {
       me.selectManager.changeSelect(me);
     });
-  },
+  }
 };
 </script>
 

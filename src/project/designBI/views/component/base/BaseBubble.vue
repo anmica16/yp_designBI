@@ -20,11 +20,11 @@ export default {
     //【1210】百分比模式，仅作用于 水平方向上w l；传递下去
     percentMode: {
       type: Boolean,
-      default: function () {
+      default: function() {
         return true;
-      },
-    },
-  },
+      }
+    }
+  }
   // watch:{
   //   items(newVal) {
   //     if (newVal && newVal.length) {

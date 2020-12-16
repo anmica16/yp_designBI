@@ -9,62 +9,62 @@ let objectPrototype = Object.prototype,
   //对象原型
   toString = objectPrototype.toString;
 let tool = {
-  emptyFn: function () { },
+  emptyFn: function() {},
   /**
    * 方法：对象冒充调用方法
    */
-  bind: function (fn, scope) {
+  bind: function(fn, scope) {
     fn = fn || tool.emptyFn;
-    return function () {
+    return function() {
       return fn.apply(scope, arguments);
     };
   },
-  isString: function (value) {
+  isString: function(value) {
     return typeof value === "string";
   },
 
-  isBoolean: function (value) {
+  isBoolean: function(value) {
     return typeof value === "boolean";
   },
-  isNumber: function (value) {
+  isNumber: function(value) {
     return typeof value === "number" && isFinite(value);
   },
 
-  isNumeric: function (value) {
+  isNumeric: function(value) {
     return !isNaN(parseFloat(value)) && isFinite(value);
   },
   // Safari 3.x and 4.x returns 'function' for typeof <NodeList>, hence we need to fall back to using
   // Object.prototype.toString (slower)
   isFunction:
     typeof document !== "undefined" &&
-      typeof document.getElementsByTagName("body") === "function"
-      ? function (value) {
-        return !!value && toString.call(value) === "[object Function]";
-      }
-      : function (value) {
-        return !!value && typeof value === "function";
-      },
+    typeof document.getElementsByTagName("body") === "function"
+      ? function(value) {
+          return !!value && toString.call(value) === "[object Function]";
+        }
+      : function(value) {
+          return !!value && typeof value === "function";
+        },
 
-  isSimpleObject: function (value) {
+  isSimpleObject: function(value) {
     return value instanceof Object && value.constructor === Object;
   },
 
   isObject:
     toString.call(null) === "[object Object]"
-      ? function (value) {
-        // check ownerDocument here as well to exclude DOM nodes
-        return (
-          value !== null &&
-          value !== undefined &&
-          toString.call(value) === "[object Object]" &&
-          value.ownerDocument === undefined
-        );
-      }
-      : function (value) {
-        return toString.call(value) === "[object Object]";
-      },
+      ? function(value) {
+          // check ownerDocument here as well to exclude DOM nodes
+          return (
+            value !== null &&
+            value !== undefined &&
+            toString.call(value) === "[object Object]" &&
+            value.ownerDocument === undefined
+          );
+        }
+      : function(value) {
+          return toString.call(value) === "[object Object]";
+        },
 
-  isEmpty: function (value, allowEmptyString) {
+  isEmpty: function(value, allowEmptyString) {
     return (
       value === null ||
       value === undefined ||
@@ -81,21 +81,21 @@ let tool = {
   isArray:
     "isArray" in Array
       ? Array.isArray
-      : function (value) {
-        return toString.call(value) === "[object Array]";
-      },
+      : function(value) {
+          return toString.call(value) === "[object Array]";
+        },
 
-  isDate: function (value) {
+  isDate: function(value) {
     return toString.call(value) === "[object Date]";
   },
 
   /** ---------------------------------------------------
    ** 对象赋值补充
    ** -------------------------------------------------  */
-  apply: function () {
+  apply: function() {
     return Object.assign.apply(this, arguments);
   },
-  applyIf: function (target, ...plus) {
+  applyIf: function(target, ...plus) {
     let me = this;
     if (plus.length === 1) {
       let onePlus = plus[0];
@@ -119,7 +119,7 @@ let tool = {
   /**
    * 克隆 exclude:array 要排除的属性
    */
-  clone: function (item, cloneDom, exclude) {
+  clone: function(item, cloneDom, exclude) {
     let me = this;
     if (item === null || item === undefined) {
       return item;
@@ -169,7 +169,7 @@ let tool = {
   },
 
   //不同于 apply，是深入的 apply
-  mergeBase: function (ifClone, ifCheckIf, setFn, destination) {
+  mergeBase: function(ifClone, ifCheckIf, setFn, destination) {
     let me = this,
       i = 4,
       ln = arguments.length,
@@ -231,7 +231,7 @@ let tool = {
               //# 2 也存在删除的情况
               let removeItems = [],
                 theI = -1;
-              me.each(value, function (val, i) {
+              me.each(value, function(val, i) {
                 theI = i;
                 let tempVal;
                 arrayKey = sourceKey[i];
@@ -270,7 +270,7 @@ let tool = {
               }
               //# 3 删除对应的
               if (removeItems.length) {
-                me.each(removeItems, function (item) {
+                me.each(removeItems, function(item) {
                   let at = sourceKey.indexOf(item);
                   sourceKey.splice(at, 1);
                 });
@@ -434,20 +434,20 @@ let tool = {
    ** 功能函数
    ** -------------------------------------------------  */
   //~ 【1】 限流器
-  throttle: (function () {
+  throttle: (function() {
     // Defines minimum timeout before adding a trailing call.
-    var requestAnimationFrame$1 = (function () {
+    var requestAnimationFrame$1 = (function() {
       if (typeof requestAnimationFrame === "function") {
         return requestAnimationFrame.bind(window);
       }
-      return function (callback) {
-        return setTimeout(function () {
+      return function(callback) {
+        return setTimeout(function() {
           return callback(Date.now());
         }, 1000 / 60);
       };
     })();
     var trailingTimeout = 2;
-    var throttle = function (callback, delay) {
+    var throttle = function(callback, delay) {
       var leadingCall = false,
         trailingCall = false,
         lastCallTime = 0,
@@ -513,7 +513,7 @@ let tool = {
     return pro;
   },
   //~ 【2】原子器【粗糙】现在的版本可能有同时运行该函数？
-  atomic: function (Fn, returnPromise = false, waitTime = false) {
+  atomic: function(Fn, returnPromise = false, waitTime = false) {
     //++ 1 v2 这样的话就只可能插队
     let waitPros = new Map(),
       proResult = [],
@@ -521,7 +521,7 @@ let tool = {
       tool = this;
     waitPros.set(count, Promise.resolve());
     // # 0 Fn的执行器，每次都是promise执行，可以加then、catch作为后续
-    let proxy = async function () {
+    let proxy = async function() {
       //# ++ 2 v3 将原子操作放在了这两行，应该很小概率会重复！
       let lastCount = count++,
         nowCount = count;
@@ -583,7 +583,7 @@ let tool = {
   },
 
   //~ 2 字符串模板
-  format: function () {
+  format: function() {
     var result = arguments[0],
       reg = null;
     for (var i = 1; i < arguments.length; i++) {
@@ -644,41 +644,41 @@ let tool = {
 //~ 3 日期工具
 tool.apply(tool, {
   Date: {
-    AddYear: function (date, e) {
+    AddYear: function(date, e) {
       if (!e) {
         return date;
       }
       return new Date(date.getTime() + e * 12 * 30.5 * 24 * 60 * 60 * 1000);
     },
-    AddMouth: function (date, e) {
+    AddMouth: function(date, e) {
       if (!e) {
         return date;
       }
       return new Date(date.getTime() + e * 30.5 * 24 * 60 * 60 * 1000);
     },
-    AddDay: function (date, e) {
+    AddDay: function(date, e) {
       if (!e) {
         return date;
       }
       return new Date(date.getTime() + e * 24 * 60 * 60 * 1000);
     },
-    AddHours: function (date, e) {
+    AddHours: function(date, e) {
       if (!e) {
         return date;
       }
       return new Date(date.getTime() + e * 60 * 60 * 1000);
     },
-    AddMinutes: function (date, e) {
+    AddMinutes: function(date, e) {
       if (!e) {
         return date;
       }
       return new Date(date.getTime() + e * 60 * 1000);
     },
-    toString: function (v) {
+    toString: function(v) {
       //待完善
       return v;
     },
-    toDateTime: function (source) {
+    toDateTime: function(source) {
       //将指定格式的字符串转换为时间类型,因正则表达式功力不足，暂时如此使用
       source = tool.isString(source)
         ? String(source).replace(/-/g, "/")
@@ -716,7 +716,7 @@ tool.apply(tool, {
       }
       return date;
     },
-    format: function (source, fmt) {
+    format: function(source, fmt) {
       if (!source) return source;
       var date = this.toDateTime(source);
       if (tool.isString(date)) {
@@ -793,7 +793,7 @@ tool.apply(tool, {
       return fmt;
     },
     //获取时间戳
-    unixtime: function (d) {
+    unixtime: function(d) {
       if (!d) d = new Date();
       return Math.round(d.getTime() / 1000);
     },
@@ -805,7 +805,7 @@ tool.apply(tool, {
       }
       return date;
     },
-    GetDateDiff: function (startTime, endTime, type) {
+    GetDateDiff: function(startTime, endTime, type) {
       var result = "";
       var date3 = endTime.getTime() - startTime.getTime(); //时间差的毫秒数
       //计算出相差天数
@@ -847,17 +847,22 @@ tool.apply(tool, {
     return result;
   },
 
-  //【update】可升级为 26 * 2 + 10的位数加密
-  uniqueStr: function () {
+  random62(len = 1) {
     let me = this,
-      max10 = Math.pow(62, 6) - 1,
+      maxLen = Math.pow(62, len),
+      num = Math.floor(Math.random() * maxLen),
+      num62 = me.ito62(num);
+    return num62;
+  },
+  //【update】可升级为 26 * 2 + 10的位数加密
+  uniqueStr: function() {
+    let me = this,
       p_date = me.ito62(Date.now()),
-      p_math_num = Math.floor(max10 * Math.random()),
+      p_math_num = me.random62(6),
       p_math = me.ito62(p_math_num);
 
     return p_date + p_math;
-  },
+  }
 });
-
 
 export default tool;

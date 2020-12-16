@@ -157,11 +157,11 @@ export default {
           text: item.modulename + "【" + item.keyvalue + "】",
           canAudit: true,
           listeners: {
-            "audit": function() {
+            audit: function() {
               console.log(["【1214】审核任一操作后要求删除", arguments]);
               //【1214】要求删除
               me.deleteItem(item);
-            },
+            }
           }
         };
 
@@ -186,7 +186,7 @@ export default {
           items: [card]
         });
       } else if (item.messid == 2) {
-        tool.apply(card.listeners,  {
+        tool.apply(card.listeners, {
           afterRender: function(holder) {
             let processBox = holder.down("WindowCard.processBox"),
               removeItems = [],

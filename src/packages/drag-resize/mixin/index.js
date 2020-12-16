@@ -1075,20 +1075,22 @@ export default {
       let atRight =
           borders.indexOf("e") > -1
             ? e.pageX > off.left + el.offsetWidth - borderResizeWidth &&
-          (ifOut || e.pageX <= off.left + el.offsetWidth)
+              (ifOut || e.pageX <= off.left + el.offsetWidth)
             : false,
         atLeft =
           borders.indexOf("w") > -1
-            ? e.pageX < off.left + borderResizeWidth && (ifOut || e.pageX >= off.left)
+            ? e.pageX < off.left + borderResizeWidth &&
+              (ifOut || e.pageX >= off.left)
             : false,
         atTop =
           borders.indexOf("n") > -1
-            ? e.pageY < off.top + borderResizeWidth && (ifOut || e.pageY >= off.top)
+            ? e.pageY < off.top + borderResizeWidth &&
+              (ifOut || e.pageY >= off.top)
             : false,
         atBottom =
           borders.indexOf("s") > -1
             ? e.pageY > off.top + el.offsetHeight - borderResizeWidth &&
-            (ifOut || e.pageY <= off.top + el.offsetHeight)
+              (ifOut || e.pageY <= off.top + el.offsetHeight)
             : false,
         allAt = [atRight, atLeft, atTop, atBottom],
         count = 0;

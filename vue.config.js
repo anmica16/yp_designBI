@@ -41,16 +41,16 @@ module.exports = {
   filenameHashing: false,
 
   //设计器
-  // chainWebpack: config => {
-  //   //设计器
-  //   config.plugin("html").tap(options => {
-  //     options[0].template = "./src/project/designBI/assets/designBi.html";
-  //     return options;
-  //   });
-  // },
-  // publicPath: "/pages/designBI/",
-  // outputDir: "../pages/designBI"
+  chainWebpack: config => {
+    //设计器
+    config.plugin("html").tap(options => {
+      options[0].template = "./src/project/designBI/assets/designBi.html";
+      return options;
+    });
+  },
+  publicPath: "/pages/designBI/",
+  outputDir: "../pages/designBI"
 
   //v8文件夹
-  outputDir: "../Lserp_v8/dist"
+  //outputDir: "../Lserp_v8/dist"
 };
