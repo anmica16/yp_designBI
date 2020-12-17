@@ -513,7 +513,7 @@ let tool = {
     return pro;
   },
   //~ 【2】原子器【粗糙】现在的版本可能有同时运行该函数？
-  atomic: function(Fn, returnPromise = false, waitTime = false) {
+  atomic: function(Fn, waitTime = false, returnPromise = false) {
     //++ 1 v2 这样的话就只可能插队
     let waitPros = new Map(),
       proResult = [],
@@ -541,15 +541,19 @@ let tool = {
               let nowTime = Date.now(),
                 wt = nowTime - begin;
               if (wt > waitTime) {
-                proResult.unshift({
-                  count: nowCount,
-                  type: "超时",
-                  begin,
-                  nowTime,
-                  wt
-                });
-                res(proResult);
-                return;
+                let nowLast = waitPros.get(waitPros.size - 1);
+                //# 4 最后一个但超时的 允许call，此为 尾call
+                if (nowLast !== pro) {
+                  proResult.unshift({
+                    count: nowCount,
+                    type: "超时",
+                    begin,
+                    nowTime,
+                    wt
+                  });
+                  res(proResult);
+                  return;
+                }
               }
             }
 

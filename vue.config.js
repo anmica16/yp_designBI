@@ -45,6 +45,7 @@ module.exports = {
     //设计器
     config.plugin("html").tap(options => {
       options[0].template = "./src/project/designBI/assets/designBi.html";
+      options[0].hash = true;
       return options;
     });
   },
