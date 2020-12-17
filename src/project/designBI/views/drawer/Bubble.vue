@@ -98,7 +98,8 @@ export default {
   },
   data() {
     return {
-      host: null
+      host: null,
+      shadow: null
     };
   },
   computed: {
@@ -172,9 +173,14 @@ export default {
         })
         .catch(() => {});
     },
-    syncStyle() {
+    getStyle() {
       let me = this;
       let style = me.$refs.dragNode && me.$refs.dragNode.getSyncStyle();
+      return style;
+    },
+    syncStyle() {
+      let me = this;
+      let style = me.getStyle();
       if (style) {
         me.Instance.setData({
           style
@@ -221,29 +227,67 @@ export default {
     if (me.canDrop) {
       dropManager.set(me, me.$refs.dragNode);
     }
+
+    //-------------
+    // 拖拽 与 shadow
+    //-------------
+    //@ 6-0 shadow设定
+    if (me.cellItem) {
+      me.shadow = {
+        cellItem: me.cellItem,
+        origin: me,
+        //parent: me.$parent,
+        show: false
+      };
+      me.$parent.dragShadow(me.shadow);
+    }
+
+    //@ 6-1-2 为move服务
+    me.$refs.dragNode.$on("dragstart", (e, dragNode) => {
+      //(1) shadow显现
+      me.shadow.show = true;
+    });
+    //@ 6-1 拖拽的mousemove时，shadow的放入与否
+    me.$refs.dragNode.$on("dragging", (e, dragNode) => {
+      //(2) 检查shadow处于位置
+      me.dropManager.checkDragging(e, me).then(result => {
+        //(3)对shadow重设 std
+        let cItem = me.shadow.cellItem,
+          layout = cItem.$$layout,
+          tempStyle = me.getStyle(),
+          tempStdStyle = layout.makeStdWHLT(tempStyle),
+          cgCol = tempStdStyle.$atCol - cItem.$atCol,
+          cgRow = tempStdStyle.$atRow - cItem.$atRow;
+        if (cgCol || cgRow) {
+          layout.positionChange(cItem, cgCol, cgRow);
+        }
+
+        //(4)如果找到 那么就执行新的，不然就执行旧的
+        if (result.findNode) {
+          result.findNode.dragShadow(me.shadow);
+        } else {
+          me.$parent.dragShadow(me.shadow);
+        }
+      });
+    });
+
     //@ 2 正常的 松开手指 drop判定
     me.$refs.dragNode.$on("dragstop", function(e, dragNode) {
-      //~ 2 先将对应的 style放入
-      me.syncStyle();
+      //(1) shadow隐藏
+      me.shadow.show = true;
 
-      //~ 1 看看能不能拽入进去，随后就save
-      me.dropManager
-        .checkDragStop(e, me, dragNode)
-        .then(result => {
-          if (!(result && result.type === "add")) {
-            console.error(["不会到达这里 dragstop then save"]);
-            me.save();
-          }
-        })
-        .catch(result => {
-          if (result && result.type === "notFind") {
-            //console.log(["未找到合适的parent加入！"]);
-            me.save();
-          }
-        });
-      // .finally(() => {
-      //   console.log(["dragstop 的 保存！"]);
-      //   me.save();
+      // //~ 2 先将对应的 style放入
+      // me.syncStyle();
+
+      // //~ 1 看看能不能拽入进去，随后就save
+      // me.dropManager.checkDragStop(e, me).then((result) => {
+      //   if (result && result.type === "find") {
+      //     let findNode = result.findNode;
+      //     findNode.Instance.add(me.Instance);
+      //   } else {
+      //     //NotFind
+      //     me.save();
+      //   }
       // });
     });
     //@ 2-2 resize 松开手指

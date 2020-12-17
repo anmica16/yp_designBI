@@ -7,6 +7,19 @@
       :Entity="item"
       :cellItem="item.$$cellItem"
     ></Bubble>
+    <template v-for="shadow in addShadows"
+      ><cells-shadow
+        :key="shadow.cellItem.$key"
+        :style="{
+          width: shadow.cellItem.width,
+          height: shadow.cellItem.height,
+          top: shadow.cellItem.top,
+          left: shadow.cellItem.left
+        }"
+        v-if="shadow.show"
+      ></cells-shadow>
+    </template>
+
     <AbsItems ref="layout" :items="cellItems" :columnNumber="20"></AbsItems>
   </div>
 </template>
@@ -14,9 +27,11 @@
 <script>
 import { Instance } from "@designBI/views/mixins/Entity.js";
 import tool from "@/plugins/js/tool";
+import CellsShadow from "./CellBubble/CellsShadow.vue";
 
 //root专用 也可以是需要格子就用的
 export default {
+  components: { CellsShadow },
   name: "CellBubble",
   mixins: [Instance],
   props: {
@@ -106,6 +121,7 @@ export default {
       }
       //console.log(["在这步之后报错【结束】？", newVal]);
     }
+    //~ 3 shadow体系，用
   },
   mounted() {
     let me = this;

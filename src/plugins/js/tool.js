@@ -544,13 +544,15 @@ let tool = {
                 let nowLast = waitPros.get(waitPros.size - 1);
                 //# 4 最后一个但超时的 允许call，此为 尾call
                 if (nowLast !== pro) {
-                  proResult.unshift({
-                    count: nowCount,
-                    type: "超时",
-                    begin,
-                    nowTime,
-                    wt
-                  });
+                  //【update】超时就无意义了，删除为好，释放内存
+                  // proResult.unshift({
+                  //   count: nowCount,
+                  //   type: "超时",
+                  //   begin,
+                  //   nowTime,
+                  //   wt
+                  // });
+                  waitPros.delete(lastCount);
                   res(proResult);
                   return;
                 }

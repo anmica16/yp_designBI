@@ -549,6 +549,9 @@ export default {
         if (this.parent) {
           this.bounds = this.calcDragLimits();
         }
+
+        this.$emit("dragstart", e, this);
+
         addEvent(document.documentElement, eventsFor.move, this.moveFn);
         addEvent(document.documentElement, eventsFor.stop, this.handleUp);
       }
@@ -850,14 +853,7 @@ export default {
       //this.right = right;
       //this.bottom = bottom;
 
-      this.$emit(
-        "dragging",
-        this,
-        this.left,
-        this.top,
-        this.width,
-        this.height
-      );
+      this.$emit("dragging", e, this);
     },
     moveHorizontally(_val) {
       let val = this.initLT(true);

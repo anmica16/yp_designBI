@@ -11,25 +11,11 @@ let dropManagerCfg = {
     };
   },
   computed: {
-    // mapNodes() {
-    //   let me = this,
-    //     dragNodes = [],
-    //     ownerNodes = [];
-    //   me.items.forEach((val, key) => {
-    //     ownerNodes.push(key);
-    //     dragNodes.push(val);
-    //   });
-    //   return {
-    //     dragNodes,
-    //     ownerNodes
-    //   };
-    // },
-    // dragNodes() {
-    //   return this.mapNodes.dragNodes;
-    // },
-    // ownerNodes() {
-    //   return this.mapNodes.ownerNodes;
-    // }
+    checkDragging() {
+      let me = this,
+        checkDragging = tool.atomic(me.checkDraggingBase, 100, true);
+      return checkDragging;
+    }
   },
   methods: {
     set() {
@@ -152,7 +138,7 @@ let dropManagerCfg = {
     },
 
     //【drag 1】
-    checkDragStop(e, ownerNode, dragNode) {
+    checkDragStop(e, ownerNode) {
       let me = this;
       return new Promise((res, rej) => {
         //~ 0 只要保证在body100%高度内进行操作，就不会有问题
@@ -200,7 +186,7 @@ let dropManagerCfg = {
 
           //# 1-4 排除现有父亲
           if (theOwner.instanceCode === ownerNode.parentCode) {
-            rej({
+            res({
               type: "notFind",
               message: "sameParent"
             });
@@ -234,7 +220,82 @@ let dropManagerCfg = {
           }
         }
         //只有add进去的才是res
-        rej({ type: "notFind" });
+        res({ type: "notFind" });
+      });
+    },
+    //【dragging 1】
+    checkDraggingBase(e, ownerNode) {
+      let me = this;
+      return new Promise((res, rej) => {
+        //~ 0 只要保证在body100%高度内进行操作，就不会有问题
+        let stopX = e.clientX,
+          stopY = e.clientY;
+        //~ 1 该区域有哪些可选 能drop进的组件
+        let fitOwners = [];
+        me.items.forEach(function(dNode, holderNode) {
+          //# 1 排除自己、
+          if (ownerNode == holderNode) {
+            return;
+          }
+          //# 1-2 以及自己内部
+          let findInner = holderNode.instanceCode
+            ? ownerNode.down("instanceCode", holderNode.instanceCode)
+            : false;
+          if (findInner) {
+            return;
+          }
+          //# 1-3 还要可见
+          if (!$(holderNode.$el).is(":visible")) {
+            return;
+          }
+
+          //# 2 开始检测
+          let dom = $(dNode.$el),
+            off = dom.offset(),
+            rectX = off.left,
+            rectY = off.top,
+            rectW = dNode.width,
+            rectH = dNode.height;
+          //console.log(["比较与client的点 X", stopX, rectX, "Y", stopY, rectY]);
+          if (
+            stopX > rectX &&
+            stopX < rectX + rectW &&
+            stopY > rectY &&
+            stopY < rectY + rectH
+          ) {
+            fitOwners.push(holderNode);
+          }
+        });
+        if (fitOwners.length) {
+          //【3】有 就寻找最下层 子级
+          let theOwner = me.findFrontItem(fitOwners);
+
+          //# 1-4 排除现有父亲
+          if (theOwner.instanceCode === ownerNode.parentCode) {
+            res({
+              type: "notFind",
+              message: "sameParent"
+            });
+            return;
+          }
+
+          // console.log([
+          //   "找到最前端的 子控件了！ check!",
+          //   fitOwners,
+          //   theOwner,
+          //   me
+          // ]);
+          //【4】加入！
+          if (theOwner) {
+            res({
+              findNode: theOwner,
+              type: "find"
+            });
+            return;
+          }
+        }
+        //只有add进去的才是res
+        res({ type: "notFind" });
       });
     }
   }

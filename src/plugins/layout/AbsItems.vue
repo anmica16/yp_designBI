@@ -5,6 +5,50 @@
 <script>
 //import $ from "jquery";
 import tool from "@/plugins/js/tool";
+class AbsItems_Cell {
+  x = null;
+  y = null;
+  items = [];
+
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+  }
+
+  //~ 通用方法
+  indexOf(item) {
+    return this.items.indexOf(item);
+  }
+  hasItem(item) {
+    let cell = this,
+      at = cell.indexOf(item);
+    return at > -1 ? true : false;
+  }
+  unbindItem(item) {
+    let cell = this,
+      at = cell.indexOf(item);
+    if (at > -1) {
+      //~ 1 item 删除
+      item.$cells = item.$cells || [];
+      let cellAt = item.$cells.indexOf(cell);
+      cellAt > -1 && item.$cells.splice(cellAt, 1);
+      //~ 2 cell 删除
+      cell.items.splice(at, 1);
+    }
+  }
+  bindItem(item) {
+    let cell = this,
+      at = cell.indexOf(item);
+    if (at < 0) {
+      //~ 1 item 添加
+      item.$cells = item.$cells || [];
+      let cellAt = item.$cells.indexOf(cell);
+      cellAt < 0 && item.$cells.push(cell);
+      //~ 2 cell 添加
+      cell.items.push(item);
+    }
+  }
+}
 
 export default {
   name: "AbsItems",
@@ -107,47 +151,7 @@ export default {
     //-------------
     //【Map 1-1 ··地图··构建】返回一个空白格子：
     newEmptyCell(x, y) {
-      x = x || null;
-      y = y || null;
-      return {
-        x,
-        y,
-        items: [], //表示所引用的 item
-
-        //~ 通用方法
-        indexOf(item) {
-          return this.items.indexOf(item);
-        },
-        hasItem(item) {
-          let cell = this,
-            at = cell.indexOf(item);
-          return at > -1 ? true : false;
-        },
-        unbindItem(item) {
-          let cell = this,
-            at = cell.indexOf(item);
-          if (at > -1) {
-            //~ 1 item 删除
-            item.$cells = item.$cells || [];
-            let cellAt = item.$cells.indexOf(cell);
-            cellAt > -1 && item.$cells.splice(cellAt, 1);
-            //~ 2 cell 删除
-            cell.items.splice(at, 1);
-          }
-        },
-        bindItem(item) {
-          let cell = this,
-            at = cell.indexOf(item);
-          if (at < 0) {
-            //~ 1 item 添加
-            item.$cells = item.$cells || [];
-            let cellAt = item.$cells.indexOf(cell);
-            cellAt < 0 && item.$cells.push(cell);
-            //~ 2 cell 添加
-            cell.items.push(item);
-          }
-        }
-      };
+      return new AbsItems_Cell(x, y);
     },
     //【Map 1-2 ··地图··构建】创建一个新行，便于添加进 map中，其中 每一个格子是一个 cell对象
     newEmptyRow(y) {
@@ -468,15 +472,21 @@ export default {
     //【Move 3 ··移动】【核心2】对带有可行movePlan的item进行其movePlan的执行！
     processMovePlan(item, moveNbs, finishItems) {
       finishItems = finishItems || [];
+      if (!item.$movePlan) {
+        return finishItems;
+      }
       finishItems.push(item);
 
       if (item.$movePlan.finished) {
         return finishItems; //已经执行就不要再执行了，不然会重复进行，这既浪费效率，又会出bug
       }
+      item.$movePlan.finished = true; //表示已经执行了这一次movePlan
+
       let me = this;
       let canMove = item.$movePlan && item.$movePlan.canMove;
       if (moveNbs) {
         let neighbours = item.$movePlan.neighbours;
+        //console.log(["这里重复？", neighbours, neighbours.length]);
         for (let i = 0; i < neighbours.length; ++i) {
           me.processMovePlan(neighbours[i], moveNbs, finishItems); //全都执行一次
         }
@@ -489,7 +499,6 @@ export default {
         me.useCells(item);
       }
 
-      item.$movePlan.finished = true; //表示已经执行了这一次movePlan
       return finishItems; //必然成功
     },
     sweepMovePlan(items, config = {}) {
@@ -620,7 +629,20 @@ export default {
       row = row > 0 ? row : 1; //避免row为0的情况，最小也是1行
       item.$rowH = row;
     },
-    //【Std 4】将定位四大要素给放入item
+    //【Std 5】统合版
+    makeStdWHLT(items) {
+      let me = this;
+      if (tool.isObject(items)) {
+        items = [items];
+      }
+      tool.each(items, item => {
+        me.makeStdLeft(item);
+        me.makeStdTop(item);
+        me.makeStdWidth(item);
+        me.makeStdHeight(item);
+      });
+    },
+    //【Std 6】将定位四大要素给放入item
     setStdLayout(items) {
       let me = this;
       if (tool.isObject(items)) {
@@ -680,49 +702,48 @@ export default {
       return repeatItems;
     },
     //【de 1】去重
-    deRepeatArea(beginItem, isLoop = true) {
+    deRepeatArea(items) {
+      items = items || this.items;
       let me = this,
-        nextItem = null,
-        beginAt = 0;
+        totCount = items.length;
       //~ 1 避免空
-      if (!me.items.length) {
+      if (!totCount) {
         return false;
       }
-      // ~ 2 第一次顺序
-      if (!beginItem) {
+      for (let i = 0; i < totCount; ++i) {
+        //# 1 排序
         me.orderItems();
-      }
-      if (beginItem) {
-        let at = me.items.indexOf(beginItem);
-        // 可以对倒数第二个进行判断 看倒数第一个是否在其范围内
-        if (at > -1 && me.items.length >= 3 && at < me.items.length - 1) {
-          beginAt = at;
-        } else {
-          return false; //避免死循环
-        }
-      }
-      let item = me.items[beginAt];
-      let reItems = me.getRepeatAreaItems(item);
-      if (reItems.length) {
-        let ratio = item.$rowH / item.$nCol;
-        reItems.forEach(ri => {
-          let ri_h = ri.$nCol * ratio;
-          //# 1 高于 那么就往下
-          if (ri.$rowH >= ri_h) {
-            ri.$atRow += item.$rowH;
-          } else {
-            //# 2 低于 则往右
-            ri.$atCol += item.$nCol;
-          }
-        });
-        if (isLoop && beginAt < me.items.length - 1) {
-          //# 3 主要针对后面的内容进行排序
-          me.orderItems();
-          nextItem = me.items[beginAt + 1];
-          //# 4 下一次循环
-          me.deRepeatArea(nextItem);
-        }
-      }
+        //# 2 当前item
+        let item = items[i],
+          reItems = me.getRepeatAreaItems(item);
+        //# 3 存在重复
+        if (reItems.length) {
+          let ratio = item.$rowH / item.$nCol;
+          reItems.forEach(ri => {
+            let ri_h = ri.$nCol * ratio;
+            //# 1 高于 那么就往下
+            if (ri.$rowH >= ri_h) {
+              ri.$atRow += item.$rowH;
+            } else {
+              //# 2 低于 则往右
+              let endCol = ri.$atCol + item.$nCol,
+                endRight = endCol + ri.$nCol;
+              //# 2-2 超过右边，看能不能恰好抵在右边
+              if (endRight >= me.columnNumber) {
+                let minLeft = me.columnNumber - ri.$nCol;
+                if (minLeft >= item.$nCol + item.$atCol) {
+                  ri.$atCol = minLeft;
+                } else {
+                  //# 2-3 否则就往下
+                  ri.$atRow += item.$rowH;
+                }
+              } else {
+                ri.$atCol += item.$nCol;
+              }
+            }
+          });
+        } //re len
+      } //for
     },
 
     //【de up-down】去 上下间隙，每一个item都执行，直到均为false的 plan
@@ -747,14 +768,9 @@ export default {
     //@@ 1 对一组items的 合适初始化处理，要求已加入
     initItemsLayout(items) {
       let me = this;
-      console.log(["initItemsLayout 过程！"]);
+      //console.log(["initItemsLayout 过程！"]);
       //~ 1 对items进行规则转化，形成map定位
-      tool.each(items, item => {
-        me.makeStdLeft(item);
-        me.makeStdTop(item);
-        me.makeStdWidth(item);
-        me.makeStdHeight(item);
-      });
+      me.makeStdWHLT(items);
       //~ 2 去重
       me.deRepeatArea();
       //~ 2-2 放入地图
@@ -772,7 +788,7 @@ export default {
     itemsAddRemove(addItems, removeItems) {
       let me = this,
         addItemsReady = [];
-      console.log(["itemsAddRemove 过程！"]);
+      console.log(["itemsAddRemove 过程！", addItems, removeItems]);
       //# 1 先去掉items
       removeItems.forEach(item => {
         item.$cells.forEach(cell => {
@@ -797,12 +813,17 @@ export default {
       }
     },
 
+    //@@ 3 初始化调用
     AbsStep1InitLayout() {
       let me = this;
       if (me.items.length) {
         me.initItemsLayout(me.items);
       }
-    }
+    },
+
+    //@@ 4 某一item发生cg，分位移和 大小两种
+    positionChange(item, cgCol, cgRow) {},
+    sizeChange(item) {}
   },
   created() {
     let me = this;
