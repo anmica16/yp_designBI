@@ -5,6 +5,7 @@
       :percentMode="percentMode"
       :key="item.recordData.instanceCode"
       :Entity="item"
+      :cellItem="item.$$cellItem"
     ></Bubble>
     <AbsItems ref="layout" :items="cellItems" :columnNumber="20"></AbsItems>
   </div>
@@ -57,6 +58,7 @@ export default {
         //# 3 均为 cellItem，服务于
         addItems = [],
         removeItems = [];
+      //console.log(["在这步之后报错？", newVal]);
       if (newVal && newVal.length) {
         //# 1 新加入 即 新的 在旧的找不到
         newVal.forEach(item => {
@@ -70,6 +72,9 @@ export default {
               $key: item.recordData.instanceCode,
               //# 4-1 添加一个引用
               $$instance: item,
+              $$layout: me.layout,
+
+              //## 基本要素
               width: style.width,
               height: style.height,
               top: style.top,
@@ -94,18 +99,12 @@ export default {
           }
         });
       }
-      //# 5 先删除再添加
-      removeItems.forEach(i => {
-        let at = me.cellItems.indexOf(i);
-        at > -1 && me.cellItems.splice(at, 1);
-      });
-      addItems.forEach(i => {
-        me.cellItems.push(i);
-      });
-      //# 6 然后触发一次 layout的更新
+      //# 5 然后触发一次 layout的更新，items的删除添加操作 交给 layout去进行
       if (removeItems.length || addItems.length) {
-        me.$emit("itemsAddRemove", addItems, removeItems);
+        //me.$emit("itemsAddRemove", addItems, removeItems);
+        me.layout.itemsAddRemove(addItems, removeItems);
       }
+      //console.log(["在这步之后报错【结束】？", newVal]);
     }
   },
   mounted() {

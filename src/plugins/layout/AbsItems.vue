@@ -1,3 +1,7 @@
+<template>
+  <div v-if="false"></div>
+</template>
+
 <script>
 //import $ from "jquery";
 import tool from "@/plugins/js/tool";
@@ -623,8 +627,8 @@ export default {
         items = [items];
       }
       items.forEach(item => {
-        item.width = "calc( " + (99.99 * item.$nCol) / me.columnNumber + "%)";
-        item.left = "calc( " + (99.99 * item.$atCol) / me.columnNumber + "%)";
+        item.width = ((99.99 * item.$nCol) / me.columnNumber).toFixed(2) + "%";
+        item.left = ((99.99 * item.$atCol) / me.columnNumber).toFixed(2) + "%";
         item.height = item.$rowH * me.rowHeight;
         item.top = item.$atRow * me.rowHeight;
       });
@@ -740,11 +744,12 @@ export default {
     //----------
     // 零、总运行
     //----------
-    AbsStep1InitLayout() {
+    //@@ 1 对一组items的 合适初始化处理，要求已加入
+    initItemsLayout(items) {
       let me = this;
-      console.log(["AbsStep1InitLayout 过程！"]);
+      console.log(["initItemsLayout 过程！"]);
       //~ 1 对items进行规则转化，形成map定位
-      tool.each(me.items, item => {
+      tool.each(items, item => {
         me.makeStdLeft(item);
         me.makeStdTop(item);
         me.makeStdWidth(item);
@@ -753,14 +758,50 @@ export default {
       //~ 2 去重
       me.deRepeatArea();
       //~ 2-2 放入地图
-      me.items.forEach(item => {
+      items.forEach(item => {
         me.useCells(item);
       });
 
       //~ 3 去 上下间隙
       me.deGapSpaces("up");
       //~ 4 根据信息重设 高宽left top
-      me.setStdLayout(me.items);
+      me.setStdLayout(items);
+    },
+
+    //@@ 2 外部给内部加入符合要求的 items的调用
+    itemsAddRemove(addItems, removeItems) {
+      let me = this,
+        addItemsReady = [];
+      console.log(["itemsAddRemove 过程！"]);
+      //# 1 先去掉items
+      removeItems.forEach(item => {
+        item.$cells.forEach(cell => {
+          cell.unbindItem(item);
+        });
+        let at = me.items.indexOf(item);
+        at > -1 && me.items.splice(at, 1);
+      });
+      //# 2 再加入
+      if (addItems.length) {
+        addItems.forEach(item => {
+          let at = me.items.indexOf(item);
+          if (at < 0) {
+            me.items.push(item);
+            addItemsReady.push(item);
+          }
+        });
+      }
+      //# 3 调用初始化
+      if (addItemsReady.length) {
+        me.initItemsLayout(addItemsReady);
+      }
+    },
+
+    AbsStep1InitLayout() {
+      let me = this;
+      if (me.items.length) {
+        me.initItemsLayout(me.items);
+      }
     }
   },
   created() {

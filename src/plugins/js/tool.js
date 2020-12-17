@@ -862,8 +862,7 @@ tool.apply(tool, {
   uniqueStr: function() {
     let me = this,
       p_date = me.ito62(Date.now()),
-      p_math_num = me.random62(6),
-      p_math = me.ito62(p_math_num);
+      p_math = me.random62(6);
 
     return p_date + p_math;
   }

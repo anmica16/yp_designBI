@@ -332,7 +332,7 @@ export default {
             if (!theItems.length) {
               let rootIns = new DesignItemInstance({
                 ...me.nowBoard.getData("rootInstance").$context,
-                xtype: "BaseBubble"
+                xtype: "CellBubble"
               });
               //# 2 保存和添加到map，然后重新获取
               rootIns.save();

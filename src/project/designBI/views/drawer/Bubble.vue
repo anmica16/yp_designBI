@@ -92,7 +92,9 @@ export default {
     percentMode: {
       type: Boolean,
       default: true
-    }
+    },
+    //【1217】地图定位的影子item
+    cellItem: Object
   },
   data() {
     return {

@@ -91,7 +91,7 @@ let Instance = tool.mergeClone({}, Base, {
       //   this.record.items,
       //   this.record.items && this.record.items.length
       // ]);
-      let theItems = this.record.items || [];
+      let theItems = (this.Instance && this.record.items) || [];
 
       return theItems.filter(i => i);
     },

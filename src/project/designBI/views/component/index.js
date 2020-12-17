@@ -61,3 +61,15 @@ itemManager.add(
     source_influence: "无source选项"
   })
 );
+import CellBubble from "./base/CellBubble.vue";
+Vue.component("CellBubble", CellBubble);
+itemManager.add(
+  new DesignItem({
+    xtype: "CellBubble",
+    typeCode: "0104",
+    name: "cell容器",
+    desp: "加入AbsItems布局工具的基础容器",
+    props: CellBubble.props,
+    source_influence: "无source选项"
+  })
+);
