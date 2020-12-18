@@ -42,6 +42,7 @@ let Base = {
       //+ 1 要改成 getter的形式
       me.Instance = me.$store.getters.getInstance(me.Entity);
     }
+    //me.Instance.$vNode = me;
     //console.log(["执行created Base end"]);
   }
 };
@@ -121,7 +122,7 @@ let Instance = tool.mergeClone({}, Base, {
           let at = shadow.parent.addShadows.indexOf(shadow);
           at > -1 && shadow.parent.addShadows.splice(at, 1);
         }
-
+        shadow.parent = me;
         let at2 = me.addShadows.indexOf(shadow);
         at2 < 0 && me.addShadows.push(shadow);
       }

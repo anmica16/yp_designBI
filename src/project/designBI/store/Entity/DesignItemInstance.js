@@ -336,6 +336,10 @@ export default class DesignItemInstance extends DrawEntityBase {
   //   me.parentsList = targetPL.concat([Instance]);
   //   //}
   // }
+
+  //-----------------
+  // 一、add过程
+  //------------
   setParent(Instance) {
     let me = this;
     me.checkType(Instance);
@@ -505,6 +509,9 @@ export default class DesignItemInstance extends DrawEntityBase {
         });
     });
   }
+  //-----------------
+  // 二、delete过程
+  //------------
   delete(options) {
     let me = this;
     //# 2 已标记deleted 不再deleted
@@ -533,5 +540,25 @@ export default class DesignItemInstance extends DrawEntityBase {
           rej(r);
         });
     });
+  }
+  //-----------------
+  // 三、shadow、cellsMap部分
+  //------------
+  syncCellStyle(cell) {
+    let me = this;
+    cell = cell || me.$$cellItem;
+    if (cell) {
+      me.setData({
+        style: {
+          width: cell.width,
+          height: cell.height,
+          left: cell.left,
+          top: cell.top
+        }
+      });
+      if (me.$bubble) {
+        me.$bubble.$refs.dragNode && me.$bubble.$refs.dragNode.reReadWHXY();
+      }
+    }
   }
 }

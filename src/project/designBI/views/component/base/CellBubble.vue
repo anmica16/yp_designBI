@@ -10,11 +10,11 @@
     ></Bubble>
     <template v-for="shadow in addShadows"
       ><cells-shadow
-        :key="shadow.cellItem.$key"
+        :key="shadow.cellItem.$key + '_s'"
         :style="{
           width: shadow.cellItem.width,
-          height: shadow.cellItem.height,
-          top: shadow.cellItem.top,
+          height: shadow.cellItem.height + 'px',
+          top: shadow.cellItem.top + 'px',
           left: shadow.cellItem.left
         }"
         v-if="shadow.show"
@@ -89,6 +89,7 @@ export default {
               //# 4-1 添加一个引用
               $$instance: item,
               $$layout: me.layout,
+              $$mapParent: me,
 
               //## 基本要素
               width: style.width,
@@ -119,10 +120,21 @@ export default {
       if (removeItems.length || addItems.length) {
         //me.$emit("itemsAddRemove", addItems, removeItems);
         me.layout.itemsAddRemove(addItems, removeItems);
+        me.syncCellsMap();
       }
       //console.log(["在这步之后报错【结束】？", newVal]);
+    },
+    //【=2=】cell 位置同步！
+    syncCellsMap(exceptItem) {
+      exceptItem = exceptItem || {};
+      let me = this;
+      me.items &&
+        me.items.forEach(item => {
+          if (item.instanceCode !== exceptItem.$key) {
+            item.syncCellStyle();
+          }
+        });
     }
-    //~ 3 shadow体系，用
   },
   mounted() {
     let me = this;

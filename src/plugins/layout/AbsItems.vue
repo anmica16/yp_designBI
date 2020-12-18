@@ -123,26 +123,30 @@ export default {
       return parseFloat((this.maxW / this.columnNumber).toFixed(2));
     },
     //【Map 5-3 ··地图··Get】获得以 x轴 纵向遍历 为视角的map
-    cellsMap_h() {
-      let me = this,
-        cellsMap = me.cellsMap;
+    // cellsMap_h() {
+    //   let me = this,
+    //     cellsMap = me.cellsMap;
 
-      let cellsMapVertical = [];
-      if (!cellsMap.length) {
-        return cellsMapVertical;
-      }
-      let rowLen = cellsMap[0].length, //每行长度
-        colLen = cellsMap.length; //每列长度
+    //   let cellsMapVertical = [];
+    //   if (!cellsMap.length) {
+    //     return cellsMapVertical;
+    //   }
+    //   let rowLen = cellsMap[0].length, //每行长度
+    //     colLen = cellsMap.length; //每列长度
 
-      for (let x = 0; x < rowLen; ++x) {
-        for (let y = 0; y < colLen; ++y) {
-          let cell = cellsMap[y][x]; //x不变，y在递增,cellsMap是先是纵坐标 再是横坐标
-          //【1】cellsMap的纵形
-          cellsMapVertical[x] = cellsMapVertical[x] || [];
-          cellsMapVertical[x][y] = cell; //这样就转化为了每个 x上 y的集合的形式，x对应每个列
-        }
-      }
-      return cellsMapVertical;
+    //   for (let x = 0; x < rowLen; ++x) {
+    //     for (let y = 0; y < colLen; ++y) {
+    //       let cell = cellsMap[y][x]; //x不变，y在递增,cellsMap是先是纵坐标 再是横坐标
+    //       //【1】cellsMap的纵形
+    //       cellsMapVertical[x] = cellsMapVertical[x] || [];
+    //       cellsMapVertical[x][y] = cell; //这样就转化为了每个 x上 y的集合的形式，x对应每个列
+    //     }
+    //   }
+    //   return cellsMapVertical;
+    // },
+    positionChange() {
+      let me = this;
+      return tool.throttle(me.positionChangeAtomic, 20);
     }
   },
   methods: {
@@ -225,8 +229,7 @@ export default {
       let me = this,
         closeCells = [],
         neighbours = [], //一起寻找，找到紧邻的items
-        map = me.cellsMap, //水平方向地图
-        mapVertical = me.cellsMap_h; //ok
+        map = me.cellsMap; //水平方向地图
       //【1】空白格子直接返回 空[]
       if (!item || item.isEmpty) {
         //isEmpty表示这只是一个 避免报错的 空{}对象
@@ -235,31 +238,28 @@ export default {
           neighbours: neighbours
         }; //直接返回空
       }
+      let mapCheck = function(rowCheck, colCheck) {
+        //保证没有出界
+        let cell = map[rowCheck][colCheck];
+        //【1】cell格子加入完毕
+        closeCells.push(cell);
+        //【2】cell格子中的 item加入完毕
+        cell.items.forEach(cItem => {
+          !neighbours.some(function(a) {
+            return a === cItem;
+          }) && neighbours.push(cItem);
+        });
+        //注意避免 空白格子的 null的加入
+      };
       //【2】控件元素就 遍历
       switch (toward.toLowerCase()) {
         case "right":
         case "r": // 假如是右
           for (let i = 0; i < item.$rowH; ++i) {
-            let pCol = item.$atCol + item.$nCol - 1, //最右的位置
-              pRow = item.$atRow + i,
-              pToward = pCol + 1; //最右 +1
-            if (pToward < map[pRow].length) {
-              //保证没有出界
-              let cell = map[pRow][pToward];
-              //【1】cell格子加入完毕
-              closeCells.push(cell);
-              //【2】cell格子中的 item加入完毕
-              cell.items.forEach(cItem => {
-                !neighbours.some(function(a) {
-                  return a === cItem;
-                }) && neighbours.push(cItem);
-              });
-              //注意避免 空白格子的 null的加入
-            } else {
-              return {
-                closeCells: closeCells,
-                neighbours: neighbours
-              }; //否则就提前返回，因为这里是矩形规则框框，一个边的点出界了，那么整个边都 出界了。
+            let rowCheck = item.$atRow + i, //确定即可
+              colCheck = item.$atCol + item.$nCol;
+            if (colCheck < map[rowCheck].length) {
+              mapCheck(rowCheck, colCheck);
             }
           }
           break;
@@ -267,25 +267,10 @@ export default {
         case "left":
         case "l":
           for (let i = 0; i < item.$rowH; ++i) {
-            let pCol = item.$atCol, //最左的位置
-              pRow = item.$atRow + i,
-              pToward = pCol - 1; //最左 -1
-            if (pToward >= 0) {
-              //保证没有出界
-              let cell = map[pRow][pToward];
-              //【1】cell格子加入完毕
-              closeCells.push(cell);
-              //【2】cell格子中的 itemRef加入完毕
-              cell.items.forEach(cItem => {
-                !neighbours.some(function(a) {
-                  return a === cItem;
-                }) && neighbours.push(cItem);
-              });
-            } else {
-              return {
-                closeCells: closeCells,
-                neighbours: neighbours
-              };
+            let rowCheck = item.$atRow + i, //确定即可
+              colCheck = item.$atCol - 1;
+            if (colCheck >= 0) {
+              mapCheck(rowCheck, colCheck);
             }
           }
           break;
@@ -293,25 +278,10 @@ export default {
         case "up":
         case "u":
           for (let i = 0; i < item.$nCol; ++i) {
-            let pCol = item.$atRow, //最左的位置
-              pRow = item.$atCol + i,
-              pToward = pCol - 1; //最左 -1
-            if (pToward >= 0) {
-              //保证没有出界
-              let cell = mapVertical[pRow][pToward];
-              //【1】cell格子加入完毕
-              closeCells.push(cell);
-              //【2】cell格子中的 itemRef加入完毕
-              cell.items.forEach(cItem => {
-                !neighbours.some(function(a) {
-                  return a === cItem;
-                }) && neighbours.push(cItem);
-              });
-            } else {
-              return {
-                closeCells: closeCells,
-                neighbours: neighbours
-              };
+            let rowCheck = item.$atRow - 1, //确定即可
+              colCheck = item.$atCol + i;
+            if (rowCheck >= 0) {
+              mapCheck(rowCheck, colCheck);
             }
           }
           break;
@@ -319,25 +289,10 @@ export default {
         case "down":
         case "d":
           for (let i = 0; i < item.$nCol; ++i) {
-            let pCol = item.$atRow + item.$rowH - 1, //最右的位置
-              pRow = item.$atCol + i,
-              pToward = pCol + 1; //最右 +1
-            if (pToward < mapVertical[pRow].length) {
-              //保证没有出界
-              let cell = mapVertical[pRow][pToward];
-              //【1】cell格子加入完毕
-              closeCells.push(cell);
-              //【2】cell格子中的 itemRef加入完毕
-              cell.items.forEach(cItem => {
-                !neighbours.some(function(a) {
-                  return a === cItem;
-                }) && neighbours.push(cItem);
-              });
-            } else {
-              return {
-                closeCells: closeCells,
-                neighbours: neighbours
-              };
+            let rowCheck = item.$atRow + item.$rowH, //确定即可
+              colCheck = item.$atCol + i;
+            if (rowCheck < map.length) {
+              mapCheck(rowCheck, colCheck);
             }
           }
           break;
@@ -383,7 +338,7 @@ export default {
 
       // 当前plan阶段，就已经通过 扩散传播 获取主动调用该方法，在这个 方向上做了一次 plan，那么就忽略 这个 item接下来的 plan make
       if (item.$movePlan) {
-        return item.$movePlan.canMove && !item.$movePlan.finished; // 就可以直接返回这个plan方向的 结论
+        return item.$movePlan; // 就可以直接返回这个plan方向的 结论
       }
 
       // 为了垂直方向做准备
@@ -402,35 +357,46 @@ export default {
       //【++ 1】如果不移动邻居，那么只要存在邻居，就判定为 false
       if (!moveNbs && neighbours && neighbours.length) {
         item.$movePlan.canMove = false;
-        return false;
+        return item.$movePlan;
       }
 
       if (closeCells.length) {
         //【++ 2】如果moveNbs 为 false 那么到这里就表示 全为空格子了
         if (!moveNbs) {
           item.$movePlan.canMove = true;
-          return true;
+          return item.$movePlan;
         } else {
           for (let i = 0; i < neighbours.length; ++i) {
-            let neighbour = neighbours[i]; //邻居是 itemRef 而不是cell容器
-            if (!me.makeMovePlan(neighbour, toward, moveNbs)) {
+            let neighbour = neighbours[i],
+              plan = me.makeMovePlan(neighbour, toward, moveNbs);
+            if (!plan.canMove || plan.finished) {
               //对每一个 紧邻格子 也做计划
               item.$movePlan.canMove = false;
-              return false; //如果有 某个邻近格子做出了无法 move的判断，那么整个move plan就失败
+              return item.$movePlan; //如果有 某个邻近格子做出了无法 move的判断，那么整个move plan就失败
             }
           }
           // 这里就是 迭代得到全部行可以 move的结论后的位置
           //  --- 提示：到达这里即表示 该控件占有的 全部行 的最右边紧邻格子 均边是 空白格子，这样才会返回下面的true
           item.$movePlan.canMove = true;
           //item
-          return true;
+          return item.$movePlan;
         }
       } else {
         //没有格子，那么该 item就是到达 边界的 item
-        //【2】到达最右边边界 从而无法移动的 item控件
-        item.$movePlan.canMove = false;
-        return false;
+        if (canOutMap) {
+          //【2020-1218】目前只开放down
+          if (toward === "down") {
+            me.supplyMapRow(me.cellsMap.length);
+            let nowClose = me.getItemCloses(item, toward);
+            item.$movePlan.closeCells = nowClose.closeCells;
+            item.$movePlan.canMove = true;
+          }
+        } else {
+          //【2】到达最右边边界 从而无法移动的 item控件
+          item.$movePlan.canMove = false;
+        }
       }
+      return item.$movePlan;
     },
 
     //【Move 2 ··移动】【核心3-1】对item进行一格的移动
@@ -532,14 +498,17 @@ export default {
     tryMoveItem(item, toward, moveNbs, step = 1, canOutMap) {
       let me = this,
         finishStep = 0,
+        movePlan,
         success = true;
       for (; finishStep < step; ++finishStep) {
-        success = me.makeMovePlan(item, toward, moveNbs, canOutMap);
+        movePlan = me.makeMovePlan(item, toward, moveNbs, canOutMap);
+        success = movePlan.canMove;
         if (!success) {
           break;
         }
       }
       return {
+        movePlan,
         success,
         finishStep,
         restStep: step - finishStep
@@ -772,7 +741,7 @@ export default {
       me.orderItems(toward);
       me.items.forEach(item => {
         let plan = me.makeMovePlan(item, toward, true);
-        while (plan) {
+        while (plan.canMove) {
           me.doProcessMovePlan(item, true);
           plan = me.makeMovePlan(item, toward, true);
         }
@@ -842,10 +811,11 @@ export default {
 
     //@@ 4 某一item发生cg，分位移和 大小两种
     positionChangeBase(item, realStyle, toward) {
-      let me = this,
-        realStyleStd = me.makeStdWHLT(realStyle),
-        cgCol = realStyleStd.$atCol - item.$atCol,
-        cgRow = realStyleStd.$atRow - item.$atRow;
+      let me = this;
+      console.log(["调试 positionChangeBase  进行！！"]);
+      me.makeStdWHLT(realStyle);
+      let cgCol = realStyle.$atCol - item.$atCol,
+        cgRow = realStyle.$atRow - item.$atRow;
 
       //~ 1 向右/左
       if (cgCol) {
@@ -855,7 +825,7 @@ export default {
           moveHorizon = me.tryMoveItem(item, to, false, cgColAbs);
         //(2) 失败，邻居或者边界
         if (!moveHorizon.success) {
-          let lastMove = item.$movePlanHis[0],
+          let lastMove = moveHorizon.movePlan,
             neighbours = lastMove.neighbours;
 
           //++ 1 针对剩余方向上的判断：
@@ -906,7 +876,7 @@ export default {
         //(2) 失败，邻居或者边界
         if (!moveVertical.success) {
           //# 1 上下的邻居，都比较，选取首先低于的
-          let lastMove = item.$movePlanHis[0],
+          let lastMove = moveVertical.movePlan,
             neighbours = lastMove.neighbours.concat([]);
 
           //#1 如果遇到邻居，那么 两者进行上下判别
@@ -944,10 +914,11 @@ export default {
         }
       }
     },
-    positionChange(item, realStyle) {
+    positionChangeAtomic(item, realStyle) {
       let me = this;
       me.positionChangeBase(item, realStyle);
       me.deGapSpaces("up");
+      me.setStdLayout(me.items);
     },
     sizeChange(item) {}
   },

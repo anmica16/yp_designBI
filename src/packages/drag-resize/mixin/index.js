@@ -434,6 +434,13 @@ export default {
       }
       return 0;
     },
+    reReadWHXY() {
+      let me = this;
+      me.moveHorizontally(me.x);
+      me.moveVertically(me.y);
+      me.changeWidth(me.w);
+      me.changeHeight(me.h);
+    },
     resetBoundsAndMouseState() {
       this.mouseClickPosition = {
         mouseX: 0,
@@ -997,7 +1004,7 @@ export default {
 
       const width = computeWidth(this.parentWidth, this.left, right);
       const height = computeHeight(this.parentHeight, this.top, bottom);
-      console.log(["宽度改变", width]);
+      //console.log(["宽度改变", width]);
       //this.right = right;
       //this.bottom = bottom;
       this.width = width;
@@ -1023,7 +1030,7 @@ export default {
 
       const width = computeWidth(this.parentWidth, this.left, right);
       const height = computeHeight(this.parentHeight, this.top, bottom);
-      console.log(["高度改变", height]);
+      //console.log(["高度改变", height]);
 
       //this.right = right;
       //this.bottom = bottom;
@@ -1495,6 +1502,7 @@ export default {
       if (this.resizing || this.dragging) {
         return;
       }
+      //console.log(["x轴改变！", val]);
 
       if (this.parent) {
         this.bounds = this.calcDragLimits();

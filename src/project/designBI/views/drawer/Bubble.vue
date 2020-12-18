@@ -189,6 +189,12 @@ export default {
         });
       }
     },
+    syncCellsMap(cItem) {
+      let me = this;
+      if (me.shadow && me.shadow.parent) {
+        me.shadow.parent.syncCellsMap(cItem);
+      }
+    },
     //# 1 切换 selectManager hover 的 this对象，以便属性菜单刷新
     //（1）优先级弱于 down
     mouseoverFn() {
@@ -217,6 +223,88 @@ export default {
       this.$refs.dragNode.resizeDownFn(e, false, true);
     }
   },
+  watch: {
+    cellItem(newVal) {
+      let me = this;
+      if (newVal && !me.shadow) {
+        //console.log(["咋就不能初始化呢？", me.cellItem]);
+        //-------------
+        // 拖拽 与 shadow
+        //-------------
+        //@ 6-0 shadow设定
+        if (me.cellItem) {
+          me.shadow = {
+            cellItem: me.cellItem,
+            origin: me,
+            //parent: me.$parent,
+            show: false
+          };
+          me.$parent.dragShadow(me.shadow);
+
+          //@ 6-1-2 为move服务
+          me.$refs.dragNode.$on("dragstart", (e, dragNode) => {
+            console.log(["调试 drag start 开始！"]);
+            //(1) shadow显现
+            me.shadow.show = true;
+          });
+          //@ 6-1 拖拽的mousemove时，shadow的放入与否
+          me.$refs.dragNode.$on("dragging", (e, dragNode) => {
+            //(2-1) 一般就是该模式
+            if (!me.nowBoard.$dragMode) {
+              //(3)对shadow重设 std
+              let cItem = me.shadow.cellItem,
+                layout = cItem.$$layout,
+                tempStyle = me.getStyle();
+              //(3-2)直接交付
+              layout.positionChange(cItem, tempStyle);
+              //(3-3)除此之外的 都要style变化
+              me.syncCellsMap(cItem);
+            } else {
+              //(2-2) 检查shadow处于位置，应该在拽入模式时执行这个函数，一般就是阴影！
+              me.dropManager.checkDragging(e, me).then(result => {
+                //(3)对shadow重设 std
+                let cItem = me.shadow.cellItem,
+                  layout = cItem.$$layout,
+                  tempStyle = me.getStyle();
+                //(3-2)直接交付
+                layout.positionChange(cItem, tempStyle);
+
+                //(4)如果找到 那么就执行新的，不然就执行旧的
+                if (result.findNode) {
+                  result.findNode.dragShadow(me.shadow);
+                } else {
+                  me.$parent.dragShadow(me.shadow);
+                }
+              });
+            }
+          });
+
+          //@ 2 正常的 松开手指 drop判定
+          me.$refs.dragNode.$on("dragstop", function(e, dragNode) {
+            //(1) shadow隐藏
+            me.shadow.show = false;
+            if (!me.nowBoard.$dragMode) {
+              me.Instance.syncCellStyle();
+            }
+
+            // //~ 2 先将对应的 style放入
+            // me.syncStyle();
+
+            // //~ 1 看看能不能拽入进去，随后就save
+            // me.dropManager.checkDragStop(e, me).then((result) => {
+            //   if (result && result.type === "find") {
+            //     let findNode = result.findNode;
+            //     findNode.Instance.add(me.Instance);
+            //   } else {
+            //     //NotFind
+            //     me.save();
+            //   }
+            // });
+          });
+        }
+      }
+    }
+  },
 
   //【update】mixin
   mounted() {
@@ -224,80 +312,13 @@ export default {
 
     //@ 0 host设定
     me.host = me.$refs.host;
+    me.Instance.$bubble = me;
 
     //@ 1 如果是可drop进去的
     if (me.canDrop) {
       dropManager.set(me, me.$refs.dragNode);
     }
 
-    //-------------
-    // 拖拽 与 shadow
-    //-------------
-    //@ 6-0 shadow设定
-    if (me.cellItem) {
-      me.shadow = {
-        cellItem: me.cellItem,
-        origin: me,
-        //parent: me.$parent,
-        show: false
-      };
-      me.$parent.dragShadow(me.shadow);
-    }
-
-    //@ 6-1-2 为move服务
-    me.$refs.dragNode.$on("dragstart", (e, dragNode) => {
-      //(1) shadow显现
-      me.shadow.show = true;
-    });
-    //@ 6-1 拖拽的mousemove时，shadow的放入与否
-    me.$refs.dragNode.$on("dragging", (e, dragNode) => {
-      //(2-1) 一般就是该模式
-      if (!me.nowBoard.$dragMode) {
-        //(3)对shadow重设 std
-        let cItem = me.shadow.cellItem,
-          layout = cItem.$$layout,
-          tempStyle = me.getStyle();
-        //(3-2)直接交付
-        layout.positionChange(cItem, tempStyle);
-      } else {
-        //(2-2) 检查shadow处于位置，应该在拽入模式时执行这个函数，一般就是阴影！
-        me.dropManager.checkDragging(e, me).then(result => {
-          //(3)对shadow重设 std
-          let cItem = me.shadow.cellItem,
-            layout = cItem.$$layout,
-            tempStyle = me.getStyle();
-          //(3-2)直接交付
-          layout.positionChange(cItem, tempStyle);
-
-          //(4)如果找到 那么就执行新的，不然就执行旧的
-          if (result.findNode) {
-            result.findNode.dragShadow(me.shadow);
-          } else {
-            me.$parent.dragShadow(me.shadow);
-          }
-        });
-      }
-    });
-
-    //@ 2 正常的 松开手指 drop判定
-    me.$refs.dragNode.$on("dragstop", function(e, dragNode) {
-      //(1) shadow隐藏
-      me.shadow.show = true;
-
-      // //~ 2 先将对应的 style放入
-      // me.syncStyle();
-
-      // //~ 1 看看能不能拽入进去，随后就save
-      // me.dropManager.checkDragStop(e, me).then((result) => {
-      //   if (result && result.type === "find") {
-      //     let findNode = result.findNode;
-      //     findNode.Instance.add(me.Instance);
-      //   } else {
-      //     //NotFind
-      //     me.save();
-      //   }
-      // });
-    });
     //@ 2-2 resize 松开手指
     me.$refs.dragNode.$on("resizestop", function(e, dragNode) {
       //~ 2 先将对应的 style放入

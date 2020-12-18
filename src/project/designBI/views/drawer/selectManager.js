@@ -18,7 +18,7 @@ let selectManagerCfg = {
       let me = this,
         oldItem = me.hoverItem_old;
       if (oldItem) {
-        oldItem.$emit("hover-off");
+        //oldItem.$emit("hover-off");
       }
       //# 2 针对root的情况，恢复上次选中情况
       if (bubble && bubble.isRoot) {
@@ -34,7 +34,7 @@ let selectManagerCfg = {
         }
       }
       if (bubble) {
-        bubble && bubble.$emit("hover-on");
+        //bubble && bubble.$emit("hover-on");
         //# 1 标记old
         me.hoverItem_old = bubble;
       }
@@ -43,11 +43,11 @@ let selectManagerCfg = {
       let me = this,
         oldItem = me.selectItem;
       if (oldItem) {
-        oldItem.$emit("select-off");
+        //oldItem.$emit("select-off");
       }
       me.selectItem = bubble;
       if (bubble) {
-        bubble.$emit("select-on");
+        //bubble.$emit("select-on");
         //# 1 针对root情况 同时清空hover到root
         if (bubble.isRoot) {
           me.hoverItem = bubble;

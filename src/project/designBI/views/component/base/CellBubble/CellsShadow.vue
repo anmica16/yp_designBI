@@ -11,6 +11,7 @@ export default {
 
 <style lang="scss">
 .shadow {
+  position: absolute;
   background: rgba(12, 65, 62, 0.349);
   //border-radius: 8px;
 }
