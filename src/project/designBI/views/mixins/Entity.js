@@ -64,11 +64,7 @@ let Instance = tool.mergeClone({}, Base, {
   },
   data() {
     return {
-      Instance: null,
-      //~ 1 自身shadow，Bubble拥有
-      shadow: null,
-      //~ 2 加入进来的shadow，单个操作不会出现多个， --> 只有 BaseBubble和 CellBubble有
-      addShadows: []
+      Instance: null
     };
   },
   computed: {
@@ -110,49 +106,6 @@ let Instance = tool.mergeClone({}, Base, {
     },
     canDrop() {
       return this.recordData.drag_resize_cfg.can_drop != "";
-    }
-  },
-  methods: {
-    //【shadow 3】拖拽
-    dragShadow(shadow) {
-      let me = this;
-      //# 1 加入到自己体系
-      if (shadow.parent !== me) {
-        if (shadow.parent) {
-          let at = shadow.parent.addShadows.indexOf(shadow);
-          at > -1 && shadow.parent.addShadows.splice(at, 1);
-        }
-        shadow.parent = me;
-        let at2 = me.addShadows.indexOf(shadow);
-        at2 < 0 && me.addShadows.push(shadow);
-      }
-    },
-    //【shadow 2】自己生成shadow 并有目标对象
-    makeShadow(targetNode) {
-      let me = this;
-      targetNode = (targetNode && targetNode.$parent) || me.$parent;
-      if (!me.shadow) {
-        me.shadow = {
-          origin: me
-        };
-      }
-      //# 1 不应该报错，按照体系：
-      //targetNode.addShadow(shadow);
-    },
-    //【shadow 1】把被人的shadow加进来
-    // --> 只有 BaseBubble和 CellBubble应该调用此
-    addShadow(shadow) {
-      let me = this;
-      //# 2 去除上一个parent的 shadow
-      if (shadow.parent) {
-        shadow.parent.othersShadow = null;
-      }
-      tool.apply(shadow, {
-        //# 1 这也是一次覆盖，更改parent为me
-        parent: me,
-        parentIns: me.Instance
-      });
-      me.othersShadow = shadow;
     }
   }
 });

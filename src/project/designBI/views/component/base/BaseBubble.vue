@@ -12,11 +12,12 @@
 
 <script>
 import { Instance } from "@designBI/views/mixins/Entity.js";
+import DragResizeParent from "@designBI/views/mixins/DragResizeParent.js";
 //import tool from '@/plugins/js/tool';
 
 export default {
   name: "BaseBubble",
-  mixins: [Instance],
+  mixins: [Instance, DragResizeParent],
   props: {
     //【1210】百分比模式，仅作用于 水平方向上w l；传递下去
     percentMode: {

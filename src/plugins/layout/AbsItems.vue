@@ -98,6 +98,11 @@ export default {
     rowHeight: {
       type: Number,
       default: 20
+    },
+    //【4】移动时的A线高度位置
+    lineA: {
+      type: Number,
+      default: 0.2
     }
   },
   data() {
@@ -202,7 +207,8 @@ export default {
       let me = this;
       //~ 1 清除之前联系
       if (item.$cells && item.$cells.length) {
-        item.$cells.forEach(cell => {
+        let dCells = item.$cells.concat([]);
+        dCells.forEach(cell => {
           cell.unbindItem(item);
         });
       }
@@ -475,11 +481,12 @@ export default {
       items.forEach(item => {
         if (item.$movePlan) {
           //# 1 成功的更有意义加入
-          if (item.$movePlan.canMove) {
-            item.$movePlanHis = item.$movePlanHis || [];
-            tool.applyIf(item.$movePlan, config);
-            item.$movePlanHis.unshift(item.$movePlan);
-          }
+          //【debug】改bug有需要再加入
+          // if (item.$movePlan.canMove) {
+          //   item.$movePlanHis = item.$movePlanHis || [];
+          //   tool.applyIf(item.$movePlan, config);
+          //   item.$movePlanHis.unshift(item.$movePlan);
+          // }
           delete item.$movePlan;
         }
       });
@@ -503,6 +510,8 @@ export default {
       for (; finishStep < step; ++finishStep) {
         movePlan = me.makeMovePlan(item, toward, moveNbs, canOutMap);
         success = movePlan.canMove;
+        //# 1 这么重要的别搞掉。
+        me.doProcessMovePlan(item, moveNbs);
         if (!success) {
           break;
         }
@@ -837,7 +846,7 @@ export default {
           if (neighbours.length) {
             //#1-1 左右取第一个即上面那个
             let nb = neighbours[0],
-              nbA = nb.height * 0.15;
+              nbA = nb.height * me.lineA;
             nbA = nbA < me.rowHeight ? me.rowHeight : nbA;
             let nbATop = nbA + nb.top,
               belowNbA = realStyle.top >= nbATop;
@@ -845,6 +854,8 @@ export default {
             if (belowNbA) {
               //~~ 1 下面邻居 向下 插入元素高度
               me.tryMoveItemNeighbours(nb, "down", true, item.$rowH, true);
+              //~~ 1-2 自己的下面邻居也同样
+              me.tryMoveItemNeighbours(item, "down", true, item.$rowH, true);
               //~~ 2 top位置赋值
               item.$atRow = nb.$atRow + nb.$rowH;
               me.useCells(item);
@@ -886,7 +897,7 @@ export default {
               return div;
             });
             let nb = neighbours[0],
-              nbA = nb.height * 0.15;
+              nbA = nb.height * me.lineA;
             nbA = nbA < me.rowHeight ? me.rowHeight : nbA;
             let nbATop = nbA + nb.top,
               belowNbA = realStyle.top >= nbATop;

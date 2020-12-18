@@ -9,7 +9,7 @@
       :nowBoard="nowBoard"
     ></Bubble>
     <template v-for="shadow in addShadows"
-      ><cells-shadow
+      ><cell-shadow
         :key="shadow.cellItem.$key + '_s'"
         :style="{
           width: shadow.cellItem.width,
@@ -18,7 +18,19 @@
           left: shadow.cellItem.left
         }"
         v-if="shadow.show"
-      ></cells-shadow>
+      ></cell-shadow>
+    </template>
+    <template v-for="mask in addMasks"
+      ><cell-mask
+        :key="mask.cellItem.$key + '_m'"
+        :style="{
+          width: mask.cellItem.width,
+          height: mask.cellItem.height + 'px',
+          top: mask.cellItem.top + 'px',
+          left: mask.cellItem.left
+        }"
+        v-if="mask.show"
+      ></cell-mask>
     </template>
 
     <AbsItems ref="layout" :items="cellItems" :columnNumber="20"></AbsItems>
@@ -27,14 +39,16 @@
 
 <script>
 import { Instance } from "@designBI/views/mixins/Entity.js";
+import DragResizeParent from "@designBI/views/mixins/DragResizeParent.js";
 import tool from "@/plugins/js/tool";
-import CellsShadow from "./CellBubble/CellsShadow.vue";
+import CellShadow from "./CellBubble/CellShadow.vue";
+import CellMask from "./CellBubble/CellMask.vue";
 
 //root专用 也可以是需要格子就用的
 export default {
-  components: { CellsShadow },
+  components: { CellShadow, CellMask },
   name: "CellBubble",
-  mixins: [Instance],
+  mixins: [Instance, DragResizeParent],
   props: {
     //【1210】百分比模式，仅作用于 水平方向上w l；传递下去
     percentMode: {

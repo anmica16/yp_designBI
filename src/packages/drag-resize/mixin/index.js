@@ -96,6 +96,11 @@ export default {
       type: Boolean,
       default: true
     },
+    //++ 1 特殊resize模式，不改变当前定位大小，而反映到一个mask对象上，再由外部改变。
+    resizeMask: {
+      type: Boolean,
+      default: false
+    },
     dropable: {
       type: Boolean,
       default: true
@@ -652,6 +657,8 @@ export default {
 
       this.bounds = this.calcResizeLimits();
 
+      this.$emit("resizeStart", e, this);
+
       addEvent(document.documentElement, eventsFor.move, this.handleResizeFn);
       addEvent(document.documentElement, eventsFor.stop, this.handleUp);
     },
@@ -974,15 +981,22 @@ export default {
       if (this.onResize(this.handle, left, top, width, height) === false) {
         return;
       }
-
-      this.left = left;
-      this.top = top;
-      //this.right = right;
-      //this.bottom = bottom;
-      this.width = width;
-      this.height = height;
-
-      this.$emit("resizing", this.left, this.top, this.width, this.height);
+      if (this.resizeMask) {
+        this.$emit("resizing", e, {
+          left,
+          top,
+          width,
+          height
+        });
+      } else {
+        this.left = left;
+        this.top = top;
+        //this.right = right;
+        //this.bottom = bottom;
+        this.width = width;
+        this.height = height;
+        this.$emit("resizing", e, this);
+      }
     },
     changeWidth(_val) {
       let val = this.initWH(true);
