@@ -145,6 +145,7 @@
                 v-if="nowBoardRoot"
                 :Entity="nowBoardRoot"
                 :isRoot="true"
+                :nowBoard="nowBoard"
               ></Bubble>
             </div>
           </Scrollbar>

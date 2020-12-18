@@ -58,6 +58,9 @@ let Board = tool.mergeClone({}, Base, {
 });
 
 let Instance = tool.mergeClone({}, Base, {
+  props: {
+    nowBoard: Object
+  },
   data() {
     return {
       Instance: null,

@@ -6,6 +6,7 @@
       :key="item.recordData.instanceCode"
       :Entity="item"
       :cellItem="item.$$cellItem"
+      :nowBoard="nowBoard"
     ></Bubble>
     <template v-for="shadow in addShadows"
       ><cells-shadow

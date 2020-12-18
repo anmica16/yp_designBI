@@ -123,7 +123,9 @@ export default {
         //~3 source数据
         source: me.recordData.source,
         //# 1 百分比模式，按照自身来
-        percentMode: me.percentMode
+        percentMode: me.percentMode,
+        //~4 绘板变量传入
+        nowBoard: me.nowBoard
       };
     },
     //# 1 drop 拖拽 管理器
@@ -249,26 +251,32 @@ export default {
     });
     //@ 6-1 拖拽的mousemove时，shadow的放入与否
     me.$refs.dragNode.$on("dragging", (e, dragNode) => {
-      //(2) 检查shadow处于位置
-      me.dropManager.checkDragging(e, me).then(result => {
+      //(2-1) 一般就是该模式
+      if (!me.nowBoard.$dragMode) {
         //(3)对shadow重设 std
         let cItem = me.shadow.cellItem,
           layout = cItem.$$layout,
-          tempStyle = me.getStyle(),
-          tempStdStyle = layout.makeStdWHLT(tempStyle),
-          cgCol = tempStdStyle.$atCol - cItem.$atCol,
-          cgRow = tempStdStyle.$atRow - cItem.$atRow;
-        if (cgCol || cgRow) {
-          layout.positionChange(cItem, cgCol, cgRow);
-        }
+          tempStyle = me.getStyle();
+        //(3-2)直接交付
+        layout.positionChange(cItem, tempStyle);
+      } else {
+        //(2-2) 检查shadow处于位置，应该在拽入模式时执行这个函数，一般就是阴影！
+        me.dropManager.checkDragging(e, me).then(result => {
+          //(3)对shadow重设 std
+          let cItem = me.shadow.cellItem,
+            layout = cItem.$$layout,
+            tempStyle = me.getStyle();
+          //(3-2)直接交付
+          layout.positionChange(cItem, tempStyle);
 
-        //(4)如果找到 那么就执行新的，不然就执行旧的
-        if (result.findNode) {
-          result.findNode.dragShadow(me.shadow);
-        } else {
-          me.$parent.dragShadow(me.shadow);
-        }
-      });
+          //(4)如果找到 那么就执行新的，不然就执行旧的
+          if (result.findNode) {
+            result.findNode.dragShadow(me.shadow);
+          } else {
+            me.$parent.dragShadow(me.shadow);
+          }
+        });
+      }
     });
 
     //@ 2 正常的 松开手指 drop判定

@@ -5,6 +5,7 @@
       :percentMode="percentMode"
       :key="item.recordData.instanceCode"
       :Entity="item"
+      :nowBoard="nowBoard"
     ></Bubble>
   </div>
 </template>

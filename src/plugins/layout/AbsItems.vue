@@ -375,7 +375,7 @@ export default {
     },
 
     //【Move 1 ··移动】【核心1】对item向某方向前进1个格子是否可行进行分析，会对邻近item元素进行迭代分析。一次只对 1格进行分析，不要多了。要多也可以，基于这个一格的method扩展即可
-    makeMovePlan(item, toward, moveNbs) {
+    makeMovePlan(item, toward, moveNbs, canOutMap) {
       //第三个参数表示紧邻程度，用于辨别是否是第一次，因为第一次不能为 null，而后续是可以为 null的
       let me = this;
 
@@ -529,15 +529,34 @@ export default {
     },
 
     //【Move 4 ··移动】单个item的尝试移动
-    tryMoveItem(item, toward, moveNbs) {
-      let me = this;
-      let plan = me.makeMovePlan(item, toward, moveNbs);
-      if (plan) {
-        me.doProcessMovePlan(item, moveNbs);
-        return true;
-      } else {
-        return false;
+    tryMoveItem(item, toward, moveNbs, step = 1, canOutMap) {
+      let me = this,
+        finishStep = 0,
+        success = true;
+      for (; finishStep < step; ++finishStep) {
+        success = me.makeMovePlan(item, toward, moveNbs, canOutMap);
+        if (!success) {
+          break;
+        }
       }
+      return {
+        success,
+        finishStep,
+        restStep: step - finishStep
+      };
+    },
+    //【Move 4-2 ··移动】单个item的某方向所有邻居尝试移动
+    tryMoveItemNeighbours(item, toward, moveNbs, step = 1, canOutMap) {
+      let me = this,
+        result = new Map(),
+        nbs = me.getItemCloses(item, "down").neighbours;
+      if (nbs.length) {
+        nbs.forEach(nb => {
+          let oneR = me.tryMoveItem(nb, toward, moveNbs, step, canOutMap);
+          result.set(nb, oneR);
+        });
+      }
+      return result;
     },
 
     //---------------------------
@@ -822,7 +841,114 @@ export default {
     },
 
     //@@ 4 某一item发生cg，分位移和 大小两种
-    positionChange(item, cgCol, cgRow) {},
+    positionChangeBase(item, realStyle, toward) {
+      let me = this,
+        realStyleStd = me.makeStdWHLT(realStyle),
+        cgCol = realStyleStd.$atCol - item.$atCol,
+        cgRow = realStyleStd.$atRow - item.$atRow;
+
+      //~ 1 向右/左
+      if (cgCol) {
+        let cgColAbs = Math.abs(cgCol),
+          to = cgColAbs === cgCol ? "right" : "left",
+          //(1) 一直向右
+          moveHorizon = me.tryMoveItem(item, to, false, cgColAbs);
+        //(2) 失败，邻居或者边界
+        if (!moveHorizon.success) {
+          let lastMove = item.$movePlanHis[0],
+            neighbours = lastMove.neighbours;
+
+          //++ 1 针对剩余方向上的判断：
+          if (["left", "right"].indexOf(toward) > -1 && !lastMove.finishStep) {
+            return;
+          }
+
+          //#1 如果遇到邻居，那么 两者进行上下判别
+          if (neighbours.length) {
+            //#1-1 左右取第一个即上面那个
+            let nb = neighbours[0],
+              nbA = nb.height * 0.15;
+            nbA = nbA < me.rowHeight ? me.rowHeight : nbA;
+            let nbATop = nbA + nb.top,
+              belowNbA = realStyle.top >= nbATop;
+            //@@ 1 下面往下
+            if (belowNbA) {
+              //~~ 1 下面邻居 向下 插入元素高度
+              me.tryMoveItemNeighbours(nb, "down", true, item.$rowH, true);
+              //~~ 2 top位置赋值
+              item.$atRow = nb.$atRow + nb.$rowH;
+              me.useCells(item);
+              //~~ 3 因为只对部分位移做了处理，所以继续
+              me.positionChangeBase(item, realStyle, to);
+              return;
+            }
+            //@@ 2 整个邻居往下
+            else {
+              //~~ 1 先确定是在其上
+              let tryUp = item.$atRow - nb.$atRow + item.$rowH;
+              //~~ 2 再往下移动(往往多移动了)
+              me.tryMoveItem(nb, "down", true, item.$rowH, true);
+              //~~ 3 往上try
+              me.tryMoveItem(item, "up", false, tryUp);
+              me.positionChangeBase(item, realStyle, to);
+              return;
+            }
+          } //上为非success
+          //# 2 遇到边界的失败，仍然可以在上下范围判断
+        }
+      }
+      //~ 2 向下/上 只有在向右成功 或 边界失败可执行
+      if (cgRow) {
+        let cgRowAbs = Math.abs(cgRow),
+          to = cgRowAbs === cgRow ? "down" : "up",
+          //(1) 一直向右
+          moveVertical = me.tryMoveItem(item, to, false, cgRowAbs);
+        //(2) 失败，邻居或者边界
+        if (!moveVertical.success) {
+          //# 1 上下的邻居，都比较，选取首先低于的
+          let lastMove = item.$movePlanHis[0],
+            neighbours = lastMove.neighbours.concat([]);
+
+          //#1 如果遇到邻居，那么 两者进行上下判别
+          if (neighbours.length) {
+            neighbours.sort((n1, n2) => {
+              let div = n1.height - n2.height;
+              return div;
+            });
+            let nb = neighbours[0],
+              nbA = nb.height * 0.15;
+            nbA = nbA < me.rowHeight ? me.rowHeight : nbA;
+            let nbATop = nbA + nb.top,
+              belowNbA = realStyle.top >= nbATop;
+            //# 2 如果是向上 且高于nb -> 与 最小的交换位置
+            if (to === "up" && !belowNbA) {
+              //~~ 1 item free
+              me.freeCells(item);
+              //~~ 2 上的向下item rowH
+              me.tryMoveItem(nb, "down", true, item.$rowH, true);
+              //~~ 3 然后再探究向上！
+              me.tryMoveItem(item, "up", false, nb.$rowH);
+            }
+            //# 3 如果是向下
+            else if (to === "down" && belowNbA) {
+              //~~ 0 item让出
+              me.freeCells(item);
+              //~~ 1 首先是nb先试着向上
+              me.tryMoveItem(nb, "up", false, item.$rowH);
+              //~~ 2 再是item在nb移动后基础上向下
+              let tryDown = nb.$atRow + nb.$rowH - item.$atRow;
+              me.tryMoveItem(item, "down", true, tryDown, true);
+            }
+          } // len
+          //#4 未遇到就顺利结束！
+        }
+      }
+    },
+    positionChange(item, realStyle) {
+      let me = this;
+      me.positionChangeBase(item, realStyle);
+      me.deGapSpaces("up");
+    },
     sizeChange(item) {}
   },
   created() {
