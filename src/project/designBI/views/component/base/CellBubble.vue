@@ -23,12 +23,7 @@
     <template v-for="mask in addMasks"
       ><cell-mask
         :key="mask.cellItem.$key + '_m'"
-        :style="{
-          width: mask.cellItem.width,
-          height: mask.cellItem.height + 'px',
-          top: mask.cellItem.top + 'px',
-          left: mask.cellItem.left
-        }"
+        :style="mask.style"
         v-if="mask.show"
       ></cell-mask>
     </template>

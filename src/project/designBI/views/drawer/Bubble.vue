@@ -323,6 +323,7 @@ export default {
       if (!me.mask) {
         me.mask = {
           cellItem: me.cellItem,
+          style: {},
           origin: me,
           show: false
         };
@@ -334,9 +335,20 @@ export default {
           me.toggleZIndex(true);
         });
         //@ 6-1 拖拽的mousemove时，shadow的放入与否
-        me.$refs.dragNode.$on("resizing", (e, dragNode) => {
+        me.$refs.dragNode.$on("resizing", (e, maskStyle) => {
           me.shadow.show = true;
           //【1219 here start！】正确响应
+          //~~ 1 mask正确pos
+          me.mask.style = maskStyle;
+          //~~ 2 也要反作用于cell
+          //(3)对cell重设 std
+          let cItem = me.mask.cellItem,
+            layout = cItem.$$layout,
+            tempStyle = Object.assign({}, maskStyle);
+          //(3-2)直接交付
+          layout.positionChange(cItem, tempStyle);
+          //(3-3)全要style变化
+          me.syncCellsMap();
         });
 
         //@ 2 正常的 松开手指 drop判定

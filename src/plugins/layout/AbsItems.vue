@@ -213,6 +213,55 @@ export default {
         });
       }
     },
+    //【Map 2-X】 取边界cell，以item为坐标系取
+    getMarginCells(item, reAtRow, reAtCol) {
+      let me = this,
+        map = me.cellsMap,
+        cells = [],
+        x = item.$atCol,
+        y = item.$atRow,
+        passRow = tool.isNumber(reAtRow),
+        passCol = tool.isNumber(reAtCol);
+
+      //# 0 首先扩充一下
+      if (passRow) {
+        me.supplyMapRow(y + reAtRow);
+      }
+
+      //# 1 两者都有 取单个cell
+      if (passRow && passCol) {
+        let cell = map[y + reAtRow][x + reAtCol];
+        cells.push(cell);
+      }
+      //# 2 仅行
+      else if (passRow) {
+        cells = map[y + reAtRow].slice(x, x + item.$nCol);
+      }
+      //# 3 仅列
+      else if (passCol) {
+        for (let i = 0; i < item.$rowH; ++i) {
+          let cell = map[y + i][x + reAtCol];
+          cells.push(cell);
+        }
+      }
+      return cells;
+    },
+    //【Map 2-1-2 ··地图··使用】边际使用，小消费，坐标为相对于item自身，无free操作
+    marginUseCells(item, reAtRow, reAtCol) {
+      let me = this,
+        cells = me.getMarginCells(item, reAtRow, reAtCol);
+      cells.forEach(cell => {
+        cell.bindItem(item);
+      });
+    },
+    //【Map 2-2-2 ··地图··使用】边际free
+    marginFreeCells(item, reAtRow, reAtCol) {
+      let me = this,
+        cells = me.getMarginCells(item, reAtRow, reAtCol);
+      cells.forEach(cell => {
+        cell.unbindItem(item);
+      });
+    },
 
     //【Map 3-1】地图cell与items的关系刷新
     refreshMap(items) {
@@ -337,14 +386,13 @@ export default {
 
     //【Move 1 ··移动】【核心1】对item向某方向前进1个格子是否可行进行分析，会对邻近item元素进行迭代分析。一次只对 1格进行分析，不要多了。要多也可以，基于这个一格的method扩展即可
     makeMovePlan(item, toward, moveNbs, canOutMap) {
-      //第三个参数表示紧邻程度，用于辨别是否是第一次，因为第一次不能为 null，而后续是可以为 null的
       let me = this;
 
       toward = toward || "up"; //默认为 向上，初始化阶段即向上
 
-      // 当前plan阶段，就已经通过 扩散传播 获取主动调用该方法，在这个 方向上做了一次 plan，那么就忽略 这个 item接下来的 plan make
+      // 扩散传播做了一次 plan，则忽略
       if (item.$movePlan) {
-        return item.$movePlan; // 就可以直接返回这个plan方向的 结论
+        return item.$movePlan;
       }
 
       // 为了垂直方向做准备
@@ -357,12 +405,11 @@ export default {
         toward,
         neighbours,
         closeCells,
-        canMove: true
+        canMove: false
       };
 
       //【++ 1】如果不移动邻居，那么只要存在邻居，就判定为 false
       if (!moveNbs && neighbours && neighbours.length) {
-        item.$movePlan.canMove = false;
         return item.$movePlan;
       }
 
@@ -382,7 +429,7 @@ export default {
             }
           }
           // 这里就是 迭代得到全部行可以 move的结论后的位置
-          //  --- 提示：到达这里即表示 该控件占有的 全部行 的最右边紧邻格子 均边是 空白格子，这样才会返回下面的true
+          //  --- 这里 紧邻格子 均边是 空白格子
           item.$movePlan.canMove = true;
           //item
           return item.$movePlan;
@@ -397,52 +444,80 @@ export default {
             item.$movePlan.closeCells = nowClose.closeCells;
             item.$movePlan.canMove = true;
           }
-        } else {
-          //【2】到达最右边边界 从而无法移动的 item控件
-          item.$movePlan.canMove = false;
         }
+        //【2】到达最右边边界 从而无法移动的 item控件
       }
       return item.$movePlan;
     },
 
-    //【Move 2 ··移动】【核心3-1】对item进行一格的移动
-    moveItem(item) {
+    //【Move 2 ··移动】【核心3-1】对item进行一格的移动 或扩展
+    moveItem(item, doExpand) {
       let me = this;
+      //# 1 以 plan作为指导！通过则必无问题
       if (!item.$movePlan || !item.$movePlan.canMove) {
         return false;
       }
       switch (item.$movePlan.toward) {
         case "right":
         case "r":
-          ++item.$atCol;
+          //~ 1 都增加
+          me.marginUseCells(item, null, item.$atCol + item.$nCol);
+          //~ 2 增量不同
+          if (doExpand) {
+            ++item.$nCol;
+          } else {
+            me.marginFreeCells(item, null, item.$atCol);
+            ++item.$atCol;
+          }
           break;
 
         case "left":
         case "l":
+          //~ 1 都增加
+          me.marginUseCells(item, null, item.$atCol - 1);
           --item.$atCol;
+          //~ 2 增量不同
+          if (doExpand) {
+            ++item.$nCol;
+          } else {
+            me.marginFreeCells(item, null, item.$atCol + item.$nCol);
+          }
           break;
 
         case "up":
         case "u":
+          //~ 1 都增加
+          me.marginUseCells(item, item.$atRow - 1, null);
           --item.$atRow;
+          //~ 2 增量不同
+          if (doExpand) {
+            ++item.$rowH;
+          } else {
+            me.marginFreeCells(item, item.$atRow + item.$rowH, null);
+          }
           break;
 
         case "down":
         case "d":
-          ++item.$atRow;
+          //~ 1 都增加
+          me.marginUseCells(item, item.$atRow + item.$rowH, null);
+          //~ 2 增量不同
+          if (doExpand) {
+            ++item.$rowH;
+          } else {
+            me.marginFreeCells(item, item.$atRow, null);
+            ++item.$atRow;
+          }
           break;
 
         default:
           throw "没有给定正确的方向！请在up down left right中选择一个！";
       }
-      //item.$newPosition = newPosition;//绑定好
-
-      //item["$positionChanged"] = true; //表示需要重新设定 top left
       return true;
     },
 
     //【Move 3 ··移动】【核心2】对带有可行movePlan的item进行其movePlan的执行！
-    processMovePlan(item, moveNbs, finishItems) {
+    processMovePlan(item, moveNbs, doExpand, finishItems) {
       finishItems = finishItems || [];
       if (!item.$movePlan) {
         return finishItems;
@@ -460,15 +535,13 @@ export default {
         let neighbours = item.$movePlan.neighbours;
         //console.log(["这里重复？", neighbours, neighbours.length]);
         for (let i = 0; i < neighbours.length; ++i) {
-          me.processMovePlan(neighbours[i], moveNbs, finishItems); //全都执行一次
+          me.processMovePlan(neighbours[i], moveNbs, false, finishItems); //全都执行一次，仅第一个可以 expand！
         }
       }
 
       if (canMove) {
         // 移动
-        me.moveItem(item);
-        // 然后使用格子
-        me.useCells(item);
+        me.moveItem(item, doExpand);
       }
 
       return finishItems; //必然成功
@@ -491,9 +564,9 @@ export default {
         }
       });
     },
-    doProcessMovePlan(item, moveNbs) {
+    doProcessMovePlan(item, moveNbs, doExpand) {
       let me = this;
-      let moveItems = me.processMovePlan(item, moveNbs);
+      let moveItems = me.processMovePlan(item, moveNbs, doExpand);
       me.sweepMovePlan(moveItems, {
         originItem: item,
         time: new Date(),
@@ -502,7 +575,7 @@ export default {
     },
 
     //【Move 4 ··移动】单个item的尝试移动
-    tryMoveItem(item, toward, moveNbs, step = 1, canOutMap) {
+    tryMoveItem(item, toward, moveNbs, step = 1, canOutMap, doExpand) {
       let me = this,
         finishStep = 0,
         movePlan,
@@ -511,7 +584,7 @@ export default {
         movePlan = me.makeMovePlan(item, toward, moveNbs, canOutMap);
         success = movePlan.canMove;
         //# 1 这么重要的别搞掉。
-        me.doProcessMovePlan(item, moveNbs);
+        me.doProcessMovePlan(item, moveNbs, doExpand);
         if (!success) {
           break;
         }
@@ -524,18 +597,33 @@ export default {
       };
     },
     //【Move 4-2 ··移动】单个item的某方向所有邻居尝试移动
-    tryMoveItemNeighbours(item, toward, moveNbs, step = 1, canOutMap) {
+    tryMoveItemNeighbours(
+      item,
+      toward,
+      moveNbs,
+      step = 1,
+      canOutMap,
+      doExpand
+    ) {
       let me = this,
         result = new Map(),
         nbs = me.getItemCloses(item, "down").neighbours;
       if (nbs.length) {
         nbs.forEach(nb => {
-          let oneR = me.tryMoveItem(nb, toward, moveNbs, step, canOutMap);
+          let oneR = me.tryMoveItem(
+            nb,
+            toward,
+            moveNbs,
+            step,
+            canOutMap,
+            doExpand
+          );
           result.set(nb, oneR);
         });
       }
       return result;
     },
+    //【Move 5-1】扩展，检测移动，可，则可扩展。
 
     //---------------------------
     // 一、 std 高宽left top 格子化
@@ -824,14 +912,37 @@ export default {
       console.log(["调试 positionChangeBase  进行！！"]);
       me.makeStdWHLT(realStyle);
       let cgCol = realStyle.$atCol - item.$atCol,
-        cgRow = realStyle.$atRow - item.$atRow;
+        cgRow = realStyle.$atRow - item.$atRow,
+        cgWidth = realStyle.$nCol - item.$nCol,
+        cgHeight = realStyle.$rowH - item.$rowH,
+        cgColAbs = Math.abs(cgCol),
+        cgRowAbs = Math.abs(cgRow),
+        totHorizon = cgColAbs + cgWidth,
+        totVertical = cgRowAbs + cgHeight,
+        doHorizon = !!totHorizon,
+        doVertical = !!totVertical;
 
       //~ 1 向右/左
-      if (cgCol) {
-        let cgColAbs = Math.abs(cgCol),
-          to = cgColAbs === cgCol ? "right" : "left",
+      if (doHorizon) {
+        let doExpand = totHorizon / cgColAbs === 2,
+          to = doExpand
+            ? //%% 1 expand下 的左右判断
+              totHorizon === cgCol + cgWidth
+              ? "right"
+              : "left"
+            : //%% 2 move 下 的左右判断
+            cgColAbs === cgCol
+            ? "right"
+            : "left",
           //(1) 一直向右
-          moveHorizon = me.tryMoveItem(item, to, false, cgColAbs);
+          moveHorizon = me.tryMoveItem(
+            item,
+            to,
+            false,
+            cgColAbs,
+            false,
+            doExpand
+          );
         //(2) 失败，邻居或者边界
         if (!moveHorizon.success) {
           let lastMove = moveHorizon.movePlan,
@@ -879,11 +990,26 @@ export default {
         }
       }
       //~ 2 向下/上 只有在向右成功 或 边界失败可执行
-      if (cgRow) {
-        let cgRowAbs = Math.abs(cgRow),
-          to = cgRowAbs === cgRow ? "down" : "up",
-          //(1) 一直向右
-          moveVertical = me.tryMoveItem(item, to, false, cgRowAbs);
+      if (doVertical) {
+        let doExpand = totVertical / cgRowAbs === 2,
+          to = doExpand
+            ? //%% 1 expand下 的上下判断
+              totVertical === cgRow + cgHeight
+              ? "down"
+              : "up"
+            : //%% 2 move 下 的上下判断
+            cgRowAbs === cgRow
+            ? "down"
+            : "up",
+          //(1) 一直向上下
+          moveVertical = me.tryMoveItem(
+            item,
+            to,
+            false,
+            cgRowAbs,
+            to === "down",
+            doExpand
+          );
         //(2) 失败，邻居或者边界
         if (!moveVertical.success) {
           //# 1 上下的邻居，都比较，选取首先低于的

@@ -14,6 +14,7 @@ export default {
   position: absolute;
   background: rgba(12, 65, 62, 0.349);
   z-index: 10;
+  border: 1px solid rgba(12, 65, 62, 0.918);
   //border-radius: 8px;
 }
 </style>
