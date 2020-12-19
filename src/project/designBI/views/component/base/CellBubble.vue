@@ -1,5 +1,5 @@
 <template>
-  <div class="CellBubble">
+  <div class="CellBubble" :style="mapStyle">
     <Bubble
       v-for="item in items"
       :percentMode="percentMode"
@@ -67,6 +67,15 @@ export default {
       let me = this,
         itemsWatchAtomicFn = tool.atomic(me.itemsWatchBase, 100);
       return itemsWatchAtomicFn;
+    },
+    mapStyle() {
+      let me = this,
+        layout = me.layout,
+        style = {};
+      if (layout) {
+        style.height = layout.cellsMap.length * layout.rowHeight + "px";
+      }
+      return style;
     }
   },
   watch: {

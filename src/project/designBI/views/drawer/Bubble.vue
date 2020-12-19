@@ -374,15 +374,15 @@ export default {
     }
 
     //@ 2-2 resize 松开手指
-    me.$refs.dragNode.$on("resizestop", function(e, dragNode) {
-      //~ 2 先将对应的 style放入
-      me.syncStyle();
-      //~ 1 看看能不能拽入进去，随后就save
-      me.dropManager.checkResizeStop(e, me, dragNode).finally(() => {
-        console.log(["resizestop 的 保存！"]);
-        me.save();
-      });
-    });
+    // me.$refs.dragNode.$on("resizestop", function(e, dragNode) {
+    //   //~ 2 先将对应的 style放入
+    //   me.syncStyle();
+    //   //~ 1 看看能不能拽入进去，随后就save
+    //   me.dropManager.checkResizeStop(e, me, dragNode).finally(() => {
+    //     console.log(["resizestop 的 保存！"]);
+    //     me.save();
+    //   });
+    // });
     //@ 3 对style进行补充
     me.syncStyle();
     //@ 4 item管理器的响应：

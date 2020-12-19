@@ -57,14 +57,14 @@ export default {
     //# 1
     items: {
       type: Array,
-      required: true
+      required: true,
     },
     //【2-2】传递数字 那么为 num模式，否则为 100%模式
     maxWidth: {
       type: [Number, String],
       default() {
         return "100%";
-      }
+      },
     },
     //# 2 父元素，就不限定 vue控件了
     // holderJS: {
@@ -76,7 +76,7 @@ export default {
     //【1】多少列布局？默认为6
     columnNumber: {
       type: Number,
-      default: 6
+      default: 6,
     },
     //【2】宽度模式
     // widthMode: {
@@ -97,17 +97,17 @@ export default {
     //【3-1】一行高度
     rowHeight: {
       type: Number,
-      default: 20
+      default: 20,
     },
     //【4】移动时的A线高度位置
     lineA: {
       type: Number,
-      default: 0.2
-    }
+      default: 0.2,
+    },
   },
   data() {
     return {
-      cellsMap: []
+      cellsMap: [],
     };
   },
   computed: {
@@ -152,7 +152,7 @@ export default {
     positionChange() {
       let me = this;
       return tool.throttle(me.positionChangeAtomic, 20);
-    }
+    },
   },
   methods: {
     //---------------------------
@@ -232,7 +232,7 @@ export default {
       //~ 1 清除之前联系
       if (item.$cells && item.$cells.length) {
         let dCells = item.$cells.concat([]);
-        dCells.forEach(cell => {
+        dCells.forEach((cell) => {
           cell.unbindItem(item);
         });
       }
@@ -274,7 +274,7 @@ export default {
     marginUseCells(item, reAtRow, reAtCol) {
       let me = this,
         cells = me.getMarginCells(item, reAtRow, reAtCol);
-      cells.forEach(cell => {
+      cells.forEach((cell) => {
         cell.bindItem(item);
       });
     },
@@ -282,7 +282,7 @@ export default {
     marginFreeCells(item, reAtRow, reAtCol) {
       let me = this,
         cells = me.getMarginCells(item, reAtRow, reAtCol);
-      cells.forEach(cell => {
+      cells.forEach((cell) => {
         cell.unbindItem(item);
       });
     },
@@ -298,7 +298,7 @@ export default {
       } else {
         rItems = me.items;
       }
-      rItems.forEach(item => {
+      rItems.forEach((item) => {
         me.useCells(item);
       });
     },
@@ -314,17 +314,17 @@ export default {
         //isEmpty表示这只是一个 避免报错的 空{}对象
         return {
           closeCells: closeCells,
-          neighbours: neighbours
+          neighbours: neighbours,
         }; //直接返回空
       }
-      let mapCheck = function(rowCheck, colCheck) {
+      let mapCheck = function (rowCheck, colCheck) {
         //保证没有出界
         let cell = map[rowCheck][colCheck];
         //【1】cell格子加入完毕
         closeCells.push(cell);
         //【2】cell格子中的 item加入完毕
-        cell.items.forEach(cItem => {
-          !neighbours.some(function(a) {
+        cell.items.forEach((cItem) => {
+          !neighbours.some(function (a) {
             return a === cItem;
           }) && neighbours.push(cItem);
         });
@@ -381,7 +381,7 @@ export default {
       }
       return {
         closeCells: closeCells,
-        neighbours: neighbours
+        neighbours: neighbours,
       }; //读取完毕 正常返回
     },
     //【Map 5-5 ··地图··Get】获得相反的方向
@@ -424,12 +424,23 @@ export default {
         closeCells = cellsAndNbs.closeCells,
         neighbours = cellsAndNbs.neighbours; //获得方向上 紧邻的 格子
 
+      //【++ 3】没有格子 又是下 且可扩展
+      if (!closeCells.length && canOutMap) {
+        //【2020-1218】目前只开放down
+        if (toward === "down") {
+          me.supplyMapRow(me.cellsMap.length);
+          let nowClose = me.getItemCloses(item, toward);
+          closeCells = nowClose.closeCells;
+          neighbours = nowClose.neighbours;
+        }
+      }
+
       //# 1 公有的
       item.$movePlan = {
         toward,
         neighbours,
         closeCells,
-        canMove: false
+        canMove: false,
       };
 
       //【++ 1】如果不移动邻居，那么只要存在邻居，就判定为 false
@@ -445,7 +456,7 @@ export default {
         } else {
           for (let i = 0; i < neighbours.length; ++i) {
             let neighbour = neighbours[i],
-              plan = me.makeMovePlan(neighbour, toward, moveNbs);
+              plan = me.makeMovePlan(neighbour, toward, moveNbs, canOutMap);
             if (!plan.canMove || plan.finished) {
               //对每一个 紧邻格子 也做计划
               item.$movePlan.canMove = false;
@@ -458,19 +469,8 @@ export default {
           //item
           return item.$movePlan;
         }
-      } else {
-        //没有格子，那么该 item就是到达 边界的 item
-        if (canOutMap) {
-          //【2020-1218】目前只开放down
-          if (toward === "down") {
-            me.supplyMapRow(me.cellsMap.length);
-            let nowClose = me.getItemCloses(item, toward);
-            item.$movePlan.closeCells = nowClose.closeCells;
-            item.$movePlan.canMove = true;
-          }
-        }
-        //【2】到达最右边边界 从而无法移动的 item控件
       }
+      //【2】到达最右边边界 从而无法移动的 item控件
       return item.$movePlan;
     },
 
@@ -622,7 +622,7 @@ export default {
       if (tool.isObject(items)) {
         items = [items];
       }
-      items.forEach(item => {
+      items.forEach((item) => {
         if (item.$movePlan) {
           //# 1 成功的更有意义加入
           //【debug】改bug有需要再加入
@@ -641,7 +641,7 @@ export default {
       me.sweepMovePlan(moveItems, {
         originItem: item,
         time: new Date(),
-        id: tool.random62(4)
+        id: tool.random62(4),
       });
     },
 
@@ -659,7 +659,7 @@ export default {
       return {
         success,
         finishStep,
-        restStep: step - finishStep
+        restStep: step - finishStep,
       };
     },
 
@@ -682,7 +682,7 @@ export default {
         movePlan,
         success,
         finishStep,
-        restStep: step - finishStep
+        restStep: step - finishStep,
       };
     },
     //【Move 4-2 ··移动】单个item的某方向所有邻居尝试移动
@@ -698,7 +698,7 @@ export default {
         result = new Map(),
         nbs = me.getItemCloses(item, "down").neighbours;
       if (nbs.length) {
-        nbs.forEach(nb => {
+        nbs.forEach((nb) => {
           let oneR = me.tryMoveItem(
             nb,
             toward,
@@ -809,7 +809,7 @@ export default {
       if (tool.isObject(items)) {
         items = [items];
       }
-      tool.each(items, item => {
+      tool.each(items, (item) => {
         me.makeStdLeft(item);
         me.makeStdTop(item);
         me.makeStdWidth(item);
@@ -822,7 +822,7 @@ export default {
       if (tool.isObject(items)) {
         items = [items];
       }
-      items.forEach(item => {
+      items.forEach((item) => {
         item.width = ((99.99 * item.$nCol) / me.columnNumber).toFixed(2) + "%";
         item.left = ((99.99 * item.$atCol) / me.columnNumber).toFixed(2) + "%";
         item.height = item.$rowH * me.rowHeight;
@@ -851,7 +851,7 @@ export default {
     getRepeatAreaItems(checkItem) {
       let me = this,
         repeatItems = [];
-      tool.each(me.items, item => {
+      tool.each(me.items, (item) => {
         if (item === checkItem) {
           return;
         }
@@ -893,7 +893,7 @@ export default {
         //# 3 存在重复
         if (reItems.length) {
           let ratio = item.$rowH / item.$nCol;
-          reItems.forEach(ri => {
+          reItems.forEach((ri) => {
             let ri_h = ri.$nCol * ratio;
             //# 1 高于 那么就往下
             if (ri.$rowH >= ri_h) {
@@ -925,7 +925,7 @@ export default {
       let me = this;
 
       me.orderItems(toward);
-      me.items.forEach(item => {
+      me.items.forEach((item) => {
         let plan = me.makeMovePlan(item, toward, true);
         while (plan.canMove) {
           me.doProcessMovePlan(item, true);
@@ -948,7 +948,7 @@ export default {
       //~ 2 去重
       me.deRepeatArea();
       //~ 2-2 放入地图
-      items.forEach(item => {
+      items.forEach((item) => {
         me.useCells(item);
       });
 
@@ -964,8 +964,8 @@ export default {
         addItemsReady = [];
       console.log(["itemsAddRemove 过程！", addItems, removeItems]);
       //# 1 先去掉items
-      removeItems.forEach(item => {
-        item.$cells.forEach(cell => {
+      removeItems.forEach((item) => {
+        item.$cells.forEach((cell) => {
           cell.unbindItem(item);
         });
         let at = me.items.indexOf(item);
@@ -973,7 +973,7 @@ export default {
       });
       //# 2 再加入
       if (addItems.length) {
-        addItems.forEach(item => {
+        addItems.forEach((item) => {
           let at = me.items.indexOf(item);
           if (at < 0) {
             me.items.push(item);
@@ -1083,9 +1083,9 @@ export default {
               //@@ 2 整个邻居往下
               else {
                 //~~ 1 先确定是在其上
-                let tryUp = item.$atRow - nb.$atRow + item.$rowH;
+                let tryUp = item.$atRow - nb.$atRow;
                 //~~ 2 再往下移动(往往多移动了)
-                me.tryMoveItem(nb, "down", true, item.$rowH, true);
+                me.tryMoveItem(nb, "down", true, item.$rowH + nb.$rowH, true);
                 //~~ 3 往上try
                 me.tryMoveItem(item, "up", false, tryUp);
                 me.positionChangeBase(item, realStyle, sizeCg, to);
@@ -1139,24 +1139,31 @@ export default {
               nbA = nbA < me.rowHeight ? me.rowHeight : nbA;
               let nbATop = nbA + nb.top,
                 belowNbA = realStyle.top >= nbATop;
-              //# 2 如果是向上 且高于nb -> 与 最小的交换位置
-              if (to === "up" && !belowNbA) {
-                //~~ 1 item free
-                me.freeCells(item);
-                //~~ 2 上的向下item rowH
-                me.tryMoveItem(nb, "down", true, item.$rowH, true);
-                //~~ 3 然后再探究向上！
-                me.tryMoveItem(item, "up", false, nb.$rowH);
-              }
-              //# 3 如果是向下
-              else if (to === "down" && belowNbA) {
-                //~~ 0 item让出
-                me.freeCells(item);
-                //~~ 1 首先是nb先试着向上
-                me.tryMoveItem(nb, "up", false, item.$rowH);
-                //~~ 2 再是item在nb移动后基础上向下
-                let tryDown = nb.$atRow + nb.$rowH - item.$atRow;
-                me.tryMoveItem(item, "down", true, tryDown, true);
+              //# 2 如果是向上 且高于nb -> 与 最小的交换位置；向下 且低于
+              if ((to === "up" && !belowNbA) || (to === "down" && belowNbA)) {
+                let isDown = to === "down",
+                  oldItem = item.$atRow,
+                  oldNb = nb.$atRow,
+                  totDown = item.$rowH + nb.$rowH,
+                  nbEndAtRow = isDown ? item.$atRow : nb.$atRow + item.$rowH,
+                  itemEndAtRow = isDown ? item.$atRow + nb.$rowH : nb.$atRow;
+                //~~ 1 先整体向下，这样就避免了宽度问题
+                me.tryMoveItem(isDown ? item : nb, "down", true, totDown, true);
+                if (isDown) {
+                  nb.$atRow = oldNb;
+                  me.useCells(nb);
+                  me.tryMoveItem(nb, "up", false, oldNb - nbEndAtRow);
+                } else {
+                  item.$atRow = oldItem;
+                  me.useCells(item);
+                  me.tryMoveItem(item, "up", false, oldItem - itemEndAtRow);
+                }
+
+                //~~ 2 item 和 nb 再空降指定位置
+                // item.$atRow = itemEndAtRow;
+                // me.useCells(item);
+                // nb.$atRow = nbEndAtRow;
+                // me.useCells(nb);
               }
             } // len
             //#4 未遇到就顺利结束！
@@ -1170,11 +1177,11 @@ export default {
       me.deGapSpaces("up");
       me.setStdLayout(me.items);
     },
-    sizeChange(item) {}
+    sizeChange(item) {},
   },
   created() {
     let me = this;
     me.AbsStep1InitLayout();
-  }
+  },
 };
 </script>
