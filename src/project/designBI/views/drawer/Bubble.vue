@@ -336,7 +336,7 @@ export default {
         });
         //@ 6-1 拖拽的mousemove时，shadow的放入与否
         me.$refs.dragNode.$on("resizing", (e, maskStyle) => {
-          me.shadow.show = true;
+          me.mask.show = true;
           //【1219 here start！】正确响应
           //~~ 1 mask正确pos
           me.mask.style = maskStyle;
@@ -346,14 +346,14 @@ export default {
             layout = cItem.$$layout,
             tempStyle = Object.assign({}, maskStyle);
           //(3-2)直接交付
-          layout.positionChange(cItem, tempStyle);
+          layout.positionChange(cItem, tempStyle, true);
           //(3-3)全要style变化
           me.syncCellsMap();
         });
 
         //@ 2 正常的 松开手指 drop判定
         me.$refs.dragNode.$on("resizestop", function(e, dragNode) {
-          me.shadow.show = false;
+          me.mask.show = false;
           me.toggleZIndex(false);
         });
       }

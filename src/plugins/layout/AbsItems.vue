@@ -156,6 +156,30 @@ export default {
   },
   methods: {
     //---------------------------
+    // 五、 小工具函数
+    //-------------
+    //【=1=】判断是否相同位置left per
+    sameLeft(left1, left2) {
+      let me = this,
+        per1 = parseFloat(left1),
+        per2 = parseFloat(left2),
+        div = Math.abs(per1 - per2),
+        //# 1 相差绝对值为 每列一半！
+        same = div < (1 / (me.columnNumber * 2)) * 100;
+      return same;
+    },
+    //【=1-2=】判断是否相同位置top px
+    sameTop(top1, top2) {
+      let me = this,
+        per1 = parseFloat(top1),
+        per2 = parseFloat(top2),
+        div = Math.abs(per1 - per2),
+        //# 1 相差绝对值为 每列一半！
+        same = div < me.rowHeight / 2;
+      return same;
+    },
+
+    //---------------------------
     // 三、 map 操作汇集
     //-------------
     //【Map 1-1 ··地图··构建】返回一个空白格子：
@@ -365,19 +389,19 @@ export default {
       switch (toward) {
         case "right":
         case "r":
-          return "l";
+          return "left";
 
         case "left":
         case "l":
-          return "r";
+          return "right";
 
         case "up":
         case "u":
-          return "d";
+          return "down";
 
         case "down":
         case "d":
-          return "u";
+          return "up";
 
         default:
           throw "没有给定正确的方向！请在up down left right中选择一个！";
@@ -461,12 +485,12 @@ export default {
         case "right":
         case "r":
           //~ 1 都增加
-          me.marginUseCells(item, null, item.$atCol + item.$nCol);
+          me.marginUseCells(item, null, item.$nCol);
           //~ 2 增量不同
           if (doExpand) {
             ++item.$nCol;
           } else {
-            me.marginFreeCells(item, null, item.$atCol);
+            me.marginFreeCells(item, null, 0);
             ++item.$atCol;
           }
           break;
@@ -474,40 +498,87 @@ export default {
         case "left":
         case "l":
           //~ 1 都增加
-          me.marginUseCells(item, null, item.$atCol - 1);
+          me.marginUseCells(item, null, -1);
           --item.$atCol;
           //~ 2 增量不同
           if (doExpand) {
             ++item.$nCol;
           } else {
-            me.marginFreeCells(item, null, item.$atCol + item.$nCol);
+            me.marginFreeCells(item, null, item.$nCol);
           }
           break;
 
         case "up":
         case "u":
           //~ 1 都增加
-          me.marginUseCells(item, item.$atRow - 1, null);
+          me.marginUseCells(item, -1, null);
           --item.$atRow;
           //~ 2 增量不同
           if (doExpand) {
             ++item.$rowH;
           } else {
-            me.marginFreeCells(item, item.$atRow + item.$rowH, null);
+            me.marginFreeCells(item, item.$rowH, null);
           }
           break;
 
         case "down":
         case "d":
           //~ 1 都增加
-          me.marginUseCells(item, item.$atRow + item.$rowH, null);
+          me.marginUseCells(item, item.$rowH, null);
           //~ 2 增量不同
           if (doExpand) {
             ++item.$rowH;
           } else {
-            me.marginFreeCells(item, item.$atRow, null);
+            me.marginFreeCells(item, 0, null);
             ++item.$atRow;
           }
+          break;
+
+        default:
+          throw "没有给定正确的方向！请在up down left right中选择一个！";
+      }
+      return true;
+    },
+    shrinkItem(item, margin) {
+      let me = this;
+
+      switch (margin) {
+        case "right":
+        case "r":
+          if (item.$nCol < 2) {
+            return false;
+          }
+          me.marginFreeCells(item, null, item.$nCol - 1);
+          --item.$nCol;
+          break;
+
+        case "left":
+        case "l":
+          if (item.$nCol < 2) {
+            return false;
+          }
+          me.marginFreeCells(item, null, 0);
+          --item.$nCol;
+          ++item.$atCol;
+          break;
+
+        case "up":
+        case "u":
+          if (item.$rowH < 2) {
+            return false;
+          }
+          me.marginFreeCells(item, item.$rowH - 1, null);
+          --item.$rowH;
+          ++item.$atRow;
+          break;
+
+        case "down":
+        case "d":
+          if (item.$rowH < 2) {
+            return false;
+          }
+          me.marginFreeCells(item, item.$rowH - 1, null);
+          --item.$rowH;
           break;
 
         default:
@@ -574,6 +645,24 @@ export default {
       });
     },
 
+    //【Move 4-2 ··移动】单个item的尝试缩小
+    tryShrinkItem(item, margin, step = 1) {
+      let me = this,
+        finishStep = 0,
+        success = true;
+      for (; finishStep < step; ++finishStep) {
+        success = me.shrinkItem(item, margin);
+        if (!success) {
+          break;
+        }
+      }
+      return {
+        success,
+        finishStep,
+        restStep: step - finishStep
+      };
+    },
+
     //【Move 4 ··移动】单个item的尝试移动
     tryMoveItem(item, toward, moveNbs, step = 1, canOutMap, doExpand) {
       let me = this,
@@ -638,11 +727,11 @@ export default {
         item.left = 0;
       }
       if (tool.isString(item.left) && item.left.indexOf("%") > -1) {
-        item.$atCol = Math.floor(
+        item.$atCol = Math.round(
           (parseFloat(item.left.replace("%", "")) / 100) * nCol
         );
       } else {
-        item.$atCol = Math.floor(item.left / stdW);
+        item.$atCol = Math.round(item.left / stdW);
       }
       item.$atCol > nCol - 1 && (item.$atCol = nCol - 1); //排除过大超标情况
       item.$atCol < 0 && (item.$atCol = 0); //排除过小，从而为0的情况
@@ -680,13 +769,13 @@ export default {
       }
       if (tool.isString(item.top)) {
         let parseH = parseFloat(item.top);
-        console.warn([
-          "item的top不兼容百分比模式，请使用Number类型，已简易转化为parseFloat的形式。",
-          `${item.top} -> ${top}`
-        ]);
+        // console.warn([
+        //   "item的top不兼容百分比模式，请使用Number类型，已简易转化为parseFloat的形式。",
+        //   `${item.top} -> ${parseH}`
+        // ]);
         item.top = parseH;
       }
-      let rowAt = Math.ceil(item.top / me.rowHeight);
+      let rowAt = Math.round(item.top / me.rowHeight);
       rowAt = rowAt >= 0 ? rowAt : 0; //避免row为负的情况，最小也是0行
       item.$atRow = rowAt;
     },
@@ -704,10 +793,10 @@ export default {
       }
       if (tool.isString(item.height)) {
         let parseH = parseFloat(item.height);
-        console.warn([
-          "item的高度不兼容百分比模式，请使用Number类型，已简易转化为parseFloat的形式。",
-          `${item.height} -> ${parseH}`
-        ]);
+        // console.warn([
+        //   "item的高度不兼容百分比模式，请使用Number类型，已简易转化为parseFloat的形式。",
+        //   `${item.height} -> ${parseH}`
+        // ]);
         item.height = parseH;
       }
       let row = Math.round(item.height / me.rowHeight);
@@ -907,7 +996,7 @@ export default {
     },
 
     //@@ 4 某一item发生cg，分位移和 大小两种
-    positionChangeBase(item, realStyle, toward) {
+    positionChangeBase(item, realStyle, sizeCg, toward) {
       let me = this;
       console.log(["调试 positionChangeBase  进行！！"]);
       me.makeStdWHLT(realStyle);
@@ -917,143 +1006,167 @@ export default {
         cgHeight = realStyle.$rowH - item.$rowH,
         cgColAbs = Math.abs(cgCol),
         cgRowAbs = Math.abs(cgRow),
-        totHorizon = cgColAbs + cgWidth,
-        totVertical = cgRowAbs + cgHeight,
-        doHorizon = !!totHorizon,
-        doVertical = !!totVertical;
+        cgWidthAbs = Math.abs(cgWidth),
+        cgHeightAbs = Math.abs(cgHeight),
+        doHorizon = false,
+        doVertical = false;
+      //# 1 判断是否进行
+      if (!sizeCg) {
+        doHorizon = !!cgColAbs;
+        doVertical = !!cgRowAbs;
+      } else {
+        doHorizon = !!cgWidthAbs;
+        doVertical = !!cgHeightAbs;
+      }
 
       //~ 1 向右/左
       if (doHorizon) {
-        let doExpand = totHorizon / cgColAbs === 2,
-          to = doExpand
-            ? //%% 1 expand下 的左右判断
-              totHorizon === cgCol + cgWidth
-              ? "right"
-              : "left"
-            : //%% 2 move 下 的左右判断
-            cgColAbs === cgCol
+        let goOn = true,
+          to = cgColAbs === cgCol ? "right" : "left";
+        if (sizeCg) {
+          let margin = me.sameLeft(item.left, realStyle.left)
             ? "right"
-            : "left",
+            : "left";
+          //~~ 1 缩小
+          if (cgWidthAbs !== cgWidth) {
+            me.tryShrinkItem(item, margin, cgWidthAbs);
+            goOn = false; //直接进入垂直
+          } else {
+            //~~ 2 扩大
+            to = margin;
+          }
+        }
+        if (goOn) {
           //(1) 一直向右
-          moveHorizon = me.tryMoveItem(
+          let moveHorizon = me.tryMoveItem(
             item,
             to,
             false,
-            cgColAbs,
+            sizeCg ? cgWidthAbs : cgColAbs,
             false,
-            doExpand
+            sizeCg
           );
-        //(2) 失败，邻居或者边界
-        if (!moveHorizon.success) {
-          let lastMove = moveHorizon.movePlan,
-            neighbours = lastMove.neighbours;
+          //(2) 失败，邻居或者边界
+          if (!moveHorizon.success) {
+            let lastMove = moveHorizon.movePlan,
+              neighbours = lastMove.neighbours;
 
-          //++ 1 针对剩余方向上的判断：
-          if (["left", "right"].indexOf(toward) > -1 && !lastMove.finishStep) {
-            return;
+            //++ 1 针对剩余方向上的判断：
+            if (
+              ["left", "right"].indexOf(toward) > -1 &&
+              !lastMove.finishStep
+            ) {
+              return;
+            }
+
+            //#1 如果遇到邻居，那么 两者进行上下判别
+            if (neighbours.length) {
+              //#1-1 左右取第一个即上面那个
+              let nb = neighbours[0],
+                nbA = nb.height * me.lineA;
+              nbA = nbA < me.rowHeight ? me.rowHeight : nbA;
+              let nbATop = nbA + nb.top,
+                belowNbA = realStyle.top >= nbATop;
+              //@@ 1 下面往下
+              if (belowNbA) {
+                //~~ 1 下面邻居 向下 插入元素高度
+                me.tryMoveItemNeighbours(nb, "down", true, item.$rowH, true);
+                //~~ 1-2 自己的下面邻居也同样
+                me.tryMoveItemNeighbours(item, "down", true, item.$rowH, true);
+                //~~ 2 top位置赋值
+                item.$atRow = nb.$atRow + nb.$rowH;
+                me.useCells(item);
+                //~~ 3 因为只对部分位移做了处理，所以继续
+                me.positionChangeBase(item, realStyle, sizeCg, to);
+                return;
+              }
+              //@@ 2 整个邻居往下
+              else {
+                //~~ 1 先确定是在其上
+                let tryUp = item.$atRow - nb.$atRow + item.$rowH;
+                //~~ 2 再往下移动(往往多移动了)
+                me.tryMoveItem(nb, "down", true, item.$rowH, true);
+                //~~ 3 往上try
+                me.tryMoveItem(item, "up", false, tryUp);
+                me.positionChangeBase(item, realStyle, sizeCg, to);
+                return;
+              }
+            } //上为非success
+            //# 2 遇到边界的失败，仍然可以在上下范围判断
           }
-
-          //#1 如果遇到邻居，那么 两者进行上下判别
-          if (neighbours.length) {
-            //#1-1 左右取第一个即上面那个
-            let nb = neighbours[0],
-              nbA = nb.height * me.lineA;
-            nbA = nbA < me.rowHeight ? me.rowHeight : nbA;
-            let nbATop = nbA + nb.top,
-              belowNbA = realStyle.top >= nbATop;
-            //@@ 1 下面往下
-            if (belowNbA) {
-              //~~ 1 下面邻居 向下 插入元素高度
-              me.tryMoveItemNeighbours(nb, "down", true, item.$rowH, true);
-              //~~ 1-2 自己的下面邻居也同样
-              me.tryMoveItemNeighbours(item, "down", true, item.$rowH, true);
-              //~~ 2 top位置赋值
-              item.$atRow = nb.$atRow + nb.$rowH;
-              me.useCells(item);
-              //~~ 3 因为只对部分位移做了处理，所以继续
-              me.positionChangeBase(item, realStyle, to);
-              return;
-            }
-            //@@ 2 整个邻居往下
-            else {
-              //~~ 1 先确定是在其上
-              let tryUp = item.$atRow - nb.$atRow + item.$rowH;
-              //~~ 2 再往下移动(往往多移动了)
-              me.tryMoveItem(nb, "down", true, item.$rowH, true);
-              //~~ 3 往上try
-              me.tryMoveItem(item, "up", false, tryUp);
-              me.positionChangeBase(item, realStyle, to);
-              return;
-            }
-          } //上为非success
-          //# 2 遇到边界的失败，仍然可以在上下范围判断
-        }
+        } //goOn
       }
       //~ 2 向下/上 只有在向右成功 或 边界失败可执行
       if (doVertical) {
-        let doExpand = totVertical / cgRowAbs === 2,
-          to = doExpand
-            ? //%% 1 expand下 的上下判断
-              totVertical === cgRow + cgHeight
-              ? "down"
-              : "up"
-            : //%% 2 move 下 的上下判断
-            cgRowAbs === cgRow
-            ? "down"
-            : "up",
+        let goOn = true,
+          to = cgRowAbs === cgRow ? "down" : "up";
+
+        if (sizeCg) {
+          let margin = me.sameTop(item.top, realStyle.top) ? "down" : "up";
+          //~~ 1 缩小
+          if (cgHeightAbs !== cgHeight) {
+            me.tryShrinkItem(item, margin, cgHeightAbs);
+            goOn = false; //直接进入垂直
+          } else {
+            //~~ 2 扩大
+            to = margin;
+          }
+        }
+        if (goOn) {
           //(1) 一直向上下
-          moveVertical = me.tryMoveItem(
+          let moveVertical = me.tryMoveItem(
             item,
             to,
-            false,
-            cgRowAbs,
+            sizeCg ? true : false,
+            sizeCg ? cgHeightAbs : cgRowAbs,
             to === "down",
-            doExpand
+            sizeCg
           );
-        //(2) 失败，邻居或者边界
-        if (!moveVertical.success) {
-          //# 1 上下的邻居，都比较，选取首先低于的
-          let lastMove = moveVertical.movePlan,
-            neighbours = lastMove.neighbours.concat([]);
+          //(2) 失败，邻居或者边界
+          if (!moveVertical.success) {
+            //# 1 上下的邻居，都比较，选取首先低于的
+            let lastMove = moveVertical.movePlan,
+              neighbours = lastMove.neighbours.concat([]);
 
-          //#1 如果遇到邻居，那么 两者进行上下判别
-          if (neighbours.length) {
-            neighbours.sort((n1, n2) => {
-              let div = n1.height - n2.height;
-              return div;
-            });
-            let nb = neighbours[0],
-              nbA = nb.height * me.lineA;
-            nbA = nbA < me.rowHeight ? me.rowHeight : nbA;
-            let nbATop = nbA + nb.top,
-              belowNbA = realStyle.top >= nbATop;
-            //# 2 如果是向上 且高于nb -> 与 最小的交换位置
-            if (to === "up" && !belowNbA) {
-              //~~ 1 item free
-              me.freeCells(item);
-              //~~ 2 上的向下item rowH
-              me.tryMoveItem(nb, "down", true, item.$rowH, true);
-              //~~ 3 然后再探究向上！
-              me.tryMoveItem(item, "up", false, nb.$rowH);
-            }
-            //# 3 如果是向下
-            else if (to === "down" && belowNbA) {
-              //~~ 0 item让出
-              me.freeCells(item);
-              //~~ 1 首先是nb先试着向上
-              me.tryMoveItem(nb, "up", false, item.$rowH);
-              //~~ 2 再是item在nb移动后基础上向下
-              let tryDown = nb.$atRow + nb.$rowH - item.$atRow;
-              me.tryMoveItem(item, "down", true, tryDown, true);
-            }
-          } // len
-          //#4 未遇到就顺利结束！
-        }
+            //#1 如果遇到邻居，那么 两者进行上下判别
+            if (neighbours.length) {
+              neighbours.sort((n1, n2) => {
+                let div = n1.height - n2.height;
+                return div;
+              });
+              let nb = neighbours[0],
+                nbA = nb.height * me.lineA;
+              nbA = nbA < me.rowHeight ? me.rowHeight : nbA;
+              let nbATop = nbA + nb.top,
+                belowNbA = realStyle.top >= nbATop;
+              //# 2 如果是向上 且高于nb -> 与 最小的交换位置
+              if (to === "up" && !belowNbA) {
+                //~~ 1 item free
+                me.freeCells(item);
+                //~~ 2 上的向下item rowH
+                me.tryMoveItem(nb, "down", true, item.$rowH, true);
+                //~~ 3 然后再探究向上！
+                me.tryMoveItem(item, "up", false, nb.$rowH);
+              }
+              //# 3 如果是向下
+              else if (to === "down" && belowNbA) {
+                //~~ 0 item让出
+                me.freeCells(item);
+                //~~ 1 首先是nb先试着向上
+                me.tryMoveItem(nb, "up", false, item.$rowH);
+                //~~ 2 再是item在nb移动后基础上向下
+                let tryDown = nb.$atRow + nb.$rowH - item.$atRow;
+                me.tryMoveItem(item, "down", true, tryDown, true);
+              }
+            } // len
+            //#4 未遇到就顺利结束！
+          }
+        } //goOn
       }
     },
-    positionChangeAtomic(item, realStyle) {
+    positionChangeAtomic(item, realStyle, sizeCg) {
       let me = this;
-      me.positionChangeBase(item, realStyle);
+      me.positionChangeBase(item, realStyle, sizeCg);
       me.deGapSpaces("up");
       me.setStdLayout(me.items);
     },

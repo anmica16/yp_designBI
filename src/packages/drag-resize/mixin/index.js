@@ -791,6 +791,9 @@ export default {
     },
     handleDrag(e) {
       let me = this;
+      if (!me.dragging) {
+        return;
+      }
       const axis = this.axis;
       const grid = this.grid;
       const bounds = this.bounds;
@@ -902,6 +905,9 @@ export default {
       //this.bottom = this.parentHeight - this.height - top;
     },
     handleResize(e) {
+      if (!this.resizing) {
+        return;
+      }
       let left = this.left;
       let top = this.top;
       let right = this.right;
@@ -983,10 +989,10 @@ export default {
       }
       if (this.resizeMask) {
         this.$emit("resizing", e, {
-          left,
-          top,
-          width,
-          height
+          left: this.getComputedLeft(left),
+          top: this.getComputedTop(top),
+          width: this.getComputedWidth(width),
+          height: this.getComputedHeight(height)
         });
       } else {
         this.left = left;
@@ -1052,7 +1058,7 @@ export default {
       this.height = height;
     },
     handleUp(e) {
-      this.handle = null;
+      this.handle = "";
 
       this.resetBoundsAndMouseState();
 
@@ -1083,7 +1089,7 @@ export default {
     //【v2】外框超过也触发，加参数
     getHandleToward(e, ifOut) {
       let me = this,
-        handle = false,
+        handle = "",
         el = me.$el,
         dom = $(el),
         off = dom.offset(),
@@ -1119,7 +1125,7 @@ export default {
       });
       //【1】没有点击到四个边上时
       if (count === 0) {
-        handle = false;
+        handle = "";
       }
       //【2】仅一个边上的情况
       else if (count === 1) {
@@ -1286,6 +1292,83 @@ export default {
       });
 
       return style;
+    },
+    getComputedWidth(val) {
+      let me = this,
+        temp,
+        target = val || me.width,
+        m = me.widthMode,
+        theMode = m || me.wMode;
+      //console.log(["宽度计算问题！", me.width, me.parentWidth]);
+      switch (theMode) {
+        case "num":
+          temp = target || 10;
+          return temp + "px";
+        case "per":
+          temp = target / me.parentWidth || 0.1;
+          return (temp * 100).toFixed(2) + "%";
+        case "auto":
+          if (!me.widthTouched) {
+            return "auto";
+          }
+          break;
+      }
+      temp = target || 10;
+      return temp + "px";
+    },
+    getComputedHeight(val) {
+      let me = this,
+        temp,
+        target = val || me.height,
+        m = me.heightMode,
+        theMode = m || me.hMode;
+      switch (theMode) {
+        case "num":
+          temp = target || 10;
+          return temp + "px";
+        case "per":
+          temp = target / me.parentHeight || 0.1;
+          return (temp * 100).toFixed(2) + "%";
+        case "auto":
+          if (!me.heightTouched) {
+            return "auto";
+          }
+          break;
+      }
+      temp = target || 10;
+      return temp + "px";
+    },
+    getComputedLeft(val) {
+      let me = this,
+        temp,
+        target = val || me.left,
+        m = me.leftMode,
+        theMode = m || me.xMode;
+      switch (theMode) {
+        case "num":
+        default:
+          temp = target || 0;
+          return temp + "px";
+        case "per":
+          temp = target / me.parentWidth || 0;
+          return (temp * 100).toFixed(2) + "%";
+      }
+    },
+    getComputedTop(val) {
+      let me = this,
+        temp,
+        target = val || me.top,
+        m = me.topMode,
+        theMode = m || me.yMode;
+      switch (theMode) {
+        case "num":
+        default:
+          temp = target || 0;
+          return temp + "px";
+        case "per":
+          temp = target / me.parentHeight || 0;
+          return (temp * 100).toFixed(2) + "%";
+      }
     }
   },
   computed: {
@@ -1363,94 +1446,21 @@ export default {
       return this.handles;
     },
     computedWidth() {
-      let me = this,
-        temp,
-        m = me.widthMode,
-        theMode = m || me.wMode;
-      //console.log(["宽度计算问题！", me.width, me.parentWidth]);
-      switch (theMode) {
-        case "num":
-          temp = me.width || 10;
-          return temp + "px";
-        case "per":
-          temp = me.width / me.parentWidth || 0.1;
-          return (temp * 100).toFixed(2) + "%";
-        case "auto":
-          if (!me.widthTouched) {
-            return "auto";
-          }
-          break;
-      }
-      temp = me.width || 10;
-      return temp + "px";
-
-      // if (this.wMode === "auto") {
-      //   if (!this.widthTouched) {
-      //     return "auto";
-      //   }
-      // } else if (this.wMode === "per") {
-      //   return this.width;
-      // }
-
-      // return this.width + "px";
+      let me = this;
+      return me.getComputedWidth();
     },
     computedHeight() {
       let me = this,
-        temp,
-        m = me.heightMode,
-        theMode = m || me.hMode;
-      switch (theMode) {
-        case "num":
-          temp = me.height || 10;
-          return temp + "px";
-        case "per":
-          temp = me.height / me.parentHeight || 0.1;
-          return (temp * 100).toFixed(2) + "%";
-        case "auto":
-          if (!me.heightTouched) {
-            return "auto";
-          }
-          break;
-      }
-      temp = me.height || 10;
-      return temp + "px";
-      // if (this.h === "auto") {
-      //   if (!this.heightTouched) {
-      //     return "auto";
-      //   }
-      // }
-
-      // return this.height + "px";
+        vals = [me.hegiht, me.hMode];
+      return me.getComputedHeight();
     },
     computedLeft() {
-      let me = this,
-        temp,
-        m = me.leftMode,
-        theMode = m || me.xMode;
-      switch (theMode) {
-        case "num":
-        default:
-          temp = me.left || 0;
-          return temp + "px";
-        case "per":
-          temp = me.left / me.parentWidth || 0;
-          return (temp * 100).toFixed(2) + "%";
-      }
+      let me = this;
+      return me.getComputedLeft();
     },
     computedTop() {
-      let me = this,
-        temp,
-        m = me.topMode,
-        theMode = m || me.yMode;
-      switch (theMode) {
-        case "num":
-        default:
-          temp = me.top || 0;
-          return temp + "px";
-        case "per":
-          temp = me.top / me.parentHeight || 0;
-          return (temp * 100).toFixed(2) + "%";
-      }
+      let me = this;
+      return me.getComputedTop();
     },
     resizingOnX() {
       return (
