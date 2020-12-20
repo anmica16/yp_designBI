@@ -2,6 +2,7 @@
   <DragResizeMouse
     ref="dragNode"
     :parent="true"
+    :resizeByHand="true"
     :w="isRoot && percentMode ? '100%' : recordData.style.width"
     :h="recordData.style.height"
     :x="isRoot ? 0 : recordData.style.left || 0"
@@ -20,7 +21,8 @@
     :class="{ ...recordData.class, isRoot, isHover, isSelect }"
     @mouseover.native.stop="mouseoverFn"
     @mouseleave.native="mouseleaveFn"
-    @mousedown.native="mousedownFn"
+    :mouseDownStop="false"
+    @mousedown.native.stop="mousedownFn"
   >
     <!-- <div
       class="hostWrap-withLineDot"
@@ -415,121 +417,129 @@ $blue: #35ace4;
   &.dragging {
     transition: none;
   }
-  // &:not(.isRoot) {
-  //   border: 1px dashed rgb(161, 193, 226);
-  // }
-  //# 1 右上工具
-  > .attachTool {
-    position: absolute;
-    left: 100%;
-    top: 0;
+  &:not(.isRoot) {
+    padding: 3px;
   }
-  //# 2 边界线 点
-  > .hostWrap-withLineDot {
-    height: 100%;
-    width: 100%;
-  }
-  > .attachBorder {
-    //~ 1 线
-    .line {
-      border: none;
-      &-left {
-        width: 1px;
-        left: -1px;
-        top: 0px;
-        bottom: 0px;
-        position: absolute;
-        border-right: 1px dashed $blue;
-      }
-      &-top {
-        height: 1px;
-        left: 0px;
-        right: 0px;
-        top: -1px;
-        position: absolute;
-        border-bottom: 1px dashed $blue;
-      }
-      &-right {
-        width: 1px;
-        right: -1px;
-        top: 0px;
-        bottom: 0px;
-        position: absolute;
-        border-left: 1px dashed $blue;
-      }
-      &-bottom {
-        height: 1px;
-        left: 0px;
-        right: 0px;
-        bottom: -1px;
-        position: absolute;
-        border-top: 1px dashed $blue;
-      }
-    }
-    //~ 2 点
-    .dot {
-      width: 6px;
-      height: 6px;
-      display: none;
+  > .DragResizeMouse-event {
+    //# 1 右上工具
+    > .attachTool {
       position: absolute;
-      border-radius: 30px;
-      background: $blue;
+      left: 100%;
+      top: 0;
+    }
+    //# 2 边界线 点
+    > .hostWrap-withLineDot {
+      height: 100%;
+      width: 100%;
+    }
 
-      &-left {
-        left: -3px;
-        top: 50%;
+    > .attachBorder {
+      //~ 1 线
+      .line {
+        border: none;
+        &-left {
+          width: 1px;
+          left: 2px;
+          top: 3px;
+          bottom: 3px;
+          position: absolute;
+          border-right: 1px dashed $blue;
+        }
+        &-top {
+          height: 1px;
+          left: 3px;
+          right: 3px;
+          top: 2px;
+          position: absolute;
+          border-bottom: 1px dashed $blue;
+        }
+        &-right {
+          width: 1px;
+          right: 2px;
+          top: 3px;
+          bottom: 3px;
+          position: absolute;
+          border-left: 1px dashed $blue;
+        }
+        &-bottom {
+          height: 1px;
+          left: 3px;
+          right: 3px;
+          bottom: 2px;
+          position: absolute;
+          border-top: 1px dashed $blue;
+        }
       }
-      &-top {
-        left: 50%;
-        top: -3px;
-      }
-      &-right {
-        right: -3px;
-        top: 50%;
-      }
-      &-bottom {
-        left: 50%;
-        bottom: -3px;
-      }
-      &-lt {
-        left: -3px;
-        top: -3px;
-      }
-      &-rt {
-        right: -3px;
-        top: -3px;
-      }
-      &-lb {
-        left: -3px;
-        bottom: -3px;
-      }
-      &-rb {
-        right: -3px;
-        bottom: -3px;
+      //~ 2 点
+      .dot {
+        width: 6px;
+        height: 6px;
+        display: none;
+        position: absolute;
+        border-radius: 30px;
+        background: $blue;
+
+        &-left {
+          left: 0px;
+          top: 50%;
+        }
+        &-top {
+          left: 50%;
+          top: 0px;
+        }
+        &-right {
+          right: 0px;
+          top: 50%;
+        }
+        &-bottom {
+          left: 50%;
+          bottom: 0px;
+        }
+        &-lt {
+          left: 0px;
+          top: 0px;
+        }
+        &-rt {
+          right: 0px;
+          top: 0px;
+        }
+        &-lb {
+          left: 0px;
+          bottom: 0px;
+        }
+        &-rb {
+          right: 0px;
+          bottom: 0px;
+        }
       }
     }
   }
+
   &.isHover {
-    > .attachBorder {
-      .dot {
-        display: block;
+    > .DragResizeMouse-event {
+      > .attachBorder {
+        .dot {
+          display: block;
+        }
       }
     }
   }
   &.isSelect {
-    > .attachBorder {
-      .line {
-        &-left {
-          border-right: 1px solid $blue;
-        }
-        &-top {
-          border-bottom: 1px solid $blue;
-        }
-        &-right {
-          border-left: 1px solid $blue;
-        }
-        &-bottom {
-          border-top: 1px solid $blue;
+    > .DragResizeMouse-event {
+      > .attachBorder {
+        .line {
+          &-left {
+            border-right: 1px solid $blue;
+          }
+          &-top {
+            border-bottom: 1px solid $blue;
+          }
+          &-right {
+            border-left: 1px solid $blue;
+          }
+          &-bottom {
+            border-top: 1px solid $blue;
+          }
         }
       }
     }

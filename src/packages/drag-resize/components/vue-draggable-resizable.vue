@@ -32,6 +32,6 @@
 import DragResizeBase from "../mixin";
 export default {
   mixins: [DragResizeBase],
-  name: "vue-draggable-resizable"
+  name: "DragResizeDom"
 };
 </script>

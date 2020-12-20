@@ -88,6 +88,10 @@ export default {
       type: Boolean,
       default: false
     },
+    mouseDownStop: {
+      type: Boolean,
+      default: true
+    },
     draggable: {
       type: Boolean,
       default: true
@@ -520,7 +524,7 @@ export default {
 
       const target = e.target || e.srcElement;
 
-      if (e.stopPropagation) e.stopPropagation();
+      if (this.mouseDownStop && e.stopPropagation) e.stopPropagation();
 
       if (this.$el.contains(target)) {
         if (this.onDragStart(e) === false) {
@@ -647,7 +651,7 @@ export default {
         return;
       }
 
-      if (e.stopPropagation) e.stopPropagation();
+      if (this.mouseDownStop && e.stopPropagation) e.stopPropagation();
 
       // Here we avoid a dangerous recursion by faking
       // corner handles as middle handles
@@ -1094,11 +1098,11 @@ export default {
     },
     //section 2
 
-    dragResizeMouseDown(e) {
-      this.dragResizeDown(e, true);
+    dragResizeMouseDown(e, doResize = true) {
+      this.dragResizeDown(e, true, false, doResize);
     },
-    dragResizeTouchDown(e) {
-      this.dragResizeDown(e, false);
+    dragResizeTouchDown(e, doResize = true) {
+      this.dragResizeDown(e, false, false, doResize);
     },
     //内部超过外框的时候不触发，触发范围缩小
     //【v2】外框超过也触发，加参数
@@ -1204,10 +1208,13 @@ export default {
       return false;
     },
     //整合版本的控制器
-    dragResizeDown(e, isMouse, ifOut) {
+    dragResizeDown(e, isMouse, ifOut, doResize = true) {
       let me = this;
+      if (!doResize) {
+        me.dragDownFn(e, isMouse);
+      }
       //没有resize时才执行drag
-      if (!me.resizeDownFn(e, isMouse, ifOut)) {
+      else if (!me.resizeDownFn(e, isMouse, ifOut)) {
         me.dragDownFn(e, isMouse);
       }
     },

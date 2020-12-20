@@ -1,6 +1,7 @@
 <template>
   <div
     :style="style"
+    class="DragResizeMouse-wrap"
     :class="[
       {
         [classNameActive]: enabled,
@@ -11,12 +12,16 @@
       },
       className
     ]"
-    @mousedown.prevent="dragResizeMouseDown"
-    @mousemove.self="dragResizeMouseMove"
-    @mouseout="dragResizeMouseMoveNotHover"
-    @touchstart.prevent="dragResizeTouchDown"
   >
-    <slot></slot>
+    <div
+      class="DragResizeMouse-event"
+      @mousedown.prevent="dragResizeMouseDown"
+      @mousemove.self="dragResizeMouseMove"
+      @mouseout="dragResizeMouseMoveNotHover"
+      @touchstart.prevent="dragResizeTouchDown"
+    >
+      <slot></slot>
+    </div>
   </div>
 </template>
 
@@ -25,7 +30,17 @@ import DragResizeBase from "../mixin";
 //("vue-draggable-resizable");
 
 export default {
-  name: "DragResize",
+  name: "DragResizeMouse",
   mixins: [DragResizeBase]
 };
 </script>
+
+<style lang="scss">
+.DragResizeMouse-wrap {
+  box-sizing: border-box;
+  .DragResizeMouse-event {
+    width: 100%;
+    height: 100%;
+  }
+}
+</style>
