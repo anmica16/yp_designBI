@@ -57,14 +57,14 @@ export default {
     //# 1
     items: {
       type: Array,
-      required: true,
+      required: true
     },
     //【2-2】传递数字 那么为 num模式，否则为 100%模式
     maxWidth: {
       type: [Number, String],
       default() {
         return "100%";
-      },
+      }
     },
     //# 2 父元素，就不限定 vue控件了
     // holderJS: {
@@ -76,7 +76,7 @@ export default {
     //【1】多少列布局？默认为6
     columnNumber: {
       type: Number,
-      default: 6,
+      default: 6
     },
     //【2】宽度模式
     // widthMode: {
@@ -97,17 +97,18 @@ export default {
     //【3-1】一行高度
     rowHeight: {
       type: Number,
-      default: 20,
+      default: 20
     },
     //【4】移动时的A线高度位置
     lineA: {
       type: Number,
-      default: 0.2,
-    },
+      default: 0.2
+    }
   },
   data() {
     return {
       cellsMap: [],
+      changedItems: []
     };
   },
   computed: {
@@ -152,7 +153,7 @@ export default {
     positionChange() {
       let me = this;
       return tool.throttle(me.positionChangeAtomic, 20);
-    },
+    }
   },
   methods: {
     //---------------------------
@@ -177,6 +178,18 @@ export default {
         //# 1 相差绝对值为 每列一半！
         same = div < me.rowHeight / 2;
       return same;
+    },
+    //【=2=】使用指定函数处理改变的items
+    dealChangedItems(fn) {
+      let me = this;
+      if (!tool.isFunction(fn)) {
+        console.error(`必须用函数来处理改变的items：${fn}`);
+      } else {
+        me.changedItems.forEach((item, i) => {
+          fn.call(me, item, i);
+        });
+        me.changedItems = [];
+      }
     },
 
     //---------------------------
@@ -208,6 +221,34 @@ export default {
         }
       }
     },
+    //【Map 1-4 ··地图··构建】删除多余下方行
+    sweepEmptyRows() {
+      let me = this,
+        map = me.cellsMap,
+        rowAt = null;
+      for (let y = map.length - 1; y > 0; --y) {
+        let row = map[y],
+          isEmpty = true;
+        for (let x = 0; x < row.length; ++x) {
+          let cell = row[x];
+          if (cell.items.length) {
+            isEmpty = false;
+            break;
+          }
+        }
+        if (isEmpty) {
+          //# 1 第一个 或 从第一个连续。
+          rowAt = y;
+        } else {
+          //# 3 第一次出现非空就中断
+          break;
+        }
+      }
+      //# 2 包含该空行的后续所有都去除掉
+      if (tool.isNumber(rowAt)) {
+        me.cellsMap.splice(rowAt);
+      }
+    },
     //【Map 2-1 ··地图··使用】按照 指定的位置信息 “使用”掉对应的格子，并对这些格子做好相应的记录、引用处理。
     useCells(item) {
       let me = this;
@@ -232,7 +273,7 @@ export default {
       //~ 1 清除之前联系
       if (item.$cells && item.$cells.length) {
         let dCells = item.$cells.concat([]);
-        dCells.forEach((cell) => {
+        dCells.forEach(cell => {
           cell.unbindItem(item);
         });
       }
@@ -274,7 +315,7 @@ export default {
     marginUseCells(item, reAtRow, reAtCol) {
       let me = this,
         cells = me.getMarginCells(item, reAtRow, reAtCol);
-      cells.forEach((cell) => {
+      cells.forEach(cell => {
         cell.bindItem(item);
       });
     },
@@ -282,7 +323,7 @@ export default {
     marginFreeCells(item, reAtRow, reAtCol) {
       let me = this,
         cells = me.getMarginCells(item, reAtRow, reAtCol);
-      cells.forEach((cell) => {
+      cells.forEach(cell => {
         cell.unbindItem(item);
       });
     },
@@ -298,7 +339,7 @@ export default {
       } else {
         rItems = me.items;
       }
-      rItems.forEach((item) => {
+      rItems.forEach(item => {
         me.useCells(item);
       });
     },
@@ -314,17 +355,17 @@ export default {
         //isEmpty表示这只是一个 避免报错的 空{}对象
         return {
           closeCells: closeCells,
-          neighbours: neighbours,
+          neighbours: neighbours
         }; //直接返回空
       }
-      let mapCheck = function (rowCheck, colCheck) {
+      let mapCheck = function(rowCheck, colCheck) {
         //保证没有出界
         let cell = map[rowCheck][colCheck];
         //【1】cell格子加入完毕
         closeCells.push(cell);
         //【2】cell格子中的 item加入完毕
-        cell.items.forEach((cItem) => {
-          !neighbours.some(function (a) {
+        cell.items.forEach(cItem => {
+          !neighbours.some(function(a) {
             return a === cItem;
           }) && neighbours.push(cItem);
         });
@@ -381,7 +422,7 @@ export default {
       }
       return {
         closeCells: closeCells,
-        neighbours: neighbours,
+        neighbours: neighbours
       }; //读取完毕 正常返回
     },
     //【Map 5-5 ··地图··Get】获得相反的方向
@@ -440,7 +481,7 @@ export default {
         toward,
         neighbours,
         closeCells,
-        canMove: false,
+        canMove: false
       };
 
       //【++ 1】如果不移动邻居，那么只要存在邻居，就判定为 false
@@ -622,8 +663,13 @@ export default {
       if (tool.isObject(items)) {
         items = [items];
       }
-      items.forEach((item) => {
+      items.forEach(item => {
         if (item.$movePlan) {
+          //# 2 加入到cg集合中去
+          if (item.$movePlan.canMove) {
+            me.changedItems.indexOf(item) < 0 && me.changedItems.push(item);
+          }
+
           //# 1 成功的更有意义加入
           //【debug】改bug有需要再加入
           // if (item.$movePlan.canMove) {
@@ -638,11 +684,13 @@ export default {
     doProcessMovePlan(item, moveNbs, doExpand) {
       let me = this;
       let moveItems = me.processMovePlan(item, moveNbs, doExpand);
-      me.sweepMovePlan(moveItems, {
-        originItem: item,
-        time: new Date(),
-        id: tool.random62(4),
-      });
+      me.sweepMovePlan(moveItems);
+      me.sweepEmptyRows();
+      // {
+      //   originItem: item,
+      //   time: new Date(),
+      //   id: tool.random62(4),
+      // });
     },
 
     //【Move 4-2 ··移动】单个item的尝试缩小
@@ -659,7 +707,7 @@ export default {
       return {
         success,
         finishStep,
-        restStep: step - finishStep,
+        restStep: step - finishStep
       };
     },
 
@@ -682,7 +730,7 @@ export default {
         movePlan,
         success,
         finishStep,
-        restStep: step - finishStep,
+        restStep: step - finishStep
       };
     },
     //【Move 4-2 ··移动】单个item的某方向所有邻居尝试移动
@@ -698,7 +746,7 @@ export default {
         result = new Map(),
         nbs = me.getItemCloses(item, "down").neighbours;
       if (nbs.length) {
-        nbs.forEach((nb) => {
+        nbs.forEach(nb => {
           let oneR = me.tryMoveItem(
             nb,
             toward,
@@ -809,7 +857,7 @@ export default {
       if (tool.isObject(items)) {
         items = [items];
       }
-      tool.each(items, (item) => {
+      tool.each(items, item => {
         me.makeStdLeft(item);
         me.makeStdTop(item);
         me.makeStdWidth(item);
@@ -822,7 +870,7 @@ export default {
       if (tool.isObject(items)) {
         items = [items];
       }
-      items.forEach((item) => {
+      items.forEach(item => {
         item.width = ((99.99 * item.$nCol) / me.columnNumber).toFixed(2) + "%";
         item.left = ((99.99 * item.$atCol) / me.columnNumber).toFixed(2) + "%";
         item.height = item.$rowH * me.rowHeight;
@@ -851,7 +899,7 @@ export default {
     getRepeatAreaItems(checkItem) {
       let me = this,
         repeatItems = [];
-      tool.each(me.items, (item) => {
+      tool.each(me.items, item => {
         if (item === checkItem) {
           return;
         }
@@ -893,7 +941,7 @@ export default {
         //# 3 存在重复
         if (reItems.length) {
           let ratio = item.$rowH / item.$nCol;
-          reItems.forEach((ri) => {
+          reItems.forEach(ri => {
             let ri_h = ri.$nCol * ratio;
             //# 1 高于 那么就往下
             if (ri.$rowH >= ri_h) {
@@ -925,7 +973,7 @@ export default {
       let me = this;
 
       me.orderItems(toward);
-      me.items.forEach((item) => {
+      me.items.forEach(item => {
         let plan = me.makeMovePlan(item, toward, true);
         while (plan.canMove) {
           me.doProcessMovePlan(item, true);
@@ -948,7 +996,7 @@ export default {
       //~ 2 去重
       me.deRepeatArea();
       //~ 2-2 放入地图
-      items.forEach((item) => {
+      items.forEach(item => {
         me.useCells(item);
       });
 
@@ -964,8 +1012,8 @@ export default {
         addItemsReady = [];
       console.log(["itemsAddRemove 过程！", addItems, removeItems]);
       //# 1 先去掉items
-      removeItems.forEach((item) => {
-        item.$cells.forEach((cell) => {
+      removeItems.forEach(item => {
+        item.$cells.forEach(cell => {
           cell.unbindItem(item);
         });
         let at = me.items.indexOf(item);
@@ -973,7 +1021,7 @@ export default {
       });
       //# 2 再加入
       if (addItems.length) {
-        addItems.forEach((item) => {
+        addItems.forEach(item => {
           let at = me.items.indexOf(item);
           if (at < 0) {
             me.items.push(item);
@@ -998,7 +1046,7 @@ export default {
     //@@ 4 某一item发生cg，分位移和 大小两种
     positionChangeBase(item, realStyle, sizeCg, toward) {
       let me = this;
-      console.log(["调试 positionChangeBase  进行！！"]);
+      //console.log(["调试 positionChangeBase  进行！！"]);
       me.makeStdWHLT(realStyle);
       let cgCol = realStyle.$atCol - item.$atCol,
         cgRow = realStyle.$atRow - item.$atRow,
@@ -1177,11 +1225,11 @@ export default {
       me.deGapSpaces("up");
       me.setStdLayout(me.items);
     },
-    sizeChange(item) {},
+    sizeChange(item) {}
   },
   created() {
     let me = this;
     me.AbsStep1InitLayout();
-  },
+  }
 };
 </script>

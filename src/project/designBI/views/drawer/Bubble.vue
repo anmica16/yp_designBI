@@ -193,8 +193,14 @@ export default {
     },
     syncCellsMap(cItem) {
       let me = this;
-      if (me.shadow && me.shadow.parent) {
+      if ((me.shadow && me.shadow.parent) || (me.mask && me.mask.parent)) {
         me.shadow.parent.syncCellsMap(cItem);
+      }
+    },
+    saveCellsMap() {
+      let me = this;
+      if ((me.shadow && me.shadow.parent) || (me.mask && me.mask.parent)) {
+        me.shadow.parent.saveCellsMap();
       }
     },
     toggleZIndex(isUp) {
@@ -300,6 +306,8 @@ export default {
           if (!me.nowBoard.$dragMode) {
             me.Instance.syncCellStyle();
           }
+          //(2) 上传
+          me.saveCellsMap();
 
           // //~ 2 先将对应的 style放入
           // me.syncStyle();
@@ -355,6 +363,8 @@ export default {
         me.$refs.dragNode.$on("resizestop", function(e, dragNode) {
           me.mask.show = false;
           me.toggleZIndex(false);
+          //(2) 上传
+          me.saveCellsMap();
         });
       }
     }
@@ -401,6 +411,10 @@ export default {
 <style lang="scss">
 $blue: #35ace4;
 .BubbleDragResize {
+  transition: all 0.25s;
+  &.dragging {
+    transition: none;
+  }
   // &:not(.isRoot) {
   //   border: 1px dashed rgb(161, 193, 226);
   // }

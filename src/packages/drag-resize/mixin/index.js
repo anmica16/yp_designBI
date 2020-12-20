@@ -367,11 +367,7 @@ export default {
       (this.w !== "auto" ? this.w : width) /
       (this.h !== "auto" ? this.h : height);
 
-    this.width = this.initWH(true);
-    this.height = this.initWH(false);
-
-    this.left = this.initLT(true);
-    this.top = this.initLT(false);
+    this.reInitWHXY();
 
     // this.right = this.parentWidth - this.width - this.left;
     // this.bottom = this.parentHeight - this.height - this.top;
@@ -439,6 +435,13 @@ export default {
       }
       return 0;
     },
+    reInitWHXY() {
+      this.width = this.initWH(true);
+      this.height = this.initWH(false);
+
+      this.left = this.initLT(true);
+      this.top = this.initLT(false);
+    },
     reReadWHXY() {
       let me = this;
       me.moveHorizontally(me.x);
@@ -470,13 +473,18 @@ export default {
     checkParentSize() {
       if (this.parent) {
         const [newParentWidth, newParentHeight] = this.getParentSize();
-
         //对per模式的高宽要进行处理
         if (this.wMode === "per") {
           this.width = (newParentWidth / this.parentWidth) * this.width;
         }
         if (this.hMode === "per") {
           this.height = (newParentHeight / this.parentHeight) * this.height;
+        }
+        if (this.xMode === "per") {
+          this.left = (newParentWidth / this.parentWidth) * this.left;
+        }
+        if (this.yMode === "per") {
+          this.top = (newParentHeight / this.parentHeight) * this.top;
         }
 
         this.parentWidth = newParentWidth;
@@ -546,6 +554,10 @@ export default {
           this.lastDragEvent = e;
         }
 
+        if (this.parent) {
+          this.checkParentSize();
+        }
+
         this.mouseClickPosition.mouseX = e.touches
           ? e.touches[0].pageX
           : e.pageX;
@@ -569,7 +581,6 @@ export default {
       }
     },
     calcDragLimits() {
-      this.checkParentSize();
       return {
         minLeft: this.left % this.grid[0],
         maxLeft:
@@ -647,6 +658,10 @@ export default {
       }
 
       this.resizing = true;
+
+      if (this.parent) {
+        this.checkParentSize();
+      }
 
       this.mouseClickPosition.mouseX = e.touches ? e.touches[0].pageX : e.pageX;
       this.mouseClickPosition.mouseY = e.touches ? e.touches[0].pageY : e.pageY;
@@ -1529,6 +1544,7 @@ export default {
       //console.log(["x轴改变！", val]);
 
       if (this.parent) {
+        this.checkParentSize();
         this.bounds = this.calcDragLimits();
       }
 
@@ -1540,6 +1556,7 @@ export default {
       }
 
       if (this.parent) {
+        this.checkParentSize();
         this.bounds = this.calcDragLimits();
       }
 
@@ -1574,6 +1591,7 @@ export default {
       }
 
       if (this.parent) {
+        this.checkParentSize();
         this.bounds = this.calcResizeLimits();
       }
 
@@ -1585,6 +1603,7 @@ export default {
       }
 
       if (this.parent) {
+        this.checkParentSize();
         this.bounds = this.calcResizeLimits();
       }
 
