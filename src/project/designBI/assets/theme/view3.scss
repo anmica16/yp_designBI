@@ -1,27 +1,63 @@
-%iconText {
-}
 $font_w: white;
 $font_w1: #fdfdfd;
 $font_w2: #b2b2b2;
 $font_w3: rgba(255, 255, 255, 0.7);
 $font_w4: rgba(255, 255, 255, 0.3);
 
+$blue_deep: #0b1532;
+$gray_back: #eceaef;
+
+a {
+  text-decoration: none;
+}
+%iconText {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+%flex-horizon {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+}
+%flex-vertical {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+
+}
+// 一、总起页面
 .AliMain {
   width: 100%;
   height: 100%;
+  background: $gray_back;
   $h: 62px;
+
   > .Header {
     height: $h;
     display: flex;
     flex-direction: row;
     flex-wrap: nowrap;
     align-items: center;
+    background: $blue_deep;
+    color: $font_w1;
+
     .left {
       display: flex;
       flex-direction: row;
       .logo {
-        width: 100px;
+        width: 120px;
+        height: 58px;
+        margin: 0 4px;
         background: url(./images/view3/index.png) no-repeat;
+        background-position: center;
+        background-size: 100% auto;
+      }
+      .version {
+        @extend %iconText;
+        .text {
+          font-size: 14px;
+        }
       }
     }
     .center {
@@ -30,6 +66,34 @@ $font_w4: rgba(255, 255, 255, 0.3);
       display: flex;
       flex-direction: row;
       justify-content: center;
+      .center-item {
+        margin: 0 10px;
+        position: relative;
+        .link {
+          display: block;
+          height: 100%;
+          line-height: $h - 2px;
+          color: $font_w3;
+        }
+        .border {
+          position: absolute;
+          height: 4px;
+          width: 100%;
+          left: 0;
+          bottom: 0;
+          background: white;
+          display: none;
+        }
+        &:hover,
+        &.selected {
+          .border {
+            display: block;
+          }
+          .link {
+            color: $font_w;
+          }
+        }
+      }
     }
     .right {
       display: flex;
@@ -39,4 +103,33 @@ $font_w4: rgba(255, 255, 255, 0.3);
   > .Body {
     height: calc(100% - #{$h});
   }
+}
+// 二、页面内部内容
+// 1、“我的”
+.AliMypage {
+  width: 100%;
+  height: 100%;
+  @extend %flex-horizon;
+  padding: 14px;
+
+  $w_left: 240px;
+  $w_right: 260px;
+  $divid: 10px;
+
+  > .leftArea {
+    @extend %flex-vertical;
+    width: $w_left;
+  }
+  > .centerArea {
+    @extend %flex-vertical;
+    flex-grow: 1;
+    padding: 0 $divid;
+
+  }
+  > .rightArea {
+    @extend %flex-vertical;
+    width: $w_right;
+
+  }
+
 }

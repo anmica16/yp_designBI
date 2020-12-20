@@ -19,9 +19,13 @@
             }"
             :key="i"
           >
-            <router-link class="link" :to="center.to">{{
-              center.text
-            }}</router-link>
+            <router-link
+              class="link"
+              :to="center.to"
+              @click.native="selectCenter(center)"
+              >{{ center.text }}</router-link
+            >
+            <div class="border"></div>
           </div>
         </template>
       </div>
@@ -82,6 +86,11 @@ export default {
         }
       ]
     };
+  },
+  methods: {
+    selectCenter(center) {
+      this.nowSelect = center;
+    }
   },
   mounted() {
     let me = this;
