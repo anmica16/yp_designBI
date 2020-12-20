@@ -18,6 +18,7 @@ import aliLogin from "../views/Page_ali/Login.vue";
 import aliMain from "../views/Page_ali/Main.vue";
 import aliMyPage from "../views/Page_ali/main/MyPage.vue";
 import aliWorkSpace from "../views/Page_ali/main/WorkSpace.vue";
+import aliCreatorArea from "../views/Page_ali/main/CreatorArea.vue";
 
 const routes = [
   {
@@ -66,6 +67,11 @@ const routes = [
             path: "work",
             name: "aliWorkSpace",
             component: aliWorkSpace
+          },
+          {
+            path: "creator",
+            name: "aliCreatorArea",
+            component: aliCreatorArea
           }
         ]
       }

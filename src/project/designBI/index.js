@@ -71,6 +71,11 @@ import "./views/component";
 //=========--------
 //import App from "./views/Page/App.vue";
 
+//=========--------
+// Section 4-2 Ali式 BI界面
+//=========--------
+import "./assets/theme/view3.scss";
+
 new Vue({
   store: theStore,
   router: router,
