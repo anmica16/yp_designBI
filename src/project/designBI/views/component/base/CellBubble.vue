@@ -93,9 +93,10 @@ export default {
     itemsWatchBase(newVal) {
       let me = this,
         //# 3 均为 cellItem，服务于
+        newInses = [],
         addItems = [],
         removeItems = [];
-      //console.log(["在这步之后报错？", newVal]);
+      console.log(["在这步之后报错？", newVal]);
       if (newVal && newVal.length) {
         //# 1 新加入 即 新的 在旧的找不到
         newVal.forEach(item => {
@@ -122,6 +123,9 @@ export default {
             item.$$cellItem = cItem;
             addItems.push(cItem);
           }
+          if (item.$$newIns) {
+            newInses.push(item);
+          }
         });
         //# 2 看是否有删除的 旧的在 新的 找不到
         me.cellItems.forEach(i => {
@@ -143,6 +147,9 @@ export default {
         me.layout.itemsAddRemove(addItems, removeItems);
         me.syncCellsMap();
       }
+      if (newInses.length) {
+        me.saveCellsMap(newInses);
+      }
       //console.log(["在这步之后报错【结束】？", newVal]);
     },
     //【=2=】cell 位置同步！
@@ -158,19 +165,27 @@ export default {
         });
     },
     //【=3=】保存上传！
-    saveCellsMap() {
+    saveCellsMap(newInses = []) {
       let me = this,
-        updItems = [];
+        updItems = [],
+        convertIns = function(ins) {
+          let updInfo = {
+            id: ins.recordData.id,
+            style: ins.recordData.style
+          };
+          updItems.push(updInfo);
+        };
+
+      // ++ 2 添入
+      newInses.forEach(ins => {
+        convertIns(ins);
+      });
 
       // ++ 1 store进度
       me.$store.state.progress = 0;
       me.layout.dealChangedItems(cItem => {
         if (cItem.$$instance) {
-          let updInfo = {
-            id: cItem.$$instance.recordData.id,
-            style: cItem.$$instance.recordData.style
-          };
-          updItems.push(updInfo);
+          convertIns(cItem.$$instance);
         }
       });
       me.$store.state.progress = 50;
@@ -216,7 +231,7 @@ export default {
     me.layout = me.$refs.layout;
 
     setTimeout(() => {
-      console.log(["开始check！"]);
+      //console.log(["开始check！"]);
       me.checkResize();
     }, 300);
   }

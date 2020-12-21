@@ -217,66 +217,69 @@ let tool = {
                 destination[key] = result;
               }
             }
-          } else if (value && value.constructor === Array) {
-            //merge array
-            sourceKey = destination[key];
-            if (!sourceKey || sourceKey.constructor !== Array) {
-              let result = cloneFn(value);
-              if (hasSetFn) {
-                setFn(destination, key, result);
-              } else {
-                destination[key] = result;
-              }
-            } else {
-              //# 2 也存在删除的情况
-              let removeItems = [],
-                theI = -1;
-              me.each(value, function(val, i) {
-                theI = i;
-                let tempVal;
-                arrayKey = sourceKey[i];
-                if (!arrayKey) {
-                  tempVal = cloneFn(val);
-                } else if (me.isNull(val)) {
-                  removeItems.push(sourceKey[i]);
-                  return;
-                } else {
-                  tempVal = mergeFn(
-                    ifClone,
-                    ifCheckIf,
-                    setFn,
-                    sourceKey[i],
-                    val
-                  );
-                }
-                //# 1 对于多的，要进行push操作，而不是i取值操作
-                if (i > sourceKey.length - 1) {
-                  //console.log(["这儿的push检查"]);
-                  if (me.isNull(tempVal)) {
-                    return;
-                  }
-                  sourceKey.push(tempVal);
-                } else {
-                  if (me.isNull(tempVal)) {
-                    removeItems.push(sourceKey[i]);
-                  } else {
-                    sourceKey[i] = tempVal;
-                  }
-                }
-              });
-              //# 4 深入的 array值就直接 视为全改了
-              if (theI < sourceKey.length - 1) {
-                sourceKey.splice(theI + 1); //对下一个以及之后全部删除
-              }
-              //# 3 删除对应的
-              if (removeItems.length) {
-                me.each(removeItems, function(item) {
-                  let at = sourceKey.indexOf(item);
-                  sourceKey.splice(at, 1);
-                });
-              }
-            }
-          } else {
+          }
+          //【1221】搞这么复杂，老是出错，干错就直接赋值，数组太复杂了
+          //else if (value && value.constructor === Array) {
+          //merge array
+          // sourceKey = destination[key];
+          // if (!sourceKey || sourceKey.constructor !== Array) {
+          //   let result = cloneFn(value);
+          //   if (hasSetFn) {
+          //     setFn(destination, key, result);
+          //   } else {
+          //     destination[key] = result;
+          //   }
+          // } else {
+          //   //# 2 也存在删除的情况
+          //   let removeItems = [],
+          //     theI = -1;
+          //   me.each(value, function(val, i) {
+          //     theI = i;
+          //     let tempVal;
+          //     arrayKey = sourceKey[i];
+          //     if (!arrayKey) {
+          //       tempVal = cloneFn(val);
+          //     } else if (me.isNull(val)) {
+          //       removeItems.push(sourceKey[i]);
+          //       return;
+          //     } else {
+          //       tempVal = mergeFn(
+          //         ifClone,
+          //         ifCheckIf,
+          //         setFn,
+          //         sourceKey[i],
+          //         val
+          //       );
+          //     }
+          //     //# 1 对于多的，要进行push操作，而不是i取值操作
+          //     if (i > sourceKey.length - 1) {
+          //       //console.log(["这儿的push检查"]);
+          //       if (me.isNull(tempVal)) {
+          //         return;
+          //       }
+          //       sourceKey.push(tempVal);
+          //     } else {
+          //       if (me.isNull(tempVal)) {
+          //         removeItems.push(sourceKey[i]);
+          //       } else {
+          //         sourceKey[i] = tempVal;
+          //       }
+          //     }
+          //   });
+          //   //# 4 深入的 array值就直接 视为全改了
+          //   if (theI < sourceKey.length - 1) {
+          //     sourceKey.splice(theI + 1); //对下一个以及之后全部删除
+          //   }
+          //   //# 3 删除对应的
+          //   if (removeItems.length) {
+          //     me.each(removeItems, function(item) {
+          //       let at = sourceKey.indexOf(item);
+          //       sourceKey.splice(at, 1);
+          //     });
+          //   }
+          // }
+          //}
+          else {
             let result = ifCheckIf
               ? destination[key] || cloneFn(value)
               : cloneFn(value);

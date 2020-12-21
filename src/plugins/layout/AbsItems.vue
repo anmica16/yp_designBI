@@ -942,6 +942,7 @@ export default {
         if (reItems.length) {
           let ratio = item.$rowH / item.$nCol;
           reItems.forEach(ri => {
+            me.changedItems.indexOf(ri < 0) && me.changedItems.push(ri);
             let ri_h = ri.$nCol * ratio;
             //# 1 高于 那么就往下
             if (ri.$rowH >= ri_h) {
@@ -966,6 +967,7 @@ export default {
           });
         } //re len
       } //for
+      return true;
     },
 
     //【de up-down】去 上下间隙，每一个item都执行，直到均为false的 plan
@@ -995,15 +997,15 @@ export default {
       me.makeStdWHLT(items);
       //~ 2 去重
       me.deRepeatArea();
-      //~ 2-2 放入地图
-      items.forEach(item => {
+      //~ 2-2 放入地图 因为去重涉及到
+      me.changedItems.concat(items).forEach(item => {
         me.useCells(item);
       });
 
       //~ 3 去 上下间隙
       me.deGapSpaces("up");
       //~ 4 根据信息重设 高宽left top
-      me.setStdLayout(items);
+      me.setStdLayout(me.changedItems.concat(items));
     },
 
     //@@ 2 外部给内部加入符合要求的 items的调用
@@ -1013,7 +1015,7 @@ export default {
       console.log(["itemsAddRemove 过程！", addItems, removeItems]);
       //# 1 先去掉items
       removeItems.forEach(item => {
-        item.$cells.forEach(cell => {
+        item.$cells.slice().forEach(cell => {
           cell.unbindItem(item);
         });
         let at = me.items.indexOf(item);
@@ -1032,6 +1034,9 @@ export default {
       //# 3 调用初始化
       if (addItemsReady.length) {
         me.initItemsLayout(addItemsReady);
+      } else if (removeItems.length) {
+        me.deGapSpaces("up");
+        me.setStdLayout(me.changedItems);
       }
     },
 

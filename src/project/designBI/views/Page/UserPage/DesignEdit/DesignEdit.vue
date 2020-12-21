@@ -368,6 +368,7 @@ export default {
           //【update】应该在保存的时候，对父类进行子项添加！
           submitForm(Instance) {
             let theWin = this;
+            Instance.$$newIns = true;
             console.log(["尝试添加！"]);
             me.nowBoardRoot.add(Instance);
             theWin.$refs.win.close();
