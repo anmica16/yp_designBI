@@ -213,6 +213,12 @@ export default {
         }
       });
     },
+    checkParentSize() {
+      if (this.$refs.dragNode) {
+        this.$refs.dragNode.checkParentSize();
+        this.$refs.dragNode.reReadWHXY();
+      }
+    },
     //# 1 切换 selectManager hover 的 this对象，以便属性菜单刷新
     //（1）优先级弱于 down
     mouseoverFn() {

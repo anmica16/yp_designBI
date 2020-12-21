@@ -102,7 +102,7 @@ export default {
     //【4】移动时的A线高度位置
     lineA: {
       type: Number,
-      default: 0.2
+      default: 0.16
     }
   },
   data() {
@@ -1115,12 +1115,13 @@ export default {
               nbA = nbA < me.rowHeight ? me.rowHeight : nbA;
               let nbATop = nbA + nb.top,
                 belowNbA = realStyle.top >= nbATop;
+              let maxRow = Math.max(item.$rowH, nb.$rowH);
               //@@ 1 下面往下
               if (belowNbA) {
                 //~~ 1 下面邻居 向下 插入元素高度
                 me.tryMoveItemNeighbours(nb, "down", true, item.$rowH, true);
                 //~~ 1-2 自己的下面邻居也同样
-                me.tryMoveItemNeighbours(item, "down", true, item.$rowH, true);
+                me.tryMoveItemNeighbours(item, "down", true, maxRow, true);
                 //~~ 2 top位置赋值
                 item.$atRow = nb.$atRow + nb.$rowH;
                 me.useCells(item);

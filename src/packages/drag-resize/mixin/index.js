@@ -1043,7 +1043,7 @@ export default {
 
       const width = computeWidth(this.parentWidth, this.left, right);
       const height = computeHeight(this.parentHeight, this.top, bottom);
-      //console.log(["宽度改变", width]);
+      //console.log(["宽度改变", width, height]);
       //this.right = right;
       //this.bottom = bottom;
       this.width = width;
@@ -1069,7 +1069,7 @@ export default {
 
       const width = computeWidth(this.parentWidth, this.left, right);
       const height = computeHeight(this.parentHeight, this.top, bottom);
-      //console.log(["高度改变", height]);
+      //console.log(["高度改变", width, height]);
 
       //this.right = right;
       //this.bottom = bottom;

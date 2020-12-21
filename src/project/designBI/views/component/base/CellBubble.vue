@@ -201,12 +201,24 @@ export default {
             me.$store.state.progress = 33;
           }
         });
+    },
+    checkResize() {
+      let me = this;
+      me.items &&
+        me.items.forEach(item => {
+          item.$bubble && item.$bubble.checkParentSize();
+        });
     }
   },
   mounted() {
     let me = this;
     //~ 2 布局
     me.layout = me.$refs.layout;
+
+    setTimeout(() => {
+      console.log(["开始check！"]);
+      me.checkResize();
+    }, 300);
   }
 };
 </script>
@@ -219,6 +231,9 @@ export default {
   min-height: 100%;
   &:not(.isRoot) {
     background: white;
+  }
+  &.isRoot {
+    padding-bottom: 10px;
   }
 }
 </style>
