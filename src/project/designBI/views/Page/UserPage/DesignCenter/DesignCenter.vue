@@ -23,8 +23,13 @@
       </div>
     </div>
     <div class="theBody">
-      <el-tabs class="centerBody" tab-position="left">
-        <el-tab-pane>
+      <el-tabs
+        value="board"
+        class="centerBody"
+        tab-position="left"
+        @tab-click="tabChangeFn"
+      >
+        <el-tab-pane name="board">
           <div slot="label" class="item">
             <div class="boardsList">
               <div class="icon"><i class="el-icon-data-line"></i></div>
@@ -74,21 +79,23 @@
             <AttachBoard :key="board.templateMap" :Entity="board"></AttachBoard>
           </template> -->
         </el-tab-pane>
-        <el-tab-pane>
+        <el-tab-pane name="menu">
           <div slot="label" class="item">
             <div class="menu">
               <div class="icon"><i class="el-icon-s-unfold"></i></div>
               <div class="text">目录</div>
             </div>
           </div>
+          <router-view name="menu"></router-view>
         </el-tab-pane>
-        <el-tab-pane>
+        <el-tab-pane name="data">
           <div slot="label" class="item">
             <div class="data">
               <div class="icon"><i class="el-icon-s-data"></i></div>
               <div class="text">数据预备</div>
             </div>
           </div>
+          <router-view name="data"></router-view>
         </el-tab-pane>
       </el-tabs>
       <!-- 
@@ -175,6 +182,17 @@ export default {
           board.delete();
         })
         .catch(() => {});
+    },
+    tabChangeFn(pane, e) {
+      let me = this,
+        router = me.$router;
+      if (pane.name === "menu") {
+        router.push({ name: "DesignCenter-menu" });
+      } else if (pane.name === "data") {
+        router.push({ name: "DesignCenter-data" });
+      } else {
+        router.push({ name: "DesignCenter" });
+      }
     }
   }
 };
