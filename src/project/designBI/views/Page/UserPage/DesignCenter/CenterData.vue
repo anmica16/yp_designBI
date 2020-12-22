@@ -1,5 +1,5 @@
 <template>
-  <div>data</div>
+  <div class="CenterData">data</div>
 </template>
 
 <script>
