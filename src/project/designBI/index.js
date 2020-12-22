@@ -55,6 +55,9 @@ Vue.component("AbsItems", AbsItems);
 //【=3=】Window
 import Window from "@/packages/window/Window.vue";
 Vue.component("Window", Window);
+//【=4=】树结构
+import MenuTree from "@/packages/tree/MenuTree.vue";
+Vue.component("MenuTree", MenuTree);
 
 //=========--------
 // Section 3 BI构成

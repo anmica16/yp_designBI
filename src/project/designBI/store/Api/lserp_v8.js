@@ -4,11 +4,16 @@ import tool from "@/plugins/js/tool";
 let Api_custom = {
   designBI: {
     url: "/Api/DesignBIApi.ashx",
-    BoardList: "GetBoardList",
-    InstanceList: "GetInstanceList",
+    //~ public
     AddOrUpd: "AddOrUpdTable",
     Delete: "DeleteRecords",
-    DeleteBoard: "DeleteBoard"
+    //~ 1 绘板
+    BoardList: "GetBoardList",
+    InstanceList: "GetInstanceList",
+    DeleteBoard: "DeleteBoard",
+    //~ 2 data
+    GetDataMenus: "GetDataMenus",
+    GetDataDetail: "GetDataDetail"
   },
 
   Module: {

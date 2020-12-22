@@ -1,5 +1,5 @@
 <template>
-  <el-menu v-bind="treeCfg" class="MenuTree">
+  <el-menu ref="menu" v-bind="treeCfg" class="MenuTree">
     <template v-for="reocrd in firstRecs">
       <MenuTreeNode
         :key="reocrd.index"
@@ -30,7 +30,9 @@ export default {
     }
   },
   data() {
-    return {};
+    return {
+      menu: null
+    };
   },
   computed: {
     tree() {
@@ -63,6 +65,10 @@ export default {
       });
       return itemRecs;
     }
+  },
+  mounted() {
+    let me = this;
+    me.menu = me.$refs.menu;
   }
 };
 </script>
