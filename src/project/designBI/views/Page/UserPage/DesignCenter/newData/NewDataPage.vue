@@ -130,12 +130,3 @@ export default {
   }
 };
 </script>
-
-<style lang="scss">
-.NewDataPage {
-  position: fixed;
-  inset: 0 0 0 0;
-  background: white;
-  z-index: 11;
-}
-</style>

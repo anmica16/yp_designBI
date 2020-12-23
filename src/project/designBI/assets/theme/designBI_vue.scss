@@ -517,8 +517,44 @@ body {
   }
 } //DesignEdit
 
-// @@ 3 页面三，新数据添加
+// @@ 3 页面3 选择与管理数据集页面
+.CenterData {
+  width: 100%;
+  height: 100%;
+  $w_select: 260px;
+  $h_top: 50px;
+  position: relative;
+  .dataSelect {
+    width: $w_select;
+    height: 100%;
+    .topArea {
+      height: $h_top;
+    }
+  }
+  .dataStage {
+    position: absolute;
+    top: 0;
+    left: $w_select;
+    height: 100%;
+    width: calc(100% - #{$w_select});
+    
+    .topArea {
+      height: $h_top;
+    }
+  }
+
+
+}
+
+// @@ 3-2 页面3-2，新数据添加
 .NewDataPage {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  background: white;
+  z-index: 11;
   $h: 41px;
   color: $font2;
   > .headBar {
@@ -547,6 +583,7 @@ body {
       .el-input {
         .el-input__inner {
           height: 26px;
+          line-height: 26px;
         }
       }
     }

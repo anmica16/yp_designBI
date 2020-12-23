@@ -201,6 +201,8 @@ export default {
       result = reg.exec(name);
     if (result) {
       me.nowMain = result[1];
+    } else {
+      me.nowMain = "DesignCenter";
     }
   }
 };
