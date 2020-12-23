@@ -62,17 +62,17 @@ const routes = [
                     import(
                       /* webpackChunkName: "bi-center" */ "../views/Page/UserPage/DesignCenter/CenterData.vue"
                     )
-                },
-                children: [
-                  {
-                    path: "new",
-                    name: "DesignCenter-data-new",
-                    component: () =>
-                      import(
-                        /* webpackChunkName: "bi-center-data" */ "../views/Page/UserPage/DesignCenter/newData/NewDataPage.vue"
-                      )
-                  }
-                ] //data
+                }
+                // children: [
+                //   {
+                //     path: "new",
+                //     name: "DesignCenter-data-new",
+                //     component: () =>
+                //       import(
+                //         /* webpackChunkName: "bi-center-data" */ "../views/Page/UserPage/DesignCenter/newData/NewDataPage.vue"
+                //       )
+                //   }
+                // ] //data
               }
             ] // center
           },

@@ -63,7 +63,14 @@
       <div class="innerStage"></div>
     </div>
     <!-- ~ 3 新数据集 fix全局 -->
-    <router-view></router-view>
+    <transition name="PageMove">
+      <NewDataPage
+        v-if="query"
+        :id="query.id"
+        :pIndex="query.pIndex"
+        :index="query.index"
+      ></NewDataPage>
+    </transition>
   </div>
 </template>
 
@@ -71,8 +78,12 @@
 import $ from "@/plugins/js/loader";
 import Vue from "vue";
 import tool from "@/plugins/js/tool";
+import NewDataPage from "./newData/NewDataPage";
 export default {
   name: "CenterData",
+  components: {
+    NewDataPage
+  },
   data() {
     return {
       records: [],
@@ -82,6 +93,19 @@ export default {
       nowFolderNode: null,
       nowFileNode: null
     };
+  },
+  computed: {
+    query() {
+      let query = this.$route.query,
+        q = tool.apply({}, query);
+
+      ["id", "pIndex", "index"].forEach(check => {
+        if (!Object.hasOwnProperty.call(query, check)) {
+          q = null;
+        }
+      });
+      return q;
+    }
   },
   methods: {
     //~ 1 简单替换即可。
@@ -191,16 +215,6 @@ export default {
         .catch(r => {});
     },
     //~ 3 新data
-    newDataBase(folderNode) {
-      let me = this,
-        folder = folderNode || me.nowFolderNode,
-        pIndex = folder ? folder.index : "",
-        index = me.getNewIndex(folder);
-      me.$router.push({
-        name: me.$route.name + "-new",
-        query: { index, pIndex }
-      });
-    },
     newData(folderNode) {
       let me = this;
       me.$store.state.progress = 10;
@@ -233,7 +247,6 @@ export default {
           }).then(result => {
             me.$store.state.progress = 60;
             me.$router.push({
-              name: "DesignCenter-data-new",
               query: { index, pIndex, id: result.other }
             });
           });
@@ -263,3 +276,16 @@ export default {
   }
 };
 </script>
+
+<style lang="scss">
+.PageMove-enter-active {
+  transition: all 0.6s;
+}
+.PageMove-leave-active {
+  transition: all 0.3s;
+}
+.PageMove-enter,
+.PageMove-leave-to {
+  transform: translateX(100%);
+}
+</style>

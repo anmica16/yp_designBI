@@ -1,16 +1,27 @@
 <template>
-  <div class="NewDataPage"></div>
+  <div class="NewDataPage">测试NewDataPage</div>
 </template>
 
 <script>
 export default {
   name: "NewDataPage",
+  props: {
+    //@ 1 基本
+    id: {
+      type: String,
+      required: true
+    },
+    pIndex: {
+      type: String,
+      required: true
+    },
+    index: {
+      type: String,
+      required: true
+    }
+  },
   data() {
     return {
-      //@ 1 基本
-      id: null,
-      pIndex: null,
-      index: null,
       //@ 2 工具
       X: null
       //@ 3 其他
@@ -23,8 +34,7 @@ export default {
     cancelFn() {}
   },
   created() {
-    let me = this,
-      route = me.$route;
+    let me = this;
     //~ 1 引入插件
     import(
       /* webpackChunkName: "bi-center-data" */
@@ -35,9 +45,18 @@ export default {
       me.$store.state.progress && (me.$store.state.progress = 100);
     });
     //~ 2 参数读取
-    me.id = route.query.id;
-    me.pIndex = route.query.pIndex;
-    me.index = route.query.index;
+    // me.id = route.query.id;
+    // me.pIndex = route.query.pIndex;
+    // me.index = route.query.index;
   }
 };
 </script>
+
+<style lang="scss">
+.NewDataPage {
+  position: fixed;
+  inset: 0 0 0 0;
+  background: white;
+  z-index: 11;
+}
+</style>

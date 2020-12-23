@@ -77,6 +77,7 @@ export default {
 .BI-application-page {
   position: relative;
   .progressBar-wrap {
+    z-index: 222;
     position: absolute;
     top: 0;
     left: 0;
