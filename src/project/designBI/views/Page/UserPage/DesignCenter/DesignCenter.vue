@@ -24,12 +24,12 @@
     </div>
     <div class="theBody">
       <el-tabs
-        value="board"
+        :value="nowMain"
         class="centerBody"
         tab-position="left"
         @tab-click="tabChangeFn"
       >
-        <el-tab-pane name="board">
+        <el-tab-pane name="DesignCenter">
           <div slot="label" class="item">
             <div class="boardsList">
               <div class="icon"><i class="el-icon-data-line"></i></div>
@@ -79,7 +79,7 @@
             <AttachBoard :key="board.templateMap" :Entity="board"></AttachBoard>
           </template> -->
         </el-tab-pane>
-        <el-tab-pane name="menu">
+        <el-tab-pane name="DesignCenter-menu">
           <div slot="label" class="item">
             <div class="menu">
               <div class="icon"><i class="el-icon-s-unfold"></i></div>
@@ -88,7 +88,7 @@
           </div>
           <router-view name="menu"></router-view>
         </el-tab-pane>
-        <el-tab-pane name="data">
+        <el-tab-pane name="DesignCenter-data">
           <div slot="label" class="item">
             <div class="data">
               <div class="icon"><i class="el-icon-s-data"></i></div>
@@ -114,7 +114,8 @@ export default {
   },
   data() {
     return {
-      windowMap: {}
+      windowMap: {},
+      nowMain: "board"
     };
   },
   computed: {
@@ -185,15 +186,18 @@ export default {
     },
     tabChangeFn(pane, e) {
       let me = this,
-        router = me.$router;
-      if (pane.name === "menu") {
-        router.push({ name: "DesignCenter-menu" });
-      } else if (pane.name === "data") {
-        router.push({ name: "DesignCenter-data" });
-      } else {
-        router.push({ name: "DesignCenter" });
+        route = me.$route,
+        router = me.$router,
+        toName = pane.name;
+      if (route.name !== toName) {
+        router.push({ name: toName });
       }
     }
+  },
+  created() {
+    let me = this,
+      name = me.$route.name;
+    me.nowMain = name;
   }
 };
 </script>

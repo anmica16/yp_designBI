@@ -18,7 +18,7 @@
                 <i class="icon"></i>
                 <span class="text">新增数据集</span>
               </div>
-              <div class="option">
+              <div class="option" @click="newFolder()">
                 <i class="icon"></i>
                 <span class="text">新建文件夹</span>
               </div>
@@ -49,7 +49,7 @@
           </el-popover>
         </div>
         <!-- ~ 3 树结构 -->
-        <MenuTree class="dataTree" :records="records"> </MenuTree>
+        <MenuTree ref="tree" class="dataTree" :records="records"> </MenuTree>
       </div>
     </div>
     <div class="dataStage">
@@ -66,7 +66,12 @@ export default {
   name: "CenterData",
   data() {
     return {
-      records: []
+      records: [],
+      count: 0,
+      tree: null,
+      //选择信息
+      nowFolderNode: null,
+      nowFileNode: null
     };
   },
   methods: {
@@ -84,11 +89,79 @@ export default {
         .catch(r => {
           Vue.$message.error("获取数据集菜单失败");
         });
+    },
+    getNewIndex(folderNode) {
+      let me = this,
+        folder = folderNode || me.nowFolderNode,
+        fIndex = folder ? folder.index : "",
+        nextIndex = folder
+          ? folder.getMaxItemIndex() + 1
+          : me.tree.firstRecs.length + 1,
+        totIndex = fIndex ? `${fIndex}-${nextIndex}` : nextIndex;
+      return totIndex;
+    },
+    //~ 2 新文件夹
+    newFolder(folderNode) {
+      let me = this,
+        h = me.$createElement,
+        folder = folderNode || me.nowFolderNode,
+        fIndex = folder ? folder.index : "",
+        index = me.getNewIndex(folder),
+        c = me.count++;
+      let vForm = Vue.extend({
+        name: "vForm" + c,
+        template: `<el-form :key="c" :model="form">
+            <el-form-item
+              prop="name"
+              label="文件夹名"
+              :rules="{ required: true }"
+            >
+              <el-input v-model="form.name"></el-input>
+            </el-form-item>
+          </el-form>`,
+        data() {
+          return {
+            c,
+            form: {
+              folder: fIndex,
+              index,
+              name: "未命名文件夹" + index
+            }
+          };
+        }
+      });
+
+      me.$msgbox({
+        title: "新建文件夹",
+        message: h(vForm),
+        beforeClose(action, ins, done) {
+          if (action === "confirm") {
+            console.log(["这个ins 的 form？", ins]);
+            let refForm = ins.$slots.default;
+            refForm.validate((pass, val) => {
+              if (pass) {
+                //
+
+                console.log(["form正确", ins]);
+                done();
+              }
+            });
+          } else {
+            done();
+          }
+        }
+      })
+        .then(action => {})
+        .catch(r => {});
     }
   },
   created() {
     let me = this;
     me.refreshRecords();
+  },
+  mounted() {
+    let me = this;
+    me.tree = me.$refs.tree;
   }
 };
 </script>
