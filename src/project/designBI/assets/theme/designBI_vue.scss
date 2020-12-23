@@ -16,6 +16,8 @@ $font2_deep: #232e40;
 $font2_light: #9ea6b2;
 
 $border: #e8eaed;
+$back: #eff1f4;
+$back2: #f7f8fa;
 
 //~ 3 transition设定
 %transition_fast {
@@ -67,6 +69,16 @@ $border: #e8eaed;
   justify-content: center;
   align-items: center;
 }
+%flex-row {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+}
+%flex-col {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+}
 //--------------
 // 一、 预先
 //--------------
@@ -89,6 +101,10 @@ body {
 * {
   margin: 0;
   padding: 0;
+}
+.fill {
+  flex-grow: 1;
+  flex-shrink: 1;
 }
 
 //--------------
@@ -190,6 +206,7 @@ body {
   height: 100%;
   background: white;
 }
+
 // @@ 1 页面一，选择绘板和数据准备
 .DesignCenter {
   width: 100%;
@@ -360,6 +377,7 @@ body {
     }
   } //boty
 }
+
 // @@ 2 页面二，绘板、子控件加入拖拽页
 .DesignEdit {
   %item_normal {
@@ -488,13 +506,108 @@ body {
   .EditCenter {
     height: 100%;
     width: 100%;
-    background: #eff1f4;
+    background: $back;
     .EditCenter-scorll {
       > .el-scrollbar__wrap {
         > .el-scrollbar__view {
           padding: 6px;
         }
       }
-    }//scroll
+    } //scroll
   }
 } //DesignEdit
+
+// @@ 3 页面三，新数据添加
+.NewDataPage {
+  $h: 41px;
+  color: $font2;
+  > .headBar {
+    box-sizing: border-box;
+    height: $h - 1px;
+    border-bottom: 1px solid #e8eaed;
+    @extend %flex-row;
+    align-items: center;
+
+    .dataName {
+      width: 346px;
+      height: 26px;
+      @extend %flex-row;
+      align-items: center;
+      .pre {
+        font-size: 14px;
+        margin-left: 10px;
+        width: 40px;
+      }
+      .el-button {
+        display: block;
+        width: 100px;
+        height: 26px;
+        flex-grow: 1;
+      }
+      .el-input {
+        .el-input__inner {
+          height: 26px;
+        }
+      }
+    }
+    .yesno {
+      margin-right: 10px;
+      .el-button {
+        padding: 6px 28px;
+        font-size: 12px;
+      }
+    }
+  }
+  > .operateBody {
+    background: $back2;
+    height: calc(100% - #{$h});
+    padding: 10px;
+    position: relative;
+
+    $w_left: 560px;
+
+    .leftArea {
+      width: $w_left;
+      height: calc(100% - 20px);
+      background: white;
+      padding: 10px;
+      box-sizing: border-box;
+
+      > .topMain {
+        height: 24px;
+        @extend %flex-row;
+      }
+      > .bodyInfo {
+      }
+    }
+    .rightArea {
+      position: absolute;
+      left: $w_left + 20px;
+      right: 10px;
+      top: 10px;
+      bottom: 30px;
+      background: white;
+
+      .noTip {
+        height: 100%;
+        width: 100%;
+        @extend %flex-wh;
+        flex-direction: column;
+        .back {
+          height: 150px;
+          width: 200px;
+          background: url(./images/view3/table.png) no-repeat;
+          background-position: center;
+          background-size: auto 100%;
+          margin-top: -20px;
+          margin-bottom: 20px;
+          margin-left: -20px;
+        }
+        .text {
+          color: $font2_light;
+          font-size: 14px;
+        }
+      }
+    } //right
+  } //body
+}
