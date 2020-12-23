@@ -60,18 +60,28 @@ const routes = [
                 components: {
                   data: () =>
                     import(
-                      /* webpackChunkName: "bi-center-data" */ "../views/Page/UserPage/DesignCenter/CenterData.vue"
+                      /* webpackChunkName: "bi-center" */ "../views/Page/UserPage/DesignCenter/CenterData.vue"
                     )
-                }
+                },
+                children: [
+                  {
+                    path: "new",
+                    name: "DesignCenter-data-new",
+                    component: () =>
+                      import(
+                        /* webpackChunkName: "bi-center-data" */ "../views/Page/UserPage/DesignCenter/newData/NewDataPage.vue"
+                      )
+                  }
+                ] //data
               }
-            ]
+            ] // center
           },
           {
             path: "edit/:templateCode",
             name: "DesignEdit",
             component: () =>
               import(
-                /* webpackChunkName: "chunk-yp" */ "../views/Page/UserPage/DesignEdit/DesignEdit.vue"
+                /* webpackChunkName: "bi-edit" */ "../views/Page/UserPage/DesignEdit/DesignEdit.vue"
               )
 
             //DesignEdit

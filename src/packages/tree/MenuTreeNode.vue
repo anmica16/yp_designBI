@@ -1,5 +1,10 @@
 <template>
-  <div :class="{ isDir: !!items.length }" :index="index" :is="xtype">
+  <div
+    v-if="record && !record.readyAdd"
+    :class="{ isDir: !!items.length }"
+    :index="index"
+    :is="xtype"
+  >
     <template v-if="items.length">
       <template slot="title">
         <i class="icon"></i>
@@ -74,6 +79,9 @@ export default {
       let me = this,
         items = me.items;
       return items.length ? "el-submenu" : "el-menu-item";
+    },
+    isFolder() {
+      return this.record.isFolder;
     }
   },
   methods: {

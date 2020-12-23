@@ -196,8 +196,12 @@ export default {
   },
   created() {
     let me = this,
-      name = me.$route.name;
-    me.nowMain = name;
+      reg = new RegExp("^(DesignCenter-[^-]+)(-.*)?"),
+      name = me.$route.name,
+      result = reg.exec(name);
+    if (result) {
+      me.nowMain = result[1];
+    }
   }
 };
 </script>

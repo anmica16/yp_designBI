@@ -1,9 +1,9 @@
 <template>
-  <el-menu ref="menu" v-bind="treeCfg" class="MenuTree">
-    <template v-for="reocrd in firstRecs">
+  <el-menu ref="menu" v-bind="treeCfg" class="MenuTree" @select="selectFn">
+    <template v-for="record in firstRecs">
       <MenuTreeNode
-        :key="reocrd.index"
-        :reocrd="reocrd"
+        :key="record.index"
+        :record="record"
         :tree="tree"
       ></MenuTreeNode>
     </template>
@@ -64,6 +64,11 @@ export default {
         }
       });
       return itemRecs;
+    },
+    //~ 2 对应item的 el-item点中
+    selectFn(index, a, menuItem) {
+      let me = this;
+      me.$emit("select", menuItem.$parent);
     }
   },
   mounted() {

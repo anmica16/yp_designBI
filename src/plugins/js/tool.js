@@ -870,6 +870,9 @@ tool.apply(tool, {
       p_math = me.random62(6);
 
     return p_date + p_math;
+  },
+  now() {
+    return this.Date.format(Date.now(), "yyyy-MM-dd hh:mm:ss");
   }
 });
 
