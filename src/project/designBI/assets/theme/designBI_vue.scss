@@ -609,13 +609,59 @@ body {
       background: white;
       padding: 10px;
       box-sizing: border-box;
+      $h_topMain: 24px;
+
+      .text1,
+      .text2 {
+        font-size: 14px;
+        color: $font2_light;
+      }
+      .text2 {
+        color: $font1;
+      }
 
       > .topMain {
-        height: 24px;
+        height: $h_topMain;
         @extend %flex-row;
       }
       > .bodyInfo {
-      }
+        position: relative;
+        height: calc(100% - #{$h_topMain});
+
+        //~ 1 拖拽层
+        .dragTip {
+          @extend %flex-wh;
+          flex-direction: column;
+          position: absolute;
+          left: 0;
+          top: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(255,255,255,0.8);
+          z-index: 3;
+          border: 3px dashed rgba(0, 0, 0, 0.1);
+
+          .icon {
+            width: 200px;
+            height: 200px;
+            background: url(./images/view3/new1.png) no-repeat center;
+            background-size: 100% auto;
+            margin-bottom: 20px;
+            opacity: 0.6;
+          }
+          .text {
+            font-size: 42px;
+            color: $font2_light;
+          }
+        }
+
+        //~ 2 文字提示
+        .topText {
+          .group1 {
+            margin-bottom: 10px;
+          }
+        }
+      } //body
     }
     .rightArea {
       position: absolute;
