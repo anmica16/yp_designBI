@@ -10,7 +10,7 @@ import cellsMap from "./layout/cells-map/cells-map.vue";
 Vue.component("d-cells-map", cellsMap);
 
 //---------
-// 组件
+// 一、拖拽 组件
 //---------
 import Simple from "./base/simple.vue";
 Vue.component("Simple", Simple);
@@ -73,3 +73,10 @@ itemManager.add(
     source_influence: "无source选项"
   })
 );
+
+//---------
+// 二、公用组件
+//---------
+// 1、维度类型tag
+import DimTypeTag from "./public/DimTypeTag.vue";
+Vue.component("DimTypeTag", DimTypeTag);

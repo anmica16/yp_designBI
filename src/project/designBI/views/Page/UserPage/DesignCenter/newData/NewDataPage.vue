@@ -117,6 +117,7 @@ const supports = ["xlsx", "xlsm", "xlsb", "xls", "csv", "txt"];
 import $ from "@/plugins/js/loader";
 import Vue from "vue";
 import tool from "@/plugins/js/tool";
+import updDataReport from "./updDataReport";
 export default {
   name: "NewDataPage",
   props: {
@@ -164,14 +165,6 @@ export default {
         ? "拖拽表格到此处以重新上传"
         : "拖拽表格到此处以上传";
     },
-    csvData() {
-      let me = this,
-        csvStr = "";
-      if (me.workBook) {
-        csvStr = me.wbToCsv(me.workBook);
-      }
-      return csvStr;
-    },
     sheet() {
       let me = this,
         sheet = [];
@@ -205,7 +198,7 @@ export default {
       //# 2 返回
       me.backPage();
     },
-    //~ 5-2 维度确定
+    //~ 5-2 维度确定 keySheet注意
     //【update】分析的细节展现，看耗不耗时了
     analyseDimension(sheet) {
       let me = this,
@@ -241,15 +234,19 @@ export default {
           totCount += v;
         });
         //# 2-2 百分比
-        tool.each(val, (k, v) => {
+        let loopVal = tool.apply({}, val);
+        val.type = "other";
+        tool.each(loopVal, (k, v) => {
           let per = (v / totCount) * 100;
           if (per >= me.minSamePer) {
             healthy = true;
+            //# 2-3 只要是healthy就可以断定是什么类型了
+            val.type = k;
             if (per === 100) {
               perfect = true;
             }
           }
-          val[k + "per"] = per;
+          val[k + "_per"] = per;
         });
         val.healthy = healthy;
         val.perfect = perfect;
@@ -259,12 +256,14 @@ export default {
         isPerfect = true;
       tool.each(dimension, (key, val) => {
         //~~ 1 不至于退出
+        val.status = 1;
         if (!val.perfect) {
           isPerfect = false;
+          val.status = 2;
         }
         if (!val.healthy) {
           isHealthy = false;
-          return false;
+          val.status = 3;
         }
       });
 
@@ -293,7 +292,7 @@ export default {
               type: rABS ? "binary" : "array",
               cellDates: true
             }),
-            tempSheet = me.wbToArray(wb),
+            keySheet = me.wbToArray(wb, true),
             fileName = f.name,
             fileTypeM = /\.([^.]+)$/.exec(fileName),
             fileType = (fileTypeM && fileTypeM[1]).toLowerCase();
@@ -303,14 +302,14 @@ export default {
             me.$message.error(`不支持的文件类型：${fileType}！`);
             rej(wb);
             return;
-          } else if (!tempSheet.length) {
+          } else if (!keySheet.length) {
             me.$message.error(`未从文件${fileName}中获取到数据！`);
             rej(wb);
             return;
           }
 
           //# 3 研究100个数据样本，确定维度信息
-          let analyse = me.analyseDimension(tempSheet),
+          let analyse = me.analyseDimension(keySheet),
             successFn = function() {
               me.reading = false;
               me.$message.success("上传表格数据成功！");
@@ -318,19 +317,21 @@ export default {
             };
           //# 3-1 维度不确定数据
           if (!analyse.healthy) {
-            me.notHealthyTip({ analyse, tempSheet, wb })
-              .then(r1 => {})
+            me.notHealthyTip({ analyse, keySheet, wb })
+              .then(r1 => {
+                successFn();
+              })
               .catch(r1 => {});
           }
           //# 3-2 维度确定，但仍有少数不符合格式数据
           else if (analyse.healthy && !analyse.perfect) {
-            me.notPerfectTip({ analyse, tempSheet, wb })
+            me.notPerfectTip({ analyse, keySheet, wb })
               .then(r1 => {})
               .catch(r1 => {});
           }
-          //# 3-3 完美维度一致数据
+          //# 3-3 健康维度一致数据
           else {
-            me.perfectTip({ analyse, tempSheet, wb })
+            me.perfectTip({ analyse, keySheet, wb })
               .then(r1 => {})
               .catch(r1 => {});
             //successFn();
@@ -341,18 +342,48 @@ export default {
       });
     },
     //~ 5-3 不健康数据确认提示
-    notHealthyTip({ analyse, tempSheet, wb }) {
-      let me = this;
+    notHealthyTip({ analyse, keySheet, wb }) {
+      let me = this,
+        h = me.$createElement;
       return new Promise((res, rej) => {
+        console.log(["分析！", analyse, keySheet]);
+        let rows = [];
+        tool.each(analyse.dimension, (key, val) => {
+          rows.push({
+            key,
+            ...val
+          });
+        });
+        let report = Vue.extend({
+          name: "report",
+          template: `<updDataReport :rows="rows" analyse="analyse"></updDataReport>`,
+          components: {
+            updDataReport
+          },
+          data() {
+            return {
+              rows,
+              analyse
+            };
+          }
+        });
+
         me.$msgbox({
-          title: "不健康数据报告",
+          title: "数据健康报告",
           closeOnClickModal: false,
           showCancelButton: true,
-          message: null
-        });
+          message: h(report),
+          customClass: "updDataReport"
+        })
+          .then(r => {
+            res(r);
+          })
+          .catch(r => {
+            rej(r);
+          });
       });
     },
-    //~ 5-4 不完美数据确认提示
+    //~ 5-4 不健康数据确认提示
     notPerfectTip() {
       let me = this;
       return new Promise((res, rej) => {});
@@ -404,18 +435,18 @@ export default {
       if (e.target.files && e.target.files.length) {
         me.dealFile(e.target.files).then(({ wb, fileName, fileType }) => {
           //# 2 再追加！
-          //console.log(["开始追加", wb]);
-          let newCsv = me.wbToCsv(wb),
-            fLineEnd = newCsv.indexOf(wb);
-          if (fLineEnd > -1) {
-            newCsv = newCsv.substr(fLineEnd + 1);
-          }
-          let totCsv = me.csvData + newCsv,
-            newWb = me.X.read(totCsv, { type: "string", cellDates: true });
+          console.log(["开始追加", wb]);
+          // let newCsv = me.wbToCsv(wb),
+          //   fLineEnd = newCsv.indexOf(wb);
+          // if (fLineEnd > -1) {
+          //   newCsv = newCsv.substr(fLineEnd + 1);
+          // }
+          // let totCsv = me.csvData + newCsv,
+          //   newWb = me.X.read(totCsv, { type: "string", cellDates: true });
 
-          me.workBook = newWb;
+          // me.workBook = newWb;
 
-          console.log(["追加的 csv和 wb", newCsv, totCsv]);
+          // console.log(["追加的 csv和 wb", newCsv, totCsv]);
         });
       }
     },
@@ -428,26 +459,13 @@ export default {
       this.$refs.addInput.click(e);
     },
     //~ 7 转化有关
-    //~ 7-1 wb转csv
-    wbToCsv(wb) {
-      let me = this,
-        csv = "";
-      tool.each(wb.Sheets, (key, val) => {
-        if (val && val["!ref"]) {
-          csv = me.X.utils.sheet_to_csv(val);
-          return false;
-        } else {
-          return true;
-        }
-      });
-      return csv;
-    },
-    wbToArray(wb) {
+    wbToArray(wb, withKey) {
       let me = this,
         sheet = [];
       tool.each(wb.Sheets, (key, val) => {
         if (val && val["!ref"]) {
-          sheet = me.X.utils.sheet_to_row_object_array(val);
+          let headerCfg = withKey ? {} : { header: 1 };
+          sheet = me.X.utils.sheet_to_json(val, headerCfg); //header1表示 二维数组模式！
           return false;
         } else {
           return true;
@@ -474,3 +492,9 @@ export default {
   }
 };
 </script>
+
+<style lang="scss">
+.updDataReport {
+  width: 90%;
+}
+</style>
