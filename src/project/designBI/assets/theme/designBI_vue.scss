@@ -537,13 +537,11 @@ body {
     left: $w_select;
     height: 100%;
     width: calc(100% - #{$w_select});
-    
+
     .topArea {
       height: $h_top;
     }
   }
-
-
 }
 
 // @@ 3-2 页面3-2，新数据添加
@@ -609,7 +607,7 @@ body {
       background: white;
       padding: 10px;
       box-sizing: border-box;
-      $h_topMain: 24px;
+      $h_topMain: 40px;
 
       .text1,
       .text2 {
@@ -623,10 +621,21 @@ body {
       > .topMain {
         height: $h_topMain;
         @extend %flex-row;
+        .updInfo {
+          @extend %flex-wh;
+        }
+        input {
+          display: none;
+        }
+        .reNew {
+          margin-left: 10px;
+        }
       }
       > .bodyInfo {
         position: relative;
         height: calc(100% - #{$h_topMain});
+        padding-top: 10px;
+        box-sizing: border-box;
 
         //~ 1 拖拽层
         .dragTip {
@@ -637,7 +646,7 @@ body {
           top: 0;
           width: 100%;
           height: 100%;
-          background: rgba(255,255,255,0.8);
+          background: rgba(255, 255, 255, 0.8);
           z-index: 3;
           border: 3px dashed rgba(0, 0, 0, 0.1);
 

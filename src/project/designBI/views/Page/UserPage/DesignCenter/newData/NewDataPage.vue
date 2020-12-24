@@ -7,19 +7,13 @@
       </div>
       <div class="fill"></div>
       <div class="yesno">
-        <el-button
-          ref="cancel"
-          type="info"
-          :disabled="!canCancel"
-          @click="cancelFn"
-          >取消</el-button
-        >
+        <el-button ref="cancel" type="info" @click="cancelFn">取消</el-button>
         <el-button
           ref="submit"
-          :type="canSubmit ? 'primary' : ''"
-          :disabled="!canSubmit"
+          :type="workBook ? 'primary' : ''"
+          :disabled="!workBook"
           @click="submitFn"
-          >确定</el-button
+          >{{ addNewData ? "保存" : "确定" }}</el-button
         >
       </div>
     </div>
@@ -33,17 +27,38 @@
           </div>
           <dir class="fill"></dir>
           <div class="operArea">
-            <el-button type="primary" v-if="!workBook">上传数据</el-button>
+            <el-button
+              size="medium"
+              type="primary"
+              @click="newUpdBtn"
+              v-if="!workBook"
+              >上传数据</el-button
+            >
+            <input ref="newInput" type="file" name="file" @change="newUpdFn" />
 
-            <el-button type="primary" v-if="workBook">追加上传</el-button>
+            <el-button
+              size="medium"
+              @click="addUpdBtn"
+              type="primary"
+              v-if="workBook"
+              >追加上传</el-button
+            >
+            <input ref="addInput" type="file" name="file2" @change="addUpdFn" />
 
-            <el-button type="primary" v-if="workBook">重新上传</el-button>
+            <el-button
+              class="reNew"
+              size="medium"
+              @click="newUpdBtn"
+              type="primary"
+              v-if="workBook"
+              >重新上传</el-button
+            >
           </div>
         </div>
         <div
           class="bodyInfo"
+          @dragenter.stop.prevent="leftDragOverFn"
           @dragover.stop.prevent="leftDragOverFn"
-          @dragleave="leftDragLeaveFn"
           @drop.stop.prevent="leftDrogFn"
         >
           <div class="tipText">
@@ -76,6 +91,7 @@
           <div
             v-show="leftDragOver"
             class="dragTip"
+            @dragleave="leftDragLeaveFn"
             :class="{ newUpd: !workBook }"
           >
             <div class="icon"></div>
@@ -97,8 +113,10 @@
 </template>
 
 <script>
+const supports = ["xlsx", "xlsm", "xlsb", "xls", "csv", "txt"];
 import $ from "@/plugins/js/loader";
 import Vue from "vue";
+import tool from "@/plugins/js/tool";
 export default {
   name: "NewDataPage",
   props: {
@@ -118,16 +136,20 @@ export default {
   },
   data() {
     return {
+      //@ 1-2 附加信息加入
+      name: "",
+      fileName: "",
+      fileType: "",
+
       //@ 2 工具
       X: null,
       //@ 3 其他
-      name: "",
-      canSubmit: false,
-      canCancel: true,
+      addNewData: false,
       leftDragOver: false,
       //@ 4 上传读取的数据
       reading: false,
-      workBook: null
+      workBook: null,
+      minSamePer: 95
     };
   },
   computed: {
@@ -139,8 +161,24 @@ export default {
     },
     leftDragText() {
       return this.workBook
-        ? "拖拽表格到此处以上传"
-        : "拖拽表格到此处以重新上传";
+        ? "拖拽表格到此处以重新上传"
+        : "拖拽表格到此处以上传";
+    },
+    csvData() {
+      let me = this,
+        csvStr = "";
+      if (me.workBook) {
+        csvStr = me.wbToCsv(me.workBook);
+      }
+      return csvStr;
+    },
+    sheet() {
+      let me = this,
+        sheet = [];
+      if (me.workBook) {
+        sheet = me.wbToArray(me.workBook);
+      }
+      return sheet;
     }
   },
   methods: {
@@ -167,6 +205,75 @@ export default {
       //# 2 返回
       me.backPage();
     },
+    //~ 5-2 维度确定
+    //【update】分析的细节展现，看耗不耗时了
+    analyseDimension(sheet) {
+      let me = this,
+        sampleSheet = sheet, //tool.getSample(sheet, 100),
+        dimension = {};
+      //# 1 成分分析
+      tool.each(sampleSheet, rec => {
+        tool.each(rec, (key, val) => {
+          dimension[key] = dimension[key] || {
+            number: 0,
+            string: 0,
+            date: 0,
+            other: 0
+          };
+          if (tool.isDate(val)) {
+            ++dimension[key].date;
+          } else if (tool.isNumber(val)) {
+            ++dimension[key].number;
+          } else if (tool.isString(val)) {
+            ++dimension[key].string;
+          } else {
+            ++dimension[key].other;
+          }
+        });
+      });
+      //# 2 百分比化
+      tool.each(dimension, (key, val) => {
+        let totCount = 0,
+          perfect = false,
+          healthy = false;
+        //# 2-1 总数
+        tool.each(val, (k, v) => {
+          totCount += v;
+        });
+        //# 2-2 百分比
+        tool.each(val, (k, v) => {
+          let per = (v / totCount) * 100;
+          if (per >= me.minSamePer) {
+            healthy = true;
+            if (per === 100) {
+              perfect = true;
+            }
+          }
+          val[k + "per"] = per;
+        });
+        val.healthy = healthy;
+        val.perfect = perfect;
+      });
+      //# 3 健康？
+      let isHealthy = true,
+        isPerfect = true;
+      tool.each(dimension, (key, val) => {
+        //~~ 1 不至于退出
+        if (!val.perfect) {
+          isPerfect = false;
+        }
+        if (!val.healthy) {
+          isHealthy = false;
+          return false;
+        }
+      });
+
+      return {
+        healthy: isHealthy,
+        perfect: isPerfect,
+        dimension
+      };
+    },
     //~ 5 核心 读取文件，返回res的 wb
     dealFile(files) {
       let me = this,
@@ -179,18 +286,80 @@ export default {
         var reader = new FileReader();
         //# 1 经过时间处理
         reader.onload = function(e) {
-          me.leftDragOver = false;
           var data = e.target.result;
           if (!rABS) data = new Uint8Array(data);
           //# 2 获取
-          let wb = X.read(data, { type: rABS ? "binary" : "array" });
-          me.reading = false;
-          console.log(["读取完毕", wb]);
-          res(wb);
+          let wb = X.read(data, {
+              type: rABS ? "binary" : "array",
+              cellDates: true
+            }),
+            tempSheet = me.wbToArray(wb),
+            fileName = f.name,
+            fileTypeM = /\.([^.]+)$/.exec(fileName),
+            fileType = (fileTypeM && fileTypeM[1]).toLowerCase();
+
+          console.log(["读取完毕", wb, me]);
+          if (supports.indexOf(fileType) < 0) {
+            me.$message.error(`不支持的文件类型：${fileType}！`);
+            rej(wb);
+            return;
+          } else if (!tempSheet.length) {
+            me.$message.error(`未从文件${fileName}中获取到数据！`);
+            rej(wb);
+            return;
+          }
+
+          //# 3 研究100个数据样本，确定维度信息
+          let analyse = me.analyseDimension(tempSheet),
+            successFn = function() {
+              me.reading = false;
+              me.$message.success("上传表格数据成功！");
+              res({ wb, fileName, fileType });
+            };
+          //# 3-1 维度不确定数据
+          if (!analyse.healthy) {
+            me.notHealthyTip({ analyse, tempSheet, wb })
+              .then(r1 => {})
+              .catch(r1 => {});
+          }
+          //# 3-2 维度确定，但仍有少数不符合格式数据
+          else if (analyse.healthy && !analyse.perfect) {
+            me.notPerfectTip({ analyse, tempSheet, wb })
+              .then(r1 => {})
+              .catch(r1 => {});
+          }
+          //# 3-3 完美维度一致数据
+          else {
+            me.perfectTip({ analyse, tempSheet, wb })
+              .then(r1 => {})
+              .catch(r1 => {});
+            //successFn();
+          }
         };
         if (rABS) reader.readAsBinaryString(f);
         else reader.readAsArrayBuffer(f);
       });
+    },
+    //~ 5-3 不健康数据确认提示
+    notHealthyTip({ analyse, tempSheet, wb }) {
+      let me = this;
+      return new Promise((res, rej) => {
+        me.$msgbox({
+          title: "不健康数据报告",
+          closeOnClickModal: false,
+          showCancelButton: true,
+          message: null
+        });
+      });
+    },
+    //~ 5-4 不完美数据确认提示
+    notPerfectTip() {
+      let me = this;
+      return new Promise((res, rej) => {});
+    },
+    perfectTip() {
+      let me = this;
+      return new Promise((res, rej) => {});
     },
     //~ 4 drop相关
     leftDragOverFn(e) {
@@ -207,16 +376,84 @@ export default {
         e.dataTransfer.dropEffect = "move";
       }
     },
-    leftDrogFn(e) {
+    newUpdFnBase(files) {
       let me = this;
-      //# 1 左侧重新上传
       if (me.workBook) {
         // 待补充 删除
       }
       //# 2 赋值
-      me.dealFile(e.dataTransfer.files).then(wb => {
+      me.dealFile(files).then(({ wb, fileName, fileType }) => {
         me.workBook = wb;
+        me.fileName = fileName;
+        me.fileType = fileType;
       });
+    },
+    leftDrogFn(e) {
+      let me = this;
+      me.leftDragOver = false;
+      me.newUpdFnBase(e.dataTransfer.files);
+    },
+    newUpdFn(e) {
+      let me = this;
+      me.newUpdFnBase(e.target.files);
+    },
+    addUpdFn(e) {
+      let me = this;
+
+      //# 1 先获取值
+      if (e.target.files && e.target.files.length) {
+        me.dealFile(e.target.files).then(({ wb, fileName, fileType }) => {
+          //# 2 再追加！
+          //console.log(["开始追加", wb]);
+          let newCsv = me.wbToCsv(wb),
+            fLineEnd = newCsv.indexOf(wb);
+          if (fLineEnd > -1) {
+            newCsv = newCsv.substr(fLineEnd + 1);
+          }
+          let totCsv = me.csvData + newCsv,
+            newWb = me.X.read(totCsv, { type: "string", cellDates: true });
+
+          me.workBook = newWb;
+
+          console.log(["追加的 csv和 wb", newCsv, totCsv]);
+        });
+      }
+    },
+    //~ 6 点击上传
+    newUpdBtn(e) {
+      this.$refs.newInput.click(e);
+    },
+    //~ 6.2 追加上传
+    addUpdBtn(e) {
+      this.$refs.addInput.click(e);
+    },
+    //~ 7 转化有关
+    //~ 7-1 wb转csv
+    wbToCsv(wb) {
+      let me = this,
+        csv = "";
+      tool.each(wb.Sheets, (key, val) => {
+        if (val && val["!ref"]) {
+          csv = me.X.utils.sheet_to_csv(val);
+          return false;
+        } else {
+          return true;
+        }
+      });
+      return csv;
+    },
+    wbToArray(wb) {
+      let me = this,
+        sheet = [];
+      tool.each(wb.Sheets, (key, val) => {
+        if (val && val["!ref"]) {
+          sheet = me.X.utils.sheet_to_row_object_array(val);
+          return false;
+        } else {
+          return true;
+        }
+      });
+      return sheet;
     }
   },
   created() {

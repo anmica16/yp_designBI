@@ -873,6 +873,25 @@ tool.apply(tool, {
   },
   now() {
     return this.Date.format(Date.now(), "yyyy-MM-dd hh:mm:ss");
+  },
+  //++ 1 随机取样
+  getSample(source, count) {
+    let me = this;
+    if (!me.isArray(source)) {
+      console.error(["不允许对非数组进行取样！"]);
+      return null;
+    }
+    if (source.length <= count) {
+      return source;
+    }
+    let rest = source.slice(),
+      result = [];
+    while (result.length < 100) {
+      let at = Math.floor(Math.random() * rest.length),
+        select = rest.splice(at, 1);
+      result.push(select);
+    }
+    return result;
   }
 });
 
