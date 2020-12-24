@@ -10,8 +10,8 @@
         <el-button ref="cancel" type="info" @click="cancelFn">取消</el-button>
         <el-button
           ref="submit"
-          :type="workBook ? 'primary' : ''"
-          :disabled="!workBook"
+          :type="workSheet ? 'primary' : ''"
+          :disabled="!workSheet"
           @click="submitFn"
           >{{ addNewData ? "保存" : "确定" }}</el-button
         >
@@ -23,7 +23,7 @@
         <div class="topMain">
           <div class="updInfo">
             <span class="pre">上传信息：</span>
-            <span class="fileName"></span>
+            <span class="fileName">{{ fileName }}</span>
           </div>
           <dir class="fill"></dir>
           <div class="operArea">
@@ -31,7 +31,7 @@
               size="medium"
               type="primary"
               @click="newUpdBtn"
-              v-if="!workBook"
+              v-if="!workSheet"
               >上传数据</el-button
             >
             <input ref="newInput" type="file" name="file" @change="newUpdFn" />
@@ -40,7 +40,7 @@
               size="medium"
               @click="addUpdBtn"
               type="primary"
-              v-if="workBook"
+              v-if="workSheet"
               >追加上传</el-button
             >
             <input ref="addInput" type="file" name="file2" @change="addUpdFn" />
@@ -50,7 +50,7 @@
               size="medium"
               @click="newUpdBtn"
               type="primary"
-              v-if="workBook"
+              v-if="workSheet"
               >重新上传</el-button
             >
           </div>
@@ -62,7 +62,7 @@
           @drop.stop.prevent="leftDrogFn"
         >
           <div class="tipText">
-            <template v-if="!workBook">
+            <template v-if="!workSheet">
               <div class="text1">要求：</div>
               <div class="text1">1.支持格式：xls、csv、xlsx；</div>
               <div class="text1">
@@ -84,7 +84,7 @@
             </template>
           </div>
           <!-- ~ 1  -->
-          <template v-if="workBook">
+          <template v-if="workSheet">
             <div class="fieldType"></div>
           </template>
           <!-- ~ 2 覆盖全部body的 drop层 -->
@@ -92,7 +92,7 @@
             v-show="leftDragOver"
             class="dragTip"
             @dragleave="leftDragLeaveFn"
-            :class="{ newUpd: !workBook }"
+            :class="{ newUpd: !workSheet }"
           >
             <div class="icon"></div>
             <div class="text">{{ leftDragText }}</div>
@@ -100,7 +100,7 @@
         </div>
       </div>
       <div class="rightArea">
-        <template v-if="workBook">
+        <template v-if="workSheet">
           <div></div>
         </template>
         <div v-else class="noTip">
@@ -133,6 +133,10 @@ export default {
     index: {
       type: String,
       required: true
+    },
+    dataType: {
+      type: String,
+      default: ""
     }
   },
   data() {
@@ -141,6 +145,8 @@ export default {
       name: "",
       fileName: "",
       fileType: "",
+      workSheet: null,
+      dimension: null,
 
       //@ 2 工具
       X: null,
@@ -150,7 +156,7 @@ export default {
       //@ 4 上传读取的数据
       reading: false,
       workBook: null,
-      minSamePer: 95
+      minSamePer: 80
     };
   },
   computed: {
@@ -161,15 +167,15 @@ export default {
       );
     },
     leftDragText() {
-      return this.workBook
+      return this.workSheet
         ? "拖拽表格到此处以重新上传"
         : "拖拽表格到此处以上传";
     },
     sheet() {
       let me = this,
         sheet = [];
-      if (me.workBook) {
-        sheet = me.wbToArray(me.workBook);
+      if (me.workSheet) {
+        sheet = me.wbToArray(me.workSheet);
       }
       return sheet;
     }
@@ -180,8 +186,35 @@ export default {
     },
     //~ 2 保存后就取消该 id的 readyAdd状态
     submitFn() {
-      let me = this;
-      console.log(["尝试提交", me]);
+      let me = this,
+        record = {
+          id: me.id,
+          name: me.name,
+          fileName: me.fileName,
+          fileType: me.fileType,
+          dataType: me.dataType,
+          dataSource: me.sheet,
+          dimension: me.dimension
+        };
+
+      //# 1 保存上传！
+      $.ajax({
+        url: Vue.Api.designBI,
+        method: Vue.Api.designBI.AddOrUpd,
+        data: {
+          table: "data",
+          records: JSON.stringify([record])
+        }
+      })
+        .then(result => {
+          me.$message.success("保存成功！");
+          //# 2 返回
+          me.backPage();
+        })
+        .catch(r => {
+          me.$message.success("保存失败！" + r);
+        });
+      console.log(["尝试提交", me, record]);
     },
     //~ 3 取消则直接删除该record
     cancelFn() {
@@ -292,49 +325,61 @@ export default {
               type: rABS ? "binary" : "array",
               cellDates: true
             }),
-            keySheet = me.wbToArray(wb, true),
+            ws = me.getWorkSheet(wb),
             fileName = f.name,
             fileTypeM = /\.([^.]+)$/.exec(fileName),
             fileType = (fileTypeM && fileTypeM[1]).toLowerCase();
 
           console.log(["读取完毕", wb, me]);
+          //@@ 1 不支持的文件类型
           if (supports.indexOf(fileType) < 0) {
             me.$message.error(`不支持的文件类型：${fileType}！`);
-            rej(wb);
+            rej();
             return;
-          } else if (!keySheet.length) {
-            me.$message.error(`未从文件${fileName}中获取到数据！`);
-            rej(wb);
+          }
+          //@@ 2 无表
+          if (!ws) {
+            me.$message.error(`未能从文件${fileName}中获取到表！`);
+            rej();
+            return;
+          }
+          //@@ 3 无数据
+          let keySheet = me.wbToArray(ws, true);
+          if (!keySheet.length) {
+            me.$message.error(`未从文件${fileName}的表中获取到数据！`);
+            rej();
             return;
           }
 
-          //# 3 研究100个数据样本，确定维度信息
-          let analyse = me.analyseDimension(keySheet),
-            successFn = function() {
-              me.reading = false;
-              me.$message.success("上传表格数据成功！");
-              res({ wb, fileName, fileType });
-            };
-          //# 3-1 维度不确定数据
-          if (!analyse.healthy) {
-            me.notHealthyTip({ analyse, keySheet, wb })
-              .then(r1 => {
-                successFn();
-              })
-              .catch(r1 => {});
-          }
-          //# 3-2 维度确定，但仍有少数不符合格式数据
-          else if (analyse.healthy && !analyse.perfect) {
-            me.notPerfectTip({ analyse, keySheet, wb })
-              .then(r1 => {})
-              .catch(r1 => {});
-          }
-          //# 3-3 健康维度一致数据
-          else {
-            me.perfectTip({ analyse, keySheet, wb })
-              .then(r1 => {})
-              .catch(r1 => {});
-            //successFn();
+          //# 3 研究所上传的数据样本，确定维度信息
+          let analyse = me.analyseDimension(keySheet);
+          me.reading = false;
+          //# 4 可能存在维度不确定数据
+          me.dataHealthyReport({ analyse, keySheet, wb })
+            .then(r1 => {
+              if (analyse.perfect) {
+                return;
+              }
+              if (analyse.healthy) {
+                //# 4-2 针对不确定数据进行类型强转
+                res({ wb, fileName, fileType, analyse, keySheet });
+              } else {
+                //@@ 4 不健康数据 强制取消本次上传
+                rej();
+              }
+            })
+            .catch(r1 => {
+              if (analyse.perfect) {
+                return;
+              }
+              //@@ 5 不完美数据 用户主动取消
+              me.$message.info("用户取消本次数据上传");
+              rej(r1);
+            });
+          //# 5 确定完美的，就直接敲定
+          if (analyse.perfect) {
+            me.$message.success("上传表格数据成功！");
+            res({ wb, fileName, fileType, analyse, keySheet });
           }
         };
         if (rABS) reader.readAsBinaryString(f);
@@ -342,7 +387,7 @@ export default {
       });
     },
     //~ 5-3 不健康数据确认提示
-    notHealthyTip({ analyse, keySheet, wb }) {
+    dataHealthyReport({ analyse, keySheet, wb }) {
       let me = this,
         h = me.$createElement;
       return new Promise((res, rej) => {
@@ -356,7 +401,7 @@ export default {
         });
         let report = Vue.extend({
           name: "report",
-          template: `<updDataReport :rows="rows" analyse="analyse"></updDataReport>`,
+          template: `<updDataReport :rows="rows" :analyse="analyse"></updDataReport>`,
           components: {
             updDataReport
           },
@@ -409,15 +454,72 @@ export default {
     },
     newUpdFnBase(files) {
       let me = this;
-      if (me.workBook) {
+      if (me.workSheet) {
         // 待补充 删除
       }
       //# 2 赋值
-      me.dealFile(files).then(({ wb, fileName, fileType }) => {
-        me.workBook = wb;
-        me.fileName = fileName;
-        me.fileType = fileType;
-      });
+      me.dealFile(files)
+        .then(({ wb, fileName, fileType, analyse, keySheet }) => {
+          let dimension = analyse.dimension,
+            theWorkSheet = null;
+
+          if (analyse.perfect) {
+            //~~ 1 经过前面检验，这里一定有！
+            theWorkSheet = me.getWorkSheet(wb);
+          } else if (analyse.healthy) {
+            //# 3 针对有风险数据进行强转
+            try {
+              tool.each(keySheet, (rec, i) => {
+                tool.each(dimension, (k, v) => {
+                  if (v.status !== 1) {
+                    //# 4 肯定是确定类型的
+                    let oldVal = rec[k];
+                    if (v.type === "string") {
+                      rec[k] = rec[k] + "";
+                      if (!tool.isString(rec[k])) {
+                        throw `转换为字符串类型失败，第【${i}】行，关键字【${k}】，值【${oldVal}】->【${rec[k]}】`;
+                      }
+                    } else if (v.type === "number") {
+                      rec[k] = parseFloat(rec[k]);
+                      if (!tool.isNumber(rec[k])) {
+                        throw `转换为数值类型失败，第【${i}】行，关键字【${k}】，值【${oldVal}】->【${rec[k]}】`;
+                      }
+                    } else if (v.type === "date") {
+                      rec[k] = tool.Date.toDateTime(rec[k]);
+                      if (!tool.isDate(rec[k])) {
+                        throw `转换为日期类型失败，第【${i}】行，关键字【${k}】，值【${oldVal}】->【${rec[k]}】`;
+                      }
+                    } else {
+                      throw "遇到了未知类型，程序出错！";
+                    }
+                  }
+                });
+              });
+              //# 4 0 失误则视为成功
+              me.$message.success("有风险维度的数据均已顺利转换！");
+              theWorkSheet = me.X.utils.json_to_sheet(keySheet, {
+                cellDates: true
+              });
+            } catch (er) {
+              me.$message.error(er + " 请仔细检查所上传表格数据后再尝试上传！");
+              return;
+            }
+          }
+          // # 4 成功 则赋值！
+          me.workBook = wb; //不是很重要了
+
+          (me.name = fileName.substr(0, fileName.length - 1 - fileType.length)),
+            (me.fileName = fileName);
+          me.fileType = fileType;
+          me.workSheet = theWorkSheet; //这才是核心
+          //# 5 维度：
+          let dim = {};
+          tool.each(dimension, (k, v) => {
+            dim[k] = v.type;
+          });
+          me.dimension = dim;
+        })
+        .catch(() => {});
     },
     leftDrogFn(e) {
       let me = this;
@@ -459,18 +561,23 @@ export default {
       this.$refs.addInput.click(e);
     },
     //~ 7 转化有关
-    wbToArray(wb, withKey) {
-      let me = this,
-        sheet = [];
+    getWorkSheet(wb) {
+      let ws = null;
       tool.each(wb.Sheets, (key, val) => {
         if (val && val["!ref"]) {
-          let headerCfg = withKey ? {} : { header: 1 };
-          sheet = me.X.utils.sheet_to_json(val, headerCfg); //header1表示 二维数组模式！
+          ws = val;
           return false;
         } else {
           return true;
         }
       });
+      return ws;
+    },
+    wbToArray(ws, withKey) {
+      let me = this,
+        sheet = [];
+      let headerCfg = withKey ? {} : { header: 1 };
+      sheet = me.X.utils.sheet_to_json(ws, headerCfg); //header1表示 二维数组模式！
       return sheet;
     }
   },

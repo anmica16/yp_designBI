@@ -3,6 +3,7 @@
     <div class="reportTextArea">
       <p>
         结果：<el-tag
+          style="font-size: 14px; padding: 0 20px;"
           :type="
             healthyType === 1
               ? 'success'
@@ -16,11 +17,11 @@
         >
       </p>
       <template v-if="healthyType === 1">
-        <p>每个维度的数据类型均一致，可放心使用！</p>
+        <p>每个维度下的数据，其类型均完全一致，可放心使用！</p>
       </template>
       <template v-if="healthyType === 2">
         <p>
-          个别维度存在数据类型不一致的情况，建议仔细检查并修改表格数据后再上传，如果仍然坚持使用，将按照所判断类型进行类型转换！
+          个别维度下的数据存在类型不一致的情况，建议仔细检查并修改表格数据后再上传，如果仍然坚持使用，将按照所判断类型进行类型转换！
         </p>
         <p>注：存在数据转换失败的风险！</p>
       </template>
@@ -34,10 +35,7 @@
       ><el-table-column v-for="col in cols" :key="col.prop" v-bind="col">
         <template slot-scope="scope">
           <template v-if="col.prop === 'type'">
-            <DimTypeTag
-              :type="scope.row.type"
-              :name="scope.row.key"
-            ></DimTypeTag>
+            <DimTypeTag :type="scope.row.type"></DimTypeTag>
           </template>
           <template v-else-if="col.prop === 'status'">
             <el-tag

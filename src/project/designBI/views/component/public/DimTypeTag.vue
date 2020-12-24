@@ -54,6 +54,13 @@ export default {
   $orange: #faaa39;
   $red: #f56c6c;
 
+  > .icon {
+    font-size: 20px;
+    margin-right: 5px;
+    position: relative;
+    top: 2px;
+  }
+
   &.string {
     > .icon {
       color: $blue;
