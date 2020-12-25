@@ -69,6 +69,8 @@
         :id="query.id"
         :pIndex="query.pIndex"
         :index="query.index"
+        :likeEdit="likeEdit_newData"
+        @back="newDataBackFn"
       ></NewDataPage>
     </transition>
   </div>
@@ -91,7 +93,9 @@ export default {
       tree: null,
       //选择信息
       nowFolderNode: null,
-      nowFileNode: null
+      nowFileNode: null,
+      //~ 2 新建
+      likeEdit_newData: true
     };
   },
   computed: {
@@ -181,7 +185,7 @@ export default {
             let refForm = ins.down("innerForm");
             refForm.$refs.form.validate((pass, val) => {
               if (pass) {
-                let now = tool.now();
+                let now = tool.now(true);
                 $.ajax({
                   url: Vue.Api.designBI,
                   method: Vue.Api.designBI.AddOrUpd,
@@ -225,7 +229,7 @@ export default {
             pIndex = folder ? folder.index : "",
             index = me.getNewIndex(folder);
 
-          let now = tool.now();
+          let now = tool.now(true);
           $.ajax({
             url: Vue.Api.designBI,
             method: Vue.Api.designBI.AddOrUpd,
@@ -240,12 +244,13 @@ export default {
                   editTime: now,
                   name: index,
                   //# 1 表示预备加入
-                  readyAdd: true
+                  exist: false
                 }
               ])
             }
           }).then(result => {
             me.$store.state.progress = 60;
+            me.likeEdit_newData = false;
             me.$router.push({
               query: { index, pIndex, id: result.other }
             });
@@ -264,6 +269,11 @@ export default {
         treeNode.parentNode && (me.nowFolderNode = treeNode.parentNode);
         me.nowFileNode = treeNode;
       }
+    },
+    newDataBackFn() {
+      let me = this;
+      //~ 1 回到初始值
+      me.likeEdit_newData = true;
     }
   },
   created() {

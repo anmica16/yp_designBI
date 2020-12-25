@@ -1,6 +1,6 @@
 <template>
   <div
-    v-if="record && !record.readyAdd"
+    v-if="record && record.exist"
     :class="{ isDir: !!items.length }"
     :index="index"
     :is="xtype"

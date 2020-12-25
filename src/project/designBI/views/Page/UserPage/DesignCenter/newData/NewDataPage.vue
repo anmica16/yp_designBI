@@ -137,6 +137,11 @@ export default {
     dataType: {
       type: String,
       default: ""
+    },
+    //@ 4 是否是非手动新增 的进入？
+    likeEdit: {
+      type: Boolean,
+      default: true
     }
   },
   data() {
@@ -156,7 +161,10 @@ export default {
       //@ 4 上传读取的数据
       reading: false,
       workBook: null,
-      minSamePer: 80
+      minSamePer: 80,
+      //@ 5 获取数据：
+      dbData: null,
+      exist: true //默认存在，在获取数据后敲定
     };
   },
   computed: {
@@ -178,24 +186,41 @@ export default {
         sheet = me.wbToArray(me.workSheet);
       }
       return sheet;
+    },
+    //~ 10 既要是非点击新增进入，又要是数据确实已存在
+    isEidt() {
+      return this.likeEdit && this.exist;
     }
   },
   methods: {
     backPage() {
       this.$router.push({});
+      this.$emit("back");
     },
     //~ 2 保存后就取消该 id的 readyAdd状态
     submitFn() {
       let me = this,
+        editTime = tool.now(true),
         record = {
           id: me.id,
+          dataSource: me.getUpdAoa(me.sheet),
+          editTime
+        };
+      if (me.isEdit) {
+        // tool.apply(record, {
+        //   exist: true,
+        // });
+      } else {
+        tool.apply(record, {
           name: me.name,
           fileName: me.fileName,
           fileType: me.fileType,
           dataType: me.dataType,
-          dataSource: me.sheet,
-          dimension: me.dimension
-        };
+          //~~ 1 暂时不改
+          dimension: me.dimension,
+          exist: true
+        });
+      }
 
       //# 1 保存上传！
       $.ajax({
@@ -579,6 +604,108 @@ export default {
       let headerCfg = withKey ? {} : { header: 1 };
       sheet = me.X.utils.sheet_to_json(ws, headerCfg); //header1表示 二维数组模式！
       return sheet;
+    },
+    //~ 7-2 Aoa sheet转化日期为可保存的
+    getUpdAoa(sheet) {
+      let me = this,
+        cgSheet = tool.clone(sheet);
+      tool.each(cgSheet, row => {
+        tool.each(row, (cell, i) => {
+          if (tool.isDate(cell)) {
+            row[i] = tool.Date.format(cell, "yyyy-MM-dd hh:mm:ss.S");
+          }
+        });
+      });
+      return cgSheet;
+    },
+    getSheetFromAoa(_aoa, dim) {
+      let me = this,
+        X = me.X,
+        aoa = tool.clone(_aoa),
+        header = aoa[0],
+        toDate = [];
+      //# 1 对首行、维度进行匹配
+      tool.each(dim, (k, v) => {
+        if (v === "date") {
+          let at = header.indexOf(k);
+          if (at > -1) {
+            toDate.push(at);
+          }
+        }
+      });
+      //# 2 处理数据
+      aoa.forEach((row, y) => {
+        if (y > 0) {
+          row.forEach((val, x) => {
+            if (toDate.indexOf(x) > -1) {
+              row[x] = new Date(val);
+            }
+          });
+        }
+      });
+      //# 3 转化结果
+      let ws = X.utils.aoa_to_sheet(aoa);
+      return ws;
+    },
+    //------------------
+    // 二、 修改编辑页方面
+    //------------------
+    //~ 1 获取
+    getDetailData() {
+      let me = this;
+      return new Promise((res, rej) => {
+        $.ajax({
+          url: Vue.Api.designBI,
+          method: Vue.Api.designBI.GetDataDetail,
+          data: {
+            id: me.id
+          }
+        })
+          .then(result => {
+            let datas = result.data;
+            if (!datas || !datas.length) {
+              //# 1 数据不存在！页面不允许访问！
+              me.$msgbox({
+                title: "错误提示",
+                message: "数据不存在！页面不允许访问！",
+                type: "error"
+              }).finally(() => {
+                res(false);
+              });
+              return;
+            }
+            let data = datas[0];
+            if (!data.exist) {
+              //# 2 数据处于新增状态！即便是好像edit，但也实为新增
+              me.exist = false;
+              res(true);
+              return;
+            }
+
+            let dimension = JSON.parse(data.dimension);
+            me.dbData = data;
+            tool.apply(me, {
+              name: data.name,
+              fileName: data.fileName,
+              fileType: data.fileType,
+              workSheet: me.getSheetFromAoa(
+                JSON.parse(data.dataSource),
+                dimension
+              ),
+              dimension
+            });
+            res(true);
+          })
+          .catch(r => {
+            me.$msgbox({
+              title: "错误提示",
+              message: "获取数据集数据失败，页面将返回",
+              type: "error"
+            }).finally(() => {
+              res(false);
+            });
+          });
+      });
     }
   },
   created() {
@@ -590,7 +717,17 @@ export default {
     ).then(function(mod) {
       console.log(["加载xlsx完毕", arguments, me]);
       me.X = mod;
-      me.$store.state.progress && (me.$store.state.progress = 100);
+      if (!me.likeEdit) {
+        me.$store.state.progress && (me.$store.state.progress = 100);
+      } else {
+        me.$store.state.progress = 30;
+        me.getDetailData().then(success => {
+          me.$store.state.progress = 100;
+          if (!success) {
+            me.backPage();
+          }
+        });
+      }
     });
     //~ 2 参数读取
     // me.id = route.query.id;

@@ -792,10 +792,14 @@ tool.apply(tool, {
         if (Object.hasOwnProperty.call(o, k)) {
           if (new RegExp("(" + k + ")").test(fmt)) {
             //fmt = fmt.replace(RegExp.$1,(RegExp.$1.length === 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
-            fmt = fmt.replace(
-              RegExp.$1,
-              ("00" + o[k]).substr(("" + o[k]).length)
-            );
+            if (k === "S") {
+              fmt = fmt.replace(RegExp.$1, "" + o[k]);
+            } else {
+              fmt = fmt.replace(
+                RegExp.$1,
+                ("00" + o[k]).substr(("" + o[k]).length)
+              );
+            }
           }
         }
       }
@@ -871,8 +875,11 @@ tool.apply(tool, {
 
     return p_date + p_math;
   },
-  now() {
-    return this.Date.format(Date.now(), "yyyy-MM-dd hh:mm:ss");
+  now(withM) {
+    return this.Date.format(
+      Date.now(),
+      "yyyy-MM-dd hh:mm:ss" + (withM ? ".S" : "")
+    );
   },
   //++ 1 随机取样
   getSample(source, count) {
