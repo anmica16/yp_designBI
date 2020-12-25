@@ -54,6 +54,7 @@
           class="dataTree"
           :records="records"
           @select="selectFn"
+          @submenu-click="submenuClickFn"
         >
         </MenuTree>
       </div>
@@ -274,6 +275,7 @@ export default {
           me.$message.error("新建数据集失败，请重试或检查服务器状态！");
         });
     },
+    //# 1 叶子的 文件或文件夹
     selectFn(treeNode) {
       let me = this;
       if (treeNode.isFolder) {
@@ -287,6 +289,11 @@ export default {
         }
         me.nowFileNode = treeNode;
       }
+    },
+    //# 2 节点的 文件夹
+    submenuClickFn(treeFolderNode) {
+      let me = this;
+      me.nowFolderNode = treeFolderNode;
     },
     newDataBackFn(detailData) {
       let me = this;
@@ -314,13 +321,13 @@ export default {
             let datas = result.data;
             if (!datas || !datas.length) {
               //# 1 数据不存在！页面不允许访问！
-              me.$msgbox({
+              let info = {
                 title: "错误提示",
-                message: "数据不存在！页面不允许访问！",
-                type: "error"
-              }).finally(() => {
-                res(false);
-              });
+                message: "选中数据集所获取到的数据为空！",
+                type: "warning"
+              };
+              me.$msgbox(info);
+              rej(info);
               return;
             }
             //# 2 center选中的 都应是完整确立的数据！
@@ -330,13 +337,13 @@ export default {
             res(true);
           })
           .catch(r => {
-            me.$msgbox({
+            let info = {
               title: "错误提示",
-              message: "获取数据集数据失败，页面将返回",
+              message: "从服务器获取数据集数据失败",
               type: "error"
-            }).finally(() => {
-              res(false);
-            });
+            };
+            me.$msgbox(info);
+            rej(info);
           });
       });
     }

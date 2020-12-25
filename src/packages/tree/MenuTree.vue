@@ -1,5 +1,11 @@
 <template>
-  <el-menu ref="menu" v-bind="treeCfg" class="MenuTree" @select="selectFn">
+  <el-menu
+    ref="menu"
+    v-bind="treeCfg"
+    class="MenuTree"
+    @select="selectFn"
+    @submenu-click="submenuClickFn"
+  >
     <template v-for="record in firstRecs">
       <MenuTreeNode
         :key="record.index"
@@ -68,8 +74,13 @@ export default {
     //~ 2 对应item的 el-item点中
     selectFn(index, a, menuItem) {
       let me = this;
-      me.$emit("select", menuItem.$parent);
-    }
+      me.$emit("select", menuItem.$parent, menuItem);
+    },
+    //~ 3 对应 树节点（文件夹）的选中，无论扩展或收缩
+    submenuClickFn(submenu) {
+      let me = this;
+      me.$emit("submenu-click", submenu.$parent, submenu);
+    },
   },
   mounted() {
     let me = this;
