@@ -539,6 +539,9 @@ body {
     .topArea {
       height: $h_top;
     }
+    .selectArea {
+      height: calc(100% - #{$h_top});
+    }
   }
   .dataStage {
     position: absolute;
@@ -550,6 +553,31 @@ body {
     .topArea {
       height: $h_top;
     }
+    .innerStage {
+      height: calc(100% - #{$h_top});
+
+      //~ 1 提示
+      .fileNotSelectTip {
+        height: 100%;
+        width: 100%;
+        @extend %flex-wh;
+        flex-direction: column;
+        .back {
+          height: 150px;
+          width: 200px;
+          background: url(./images/view3/table.png) no-repeat;
+          background-position: center;
+          background-size: auto 100%;
+          margin-top: -20px;
+          margin-bottom: 20px;
+          margin-left: -20px;
+        }
+        .text {
+          color: $font2_light;
+          font-size: 14px;
+        }
+      }
+    } //右侧inner
   }
 }
 

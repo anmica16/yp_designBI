@@ -60,7 +60,14 @@
     </div>
     <div class="dataStage">
       <div class="topArea"></div>
-      <div class="innerStage"></div>
+      <div class="innerStage">
+        <template v-if="!nowFileNode">
+          <div class="fileNotSelectTip">
+            <div class="back"></div>
+            <div class="text">请从左侧选择表</div>
+          </div>
+        </template>
+      </div>
     </div>
     <!-- ~ 3 新数据集 fix全局 -->
     <transition name="PageMove">
@@ -81,8 +88,10 @@ import $ from "@/plugins/js/loader";
 import Vue from "vue";
 import tool from "@/plugins/js/tool";
 import NewDataPage from "./newData/NewDataPage";
+import X from "./newData/X";
 export default {
   name: "CenterData",
+  mixins: [X],
   components: {
     NewDataPage
   },
@@ -91,10 +100,12 @@ export default {
       records: [],
       count: 0,
       tree: null,
-      //选择信息
+      //~ 1 选择信息
+      //【update】文件夹选择提示
       nowFolderNode: null,
       nowFileNode: null,
-      nowFileDetail: null,
+      DetailData: null,
+
       //~ 2 新建
       likeEdit_newData: true
     };
@@ -268,7 +279,12 @@ export default {
       if (treeNode.isFolder) {
         me.nowFolderNode = treeNode;
       } else {
-        treeNode.parentNode && (me.nowFolderNode = treeNode.parentNode);
+        //【update】需验证是否ok
+        if (treeNode.parentNode && treeNode.parentNode.isFolder) {
+          me.nowFolderNode = treeNode.parentNode;
+        } else {
+          me.nowFolderNode = null;
+        }
         me.nowFileNode = treeNode;
       }
     },
@@ -279,19 +295,19 @@ export default {
       me.refreshRecords();
       if (detailData) {
         //【update】
-        me.nowFileDetail = detailData;
+        me.DetailData = detailData;
       }
     },
     //~~ 1 center的获取数据
     //【update】
-    getDetailData() {
+    getDetailData(theId) {
       let me = this;
       return new Promise((res, rej) => {
         $.ajax({
           url: Vue.Api.designBI,
           method: Vue.Api.designBI.GetDataDetail,
           data: {
-            id: me.id
+            id: theId
           }
         })
           .then(result => {
@@ -307,26 +323,10 @@ export default {
               });
               return;
             }
+            //# 2 center选中的 都应是完整确立的数据！
             let data = datas[0];
-            if (!data.exist) {
-              //# 2 数据处于新增状态！即便是好像edit，但也实为新增
-              me.exist = false;
-              res(true);
-              return;
-            }
+            me.DetailData = data;
 
-            let dimension = JSON.parse(data.dimension);
-            me.dbData = data;
-            tool.apply(me, {
-              name: data.name,
-              fileName: data.fileName,
-              fileType: data.fileType,
-              workSheet: me.getSheetFromAoa(
-                JSON.parse(data.dataSource),
-                dimension
-              ),
-              dimension
-            });
             res(true);
           })
           .catch(r => {
