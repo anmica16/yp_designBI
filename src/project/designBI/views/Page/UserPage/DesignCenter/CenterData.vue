@@ -94,6 +94,7 @@ export default {
       //选择信息
       nowFolderNode: null,
       nowFileNode: null,
+      nowFileDetail: null,
       //~ 2 新建
       likeEdit_newData: true
     };
@@ -168,7 +169,8 @@ export default {
               pIndex,
               index,
               isFolder: true,
-              name: "未命名文件夹" + index
+              name: "未命名文件夹" + index,
+              exist: true
             }
           };
         }
@@ -270,10 +272,73 @@ export default {
         me.nowFileNode = treeNode;
       }
     },
-    newDataBackFn() {
+    newDataBackFn(detailData) {
       let me = this;
       //~ 1 回到初始值
       me.likeEdit_newData = true;
+      me.refreshRecords();
+      if (detailData) {
+        //【update】
+        me.nowFileDetail = detailData;
+      }
+    },
+    //~~ 1 center的获取数据
+    //【update】
+    getDetailData() {
+      let me = this;
+      return new Promise((res, rej) => {
+        $.ajax({
+          url: Vue.Api.designBI,
+          method: Vue.Api.designBI.GetDataDetail,
+          data: {
+            id: me.id
+          }
+        })
+          .then(result => {
+            let datas = result.data;
+            if (!datas || !datas.length) {
+              //# 1 数据不存在！页面不允许访问！
+              me.$msgbox({
+                title: "错误提示",
+                message: "数据不存在！页面不允许访问！",
+                type: "error"
+              }).finally(() => {
+                res(false);
+              });
+              return;
+            }
+            let data = datas[0];
+            if (!data.exist) {
+              //# 2 数据处于新增状态！即便是好像edit，但也实为新增
+              me.exist = false;
+              res(true);
+              return;
+            }
+
+            let dimension = JSON.parse(data.dimension);
+            me.dbData = data;
+            tool.apply(me, {
+              name: data.name,
+              fileName: data.fileName,
+              fileType: data.fileType,
+              workSheet: me.getSheetFromAoa(
+                JSON.parse(data.dataSource),
+                dimension
+              ),
+              dimension
+            });
+            res(true);
+          })
+          .catch(r => {
+            me.$msgbox({
+              title: "错误提示",
+              message: "获取数据集数据失败，页面将返回",
+              type: "error"
+            }).finally(() => {
+              res(false);
+            });
+          });
+      });
     }
   },
   created() {

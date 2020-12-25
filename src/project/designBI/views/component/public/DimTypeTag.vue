@@ -1,5 +1,5 @@
 <template>
-  <div class="DimTypeTag" :class="type">
+  <div :title="title" class="DimTypeTag" :class="type">
     <i class="icon" :class="icon"></i>
     <span class="text">{{ name || typeName }}</span>
   </div>
@@ -42,6 +42,9 @@ export default {
           return "文本";
       }
       return "其他";
+    },
+    title() {
+      return `${this.typeName}：${this.name || this.typeName}`;
     }
   }
 };

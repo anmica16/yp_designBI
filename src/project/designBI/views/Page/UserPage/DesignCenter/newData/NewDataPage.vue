@@ -61,7 +61,7 @@
           @dragover.stop.prevent="leftDragOverFn"
           @drop.stop.prevent="leftDrogFn"
         >
-          <div class="tipText">
+          <div class="tipText" :class="{ workSheet }">
             <template v-if="!workSheet">
               <div class="text1">要求：</div>
               <div class="text1">1.支持格式：xls、csv、xlsx；</div>
@@ -85,7 +85,28 @@
           </div>
           <!-- ~ 1  -->
           <template v-if="workSheet">
-            <div class="fieldType"></div>
+            <div class="fieldType">
+              <div class="topTip">字段类型设置</div>
+              <div class="tableWrap">
+                <el-table
+                  :data="dimension"
+                  border
+                  style="width: 100%"
+                  height="100%"
+                >
+                  <el-table-column
+                    label="字段名"
+                    prop="key"
+                    width="300"
+                  ></el-table-column>
+                  <el-table-column label="字段类型" prop="type">
+                    <template slot-scope="scope">
+                      <DimTypeTag :type="scope.row.type"> </DimTypeTag>
+                    </template>
+                  </el-table-column>
+                </el-table>
+              </div>
+            </div>
           </template>
           <!-- ~ 2 覆盖全部body的 drop层 -->
           <div
@@ -101,7 +122,37 @@
       </div>
       <div class="rightArea">
         <template v-if="workSheet">
-          <div></div>
+          <div class="dataResult">
+            <div class="topArea">
+              <el-link :underline="false" class="el-icon-date"></el-link>
+            </div>
+            <div class="tableWrap">
+              <el-table
+                :data="getStrDateAoa(keySheet)"
+                style="width: 100%"
+                height="100%"
+                border
+              >
+                <template v-for="(dim, i) in dimension">
+                  <el-table-column
+                    :key="dim.key"
+                    :label="dim.key"
+                    :prop="dim.key"
+                    :index="i"
+                    :width="dim.type === 'date' ? '200' : ''"
+                  >
+                    <template slot="header">
+                      <DimTypeTag
+                        :type="dimension[i].type"
+                        :name="dimension[i].key"
+                      >
+                      </DimTypeTag>
+                    </template>
+                  </el-table-column>
+                </template>
+              </el-table>
+            </div>
+          </div>
         </template>
         <div v-else class="noTip">
           <div class="back"></div>
@@ -187,23 +238,32 @@ export default {
       }
       return sheet;
     },
+    keySheet() {
+      let me = this,
+        sheet = [];
+      if (me.workSheet) {
+        sheet = me.wbToArray(me.workSheet, true);
+      }
+      return sheet;
+    },
     //~ 10 既要是非点击新增进入，又要是数据确实已存在
     isEidt() {
       return this.likeEdit && this.exist;
     }
   },
   methods: {
-    backPage() {
+    backPage(detailData) {
       this.$router.push({});
-      this.$emit("back");
+      this.$emit("back", detailData);
     },
     //~ 2 保存后就取消该 id的 readyAdd状态
+
     submitFn() {
       let me = this,
         editTime = tool.now(true),
         record = {
           id: me.id,
-          dataSource: me.getUpdAoa(me.sheet),
+          dataSource: me.getStrDateAoa(me.sheet, true),
           editTime
         };
       if (me.isEdit) {
@@ -234,7 +294,7 @@ export default {
         .then(result => {
           me.$message.success("保存成功！");
           //# 2 返回
-          me.backPage();
+          me.backPage(record);
         })
         .catch(r => {
           me.$message.success("保存失败！" + r);
@@ -342,7 +402,7 @@ export default {
         //【update】看能不能自动转换？ie9
         var reader = new FileReader();
         //# 1 经过时间处理
-        reader.onload = function(e) {
+        reader.onload = function (e) {
           var data = e.target.result;
           if (!rABS) data = new Uint8Array(data);
           //# 2 获取
@@ -538,9 +598,14 @@ export default {
           me.fileType = fileType;
           me.workSheet = theWorkSheet; //这才是核心
           //# 5 维度：
-          let dim = {};
+          let dim = [],
+            order = 0;
           tool.each(dimension, (k, v) => {
-            dim[k] = v.type;
+            dim.push({
+              key: k,
+              type: v.type,
+              order: order++
+            });
           });
           me.dimension = dim;
         })
@@ -600,23 +665,40 @@ export default {
     },
     wbToArray(ws, withKey) {
       let me = this,
+        cfg = {
+          cellDates: true
+        },
         sheet = [];
-      let headerCfg = withKey ? {} : { header: 1 };
-      sheet = me.X.utils.sheet_to_json(ws, headerCfg); //header1表示 二维数组模式！
+      if (!withKey) {
+        cfg.header = 1;
+      }
+      sheet = me.X.utils.sheet_to_json(ws, cfg); //header1表示 二维数组模式！
       return sheet;
     },
     //~ 7-2 Aoa sheet转化日期为可保存的
-    getUpdAoa(sheet) {
+    getStrDateAoa(_aoa, withS, fmt) {
       let me = this,
-        cgSheet = tool.clone(sheet);
-      tool.each(cgSheet, row => {
-        tool.each(row, (cell, i) => {
-          if (tool.isDate(cell)) {
-            row[i] = tool.Date.format(cell, "yyyy-MM-dd hh:mm:ss.S");
-          }
-        });
+        aoa = tool.clone(_aoa);
+      fmt = fmt || "yyyy-MM-dd hh:mm:ss" + (withS ? ".S" : "");
+      tool.each(aoa, row => {
+        //# 1 二维数组转化
+        if (tool.isArray(row)) {
+          tool.each(row, (cell, i) => {
+            if (tool.isDate(cell)) {
+              row[i] = tool.Date.format(cell, fmt);
+            }
+          });
+        }
+        //# 2 值对象转化
+        else if (tool.isObject(row)) {
+          tool.each(row, (k, val) => {
+            if (tool.isDate(val)) {
+              row[k] = tool.Date.format(val, fmt);
+            }
+          });
+        }
       });
-      return cgSheet;
+      return aoa;
     },
     getSheetFromAoa(_aoa, dim) {
       let me = this,
@@ -624,15 +706,29 @@ export default {
         aoa = tool.clone(_aoa),
         header = aoa[0],
         toDate = [];
+      console.log(["查看 转化问题0"]);
       //# 1 对首行、维度进行匹配
-      tool.each(dim, (k, v) => {
-        if (v === "date") {
-          let at = header.indexOf(k);
-          if (at > -1) {
-            toDate.push(at);
+      if (tool.isObject(dim)) {
+        tool.each(dim, (k, v) => {
+          if (v === "date") {
+            let at = header.indexOf(k);
+            if (at > -1) {
+              toDate.push(at);
+            }
           }
-        }
-      });
+        });
+      } else if (tool.isArray(dim)) {
+        tool.each(dim, oneDim => {
+          if (oneDim.type === "date") {
+            let at = header.indexOf(oneDim.key);
+            if (at > -1) {
+              toDate.push(at);
+            }
+          }
+        });
+      } else {
+        return null;
+      }
       //# 2 处理数据
       aoa.forEach((row, y) => {
         if (y > 0) {
@@ -644,7 +740,7 @@ export default {
         }
       });
       //# 3 转化结果
-      let ws = X.utils.aoa_to_sheet(aoa);
+      let ws = X.utils.aoa_to_sheet(aoa, { cellDates: true });
       return ws;
     },
     //------------------
@@ -714,7 +810,7 @@ export default {
     import(
       /* webpackChunkName: "bi-center-data" */
       "xlsx"
-    ).then(function(mod) {
+    ).then(function (mod) {
       console.log(["加载xlsx完毕", arguments, me]);
       me.X = mod;
       if (!me.likeEdit) {
@@ -736,9 +832,3 @@ export default {
   }
 };
 </script>
-
-<style lang="scss">
-.updDataReport {
-  width: 90%;
-}
-</style>

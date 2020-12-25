@@ -110,6 +110,11 @@ body {
   flex-grow: 1;
   flex-shrink: 1;
 }
+.updDataReport {
+  width: 90%;
+  max-height: 90%;
+  overflow: auto;
+}
 
 //--------------
 //四、 动画
@@ -636,6 +641,7 @@ body {
         }
       }
       > .bodyInfo {
+        $h_tip: 100px;
         position: relative;
         height: calc(100% - #{$h_topMain});
         padding-top: 10px;
@@ -673,6 +679,20 @@ body {
           .group1 {
             margin-bottom: 10px;
           }
+          &.workSheet {
+            height: $h_tip;
+          }
+        }
+        //~ 3 维度展示
+        .fieldType {
+          height: calc(100% - #{$h_tip});
+          $h_tip2: 26px;
+          .topTip {
+            height: $h_tip2;
+          }
+          .tableWrap {
+            height: calc(100% - #{$h_tip2});
+          }
         }
       } //body
     }
@@ -702,6 +722,19 @@ body {
         .text {
           color: $font2_light;
           font-size: 14px;
+        }
+      }
+      //~ 2 数据展示
+      .dataResult {
+        $h_icon: 30px;
+        height: 100%;
+        > .topArea {
+          height: $h_icon;
+          padding: 0 10px;
+        }
+        > .tableWrap {
+          height: calc(100% - #{$h_icon});
+          padding: 0 10px;
         }
       }
     } //right
