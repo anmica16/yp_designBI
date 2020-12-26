@@ -49,20 +49,20 @@
           </el-popover>
         </div>
         <!-- ~ 3 树结构 -->
-        <MenuTree
+        <IndexTree
           ref="tree"
           class="dataTree"
           :records="records"
-          @select="selectFn"
-          @submenu-click="submenuClickFn"
+          valid="exist"
+          @node-click="nodeClickFn"
         >
-        </MenuTree>
+        </IndexTree>
       </div>
     </div>
     <div class="dataStage">
       <div class="topArea"></div>
       <div class="innerStage">
-        <template v-if="!nowFileNode">
+        <template v-if="!nowFileRec">
           <div class="fileNotSelectTip">
             <div class="back"></div>
             <div class="text">请从左侧选择表</div>
@@ -103,8 +103,8 @@ export default {
       tree: null,
       //~ 1 选择信息
       //【update】文件夹选择提示
-      nowFolderNode: null,
-      nowFileNode: null,
+      nowFolderRec: null,
+      nowFileRec: null,
       DetailData: null,
 
       //~ 2 新建
@@ -144,21 +144,21 @@ export default {
           });
       });
     },
-    getNewIndex(folderNode) {
+    getNewIndex(folderRec) {
       let me = this,
-        folder = folderNode || me.nowFolderNode,
+        folder = folderRec || me.nowFolderRec,
         fIndex = folder ? folder.index : "",
         nextIndex = folder
-          ? folder.getMaxItemIndex() + 1
+          ? me.tree.getMaxItemIndex(folder) + 1
           : me.tree.firstRecs.length + 1,
         totIndex = fIndex ? `${fIndex}-${nextIndex}` : nextIndex;
       return totIndex;
     },
     //~ 2 新文件夹
-    newFolder(folderNode) {
+    newFolder(folderRec) {
       let me = this,
         h = me.$createElement,
-        folder = folderNode || me.nowFolderNode,
+        folder = folderRec || me.nowFolderRec,
         pIndex = folder ? folder.index : "",
         index = me.getNewIndex(folder),
         c = me.count++;
@@ -233,13 +233,13 @@ export default {
         .catch(r => {});
     },
     //~ 3 新data
-    newData(folderNode) {
+    newData(folderRec) {
       let me = this;
       me.$store.state.progress = 10;
       me.refreshRecords(true)
         .then(r => {
           me.$store.state.progress = 30;
-          let folder = folderNode || me.nowFolderNode,
+          let folder = folderRec || me.nowFolderRec,
             pIndex = folder ? folder.index : "",
             index = me.getNewIndex(folder);
 
@@ -276,24 +276,20 @@ export default {
         });
     },
     //# 1 叶子的 文件或文件夹
-    selectFn(treeNode) {
+    nodeClickFn(rec, nodeData, node) {
       let me = this;
-      if (treeNode.isFolder) {
-        me.nowFolderNode = treeNode;
+      //~ 1 有子集 
+      if (rec.$items && rec.$items.length) {
+        me.nowFolderRec = rec;
       } else {
-        //【update】需验证是否ok
-        if (treeNode.parentNode && treeNode.parentNode.isFolder) {
-          me.nowFolderNode = treeNode.parentNode;
+        me.nowFileRec = rec;
+        if (rec.$parent) {
+          me.nowFolderRec = rec.$parent;
         } else {
-          me.nowFolderNode = null;
+          //~ 2 可能是根的 file选中，那么就无选中父节点了。
+          me.nowFolderRec = null;
         }
-        me.nowFileNode = treeNode;
       }
-    },
-    //# 2 节点的 文件夹
-    submenuClickFn(treeFolderNode) {
-      let me = this;
-      me.nowFolderNode = treeFolderNode;
     },
     newDataBackFn(detailData) {
       let me = this;

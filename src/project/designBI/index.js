@@ -59,6 +59,9 @@ Vue.component("Window", Window);
 import MenuTree from "@/packages/tree/MenuTree.vue";
 Vue.component("MenuTree", MenuTree);
 
+import IndexTree from "@/packages/tree/IndexTree.vue";
+Vue.component("IndexTree", IndexTree);
+
 //=========--------
 // Section 3 BI构成
 //=========--------
