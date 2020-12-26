@@ -278,8 +278,8 @@ export default {
     //# 1 叶子的 文件或文件夹
     nodeClickFn(rec, nodeData, node) {
       let me = this;
-      //~ 1 有子集 
-      if (rec.$items && rec.$items.length) {
+      //~ 1 有子集
+      if (rec.isFolder) {
         me.nowFolderRec = rec;
       } else {
         me.nowFileRec = rec;

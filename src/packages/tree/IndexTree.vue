@@ -4,6 +4,8 @@
     ref="tree"
     v-bind="propsData"
     @node-click="nodeClickFn"
+    @node-expand="nodeExpandFn"
+    @node-collapse="nodeCollapseFn"
   ></el-tree>
 </template>
 
@@ -46,14 +48,15 @@ export default {
     },
     //@ 3 会显示必要要求字段
     valid: String
-
   },
   data() {
     return {
       tree: null,
       firstRecs: [],
       //~~ 1 累积点击的数据节点，便于刷新的时候对应起来
-      clickIndexs: []
+      clickIndexs: [],
+      //~~ 2 累积展开的 id，以便复原！
+      expandIds: []
     };
   },
   computed: {
@@ -91,7 +94,7 @@ export default {
     //~ 1 如果给了 pIndex 那么寻找其子集，如果没有，则寻找第一级
     getItemRecs(pIndex) {
       let me = this,
-        part = pIndex ? `^${pIndex}-(\\d+)$` : "(\\d+)$",
+        part = pIndex ? `^${pIndex}-(\\d+)$` : "^(\\d+)$",
         reg = new RegExp(part),
         recs = [];
 
@@ -152,6 +155,13 @@ export default {
       //# 1-2 进一步
       me.$set(rec, "$notValidItems", notValidItems);
       me.$set(rec, "$items", validItems);
+      if (validItems.length) {
+        //# 2 解决不及时刷新子数据的问题
+        me.$nextTick(() => {
+          let node = me.tree.getNode(rec.id);
+          node.updateChildren();
+        });
+      }
     },
     //~ 4 收集点击信息 并传递
     nodeClickFn(rec, nodeData, node) {
@@ -161,16 +171,17 @@ export default {
       if (me.clickIndexs.indexOf(index) < 0) {
         me.clickIndexs.push(index);
       }
-      //# 2 并对该rec进行 expand
-      me.expandOneRec(rec);
+      //# 2 并对该rec的 item进行 expand
+      rec.$items &&
+        rec.$items.forEach(item => {
+          me.expandOneRec(item);
+        });
 
       //# 3 传递
       me.$emit("node-click", rec, nodeData, node);
-    }
-  },
-  watch: {
-    //# 1 以后的变更需要跟进
-    records() {
+    },
+    //~ 5 这个就交给主动触发了
+    refresh() {
       let me = this,
         firstRecs = me.getItemRecs();
       console.log(["indexTree created", firstRecs, me]);
@@ -179,8 +190,47 @@ export default {
       });
       //~ 2 顺序，看是否需要 loading
       me.firstRecs = firstRecs;
+      //~ 3 复原 下一次刷新时搞
+      me.$nextTick(() => {
+        me.expandIds.forEach(id => {
+          let node = me.tree.getNode(id);
+          node && node.expand();
+        });
+      });
+    },
+    //~ 6 记录已展开的ids，以便刷新的时候进行展开复原
+    nodeExpandFn(rec) {
+      let me = this,
+        id = rec.id,
+        at = me.expandIds.indexOf(id);
+      if (at < 0) {
+        me.expandIds.push(id);
+      }
+    },
+    //~ 6-2
+    nodeCollapseFn(rec) {
+      let me = this,
+        id = rec.id,
+        at = me.expandIds.indexOf(id);
+      if (at > -1) {
+        me.expandIds.splice(at, 1);
+      }
     }
   },
+  watch: {
+    records(newVal, oldVal) {
+      if (
+        (newVal && !oldVal) ||
+        (newVal && oldVal && newVal.length !== oldVal.length)
+      ) {
+        this.refresh();
+      }
+    }
+  },
+  // created() {
+  //   let me = this;
+  //   me.refresh();
+  // },
   mounted() {
     let me = this;
     me.tree = me.$refs.tree;
