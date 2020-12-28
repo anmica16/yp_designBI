@@ -68,6 +68,10 @@
             <div class="text">请从左侧选择表</div>
           </div>
         </template>
+        <!-- ~ 4 先写在这里 再独立 -->
+        <template v-else-if="passDetailData">
+          <CheckDataStage :DetailData="passDetailData"> </CheckDataStage>
+        </template>
       </div>
     </div>
     <!-- ~ 3 新数据集 fix全局 -->
@@ -89,12 +93,12 @@ import $ from "@/plugins/js/loader";
 import Vue from "vue";
 import tool from "@/plugins/js/tool";
 import NewDataPage from "./newData/NewDataPage";
-import X from "./newData/X";
+import CheckDataStage from "./newData/CheckDataStage";
 export default {
   name: "CenterData",
-  mixins: [X],
   components: {
-    NewDataPage
+    NewDataPage,
+    CheckDataStage
   },
   data() {
     return {
@@ -105,6 +109,7 @@ export default {
       //【update】文件夹选择提示
       nowFolderRec: null,
       nowFileRec: null,
+      DetailDataAjax: null,
       DetailData: null,
 
       //~ 2 新建
@@ -122,6 +127,11 @@ export default {
         }
       });
       return q;
+    },
+    passDetailData() {
+      return this.DetailData
+        ? tool.apply({}, this.nowFileRec, this.DetailData)
+        : null;
     }
   },
   methods: {
@@ -289,6 +299,8 @@ export default {
           //~ 2 可能是根的 file选中，那么就无选中父节点了。
           me.nowFolderRec = null;
         }
+        //~ 3 选中的 fileRec要进行DetailData获取
+        me.getDetailData(rec.id);
       }
     },
     newDataBackFn(detailData) {
@@ -305,34 +317,39 @@ export default {
     //【update】
     getDetailData(theId) {
       let me = this;
+      if (me.DetailDataAjax) {
+        me.DetailDataAjax.abort();
+      }
       return new Promise((res, rej) => {
-        $.ajax({
+        me.DetailDataAjax = $.ajax({
           url: Vue.Api.designBI,
           method: Vue.Api.designBI.GetDataDetail,
           data: {
             id: theId
           }
-        })
-          .then(result => {
-            let datas = result.data;
-            if (!datas || !datas.length) {
-              //# 1 数据不存在！页面不允许访问！
-              let info = {
-                title: "错误提示",
-                message: "选中数据集所获取到的数据为空！",
-                type: "warning"
-              };
-              me.$msgbox(info);
-              rej(info);
-              return;
-            }
-            //# 2 center选中的 都应是完整确立的数据！
-            let data = datas[0];
-            me.DetailData = data;
+        });
+        me.DetailDataAjax.then(result => {
+          let datas = result.data;
+          if (!datas || !datas.length) {
+            //# 1 数据不存在！页面不允许访问！
+            let info = {
+              title: "错误提示",
+              message: "选中数据集所获取到的数据为空！",
+              type: "warning"
+            };
+            me.$msgbox(info);
+            rej(info);
+            return;
+          }
+          //# 2 center选中的 都应是完整确立的数据！
+          let data = datas[0];
+          me.DetailData = data;
 
-            res(true);
-          })
-          .catch(r => {
+          res(data);
+        }).catch(r => {
+          if (r && r.statusText === "abort") {
+            res(false);
+          } else {
             let info = {
               title: "错误提示",
               message: "从服务器获取数据集数据失败",
@@ -340,7 +357,8 @@ export default {
             };
             me.$msgbox(info);
             rej(info);
-          });
+          }
+        });
       });
     }
   },

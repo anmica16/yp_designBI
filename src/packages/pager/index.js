@@ -5,6 +5,10 @@ import ElInput from "element-ui/packages/input";
 import Locale from "element-ui/src/mixins/locale";
 import { valueEquals } from "element-ui/src/utils/util";
 
+//v1：新增 [start, end)的临界值，左闭右开，用在slice上刚好
+// 传入这两个参数即可
+// :total="boardDatas.length"
+// :page-size="10"
 export default {
   name: "ElPagination",
 
@@ -146,8 +150,8 @@ export default {
             {this.$parent.prevText ? (
               <span>{this.$parent.prevText}</span>
             ) : (
-              <i class="el-icon el-icon-arrow-left"></i>
-            )}
+                <i class="el-icon el-icon-arrow-left"></i>
+              )}
           </button>
         );
       }
@@ -162,7 +166,7 @@ export default {
             disabled={
               this.$parent.disabled ||
               this.$parent.internalCurrentPage ===
-                this.$parent.internalPageCount ||
+              this.$parent.internalPageCount ||
               this.$parent.internalPageCount === 0
             }
             on-click={this.$parent.next}
@@ -170,8 +174,8 @@ export default {
             {this.$parent.nextText ? (
               <span>{this.$parent.nextText}</span>
             ) : (
-              <i class="el-icon el-icon-arrow-right"></i>
-            )}
+                <i class="el-icon el-icon-arrow-right"></i>
+              )}
           </button>
         );
       }
@@ -309,8 +313,8 @@ export default {
             {this.t("el.pagination.total", { total: this.$parent.total })}
           </span>
         ) : (
-          ""
-        );
+            ""
+          );
       }
     },
 

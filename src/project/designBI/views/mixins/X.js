@@ -5,7 +5,7 @@ const Xpro = import(
   "xlsx"
 );
 const supports = ["xlsx", "xlsm", "xlsb", "xls", "csv", "txt"];
-import updDataReport from "./updDataReport.vue";
+import updDataReport from "../Page/UserPage/DesignCenter/newData/updDataReport.vue";
 export default {
   data() {
     return {
@@ -335,6 +335,7 @@ export default {
     let me = this;
     Xpro.then(mod => {
       me.X = mod;
+      me.$emit("Xready");
     });
   }
 };

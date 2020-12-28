@@ -126,32 +126,10 @@
             <div class="topArea">
               <el-link :underline="false" class="el-icon-date"></el-link>
             </div>
-            <div class="tableWrap">
-              <el-table
-                :data="getStrDateAoa(keySheet)"
-                style="width: 100%"
-                height="100%"
-                border
-              >
-                <template v-for="(dim, i) in dimension">
-                  <el-table-column
-                    :key="dim.key"
-                    :label="dim.key"
-                    :prop="dim.key"
-                    :index="i"
-                    :width="dim.type === 'date' ? '200' : ''"
-                  >
-                    <template slot="header">
-                      <DimTypeTag
-                        :type="dimension[i].type"
-                        :name="dimension[i].key"
-                      >
-                      </DimTypeTag>
-                    </template>
-                  </el-table-column>
-                </template>
-              </el-table>
-            </div>
+            <DimTable
+              :data="getStrDateAoa(keySheet)"
+              :dimension="dimension"
+            ></DimTable>
           </div>
         </template>
         <div v-else class="noTip">
@@ -167,7 +145,7 @@
 import $ from "@/plugins/js/loader";
 import Vue from "vue";
 import tool from "@/plugins/js/tool";
-import X from "./X";
+import X from "@designBI/views/mixins/X";
 export default {
   name: "NewDataPage",
   mixins: [X],
@@ -241,6 +219,7 @@ export default {
         editTime = tool.now(true),
         record = {
           id: me.id,
+          name: me.name,
           dataSource: me.getStrDateAoa(me.sheet, true),
           editTime
         };
@@ -250,7 +229,6 @@ export default {
         // });
       } else {
         tool.apply(record, {
-          name: me.name,
           fileName: me.fileName,
           fileType: me.fileType,
           dataType: me.dataType,
