@@ -1,6 +1,6 @@
 import Vue from "vue";
-import DesignItem from "@designBI/store/Entity/DesignItem";
-import itemManager from "@designBI/views/drawer/itemManager";
+// import DesignItem from "@designBI/store/Entity/DesignItem";
+// import itemManager from "@designBI/views/drawer/itemManager";
 
 import Bubble from "./Bubble.vue";
 Vue.component("Bubble", Bubble);

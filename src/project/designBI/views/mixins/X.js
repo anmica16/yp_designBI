@@ -126,14 +126,14 @@ export default {
         //【update】看能不能自动转换？ie9
         var reader = new FileReader();
         //# 1 经过时间处理
-        reader.onload = function(e) {
+        reader.onload = function (e) {
           var data = e.target.result;
           if (!rABS) data = new Uint8Array(data);
           //# 2 获取
           let wb = X.read(data, {
-              type: rABS ? "binary" : "array",
-              cellDates: true
-            }),
+            type: rABS ? "binary" : "array",
+            cellDates: true
+          }),
             ws = me.getWorkSheet(wb),
             fileName = f.name,
             fileTypeM = /\.([^.]+)$/.exec(fileName),
@@ -335,7 +335,49 @@ export default {
     let me = this;
     Xpro.then(mod => {
       me.X = mod;
+      console.log(["Xready！", mod, me]);
       me.$emit("Xready");
     });
   }
 };
+
+let Xplus = {
+  props: {
+    DetailData: {
+      type: Object,
+      required: true
+    }
+  },
+  data() {
+    return {
+      workSheet: null,
+    };
+  },
+  computed: {
+    dimension() {
+      return JSON.parse(this.DetailData.dimension);
+    }
+  },
+  methods: {
+    refresh() {
+      let me = this;
+      me.workSheet = me.getSheetFromAoa(
+        JSON.parse(me.DetailData.dataSource),
+        me.dimension
+      );
+    }
+  },
+  watch: {
+    dimension() {
+      this.refresh();
+    }
+  },
+  created() {
+    let me = this;
+    me.$on("Xready", () => {
+      me.refresh();
+    });
+  }
+};
+
+export { Xplus };

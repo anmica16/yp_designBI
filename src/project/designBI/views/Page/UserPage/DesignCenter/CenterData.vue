@@ -5,25 +5,24 @@
       <div class="selectArea">
         <!-- ~ 1 顶部 -->
         <div class="titleArea">
-          <span class="title">数据列表</span>
-          <el-popover trigger="hover" placement="bottom">
-            <template slot="reference">
-              <div class="option">
-                <i class="icon el-icon-plus"></i>
-                <span class="text">新增</span>
-              </div>
-            </template>
-            <div class="addOption">
-              <div class="option" @click="newData()">
-                <i class="icon"></i>
-                <span class="text">新增数据集</span>
-              </div>
-              <div class="option" @click="newFolder()">
-                <i class="icon"></i>
-                <span class="text">新建文件夹</span>
-              </div>
-            </div>
-          </el-popover>
+          <div class="title">数据列表</div>
+          <div class="addOption">
+            <el-button
+              size="small"
+              @click="newFolder()"
+              type="primary"
+              plain
+              icon="el-icon-folder-add"
+              >新建文件夹</el-button
+            >
+            <el-button
+              size="small"
+              @click="newData()"
+              type="primary"
+              icon="el-icon-document-add"
+              >新增数据集</el-button
+            >
+          </div>
         </div>
         <!-- ~ 2 过滤 -->
         <div class="filterArea">
@@ -94,23 +93,18 @@ import Vue from "vue";
 import tool from "@/plugins/js/tool";
 import NewDataPage from "./newData/NewDataPage";
 import CheckDataStage from "./newData/CheckDataStage";
+import dataSelectorMixin from "@designBI/views/component/dealBI/dataSelectorMixin.js";
 export default {
   name: "CenterData",
+  mixins: [dataSelectorMixin],
   components: {
     NewDataPage,
     CheckDataStage
   },
   data() {
     return {
-      records: [],
       count: 0,
       tree: null,
-      //~ 1 选择信息
-      //【update】文件夹选择提示
-      nowFolderRec: null,
-      nowFileRec: null,
-      DetailDataAjax: null,
-      DetailData: null,
 
       //~ 2 新建
       likeEdit_newData: true
@@ -135,25 +129,6 @@ export default {
     }
   },
   methods: {
-    //~ 1 简单替换即可。
-    refreshRecords(ifReturn) {
-      let me = this;
-      return new Promise((res, rej) => {
-        $.ajax({
-          url: Vue.Api.designBI,
-          method: Vue.Api.designBI.GetDataMenus
-        })
-          .then(result => {
-            let recs = result.data;
-            me.records = recs;
-            ifReturn && res(result);
-          })
-          .catch(r => {
-            Vue.$message.error("获取数据集菜单失败");
-            ifReturn && rej(r);
-          });
-      });
-    },
     getNewIndex(folderRec) {
       let me = this,
         folder = folderRec || me.nowFolderRec,
@@ -246,7 +221,7 @@ export default {
     newData(folderRec) {
       let me = this;
       me.$store.state.progress = 10;
-      me.refreshRecords(true)
+      me.refreshRecords()
         .then(r => {
           me.$store.state.progress = 30;
           let folder = folderRec || me.nowFolderRec,
@@ -285,24 +260,6 @@ export default {
           me.$message.error("新建数据集失败，请重试或检查服务器状态！");
         });
     },
-    //# 1 叶子的 文件或文件夹
-    nodeClickFn(rec, nodeData, node) {
-      let me = this;
-      //~ 1 有子集
-      if (rec.isFolder) {
-        me.nowFolderRec = rec;
-      } else {
-        me.nowFileRec = rec;
-        if (rec.$parent) {
-          me.nowFolderRec = rec.$parent;
-        } else {
-          //~ 2 可能是根的 file选中，那么就无选中父节点了。
-          me.nowFolderRec = null;
-        }
-        //~ 3 选中的 fileRec要进行DetailData获取
-        me.getDetailData(rec.id);
-      }
-    },
     newDataBackFn(detailData) {
       let me = this;
       //~ 1 回到初始值
@@ -312,59 +269,7 @@ export default {
         //【update】
         me.DetailData = detailData;
       }
-    },
-    //~~ 1 center的获取数据
-    //【update】
-    getDetailData(theId) {
-      let me = this;
-      if (me.DetailDataAjax) {
-        me.DetailDataAjax.abort();
-      }
-      return new Promise((res, rej) => {
-        me.DetailDataAjax = $.ajax({
-          url: Vue.Api.designBI,
-          method: Vue.Api.designBI.GetDataDetail,
-          data: {
-            id: theId
-          }
-        });
-        me.DetailDataAjax.then(result => {
-          let datas = result.data;
-          if (!datas || !datas.length) {
-            //# 1 数据不存在！页面不允许访问！
-            let info = {
-              title: "错误提示",
-              message: "选中数据集所获取到的数据为空！",
-              type: "warning"
-            };
-            me.$msgbox(info);
-            rej(info);
-            return;
-          }
-          //# 2 center选中的 都应是完整确立的数据！
-          let data = datas[0];
-          me.DetailData = data;
-
-          res(data);
-        }).catch(r => {
-          if (r && r.statusText === "abort") {
-            res(false);
-          } else {
-            let info = {
-              title: "错误提示",
-              message: "从服务器获取数据集数据失败",
-              type: "error"
-            };
-            me.$msgbox(info);
-            rej(info);
-          }
-        });
-      });
     }
-  },
-  created() {
-    let me = this;
-    me.refreshRecords();
   },
   mounted() {
     let me = this;

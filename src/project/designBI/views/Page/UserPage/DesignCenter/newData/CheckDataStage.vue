@@ -60,15 +60,10 @@
 
 <script>
 import X from "@designBI/views/mixins/X";
+import { Xplus } from "@designBI/views/mixins/X";
 export default {
   name: "CheckDataStage",
-  mixins: [X],
-  props: {
-    DetailData: {
-      type: Object,
-      required: true
-    }
-  },
+  mixins: [X, Xplus],
   data() {
     return {
       //~ 3 check部分
@@ -79,31 +74,6 @@ export default {
       },
       viewCount: 5000
     };
-  },
-  computed: {
-    dimension() {
-      return JSON.parse(this.DetailData.dimension);
-    }
-  },
-  methods: {
-    refresh() {
-      let me = this;
-      me.workSheet = me.getSheetFromAoa(
-        JSON.parse(me.DetailData.dataSource),
-        me.dimension
-      );
-    }
-  },
-  watch: {
-    dimension() {
-      this.refresh();
-    }
-  },
-  created() {
-    let me = this;
-    me.$on("Xready", () => {
-      me.refresh();
-    });
   }
 };
 </script>

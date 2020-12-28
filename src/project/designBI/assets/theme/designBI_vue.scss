@@ -327,7 +327,16 @@ body {
       }
       > .el-tabs__content {
         height: 100%;
-        box-shadow: inset 0 15px 10px -15px rgba(35, 46, 64, 0.1);
+        &::after {
+          content: "";
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 8px;
+          box-shadow: inset 0 15px 10px -15px rgba(35, 46, 64, 0.1);
+        }
+
         .el-tab-pane {
           height: 100%;
           //这下面最好有ScrollBar
@@ -516,6 +525,11 @@ body {
     height: 100%;
     width: 100%;
     background: $back;
+
+    .EditCenter-inner {
+      height: 100%;
+      width: 100%;
+    }
     .EditCenter-scorll {
       > .el-scrollbar__wrap {
         > .el-scrollbar__view {
@@ -531,7 +545,7 @@ body {
   width: 100%;
   height: 100%;
   $w_select: 260px;
-  $h_top: 50px;
+  $h_top: 0px; //50px;
   position: relative;
   .dataSelect {
     width: $w_select;
@@ -541,6 +555,21 @@ body {
     }
     .selectArea {
       height: calc(100% - #{$h_top});
+      background: white;
+      box-shadow: 0 12px 10px 0 rgba(0, 0, 0, 0.03);
+      padding: 10px;
+      > .titleArea {
+        .title {
+          padding-bottom: 10px;
+          font-size: 14px;
+          color: $font2;
+        }
+      }
+      //【简易】
+      .IndexTree {
+        height: calc(100% - 110px);
+        overflow: auto;
+      }
     }
   }
   .dataStage {
@@ -555,6 +584,7 @@ body {
     }
     .innerStage {
       height: calc(100% - #{$h_top});
+      background: $back2;
 
       //~ 1 提示
       .fileNotSelectTip {
@@ -570,11 +600,26 @@ body {
           background-size: auto 100%;
           margin-top: -20px;
           margin-bottom: 20px;
-          margin-left: -20px;
         }
         .text {
           color: $font2_light;
           font-size: 14px;
+        }
+      }
+      //~ 2 内部
+      //【简易】
+      .checkWrap {
+        height: 100%;
+        > .checkBody {
+          height: calc(100% - 60px);
+          > .el-tabs {
+            height: 100%;
+            > .el-tabs__content,
+            .viewBody,
+            .DimTable {
+              height: calc(100% - 40px);
+            }
+          }
         }
       }
     } //右侧inner
@@ -767,4 +812,16 @@ body {
       }
     } //right
   } //body
+}
+
+//  edit附加页面
+// @@ 4-1 添加组件1 窗口
+.newBIItem {
+  width: 90%;
+  height: 80%;
+  overflow: auto;
+  //【update】后期可放外？
+  .dataSelector {
+    @extend %flex-row;
+  }
 }

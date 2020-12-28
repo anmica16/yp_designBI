@@ -65,8 +65,8 @@ Vue.component("IndexTree", IndexTree);
 //=========--------
 // Section 3 BI构成
 //=========--------
-import itemManager from "./views/drawer/itemManager";
-Vue.$itemManager = itemManager;
+// import itemManager from "./views/drawer/itemManager";
+// Vue.$itemManager = itemManager;
 //【1】BI基础元素
 import "./views/drawer";
 //【2】BI构成元素

@@ -88,6 +88,12 @@
 
         <!-- 【2】左侧工具栏 -->
         <div class="EditLeftBar" slot="w">
+          <div class="barItem" @click="createBIItem">
+            <dir class="icon">
+              <i class="el-icon-circle-plus-outline"></i>
+            </dir>
+            <dir class="text">BI控件</dir>
+          </div>
           <el-popover
             class="popover addItemBtn"
             @show="leftBarPopShow"
@@ -158,8 +164,10 @@
 <script>
 import Vue from "vue";
 import DesignItemInstance from "@designBI/store/Entity/DesignItemInstance";
+import dataSelector from "@designBI/views/component/dealBI/dataSelector.vue";
 import tool from "@/plugins/js/tool";
 import $ from "jquery";
+import "@designBI/edit.js";
 export default {
   name: "DesignEdit",
   data() {
@@ -386,6 +394,19 @@ export default {
 
     leftBarPopShow() {
       //console.log(["show leftBarPopShow", arguments, this]);
+    },
+    //【core】创建 BI控件
+    createBIItem() {
+      let me = this,
+        h = me.$createElement;
+
+      me.$msgbox({
+        title: "添加组件",
+        message: h(dataSelector),
+        closeOnClickModal: false,
+        showCancelButton: true,
+        customClass: "newBIItem"
+      });
     }
   },
   mounted() {
@@ -394,10 +415,3 @@ export default {
   }
 };
 </script>
-
-<style lang="scss">
-.EditCenter-inner {
-  height: 100%;
-  width: 100%;
-}
-</style>

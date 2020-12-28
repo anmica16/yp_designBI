@@ -150,8 +150,8 @@ export default {
             {this.$parent.prevText ? (
               <span>{this.$parent.prevText}</span>
             ) : (
-                <i class="el-icon el-icon-arrow-left"></i>
-              )}
+              <i class="el-icon el-icon-arrow-left"></i>
+            )}
           </button>
         );
       }
@@ -166,7 +166,7 @@ export default {
             disabled={
               this.$parent.disabled ||
               this.$parent.internalCurrentPage ===
-              this.$parent.internalPageCount ||
+                this.$parent.internalPageCount ||
               this.$parent.internalPageCount === 0
             }
             on-click={this.$parent.next}
@@ -174,8 +174,8 @@ export default {
             {this.$parent.nextText ? (
               <span>{this.$parent.nextText}</span>
             ) : (
-                <i class="el-icon el-icon-arrow-right"></i>
-              )}
+              <i class="el-icon el-icon-arrow-right"></i>
+            )}
           </button>
         );
       }
@@ -313,8 +313,8 @@ export default {
             {this.t("el.pagination.total", { total: this.$parent.total })}
           </span>
         ) : (
-            ""
-          );
+          ""
+        );
       }
     },
 

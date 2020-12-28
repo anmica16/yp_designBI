@@ -80,7 +80,7 @@ export default {
     submenuClickFn(submenu) {
       let me = this;
       me.$emit("submenu-click", submenu.$parent, submenu);
-    },
+    }
   },
   mounted() {
     let me = this;
