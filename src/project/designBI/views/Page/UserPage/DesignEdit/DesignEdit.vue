@@ -152,11 +152,22 @@
                 :Entity="nowBoardRoot"
                 :isRoot="true"
                 :nowBoard="nowBoard"
+                :EditNode="me"
               ></Bubble>
             </div>
           </Scrollbar>
         </div>
       </RectLayoutV2>
+
+      <!-- ~ 3 各子控件编辑全页 fix全局 -->
+      <transition name="PageMove">
+        <ItemEdit
+          ref="itemEdit"
+          v-show="itemEditPage"
+          :addInstances="addInstances"
+          :EditNode="me"
+        ></ItemEdit>
+      </transition>
     </template>
   </div>
 </template>
@@ -167,9 +178,17 @@ import DesignItemInstance from "@designBI/store/Entity/DesignItemInstance";
 import dataSelector from "@designBI/views/component/dealBI/dataSelector.vue";
 import tool from "@/plugins/js/tool";
 import $ from "jquery";
+import loader from "@/plugins/js/loader";
 import "@designBI/edit.js";
+//~ ++ 1 全页面fixed
+import ItemEdit from "./edit/ItemEdit";
+import { Xbase } from "@designBI/views/mixins/X";
 export default {
   name: "DesignEdit",
+  mixins: [Xbase],
+  components: {
+    ItemEdit
+  },
   data() {
     return {
       queryFlag: "DesignEdit",
@@ -182,10 +201,17 @@ export default {
       // nowInstances: null,
 
       //# 1 百分比模式？
-      percentMode: true
+      percentMode: true,
+      //# 2 进入item 编辑页?
+      linkDatas: {},
+      itemEditPage: false,
+      addInstances: []
     };
   },
   computed: {
+    me() {
+      return this;
+    },
     //在router进行切换的时候 切换
     nowTemplateCode() {
       let me = this,
@@ -438,7 +464,91 @@ export default {
           }
         }
       }).catch(() => {});
+    },
+    //## 1 切换
+    goEditPage(ins) {
+      let me = this;
+      me.itemEditPage = true;
+      me.$nextTick(() => {
+        me.$refs.itemEdit.changeIns(ins);
+      });
+    },
+    goBackEdit() {
+      let me = this;
+      me.itemEditPage = true;
+    },
+    //## 2 item 全页数据中心
+    //~ 1 刷新某id数据
+    refreshLinkData(dataId) {
+      let me = this;
+      return new Promise((res, rej) => {
+        loader
+          .ajax({
+            url: Vue.Api.designBI,
+            method: Vue.Api.designBI.GetDataDetail,
+            data: {
+              id: dataId
+            }
+          })
+          .then(result => {
+            let datas = result.data;
+            res(datas);
+          })
+          .catch(r => {
+            res(false);
+          });
+      });
+    },
+    //~ 2 获取某id数据
+    getLinkData(dataId) {
+      let me = this,
+        linkDatas = me.linkDatas;
+
+      return new Promise(res => {
+        if (tool.isArray(linkDatas[dataId])) {
+          res(linkDatas[dataId]);
+        } else {
+          me.refreshLinkData(dataId).then(data => {
+            if (data && data.length) {
+              //# 1 这仅是初始数据
+              let baseData = data[0],
+                //# 2 总结数据
+                sumData = me.getDataSummary(baseData);
+              linkDatas[dataId] = sumData;
+              res(sumData);
+            } else {
+              res(false);
+            }
+          });
+        }
+      });
+    },
+    getDataSummary(data) {
+      let me = this,
+        dimension = JSON.parse(data.dimension),
+        aoa = JSON.parse(data.dataSource),
+        workSheet = me.getSheetFromAoa(aoa, dimension),
+        aoaKey = me.wsToArray(workSheet, true);
+      return {
+        baseData: data,
+        dimension,
+        aoa,
+        aoaKey,
+        workSheet
+      };
     }
+  },
+  created() {
+    let me = this;
+    //@ 1 记录子Ins加入、删除
+    me.$on("addInstance", ins => {
+      let at = me.addInstances.indexOf(ins);
+      at < 0 && me.addInstances.push(ins);
+    });
+    me.$on("removeInstance", ins => {
+      let at = me.addInstances.indexOf(ins);
+      at > -1 && me.addInstances.splice(at, 1);
+    });
   },
   mounted() {
     let me = this;

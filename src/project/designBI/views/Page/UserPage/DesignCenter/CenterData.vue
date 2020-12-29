@@ -277,16 +277,3 @@ export default {
   }
 };
 </script>
-
-<style lang="scss">
-.PageMove-enter-active {
-  transition: all 0.6s;
-}
-.PageMove-leave-active {
-  transition: all 0.3s;
-}
-.PageMove-enter,
-.PageMove-leave-to {
-  transform: translateX(100%);
-}
-</style>

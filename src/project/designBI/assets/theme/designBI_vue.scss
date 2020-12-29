@@ -116,7 +116,7 @@ body {
   overflow: auto;
 }
 //~ 3 弹窗居中用flex
-.el-message-box__wrapper{
+.el-message-box__wrapper {
   @extend %flex-wh;
   .el-message-box {
     display: block;
@@ -133,7 +133,17 @@ body {
 .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
   opacity: 0;
 }
-
+//~ 2 fixed全页 动画右进 右出
+.PageMove-enter-active {
+  transition: all 0.6s;
+}
+.PageMove-leave-active {
+  transition: all 0.3s;
+}
+.PageMove-enter,
+.PageMove-leave-to {
+  transform: translateX(100%);
+}
 //--------------
 //二、 单实例
 //--------------
@@ -830,7 +840,7 @@ body {
   .el-message-box__content {
     height: calc(100% - 100px);
   }
-  .el-message-box__container, 
+  .el-message-box__container,
   .el-message-box__message {
     height: 100%;
   }
@@ -871,4 +881,29 @@ body {
       }
     }
   } //selector
+}
+// @@ 4-2 各子控件编辑全页 fix全局
+.ItemEdit {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  background: white;
+  z-index: 11;
+  $h: 40px;
+  color: $font2;
+  > .headBar {
+    box-sizing: border-box;
+    height: $h - 1px;
+    border-bottom: 1px solid #e8eaed;
+    @extend %flex-row;
+    align-items: center;
+  }
+  > .editBody {
+    background: $back2;
+    height: calc(100% - #{$h});
+    padding: 10px;
+    position: relative;
+  }
 }

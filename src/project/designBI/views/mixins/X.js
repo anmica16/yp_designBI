@@ -6,13 +6,13 @@ const Xpro = import(
 );
 const supports = ["xlsx", "xlsm", "xlsb", "xls", "csv", "txt"];
 import updDataReport from "../Page/UserPage/DesignCenter/newData/updDataReport.vue";
-export default {
+
+let Xbase = {
   data() {
     return {
       X: null,
       minSamePer: 80,
-      reading: false,
-      workSheet: null
+      reading: false
     };
   },
   computed: {
@@ -21,24 +21,9 @@ export default {
         typeof FileReader !== "undefined" &&
         (FileReader.prototype || {}).readAsBinaryString
       );
-    },
-    sheet() {
-      let me = this,
-        sheet = [];
-      if (me.workSheet) {
-        sheet = me.wsToArray(me.workSheet);
-      }
-      return sheet;
-    },
-    keySheet() {
-      let me = this,
-        sheet = [];
-      if (me.workSheet) {
-        sheet = me.wsToArray(me.workSheet, true);
-      }
-      return sheet;
     }
   },
+
   methods: {
     //~ 5-2 维度确定 keySheet注意
     //【update】分析的细节展现，看耗不耗时了
@@ -341,21 +326,47 @@ export default {
   }
 };
 
-let Xplus = {
-  props: {
-    DetailData: {
-      type: Object
-      //required: true
-    }
-  },
+export { Xbase };
+
+export default tool.apply({}, Xbase, {
   data() {
     return {
+      X: null,
+      minSamePer: 80,
+      reading: false,
       workSheet: null
     };
   },
   computed: {
+    rABS() {
+      return (
+        typeof FileReader !== "undefined" &&
+        (FileReader.prototype || {}).readAsBinaryString
+      );
+    },
+    sheet() {
+      let me = this,
+        sheet = [];
+      if (me.workSheet) {
+        sheet = me.wsToArray(me.workSheet);
+      }
+      return sheet;
+    },
+    keySheet() {
+      let me = this,
+        sheet = [];
+      if (me.workSheet) {
+        sheet = me.wsToArray(me.workSheet, true);
+      }
+      return sheet;
+    }
+  }
+});
+
+let plusBase = {
+  computed: {
     dimension() {
-      if (this.DetailData) {
+      if (this.DetailData && this.X) {
         return JSON.parse(this.DetailData.dimension);
       } else {
         return null;
@@ -365,7 +376,7 @@ let Xplus = {
   methods: {
     refresh() {
       let me = this;
-      if (me.DetailData) {
+      if (me.DetailData && this.X) {
         me.workSheet = me.getSheetFromAoa(
           JSON.parse(me.DetailData.dataSource),
           me.dimension
@@ -386,4 +397,27 @@ let Xplus = {
   }
 };
 
-export { Xplus };
+let Xplus = tool.apply({}, plusBase, {
+  props: {
+    DetailData: {
+      type: Object,
+      required: true
+    }
+  },
+  data() {
+    return {
+      workSheet: null
+    };
+  }
+});
+
+let Xplus2 = tool.apply({}, plusBase, {
+  data() {
+    return {
+      workSheet: null,
+      DetailData: null
+    };
+  }
+});
+
+export { Xplus, Xplus2 };

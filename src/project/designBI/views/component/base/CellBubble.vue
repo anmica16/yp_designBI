@@ -7,6 +7,7 @@
       :Entity="item"
       :cellItem="item.$$cellItem"
       :nowBoard="nowBoard"
+      :EditNode="EditNode"
     ></Bubble>
     <template v-for="shadow in addShadows"
       ><cell-shadow

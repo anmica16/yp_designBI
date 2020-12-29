@@ -44,7 +44,7 @@
       @touchstart.stop
     >
       <div class="toolLayer">
-        <el-button>提示</el-button>
+        <el-button @click="goEditPage">修改</el-button>
         <el-button>实例信息</el-button>
         <el-button @click="deleteFn">删除</el-button>
       </div>
@@ -129,7 +129,8 @@ export default {
         //# 1 百分比模式，按照自身来
         percentMode: me.percentMode,
         //~4 绘板变量传入
-        nowBoard: me.nowBoard
+        nowBoard: me.nowBoard,
+        EditNode: me.EditNode
       };
     },
     //# 1 drop 拖拽 管理器
@@ -245,6 +246,11 @@ export default {
     },
     dragResizeTouchDown(e) {
       this.$refs.dragNode.resizeDownFn(e, false, true);
+    },
+    //# 3 唤出 切换到编辑页
+    goEditPage() {
+      let me = this;
+      me.EditNode.goEditPage(me.Instance);
     }
   },
   watch: {
@@ -401,17 +407,28 @@ export default {
     //     me.save();
     //   });
     // });
+
     //@ 3 对style进行补充
     me.syncStyle();
+
     //@ 4 item管理器的响应：
     // me.$on("hover-on", function() {
 
     // });
+
     //@ 5 补充事件不完整体系：
     //~ 1 host选中
     me.$refs.dragNode.$on("select", function() {
       me.selectManager.changeSelect(me);
     });
+
+    //@ 6 记录子Ins加入
+    me.EditNode.$emit("addInstance", me.Instance);
+  },
+  beforeDestroy() {
+    let me = this;
+    //@ 6 记录子Ins删除
+    me.EditNode.$emit("removeInstance", me.Instance);
   }
 };
 </script>

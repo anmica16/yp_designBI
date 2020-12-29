@@ -6,6 +6,7 @@
       :key="item.recordData.instanceCode"
       :Entity="item"
       :nowBoard="nowBoard"
+      :EditNode="EditNode"
     ></Bubble>
   </div>
 </template>
