@@ -47,7 +47,11 @@ const BaseCfg = tool.apply(
     },
     //【3】name：
     name: {
-      desp: "中文名"
+      desp: "中文名",
+      required: true,
+      default() {
+        return "未命名子控件";
+      }
     },
     //【4】desp：
     desp: {
@@ -268,6 +272,13 @@ export default class DesignItemInstance extends DrawEntityBase {
 
   //# 1 新vue
   instanceVue = null;
+
+  get name() {
+    return this.recordData.name;
+  }
+  get isRoot() {
+    return this.recordData.useType == 2;
+  }
 
   //----------
   // 二、过程中使用的变量

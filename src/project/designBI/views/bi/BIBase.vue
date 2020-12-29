@@ -21,9 +21,9 @@ export default {
     let me = this,
       dataId = me.recordData.linkDataId;
     //~ 1 数据
-    me.EditNode.getLinkData(dataId).then(data => {
-      if (data) {
-        me.SummaryData = data;
+    me.EditNode.getLinkData(dataId).then(sumData => {
+      if (sumData) {
+        me.SummaryData = sumData;
       }
     });
   }

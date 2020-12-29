@@ -5,7 +5,7 @@
         <div class="tabs">
           <Scrollbar>
             <!-- ~ 1 tab循环 首 -->
-            <template v-for="ins in addInstances">
+            <template v-for="ins in theInstances">
               <div
                 :key="ins.instanceCode"
                 class="oneTab"
@@ -18,6 +18,8 @@
         </div>
         <div class="addNewItemBtn"></div>
       </div>
+
+      <div class="fill"></div>
 
       <div class="operBtns">
         <div class="item">
@@ -39,9 +41,8 @@
 
     <div class="editBody">
       <!-- ~ 2 tab循环 体 -->
-      <template v-for="ins in addInstances">
+      <template v-for="ins in theInstances">
         <div
-          v-if="canMount[ins.instanceCode]"
           v-show="nowIns && nowIns.instanceCode === ins.instanceCode"
           :key="ins.instanceCode"
           class="oneTabBody"
@@ -67,6 +68,10 @@ export default {
     EditNode: {
       type: Object,
       required: true
+    },
+    linkDatas: {
+      type: Object,
+      required: true
     }
   },
   data() {
@@ -75,11 +80,18 @@ export default {
       nowIns: null
     };
   },
+  computed: {
+    theInstances() {
+      return this.addInstances.filter(ins => {
+        return !ins.isRoot;
+      });
+    }
+  },
   methods: {
     changeIns(ins) {
       let me = this;
       //~ 1 可mount
-      me.canMount[ins.instanceCode] = true;
+      //me.canMount[ins.instanceCode] = true;
       //~ 2 新旧切换
       me.$emit("changeIns", ins, me.nowIns);
       me.nowIns = ins;

@@ -166,6 +166,7 @@
           v-show="itemEditPage"
           :addInstances="addInstances"
           :EditNode="me"
+          :linkDatas="linkDatas"
         ></ItemEdit>
       </transition>
     </template>
@@ -337,21 +338,6 @@ export default {
       return name;
     }
   },
-  watch: {
-    //#3 手动触发 带动联动
-    nowBoard(newBoard, oldBoard) {
-      let me = this;
-      //# 4 标题名改变
-      $("title").html(`绘板：${newBoard.recordData.name}`);
-      if (newBoard && newBoard != oldBoard) {
-        me.nowInstances = me.getNowInstances();
-      }
-    }
-  },
-  // mounted() {
-  //   let me = this;
-  //   console.log(["$route.params", me.$route.params]);
-  // },
   methods: {
     getNowInstances() {
       let me = this,
@@ -442,7 +428,8 @@ export default {
               let newIns = new DesignItemInstance({
                 xtype: "BIBase",
                 templateCode: me.nowTemplateCode,
-                linkDataId: theRec.id
+                linkDataId: theRec.id,
+                name: "未命名子控件" + (me.addInstances.length + 1)
               });
               //# 3 add到主cell
               newIns.$$newIns = true;
@@ -475,7 +462,7 @@ export default {
     },
     goBackEdit() {
       let me = this;
-      me.itemEditPage = true;
+      me.itemEditPage = false;
     },
     //## 2 item 全页数据中心
     //~ 1 刷新某id数据
@@ -492,7 +479,17 @@ export default {
           })
           .then(result => {
             let datas = result.data;
-            res(datas);
+            if (datas && datas.length) {
+              //# 1 这仅是初始数据
+              let baseData = datas[0],
+                //# 2 总结数据
+                sumData = me.getDataSummary(baseData);
+              //# 3 设定好
+              me.$set(me.linkDatas, dataId, sumData);
+              res(sumData);
+            } else {
+              res(false);
+            }
           })
           .catch(r => {
             res(false);
@@ -508,17 +505,8 @@ export default {
         if (tool.isArray(linkDatas[dataId])) {
           res(linkDatas[dataId]);
         } else {
-          me.refreshLinkData(dataId).then(data => {
-            if (data && data.length) {
-              //# 1 这仅是初始数据
-              let baseData = data[0],
-                //# 2 总结数据
-                sumData = me.getDataSummary(baseData);
-              linkDatas[dataId] = sumData;
-              res(sumData);
-            } else {
-              res(false);
-            }
+          me.refreshLinkData(dataId).then(sumData => {
+            res(sumData);
           });
         }
       });
@@ -536,6 +524,17 @@ export default {
         aoaKey,
         workSheet
       };
+    }
+  },
+  watch: {
+    //#3 手动触发 带动联动
+    nowBoard(newBoard, oldBoard) {
+      let me = this;
+      //# 4 标题名改变
+      $("title").html(`绘板：${newBoard.recordData.name}`);
+      if (newBoard && newBoard != oldBoard) {
+        me.nowInstances = me.getNowInstances();
+      }
     }
   },
   created() {

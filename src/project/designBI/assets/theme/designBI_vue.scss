@@ -899,11 +899,38 @@ body {
     border-bottom: 1px solid #e8eaed;
     @extend %flex-row;
     align-items: center;
+
+    .operBtns {
+      @extend %flex-row;
+    }
   }
   > .editBody {
     background: $back2;
     height: calc(100% - #{$h});
-    padding: 10px;
-    position: relative;
+
+    .oneTabBody {
+      height: 100%;
+      @extend %flex-row;
+
+      $w_left: 200px;
+      $w_mid: 220px;
+
+      //~ 1 左侧 维度
+      .dimensionArea {
+        width: $w_left;
+        height: 100%;
+      }
+      //~ 2 中间 title type等
+      .typeMakeArea {
+        width: $w_mid;
+        height:100%;
+      }
+      //~ 3 右侧展示
+      .visualArea {
+        width: calc(100% - #{$w_left + $w_mid});
+        height: 100%;
+      }
+
+    } //onebody
   }
 }
