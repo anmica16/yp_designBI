@@ -126,14 +126,14 @@ export default {
         //【update】看能不能自动转换？ie9
         var reader = new FileReader();
         //# 1 经过时间处理
-        reader.onload = function (e) {
+        reader.onload = function(e) {
           var data = e.target.result;
           if (!rABS) data = new Uint8Array(data);
           //# 2 获取
           let wb = X.read(data, {
-            type: rABS ? "binary" : "array",
-            cellDates: true
-          }),
+              type: rABS ? "binary" : "array",
+              cellDates: true
+            }),
             ws = me.getWorkSheet(wb),
             fileName = f.name,
             fileTypeM = /\.([^.]+)$/.exec(fileName),
@@ -293,7 +293,7 @@ export default {
         aoa = tool.clone(_aoa),
         header = aoa[0],
         toDate = [];
-      console.log(["查看 转化问题0"]);
+      //console.log(["查看 转化问题0"]);
       //# 1 对首行、维度进行匹配
       if (tool.isObject(dim)) {
         tool.each(dim, (k, v) => {
@@ -344,27 +344,33 @@ export default {
 let Xplus = {
   props: {
     DetailData: {
-      type: Object,
-      required: true
+      type: Object
+      //required: true
     }
   },
   data() {
     return {
-      workSheet: null,
+      workSheet: null
     };
   },
   computed: {
     dimension() {
-      return JSON.parse(this.DetailData.dimension);
+      if (this.DetailData) {
+        return JSON.parse(this.DetailData.dimension);
+      } else {
+        return null;
+      }
     }
   },
   methods: {
     refresh() {
       let me = this;
-      me.workSheet = me.getSheetFromAoa(
-        JSON.parse(me.DetailData.dataSource),
-        me.dimension
-      );
+      if (me.DetailData) {
+        me.workSheet = me.getSheetFromAoa(
+          JSON.parse(me.DetailData.dataSource),
+          me.dimension
+        );
+      }
     }
   },
   watch: {

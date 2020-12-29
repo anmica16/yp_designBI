@@ -8,3 +8,5 @@ Vue.$itemManager = itemManager;
 // import "./views/drawer";
 //【2】BI构成元素
 import "./views/component/edit";
+
+import "./views/bi/edit";

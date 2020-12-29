@@ -19,7 +19,7 @@
       </template>
       <!-- ~ 4 先写在这里 再独立 -->
       <template v-else-if="DetailData">
-        <CheckDataStage :DetailData="DetailData"> </CheckDataStage>
+        <SimpleCheckData :DetailData="DetailData"> </SimpleCheckData>
       </template>
     </div>
   </div>
@@ -27,12 +27,17 @@
 
 <script>
 import dataSelectorMixin from "./dataSelectorMixin";
-import CheckDataStage from "../../Page/UserPage/DesignCenter/newData/CheckDataStage";
+import SimpleCheckData from "../../Page/UserPage/DesignCenter/newData/SimpleCheckData";
 export default {
   name: "dataSelector",
   components: {
-    CheckDataStage
+    SimpleCheckData
   },
-  mixins: [dataSelectorMixin]
+  mixins: [dataSelectorMixin],
+  data() {
+    return {
+      queryFlag: "dataSelector"
+    };
+  }
 };
 </script>

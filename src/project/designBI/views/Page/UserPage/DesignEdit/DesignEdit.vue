@@ -405,8 +405,39 @@ export default {
         message: h(dataSelector),
         closeOnClickModal: false,
         showCancelButton: true,
-        customClass: "newBIItem"
-      });
+        customClass: "newBIItem",
+        beforeClose(action, ins, done) {
+          if (action === "confirm") {
+            console.log(["这个ins 的 form？", ins]);
+            let selector = ins.down("dataSelector"),
+              theRec = selector.nowFileRec;
+            if (theRec) {
+              //# 2 ins建立关联，然后获取关联数据
+              let newIns = new DesignItemInstance({
+                xtype: "BIBase",
+                templateCode: me.nowTemplateCode,
+                linkDataId: theRec.id
+              });
+              //# 3 add到主cell
+              newIns.$$newIns = true;
+              me.nowBoardRoot
+                .add(newIns)
+                .then(r => {
+                  me.$message.success("新增成功！");
+                  done();
+                })
+                .catch(r => {
+                  me.$message.error("添加失败！请检查服务器运行状态");
+                });
+            } else {
+              //# 2 提示未选中
+              me.$message.warning("尚未选则数据源！");
+            }
+          } else {
+            done();
+          }
+        }
+      }).catch(() => {});
     }
   },
   mounted() {

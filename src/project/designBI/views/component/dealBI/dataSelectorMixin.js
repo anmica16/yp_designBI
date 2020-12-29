@@ -8,7 +8,7 @@ export default {
       nowFolderRec: null,
       nowFileRec: null,
       DetailDataAjax: null,
-      DetailData: null,
+      DetailData: null
     };
   },
   methods: {
