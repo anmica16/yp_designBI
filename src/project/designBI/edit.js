@@ -1,4 +1,14 @@
 import Vue from "vue";
+
+let echarts = require("echarts");
+window.echarts = echarts;
+
+//=========--------
+// Section 2 前置部件
+//=========--------
+import AoaChart from "@/packages/chart/AoaChart";
+Vue.component("AoaChart", AoaChart);
+
 //=========--------
 // Section 3 BI构成
 //=========--------

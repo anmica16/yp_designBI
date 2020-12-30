@@ -1,6 +1,14 @@
 <template>
   <div class="BIBase">
-    BIBase
+    <div class="title">BIBase</div>
+    <div class="chartBody">
+      <AoaChart
+        v-if="SummaryData"
+        :SummaryData="SummaryData"
+        :Dims="Dims"
+        :Indices="Indices"
+      ></AoaChart>
+    </div>
   </div>
 </template>
 
@@ -16,7 +24,27 @@ export default {
       SummaryData: null
     };
   },
-  computed: {},
+  computed: {
+    dimension() {
+      return this.SummaryData && this.SummaryData.dimension;
+    },
+    Dims() {
+      let me = this,
+        dims = [];
+      if (me.dimension) {
+        dims.push(me.dimension[0]);
+      }
+      return dims;
+    },
+    Indices() {
+      let me = this,
+        dims = [];
+      if (me.dimension) {
+        dims = me.dimension.slice(1);
+      }
+      return dims;
+    }
+  },
   mounted() {
     let me = this,
       dataId = me.recordData.linkDataId;

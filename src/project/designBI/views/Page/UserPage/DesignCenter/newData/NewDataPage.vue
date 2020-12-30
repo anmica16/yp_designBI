@@ -354,7 +354,8 @@ export default {
             dim.push({
               key: k,
               type: v.type,
-              order: order++
+              order: order++,
+              axisType: me.getAxisType(v.type)
             });
           });
           me.dimension = dim;
