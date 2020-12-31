@@ -23,6 +23,7 @@
     @mouseleave.native="mouseleaveFn"
     :mouseDownStop="false"
     @mousedown.native.stop="mousedownFn"
+    @transitionend.native="transitionEndFn"
   >
     <!-- <div
       class="hostWrap-withLineDot"
@@ -219,6 +220,17 @@ export default {
         this.$refs.dragNode.checkParentSize();
         this.$refs.dragNode.reReadWHXY();
       }
+      this.hostResize();
+    },
+    hostResize() {
+      let me = this,
+        host = me.$refs.host;
+      if (host) {
+        host.$emit("bubble-resize");
+      }
+    },
+    transitionEndFn() {
+      this.hostResize();
     },
     //# 1 切换 selectManager hover 的 this对象，以便属性菜单刷新
     //（1）优先级弱于 down
@@ -379,6 +391,8 @@ export default {
           me.toggleZIndex(false);
           //(2) 上传
           me.saveCellsMap();
+          //(3) resize
+          me.hostResize();
         });
       }
     }

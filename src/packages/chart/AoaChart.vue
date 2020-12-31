@@ -43,7 +43,7 @@ export default {
       dims.forEach(dim => {
         let cDim = tool.apply({}, dim, {
           //【update】name换为中文 可设定？
-          name: dim.k,
+          name: dim.key,
           jsType: dim.type,
           type: me.getAxisType(dim.type)
         });
@@ -72,6 +72,7 @@ export default {
       me.Indices.forEach(index => {
         let s = {
           type: me.type,
+          name: index.key,
           encode: {
             x: me.xAxis.key || 0,
             y: index.key
@@ -84,6 +85,13 @@ export default {
     option() {
       let me = this,
         option = {
+          //# 2 小组件
+          legend: {
+            data: me.aoaData[0]
+          },
+          tooltip: {},
+
+          //# 1 核心部分
           dataset: {
             source: me.aoaData
           },
@@ -107,6 +115,17 @@ export default {
           return "value";
       }
     },
+    getChartDimensionType(type) {
+      switch (type) {
+        default:
+        case "string":
+          return "ordinal";
+        case "date":
+          return "time";
+        case "number":
+          return "number";
+      }
+    },
     getAxisDim(dim) {
       let at = this.dimension.findIndex(cDim => {
         return cDim.key === dim.key;
@@ -116,14 +135,25 @@ export default {
       } else {
         return null;
       }
+    },
+    resize() {
+      let me = this;
+      if (me.chart) {
+        me.chart.resize();
+      }
     }
   },
   mounted() {
     let me = this;
+    // if (me.theme) {
+    //   me.chart = echarts.init(me.$refs.box, me.theme);
+    // } else {
+    //   me.chart = echarts.init(me.$refs.box, null);
+    // }
     if (me.theme) {
-      me.chart = echarts.init(me.$refs.box, me.theme);
+      me.chart = echarts.init(me.$refs.box, me.theme, { renderer: "svg" });
     } else {
-      me.chart = echarts.init(me.$refs.box);
+      me.chart = echarts.init(me.$refs.box, null, { renderer: "svg" });
     }
     me.$nextTick(() => {
       me.chart.setOption(me.option);

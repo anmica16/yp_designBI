@@ -279,6 +279,9 @@ export default class DesignItemInstance extends DrawEntityBase {
   get isRoot() {
     return this.recordData.useType == 2;
   }
+  get linkDataId() {
+    return this.recordData.linkDataId;
+  }
 
   //----------
   // 二、过程中使用的变量

@@ -900,6 +900,10 @@ body {
     @extend %flex-row;
     align-items: center;
 
+    .tabWrap {
+      flex-shrink: 0
+    }
+
     .operBtns {
       @extend %flex-row;
     }
