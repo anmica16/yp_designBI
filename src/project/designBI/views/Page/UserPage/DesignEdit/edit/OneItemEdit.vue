@@ -20,7 +20,7 @@
       <!-- # 3 维度 -->
       <div class="dimenArea">
         <div class="title">维度</div>
-        <ScrollBar class="body">
+        <Scrollbar class="body">
           <!-- 【update】拖拽 -->
           <CandyDimTag
             v-for="dim in dimAndIndex.Dims"
@@ -28,12 +28,12 @@
             :Dim="dim"
             :candyMaster="candyMaster"
           ></CandyDimTag>
-        </ScrollBar>
+        </Scrollbar>
       </div>
       <!-- # 4 指标 -->
       <div class="indexArea">
         <div class="title">指标</div>
-        <ScrollBar class="body">
+        <Scrollbar class="body">
           <!-- 【update】拖拽 -->
           <CandyDimTag
             v-for="dim in dimAndIndex.Indices"
@@ -41,7 +41,7 @@
             :Dim="dim"
             :candyMaster="candyMaster"
           ></CandyDimTag>
-        </ScrollBar>
+        </Scrollbar>
       </div>
     </div>
     <!-- ~~ 2 类型属性样式 -->
@@ -84,7 +84,7 @@
         <div class="oneDim">
           <div class="dimType">行维度</div>
           <div class="dimsHere">
-            <CoatingDim :candyMaster="candyMaster">
+            <CoatingDim style="height: 30px;" :candyMaster="candyMaster">
               <span class="noTip">请拖入左侧字段</span>
             </CoatingDim>
           </div>

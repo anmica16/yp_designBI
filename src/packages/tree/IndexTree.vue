@@ -112,8 +112,8 @@ export default {
     getMaxItemIndex(rec) {
       let me = this,
         max = 0;
-      if (rec.$items.length) {
-        rec.$items.forEach(item => {
+      if (rec.$totItems.length) {
+        rec.$totItems.forEach(item => {
           if (item.$indexNumber > max) {
             max = item.$indexNumber;
           }

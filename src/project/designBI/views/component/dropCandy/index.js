@@ -27,10 +27,16 @@ let Candy = {
       let me = this,
         uid = tool.random62(4),
         dom = $(me.$el).clone();
+      
+      console.log(["drag开始！", uid, me]);
+      
       $("body").append(dom);
       dom.css({
         display: "none",
-        position: "absolute"
+        position: "absolute",
+        left: 0,
+        top: 0,
+        "z-index": 999
       });
       me.dragDom = dom;
       me.dragStart = true;
@@ -40,8 +46,8 @@ let Candy = {
 
       //~ 2 【update】从coating中触发？
 
-      $("body").on(`mousemove.${uid}`, me.handleMove);
-      $("body").on(`mouseup.${uid}`, me.handleUp);
+      $("body").on(`mousemove.${uid}`, me.candyHandleMove);
+      $("body").on(`mouseup.${uid}`, me.candyHandleUp);
     },
     candyHandleMove(e) {
       let me = this;
@@ -170,12 +176,14 @@ let Coating = {
         cDim = candy.Dim,
         cgToDimAt = null,
         overCandyAt = me.candies.findIndex(c => {
-          return c.$id === cDim.$id;
+          return !tool.isNull(c.$id) && c.$id === cDim.$id;
         });
       //# 1 寻找正确的位置，然后置换
       tool.each(me.candies, (c, i) => {
         let key = c.key,
-          cEl = me.$refs[key],
+          cElBase = me.$refs[key],
+          cEl2 = tool.isArray(cElBase) ? cElBase[0] : cElBase,
+          cEl = cEl2.$el || cEl2,
           cDom = $(cEl),
           off = cDom.offset(),
           rectX = off.left,
@@ -198,6 +206,7 @@ let Coating = {
           tool.insert(me.candies, cgToDimAt, cDim);
         } else {
           //~ 2 加入 则替换
+          console.log(["~ 2 加入 则替换"]);
           let overCandy = me.candies.splice(overCandyAt, 1);
           tool.insert(me.candies, cgToDimAt - 1, overCandy);
         }
@@ -208,7 +217,7 @@ let Coating = {
         }
       }
     },
-    candyLeave(pos, candy) {
+    candyLeave(candy) {
       let me = this;
       //# 1 dragging中
       if (candy.dragging) {
@@ -217,6 +226,7 @@ let Coating = {
             return c.$id === cDim.$id;
           });
         if (candyAt > -1) {
+          console.log(["走了移除", candyAt]);
           me.candies.splice(candyAt, 1);
         }
       } else {

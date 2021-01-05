@@ -3,7 +3,7 @@
     :class="{ dragging }"
     :type="Dim.type"
     :name="Dim.name"
-    @mousedown.native="candyHandleDown"
+    @mousedown.native.prevent="candyHandleDown"
   ></DimTypeTag>
 </template>
 

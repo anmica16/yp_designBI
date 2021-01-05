@@ -121,7 +121,7 @@
         </div>
       </div>
       <div class="rightArea">
-        <template v-if="workSheet">
+        <template v-if="workSheet && dimension">
           <div class="dataResult">
             <div class="topArea">
               <el-link :underline="false" class="el-icon-date"></el-link>
@@ -348,6 +348,7 @@ export default {
           me.fileType = fileType;
           me.workSheet = theWorkSheet; //这才是核心
           //# 5 维度：
+          //console.log(["处理维度的动作", dimension]);
           let dim = [],
             order = 0;
           tool.each(dimension, (k, v) => {
@@ -355,13 +356,15 @@ export default {
               key: k,
               type: v.type,
               order: order++,
-              axisType: me.getAxisType(v.type),
+              //axisType: me.getAxisType(v.type),
               $id: tool.uniqueStr()
             });
           });
           me.dimension = dim;
         })
-        .catch(() => {});
+        .catch(er => {
+          throw er;
+        });
     },
     leftDrogFn(e) {
       let me = this;

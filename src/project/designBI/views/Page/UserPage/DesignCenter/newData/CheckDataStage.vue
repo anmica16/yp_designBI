@@ -1,5 +1,5 @@
 <template>
-  <div class="checkWrap">
+  <div class="checkWrap" v-if="dimension">
     <div class="checkHeader">
       <div class="tableName">{{ DetailData.name }}</div>
       <div class="fill"></div>
