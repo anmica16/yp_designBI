@@ -22,12 +22,12 @@
         <div class="title">维度</div>
         <ScrollBar class="body">
           <!-- 【update】拖拽 -->
-          <DimTypeTag
+          <CandyDimTag
             v-for="dim in dimAndIndex.Dims"
             :key="dim.key"
-            :type="dim.type"
-            :name="dim.key"
-          ></DimTypeTag>
+            :Dim="dim"
+            :candyMaster="candyMaster"
+          ></CandyDimTag>
         </ScrollBar>
       </div>
       <!-- # 4 指标 -->
@@ -35,12 +35,12 @@
         <div class="title">指标</div>
         <ScrollBar class="body">
           <!-- 【update】拖拽 -->
-          <DimTypeTag
+          <CandyDimTag
             v-for="dim in dimAndIndex.Indices"
             :key="dim.key"
-            :type="dim.type"
-            :name="dim.key"
-          ></DimTypeTag>
+            :Dim="dim"
+            :candyMaster="candyMaster"
+          ></CandyDimTag>
         </ScrollBar>
       </div>
     </div>
@@ -84,7 +84,9 @@
         <div class="oneDim">
           <div class="dimType">行维度</div>
           <div class="dimsHere">
-            <span class="noTip">请拖入左侧字段</span>
+            <CoatingDim :candyMaster="candyMaster">
+              <span class="noTip">请拖入左侧字段</span>
+            </CoatingDim>
           </div>
         </div>
       </div>
@@ -109,8 +111,19 @@
 </template>
 
 <script>
+import { CandyMaster } from "@designBI/views/component/dropCandy";
+import Vue from "vue";
+const CandyMasterCtor = Vue.extend(CandyMaster);
+
+import CandyDimTag from "./CandyDimTag";
+import CoatingDim from "./CoatingDim";
+
 export default {
   name: "OneItemEdit",
+  components: {
+    CoatingDim,
+    CandyDimTag
+  },
   props: {
     sumData: {
       type: Object
@@ -122,7 +135,9 @@ export default {
       queryDim: "",
       checkName: true,
       tempName: "",
-      checkAllData: false
+      checkAllData: false,
+      //# 2 拖拽管理器
+      candyMaster: null
     };
   },
   computed: {
@@ -144,6 +159,10 @@ export default {
       return { Dims, Indices };
     }
   },
-  methods: {}
+  methods: {},
+  created() {
+    let me = this;
+    me.candyMaster = new CandyMasterCtor();
+  }
 };
 </script>

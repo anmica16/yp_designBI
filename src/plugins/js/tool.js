@@ -433,6 +433,25 @@ let tool = {
       return target;
     }
   },
+  //~ +1 数组的insert
+  insert(array, at, ins) {
+    let me = this;
+    if (!array || !me.isNumber(at) || me.isNull(ins)) {
+      console.error(["参数错误，insert失败！", arguments]);
+      return;
+    }
+    if (me.isArray(ins)) {
+      return array
+        .slice(0, at)
+        .concat(ins)
+        .concat(array.slice(at));
+    } else {
+      return array
+        .slice(0, at)
+        .concat([ins])
+        .concat(array.slice(at));
+    }
+  },
   /** ---------------------------------------------------
    ** 功能函数
    ** -------------------------------------------------  */

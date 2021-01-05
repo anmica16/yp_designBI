@@ -1,35 +1,32 @@
 import $ from "jquery";
 import tool from "@/plugins/js/tool";
 
-let candy = {
+let Candy = {
   //name: "candy",
   props: {
     //# 1 管理拖拽用
     candyMaster: {
-      type: Object,
-      required: true
+      type: Object
+      //required: true
     },
-    vNode: {
-      type: Object,
-      required: true
-    }
+    Dim: Object
   },
   data() {
     return {
       dragDom: null,
       dragStart: false,
-      dragging: false,
+      dragging: false
       //# 1 悬浮的父亲coating节点
-      overCoating: null
+      //overCoating: null
       //mouseX: null,
       //mouseY: null
     };
   },
   methods: {
-    handleDown(e) {
+    candyHandleDown(e) {
       let me = this,
         uid = tool.random62(4),
-        dom = $(me.vNode.$el).clone();
+        dom = $(me.$el).clone();
       $("body").append(dom);
       dom.css({
         display: "none",
@@ -41,10 +38,12 @@ let candy = {
       // me.mouseX = e.pageX;
       // me.mouseY = e.pageY;
 
+      //~ 2 【update】从coating中触发？
+
       $("body").on(`mousemove.${uid}`, me.handleMove);
       $("body").on(`mouseup.${uid}`, me.handleUp);
     },
-    handleMove(e) {
+    candyHandleMove(e) {
       let me = this;
       if (!me.dragStart) {
         return;
@@ -64,9 +63,9 @@ let candy = {
       });
 
       //~ 2 master over检测
-      me.candyMaster.checkOver({ left, top }, me.vNode);
+      me.candyMaster.checkOver({ left, top }, me);
     },
-    handleUp(e) {
+    candyHandleUp(e) {
       let me = this;
       me.dragging = false;
       me.dragStart = false;
@@ -74,12 +73,12 @@ let candy = {
       //~ 2 结束
       me.dragDom.remove();
 
-      me.candyMaster.checkDrop({ left: e.pageX, top: e.pageY }, me.vNode);
+      me.candyMaster.checkDrop({ left: e.pageX, top: e.pageY }, me);
     }
   }
 };
 
-let candyMaster = {
+let CandyMaster = {
   data() {
     return {
       //# 1 vNode形式的
@@ -103,14 +102,14 @@ let candyMaster = {
       }
     },
     //# 1简单处理，就同一面，不重复
-    checkOver(pos, vnode) {
+    checkOver(pos, candy) {
       let me = this,
         stopX = pos.left,
         stopY = pos.top;
       //~ 1 该区域有哪些可选 能drop进的组件
       let fitOwners = [];
-      me.coatings.forEach(function(cNode) {
-        let dom = $(cNode.$el);
+      me.coatings.forEach(function(coat) {
+        let dom = $(coat.$el);
         //# 1 要可见
         if (!dom.is(":visible")) {
           return;
@@ -129,39 +128,34 @@ let candyMaster = {
           stopY > rectY &&
           stopY < rectY + rectH
         ) {
-          fitOwners.push(cNode);
+          fitOwners.push(coat);
         }
       });
-      fitOwners.forEach(cNode => {
-        if (me.overCoatings.indexOf(cNode) < 0) {
-          me.overCoatings.push(cNode);
+      fitOwners.forEach(coat => {
+        if (me.overCoatings.indexOf(coat) < 0) {
+          me.overCoatings.push(coat);
           //# 3-1 初次得有个 离开的动作
-          $(cNode.$el).one("mouseleave", () => {
-            cNode.candyLeave(vnode);
+          $(coat.$el).one("mouseleave", () => {
+            coat.candyLeave(candy);
           });
         }
         //# 3 交给coating来处理 位置
-        cNode.candyOver(pos, vnode);
+        coat.candyOver(pos, candy);
       });
     },
-    checkDrop(pos, vnode) {}
+    checkDrop(pos, candy) {
+      let me = this;
+      me.overCoatings = [];
+    }
   }
 };
 
-let coating = {
+let Coating = {
   props: {
     //# 1 管理拖拽用
     candyMaster: {
-      type: Object,
-      required: true
-    },
-    vNode: {
-      type: Object,
-      required: true
-    },
-    candyClass: {
-      type: String,
-      default: "candy"
+      type: Object
+      //required: true
     }
   },
   data() {
@@ -171,25 +165,73 @@ let coating = {
     };
   },
   methods: {
-    candyOver(pos, candyHostNode) {
+    candyOver(pos, candy) {
       let me = this,
-        nowAt = 0;
+        cDim = candy.Dim,
+        cgToDimAt = null,
+        overCandyAt = me.candies.findIndex(c => {
+          return c.$id === cDim.$id;
+        });
       //# 1 寻找正确的位置，然后置换
-      tool.each(me.candies, c => {
+      tool.each(me.candies, (c, i) => {
         let key = c.key,
           cEl = me.$refs[key],
-          cDom = $(cEl);
+          cDom = $(cEl),
+          off = cDom.offset(),
+          rectX = off.left,
+          rectW = cDom.width();
+        if (pos.left > rectX && pos.left < rectX + rectW) {
+          //~ 1 要么左边，
+          if (pos.left < rectX + 0.4 * rectW) {
+            cgToDimAt = i;
+          } else {
+            // 2 要么右边
+            cgToDimAt = i + 1;
+          }
+          return false;
+        }
       });
+      //# 2 如果可替换的
+      if (cgToDimAt) {
+        //~ 1 未加入，则直接insert
+        if (overCandyAt < 0) {
+          tool.insert(me.candies, cgToDimAt, cDim);
+        } else {
+          //~ 2 加入 则替换
+          let overCandy = me.candies.splice(overCandyAt, 1);
+          tool.insert(me.candies, cgToDimAt - 1, overCandy);
+        }
+      } else {
+        //# 3 如果无，则不变 or 新加入
+        if (overCandyAt < 0) {
+          me.candies.push(cDim);
+        }
+      }
+    },
+    candyLeave(pos, candy) {
+      let me = this;
+      //# 1 dragging中
+      if (candy.dragging) {
+        let cDim = candy.Dim,
+          candyAt = me.candies.findIndex(c => {
+            return c.$id === cDim.$id;
+          });
+        if (candyAt > -1) {
+          me.candies.splice(candyAt, 1);
+        }
+      } else {
+        //# 2 结束drag
+      }
     }
   },
   mounted() {
     let me = this;
-    me.candyMaster.addCoating(me);
+    me.candyMaster && me.candyMaster.addCoating(me);
   },
   beforeDestroy() {
     let me = this;
-    me.candyMaster.removeCoating(me);
+    me.candyMaster && me.candyMaster.removeCoating(me);
   }
 };
 
-export { candy, candyMaster, coating };
+export { Candy, CandyMaster, Coating };

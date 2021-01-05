@@ -355,7 +355,8 @@ export default {
               key: k,
               type: v.type,
               order: order++,
-              axisType: me.getAxisType(v.type)
+              axisType: me.getAxisType(v.type),
+              $id: tool.uniqueStr()
             });
           });
           me.dimension = dim;
