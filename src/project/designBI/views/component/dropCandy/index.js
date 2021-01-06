@@ -27,9 +27,9 @@ let Candy = {
       let me = this,
         uid = tool.random62(4),
         dom = $(me.$el).clone();
-      
+
       console.log(["drag开始！", uid, me]);
-      
+
       $("body").append(dom);
       dom.css({
         display: "none",
@@ -141,12 +141,20 @@ let CandyMaster = {
         if (me.overCoatings.indexOf(coat) < 0) {
           me.overCoatings.push(coat);
           //# 3-1 初次得有个 离开的动作
-          $(coat.$el).one("mouseleave", () => {
-            coat.candyLeave(candy);
-          });
+          // $(coat.$el).one("mouseleave", () => {
+          //   coat.candyLeave(candy);
+          // });
         }
         //# 3 交给coating来处理 位置
         coat.candyOver(pos, candy);
+      });
+      //# 4 离开动作
+      me.overCoatings.slice().forEach(coat => {
+        let at = fitOwners.indexOf(coat);
+        if (at < 0) {
+          me.overCoatings.splice(at, 1);
+          coat.candyLeave(candy);
+        }
       });
     },
     checkDrop(pos, candy) {
@@ -180,6 +188,10 @@ let Coating = {
         });
       //# 1 寻找正确的位置，然后置换
       tool.each(me.candies, (c, i) => {
+        //~ 3 略过自身
+        if (c.$id === cDim.$id) {
+          return;
+        }
         let key = c.key,
           cElBase = me.$refs[key],
           cEl2 = tool.isArray(cElBase) ? cElBase[0] : cElBase,
@@ -215,23 +227,24 @@ let Coating = {
         if (overCandyAt < 0) {
           me.candies.push(cDim);
         }
+        //# 4 其他则保持不变
       }
     },
     candyLeave(candy) {
       let me = this;
       //# 1 dragging中
-      if (candy.dragging) {
-        let cDim = candy.Dim,
-          candyAt = me.candies.findIndex(c => {
-            return c.$id === cDim.$id;
-          });
-        if (candyAt > -1) {
-          console.log(["走了移除", candyAt]);
-          me.candies.splice(candyAt, 1);
-        }
-      } else {
-        //# 2 结束drag
+      //if (candy.dragging) {
+      let cDim = candy.Dim,
+        candyAt = me.candies.findIndex(c => {
+          return c.$id === cDim.$id;
+        });
+      if (candyAt > -1) {
+        console.log(["走了移除", candyAt]);
+        me.candies.splice(candyAt, 1);
       }
+      // } else {
+      //   //# 2 结束drag
+      // }
     }
   },
   mounted() {

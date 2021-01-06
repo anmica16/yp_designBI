@@ -914,6 +914,7 @@ body {
 
     .oneTabBody {
       height: 100%;
+      width: 100%;
       @extend %flex-row;
 
       $w_left: 200px;

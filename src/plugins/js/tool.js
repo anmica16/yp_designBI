@@ -452,7 +452,19 @@ let tool = {
         .concat(array.slice(at));
     }
   },
-  /** ---------------------------------------------------
+  //~ 2 json转化有关
+  /**
+   * */
+  parse(target) {
+    let me = this;
+    if (me.isArray(target) || me.isObject(target)) {
+      return target;
+    } else {
+      let r = JSON.parse(target);
+      return r;
+    }
+  },
+  /*---------------------------------------------------
    ** 功能函数
    ** -------------------------------------------------  */
   //~ 【1】 限流器

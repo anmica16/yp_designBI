@@ -5,56 +5,19 @@
 <script>
 let echarts = require("echarts");
 import tool from "@/plugins/js/tool";
+import chartBase from "./chartBase";
 
 export default {
   name: "AoaChart",
-  props: {
-    SummaryData: {
-      type: Object,
-      required: true
-    },
-    type: {
-      type: String,
-      default: "line"
-    },
-    //~ 1 都是一组数据
-    // - 1 维度
-    Dims: {
-      type: Array
-    },
-    // - 2 指标
-    Indices: {
-      type: Array
-    },
-    theme: {
-      type: String
-    }
-  },
+  mixins: [chartBase],
   data() {
+    //%% 5 type下自属配置
     return {
       chart: null
     };
   },
   computed: {
-    dimension() {
-      let me = this,
-        dimens = [],
-        dims = me.SummaryData.dimension;
-      dims.forEach(dim => {
-        let cDim = tool.apply({}, dim, {
-          //【update】name换为中文 可设定？
-          name: dim.key,
-          jsType: dim.type,
-          type: me.getAxisType(dim.type)
-        });
-        dimens.push(cDim);
-      });
-      return dimens;
-    },
-    aoaData() {
-      let me = this;
-      return me.SummaryData.aoa;
-    },
+    //%% 1 各type所需--类目（维度）
     xAxis() {
       let x = { type: "category" };
       if (this.Dims && this.Dims.length) {
@@ -63,9 +26,11 @@ export default {
       }
       return x;
     },
+    //%% 2 各type所需--类目值（指标）
     yAxis() {
       return {}; //this.Indices;
     },
+    //%% 3 各type--option 中组合基本序列
     series() {
       let me = this,
         series = [];
@@ -82,6 +47,7 @@ export default {
       });
       return series;
     },
+    //%% 4 各type--option组合
     option() {
       let me = this,
         option = {
@@ -104,38 +70,6 @@ export default {
     }
   },
   methods: {
-    getAxisType(type) {
-      switch (type) {
-        default:
-        case "string":
-          return "category";
-        case "date":
-          return "time";
-        case "number":
-          return "value";
-      }
-    },
-    getChartDimensionType(type) {
-      switch (type) {
-        default:
-        case "string":
-          return "ordinal";
-        case "date":
-          return "time";
-        case "number":
-          return "number";
-      }
-    },
-    getAxisDim(dim) {
-      let at = this.dimension.findIndex(cDim => {
-        return cDim.key === dim.key;
-      });
-      if (at > -1) {
-        return this.dimension[at];
-      } else {
-        return null;
-      }
-    },
     resize() {
       let me = this;
       if (me.chart) {

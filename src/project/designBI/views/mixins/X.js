@@ -367,7 +367,7 @@ let plusBase = {
   computed: {
     dimension() {
       if (this.DetailData && this.X) {
-        return JSON.parse(this.DetailData.dimension);
+        return tool.parse(this.DetailData.dimension);
       } else {
         return null;
       }
@@ -378,7 +378,7 @@ let plusBase = {
       let me = this;
       if (me.DetailData && this.X) {
         me.workSheet = me.getSheetFromAoa(
-          JSON.parse(me.DetailData.dataSource),
+          tool.parse(me.DetailData.dataSource),
           me.dimension
         );
       }

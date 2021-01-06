@@ -49,8 +49,14 @@ module.exports = {
       return options;
     });
   },
-  publicPath: "/pages/designBI/",
-  outputDir: "../pages/designBI"
+
+  //--------- v2 分开的项目
+  publicPath: "/dist",
+  outputDir: "../../DesignBI/dist"
+
+  //--------- v1
+  // publicPath: "/pages/designBI/",
+  // outputDir: "../pages/designBI"
 
   //v8文件夹
   //outputDir: "../Lserp_v8/dist"
