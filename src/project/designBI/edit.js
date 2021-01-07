@@ -6,8 +6,7 @@ window.echarts = echarts;
 //=========--------
 // Section 2 前置部件
 //=========--------
-import AoaChart from "@/packages/chart/AoaChart";
-Vue.component("AoaChart", AoaChart);
+import "@/packages/chart";
 
 //=========--------
 // Section 3 BI构成

@@ -39,6 +39,11 @@ export default {
     aoaData() {
       let me = this;
       return me.SummaryData.aoa;
+    },
+    //@@ 3 键值对数组
+    keySheet() {
+      let me = this;
+      return me.SummaryData.aoaKey;
     }
   },
   methods: {

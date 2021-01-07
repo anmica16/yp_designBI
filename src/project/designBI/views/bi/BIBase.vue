@@ -2,13 +2,13 @@
   <div class="BIBase">
     <div class="chartTitle">BIBase</div>
     <div class="chartBody">
-      <AoaChart
+      <ChartManager
         ref="chart"
         v-if="SummaryData"
         :SummaryData="SummaryData"
         :Dims="Dims"
         :Indices="Indices"
-      ></AoaChart>
+      ></ChartManager>
     </div>
   </div>
 </template>

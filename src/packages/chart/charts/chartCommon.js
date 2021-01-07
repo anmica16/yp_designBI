@@ -1,15 +1,5 @@
-<template>
-  <div class="echartsBox" ref="box" style="width: 100%; height: 100%;"></div>
-</template>
-
-<script>
 let echarts = require("echarts");
-import tool from "@/plugins/js/tool";
-import chartBase from "./chartBase";
-
 export default {
-  name: "AoaChart",
-  mixins: [chartBase],
   data() {
     //%% 5 type下自属配置
     return {
@@ -17,6 +7,9 @@ export default {
     };
   },
   computed: {
+    echarts() {
+      return echarts;
+    },
     //%% 1 各type所需--类目（维度）
     xAxis() {
       let x = { type: "category" };
@@ -79,15 +72,10 @@ export default {
   },
   mounted() {
     let me = this;
-    // if (me.theme) {
-    //   me.chart = echarts.init(me.$refs.box, me.theme);
-    // } else {
-    //   me.chart = echarts.init(me.$refs.box, null);
-    // }
     if (me.theme) {
-      me.chart = echarts.init(me.$refs.box, me.theme, { renderer: "svg" });
+      me.chart = me.echarts.init(me.$refs.box, me.theme, { renderer: "svg" });
     } else {
-      me.chart = echarts.init(me.$refs.box, null, { renderer: "svg" });
+      me.chart = me.echarts.init(me.$refs.box, null, { renderer: "svg" });
     }
     me.$nextTick(() => {
       me.chart.setOption(me.option);
@@ -95,4 +83,3 @@ export default {
     console.log(["创建好的？", me.chart, me]);
   }
 };
-</script>
