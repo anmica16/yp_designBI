@@ -13,7 +13,9 @@ let Api_custom = {
     DeleteBoard: "DeleteBoard",
     //~ 2 data
     GetDataMenus: "GetDataMenus",
-    GetDataDetail: "GetDataDetail"
+    GetDataDetail: "GetDataDetail",
+    //~ 2.2 dataV2
+    CreateOrUpdTable: "CreateOrUpdTable"
   },
 
   Module: {

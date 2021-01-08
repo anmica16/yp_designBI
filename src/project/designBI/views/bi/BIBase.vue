@@ -49,6 +49,7 @@ export default {
   mounted() {
     let me = this,
       dataId = me.recordData.linkDataId;
+    console.log(["查看数据？"]);
     //~ 1 数据
     me.EditNode.getLinkData(dataId).then(sumData => {
       if (sumData) {

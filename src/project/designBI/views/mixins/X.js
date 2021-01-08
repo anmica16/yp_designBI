@@ -303,12 +303,22 @@ let Xbase = {
       }
       //# 2 处理数据
       aoa.forEach((row, y) => {
-        if (y > 0) {
-          row.forEach((val, x) => {
-            if (toDate.indexOf(x) > -1) {
-              row[x] = new Date(val);
+        //~ 1 json
+        if (tool.isObject(row)) {
+          tool.each(row, (key, val) => {
+            if (toDate.indexOf(key) > -1) {
+              row[key] = new Date(val);
             }
           });
+        } else {
+          //~ 2 aoa
+          if (y > 0) {
+            row.forEach((val, x) => {
+              if (toDate.indexOf(x) > -1) {
+                row[x] = new Date(val);
+              }
+            });
+          }
         }
       });
       //# 3 转化结果
@@ -377,10 +387,10 @@ let plusBase = {
     refresh() {
       let me = this;
       if (me.DetailData && this.X) {
-        me.workSheet = me.getSheetFromAoa(
-          tool.parse(me.DetailData.dataSource),
-          me.dimension
-        );
+        let table = tool.isString(me.DetailData.dataTable)
+          ? tool.parse(me.DetailData.dataTable)
+          : me.DetailData.dataTable;
+        me.workSheet = me.getSheetFromAoa(table, me.dimension);
       }
     }
   },

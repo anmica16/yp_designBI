@@ -478,12 +478,12 @@ export default {
             }
           })
           .then(result => {
-            let datas = result.data;
-            if (datas && datas.length) {
+            let data = result.data;
+            if (data) {
               //# 1 这仅是初始数据
-              let baseData = datas[0],
+              let //baseData = datas[0],
                 //# 2 总结数据
-                sumData = me.getDataSummary(baseData);
+                sumData = me.getDataSummary(data);
               //# 3 设定好
               me.$set(me.linkDatas, dataId, sumData);
               res(sumData);
@@ -511,12 +511,26 @@ export default {
         }
       });
     },
-    getDataSummary(data) {
+    getDataSummary_v1(data) {
       let me = this,
         dimension = JSON.parse(data.dimension),
         aoa = JSON.parse(data.dataSource),
         workSheet = me.getSheetFromAoa(aoa, dimension),
         aoaKey = me.wsToArray(workSheet, true);
+      return {
+        baseData: data,
+        dimension,
+        aoa,
+        aoaKey,
+        workSheet
+      };
+    },
+    getDataSummary(data) {
+      let me = this,
+        dimension = JSON.parse(data.dimension),
+        aoaKey = JSON.parse(data.dataTable),
+        workSheet = me.getSheetFromAoa(aoaKey, dimension),
+        aoa = me.wsToArray(workSheet);
       return {
         baseData: data,
         dimension,

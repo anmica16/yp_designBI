@@ -205,6 +205,12 @@ export default {
     //~ 10 既要是非点击新增进入，又要是数据确实已存在
     isEidt() {
       return this.likeEdit && this.exist;
+    },
+    tableName() {
+      return (
+        (this.DetailData && this.DetailData.tableName) ||
+        `P_designBI_local_${tool.uniqueStr()}`
+      );
     }
   },
   methods: {
@@ -213,8 +219,7 @@ export default {
       this.$emit("back", detailData);
     },
     //~ 2 保存后就取消该 id的 readyAdd状态
-
-    submitFn() {
+    submitFn_v1() {
       let me = this,
         editTime = tool.now(true),
         record = {
@@ -254,6 +259,53 @@ export default {
         })
         .catch(r => {
           me.$message.success("保存失败！" + r);
+        });
+      console.log(["尝试提交", me, record]);
+    },
+    submitFn() {
+      let me = this,
+        editTime = tool.now(true),
+        record = {
+          id: me.id,
+          name: me.name,
+          //## 1 name！
+          tableName: me.tableName,
+          //dataSource: me.getStrDateAoa(me.sheet, true),
+          editTime
+        };
+      if (me.isEdit) {
+        // tool.apply(record, {
+        //   exist: true,
+        // });
+      } else {
+        tool.apply(record, {
+          fileName: me.fileName,
+          fileType: me.fileType,
+          dataType: me.dataType,
+          //~~ 1 暂时不改
+          //## 2 维度！
+          dimension: me.dimension,
+          exist: true
+        });
+      }
+
+      //# 1 保存上传！
+      $.ajax({
+        url: Vue.Api.designBI,
+        method: Vue.Api.designBI.CreateOrUpdTable,
+        data: {
+          DetailData: JSON.stringify(record),
+          //## 3 数据！
+          keySheet: JSON.stringify(me.getStrDateAoa(me.keySheet, true))
+        }
+      })
+        .then(result => {
+          me.$message.success("保存成功！");
+          //# 2 返回
+          me.backPage(record);
+        })
+        .catch(r => {
+          me.$message.error("保存失败！" + r);
         });
       console.log(["尝试提交", me, record]);
     },
