@@ -36,9 +36,13 @@ export default {
       return dims;
     },
     //@@ 2 一表part2：序列值二维数组，首行为header
-    aoaData() {
+    aoa() {
       let me = this;
       return me.SummaryData.aoa;
+    },
+    aoaData() {
+      let me = this;
+      return me.SummaryData.aoaData;
     },
     //@@ 3 键值对数组
     keySheet() {

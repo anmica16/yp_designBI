@@ -528,13 +528,19 @@ export default {
     getDataSummary(data) {
       let me = this,
         dimension = JSON.parse(data.dimension),
-        aoaKey = JSON.parse(data.dataTable),
+        //# 1 这里是fmt的 date型
+        aoaKey = tool.isString(data.dataTable)
+          ? JSON.parse(data.dataTable)
+          : data.dataTable,
         workSheet = me.getSheetFromAoa(aoaKey, dimension),
-        aoa = me.wsToArray(workSheet);
+        //# 2 这里是Date 的date型
+        aoa = me.wsToArray(workSheet),
+        aoaData = me.getStrDateAoa(aoa);
       return {
         baseData: data,
         dimension,
         aoa,
+        aoaData,
         aoaKey,
         workSheet
       };

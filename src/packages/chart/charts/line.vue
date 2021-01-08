@@ -46,7 +46,9 @@ export default {
         option = {
           //# 2 小组件
           legend: {
-            data: me.aoaData[0]
+            data: me.series.map(index => {
+              return index.name;
+            })
           },
           tooltip: {},
 

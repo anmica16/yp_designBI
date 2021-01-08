@@ -64,8 +64,8 @@ export default {
           }
         });
         me.DetailDataAjax.then(result => {
-          let datas = result.data;
-          if (!datas || !datas.length) {
+          let data = result.data;
+          if (!data.dataTable || !data.dataTable.length) {
             //# 1 数据不存在！页面不允许访问！
             let info = {
               title: "错误提示",
@@ -73,11 +73,10 @@ export default {
               type: "warning"
             };
             me.$msgbox(info);
-            rej(info);
-            return;
+            // rej(info);
+            // return;
           }
           //# 2 center选中的 都应是完整确立的数据！
-          let data = datas[0];
           me.DetailData = data;
 
           res(data);

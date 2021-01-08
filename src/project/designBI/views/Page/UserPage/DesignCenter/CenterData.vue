@@ -266,8 +266,7 @@ export default {
       me.likeEdit_newData = true;
       me.refreshRecords();
       if (detailData) {
-        //【update】
-        me.DetailData = detailData;
+        me.nodeClickFn(detailData);
       }
     }
   },

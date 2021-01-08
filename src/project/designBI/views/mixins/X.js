@@ -277,24 +277,33 @@ let Xbase = {
         X = me.X,
         aoa = tool.clone(_aoa),
         header = aoa[0],
+        isKeySheet = tool.isObject(header),
         toDate = [];
       //console.log(["查看 转化问题0"]);
       //# 1 对首行、维度进行匹配
       if (tool.isObject(dim)) {
         tool.each(dim, (k, v) => {
           if (v === "date") {
-            let at = header.indexOf(k);
-            if (at > -1) {
-              toDate.push(at);
+            if (!isKeySheet) {
+              let at = header.indexOf(k);
+              if (at > -1) {
+                toDate.push(at);
+              }
+            } else {
+              toDate.push(k);
             }
           }
         });
       } else if (tool.isArray(dim)) {
         tool.each(dim, oneDim => {
           if (oneDim.type === "date") {
-            let at = header.indexOf(oneDim.key);
-            if (at > -1) {
-              toDate.push(at);
+            if (!isKeySheet) {
+              let at = header.indexOf(oneDim.key);
+              if (at > -1) {
+                toDate.push(at);
+              }
+            } else {
+              toDate.push(oneDim.key);
             }
           }
         });
@@ -304,7 +313,7 @@ let Xbase = {
       //# 2 处理数据
       aoa.forEach((row, y) => {
         //~ 1 json
-        if (tool.isObject(row)) {
+        if (isKeySheet) {
           tool.each(row, (key, val) => {
             if (toDate.indexOf(key) > -1) {
               row[key] = new Date(val);
@@ -322,7 +331,9 @@ let Xbase = {
         }
       });
       //# 3 转化结果
-      let ws = X.utils.aoa_to_sheet(aoa, { cellDates: true });
+      let ws = X.utils[isKeySheet ? "json_to_sheet" : "aoa_to_sheet"](aoa, {
+        cellDates: true
+      });
       return ws;
     }
   },
@@ -386,6 +397,7 @@ let plusBase = {
   methods: {
     refresh() {
       let me = this;
+      console.log(["refresh检查"]);
       if (me.DetailData && this.X) {
         let table = tool.isString(me.DetailData.dataTable)
           ? tool.parse(me.DetailData.dataTable)
