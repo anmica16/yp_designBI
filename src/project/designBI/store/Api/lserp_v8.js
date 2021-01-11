@@ -15,6 +15,7 @@ let Api_custom = {
     GetDataMenus: "GetDataMenus",
     GetDataDetail: "GetDataDetail",
     //~ 2.2 dataV2
+    GetLinkData: "GetLinkData",
     CreateOrUpdTable: "CreateOrUpdTable"
   },
 

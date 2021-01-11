@@ -205,6 +205,10 @@ export default {
       percentMode: true,
       //# 2 进入item 编辑页?
       linkDatas: {},
+      ajaxLinkDatas: [],
+      //# 3 条件汇总 联动
+      //【update】需有控件添加测试
+      conditionMap: {},
       itemEditPage: false,
       addInstances: []
     };
@@ -467,33 +471,44 @@ export default {
     //## 2 item 全页数据中心
     //~ 1 刷新某id数据
     refreshLinkData(dataId) {
-      let me = this;
+      let me = this,
+        options = {
+          url: Vue.Api.designBI,
+          method: Vue.Api.designBI.GetLinkData,
+          data: {
+            id: dataId
+          }
+        };
+
       return new Promise((res, rej) => {
-        loader
-          .ajax({
-            url: Vue.Api.designBI,
-            method: Vue.Api.designBI.GetDataDetail,
-            data: {
-              id: dataId
-            }
-          })
-          .then(result => {
-            let data = result.data;
-            if (data) {
-              //# 1 这仅是初始数据
-              let //baseData = datas[0],
-                //# 2 总结数据
-                sumData = me.getDataSummary(data);
-              //# 3 设定好
-              me.$set(me.linkDatas, dataId, sumData);
-              res(sumData);
-            } else {
+        if (me.ajaxLinkDatas.indexOf(dataId) > -1) {
+          res(me.linkDatas[dataId]);
+        } else {
+          me.ajaxLinkDatas.push(dataId);
+          loader
+            .ajax(options)
+            .then(result => {
+              let data = result.data;
+              if (data && data.length) {
+                let setData = data[0];
+                if (tool.isString(setData.dimension)) {
+                  setData.dimension = JSON.parse(setData.dimension);
+                }
+                //# 3 设定好
+                me.$set(me.linkDatas, dataId, setData);
+                res(setData);
+              } else {
+                res(false);
+              }
+            })
+            .catch(r => {
               res(false);
-            }
-          })
-          .catch(r => {
-            res(false);
-          });
+            })
+            .finally(() => {
+              let at = me.ajaxLinkDatas.indexOf(dataId);
+              at > -1 && me.ajaxLinkDatas.splice(at, 1);
+            });
+        }
       });
     },
     //~ 2 获取某id数据
@@ -510,40 +525,6 @@ export default {
           });
         }
       });
-    },
-    getDataSummary_v1(data) {
-      let me = this,
-        dimension = JSON.parse(data.dimension),
-        aoa = JSON.parse(data.dataSource),
-        workSheet = me.getSheetFromAoa(aoa, dimension),
-        aoaKey = me.wsToArray(workSheet, true);
-      return {
-        baseData: data,
-        dimension,
-        aoa,
-        aoaKey,
-        workSheet
-      };
-    },
-    getDataSummary(data) {
-      let me = this,
-        dimension = JSON.parse(data.dimension),
-        //# 1 这里是fmt的 date型
-        aoaKey = tool.isString(data.dataTable)
-          ? JSON.parse(data.dataTable)
-          : data.dataTable,
-        workSheet = me.getSheetFromAoa(aoaKey, dimension),
-        //# 2 这里是Date 的date型
-        aoa = me.wsToArray(workSheet),
-        aoaData = me.getStrDateAoa(aoa);
-      return {
-        baseData: data,
-        dimension,
-        aoa,
-        aoaData,
-        aoaKey,
-        workSheet
-      };
     }
   },
   watch: {

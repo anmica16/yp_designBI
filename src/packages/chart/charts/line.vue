@@ -13,10 +13,10 @@ export default {
     //%% 1 各type所需--类目（维度）
     xAxis() {
       let x = { type: "category" };
-      if (this.Dims && this.Dims.length) {
-        let cDim = this.getAxisDim(this.Dims[0]);
-        cDim && (x = cDim);
-      }
+      // if (this.dimension && this.dimension.length) {
+      //   let cDim = this.getAxisDim(this.dimension[0]);
+      //   cDim && (x = cDim);
+      // }
       return x;
     },
     //%% 2 各type所需--类目值（指标）
@@ -27,17 +27,19 @@ export default {
     series() {
       let me = this,
         series = [];
-      me.Indices.forEach(index => {
-        let s = {
-          type: me.type,
-          name: index.key,
-          encode: {
-            x: me.xAxis.key || 0,
-            y: index.key
-          }
-        };
-        series.push(s);
-      });
+      me.dimension &&
+        me.dimension.forEach((index, i) => {
+          if (i < 1) return;
+          let s = {
+            type: me.chartType,
+            name: index.key,
+            encode: {
+              x: me.xAxis.key || 0,
+              y: index.key
+            }
+          };
+          series.push(s);
+        });
       return series;
     },
     //%% 4 各type--option组合
@@ -54,7 +56,7 @@ export default {
 
           //# 1 核心部分
           dataset: {
-            source: me.aoaData
+            source: me.keySheet
           },
           xAxis: me.xAxis,
           yAxis: me.yAxis,

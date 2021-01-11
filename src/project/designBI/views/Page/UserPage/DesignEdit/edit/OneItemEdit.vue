@@ -5,7 +5,7 @@
     <div class="dimensionArea">
       <!-- # 1 表信息 切换 -->
       <div class="pre fileName">
-        <span>{{ sumData && sumData.baseData.name }}</span>
+        <span>{{ sumData && sumData.baseData && sumData.baseData.name }}</span>
         <i class="icon el-icon-document-copy"></i>
       </div>
       <!-- # 2 字段搜索 -->

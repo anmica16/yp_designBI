@@ -2,13 +2,13 @@
   <div class="BIBase">
     <div class="chartTitle">BIBase</div>
     <div class="chartBody">
-      <ChartManager
+      <div
         ref="chart"
-        v-if="SummaryData"
-        :SummaryData="SummaryData"
-        :Dims="Dims"
-        :Indices="Indices"
-      ></ChartManager>
+        :is="chartTypeStr"
+        :Entity="Instance"
+        :EditNode="EditNode"
+        :nowBoard="nowBoard"
+      ></div>
     </div>
   </div>
 </template>
@@ -20,42 +20,13 @@ import { Instance } from "../mixins/Entity";
 export default {
   name: "BIBase",
   mixins: [Instance],
-  data() {
-    return {
-      SummaryData: null
-    };
-  },
   computed: {
-    dimension() {
-      return this.SummaryData && this.SummaryData.dimension;
-    },
-    Dims() {
-      let me = this,
-        dims = [];
-      if (me.dimension) {
-        dims.push(me.dimension[0]);
-      }
-      return dims;
-    },
-    Indices() {
-      let me = this,
-        dims = [];
-      if (me.dimension) {
-        dims = me.dimension.slice(1);
-      }
-      return dims;
+    chartTypeStr() {
+      return "chart-" + this.chartType;
     }
   },
   mounted() {
-    let me = this,
-      dataId = me.recordData.linkDataId;
-    console.log(["查看数据？"]);
-    //~ 1 数据
-    me.EditNode.getLinkData(dataId).then(sumData => {
-      if (sumData) {
-        me.SummaryData = sumData;
-      }
-    });
+    let me = this;
     me.$on("bubble-resize", () => {
       let chart = me.$refs.chart;
       if (chart) {

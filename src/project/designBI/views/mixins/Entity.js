@@ -15,10 +15,10 @@ let Base = {
   },
   computed: {
     recordData() {
-      return this.Instance.recordData;
+      return this.Instance ? this.Instance.recordData : {};
     },
     record() {
-      return this.Instance.record;
+      return this.Instance ? this.Instance.record : {};
     },
     id() {
       return this.recordData.id;
@@ -107,6 +107,19 @@ let Instance = tool.mergeClone({}, Base, {
     },
     canDrop() {
       return this.recordData.drag_resize_cfg.can_drop != "";
+    },
+    dataId() {
+      return this.recordData ? this.recordData.linkDataId : null;
+    },
+    chartType() {
+      let me = this,
+        t = me.recordData ? me.recordData.chartType || "line" : "line";
+      return t;
+    },
+    theme() {
+      let me = this,
+        t = me.recordData ? me.recordData.theme : "";
+      return t;
     }
   }
 });
