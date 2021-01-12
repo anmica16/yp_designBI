@@ -25,9 +25,13 @@ export default {
       return "chart-" + this.chartType;
     }
   },
+  methods: {
+    chartResize() {}
+  },
   mounted() {
     let me = this;
     me.$on("bubble-resize", () => {
+      //console.log(["测试转化得如何了"]);
       let chart = me.$refs.chart;
       if (chart) {
         chart.resize();

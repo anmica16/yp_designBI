@@ -182,8 +182,9 @@ let Xbase = {
     },
     //~ 5-3 不健康数据确认提示
     dataHealthyReport({ analyse, keySheet, wb }) {
-      let me = this,
-        h = me.$createElement;
+      let me = this;
+
+      let h = me.$createElement;
       return new Promise((res, rej) => {
         console.log(["分析！", analyse, keySheet]);
         let rows = [];
@@ -273,6 +274,7 @@ let Xbase = {
       return aoa;
     },
     getSheetFromAoa(_aoa, dim) {
+      if (!_aoa) return false;
       let me = this,
         X = me.X,
         aoa = tool.clone(_aoa),
@@ -387,7 +389,7 @@ export default tool.apply({}, Xbase, {
 let plusBase = {
   computed: {
     dimension() {
-      if (this.DetailData && this.X) {
+      if (this.DetailData && this.X && this.DetailData.dimension) {
         return tool.parse(this.DetailData.dimension);
       } else {
         return null;

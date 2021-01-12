@@ -934,6 +934,21 @@ body {
       .visualArea {
         width: calc(100% - #{$w_left + $w_mid});
         height: 100%;
+        $h_dim: 60px;
+        $h_chart: calc(100% - #{$h_dim});
+
+        .dropArea {
+          height: $h_dim;
+          .CoatingDim {
+            width: 100%;
+            @extend %flex-row;
+          }
+        }
+
+        .visualStage {
+          height: $h_chart;
+        }
+
       }
 
     } //onebody

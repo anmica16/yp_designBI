@@ -46,26 +46,27 @@ export default {
           me.nowFolderRec = null;
         }
         //~ 3 选中的 fileRec要进行DetailData获取
-        me.getDetailData(rec.id);
+        me.getDetailData(rec);
       }
     },
     //~ 3 获取详细数据
-    getDetailData(theId) {
-      let me = this;
+    getDetailData(rec) {
+      let me = this,
+        theId = rec.id;
       if (me.DetailDataAjax) {
         me.DetailDataAjax.abort();
       }
       return new Promise((res, rej) => {
         me.DetailDataAjax = $.ajax({
           url: Vue.Api.designBI,
-          method: Vue.Api.designBI.GetDataDetail,
+          method: Vue.Api.designBI.GetLinkData,
           data: {
             id: theId
           }
         });
         me.DetailDataAjax.then(result => {
           let data = result.data;
-          if (!data.dataTable || !data.dataTable.length) {
+          if (!data || !data.length) {
             //# 1 数据不存在！页面不允许访问！
             let info = {
               title: "错误提示",
@@ -77,7 +78,7 @@ export default {
             // return;
           }
           //# 2 center选中的 都应是完整确立的数据！
-          me.DetailData = data;
+          me.DetailData = data[0];
 
           res(data);
         }).catch(r => {

@@ -69,7 +69,18 @@ export default {
         me.chart.resize();
       }
     }
+    // setOption() {
+    //   let me = this;
+    //   me.chart.setOption(me.option);
+    // }
   },
+  // watch: {
+  //   option(newVal, oldVal) {
+  //     if (newVal) {
+  //       this.setOption();
+  //     }
+  //   }
+  // },
   mounted() {
     let me = this;
     if (me.theme) {
@@ -77,9 +88,12 @@ export default {
     } else {
       me.chart = me.echarts.init(me.$refs.box, null, { renderer: "svg" });
     }
-    me.$nextTick(() => {
+    me.$on("refreshSource", () => {
+      console.log(["这里没处理号？"]);
       me.chart.setOption(me.option);
     });
-    console.log(["创建好的？", me.chart, me]);
+    // me.$nextTick(() => {
+    // });
+    //console.log(["创建好的？", me.chart, me]);
   }
 };

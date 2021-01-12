@@ -169,6 +169,7 @@ export default {
                 sumData = me.getDataSummary(data);
               //# 3 设定好
               me.SummaryData = sumData;
+              me.$emit("refreshSource", sumData);
               res(sumData);
             } else {
               res(false);
