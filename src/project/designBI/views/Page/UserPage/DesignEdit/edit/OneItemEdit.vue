@@ -84,8 +84,25 @@
         <div class="oneDim">
           <div class="dimType">行维度</div>
           <div class="dimsHere">
-            <CoatingDim style="height: 30px;" :candyMaster="candyMaster">
-              <span class="noTip">请拖入左侧字段</span>
+            <CoatingDim
+              style="height: 30px;"
+              :candyMaster="candyMaster"
+              queryFlag="Dims"
+            >
+              <span class="noTip">请拖入左侧维度</span>
+            </CoatingDim>
+          </div>
+        </div>
+
+        <div class="oneDim">
+          <div class="dimType">列指标</div>
+          <div class="dimsHere">
+            <CoatingDim
+              style="height: 30px;"
+              :candyMaster="candyMaster"
+              queryFlag="Indices"
+            >
+              <span class="noTip">请拖入左侧指标</span>
             </CoatingDim>
           </div>
         </div>
@@ -137,7 +154,10 @@ export default {
       tempName: "",
       checkAllData: false,
       //# 2 拖拽管理器
-      candyMaster: null
+      candyMaster: null,
+      //# 3 表有关
+      Dims: [],
+      Indices: []
     };
   },
   computed: {
@@ -163,6 +183,11 @@ export default {
   created() {
     let me = this;
     me.candyMaster = new CandyMasterCtor();
+    me.candyMaster.$on("dropEnd", () => {
+      //save一次
+      //【update】注意Dim里面有个对象？
+      console.log(["赋值保存一次", me.candyMaster]);
+    });
   }
 };
 </script>

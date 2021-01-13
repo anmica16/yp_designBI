@@ -59,14 +59,15 @@ export default {
       return new Promise((res, rej) => {
         me.DetailDataAjax = $.ajax({
           url: Vue.Api.designBI,
-          method: Vue.Api.designBI.GetLinkData,
+          method: Vue.Api.designBI.GetLinkDetailData,
           data: {
             id: theId
           }
         });
         me.DetailDataAjax.then(result => {
           let data = result.data;
-          if (!data || !data.length) {
+          if (!data) {
+            console.log(["获取到 GetLinkDetailData", result, me]);
             //# 1 数据不存在！页面不允许访问！
             let info = {
               title: "错误提示",
@@ -78,7 +79,7 @@ export default {
             // return;
           }
           //# 2 center选中的 都应是完整确立的数据！
-          me.DetailData = data[0];
+          me.DetailData = data;
 
           res(data);
         }).catch(r => {

@@ -2,7 +2,7 @@
   <DimTypeTag
     :class="{ dragging }"
     :type="Dim.type"
-    :name="Dim.name"
+    :name="Dim.key"
     @mousedown.native.prevent="candyHandleDown"
   ></DimTypeTag>
 </template>

@@ -16,7 +16,8 @@ let Api_custom = {
     GetDataDetail: "GetDataDetail",
     //~ 2.2 dataV2
     GetLinkData: "GetLinkData",
-    CreateOrUpdTable: "CreateOrUpdTable"
+    CreateOrUpdTable: "CreateOrUpdTable",
+    GetLinkDetailData: "GetLinkDetailData"
   },
 
   Module: {

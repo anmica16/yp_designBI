@@ -9,15 +9,16 @@ let Candy = {
       type: Object
       //required: true
     },
+    //# 2 放在这里面的一些变量！通用性强，同一个对象 里有 额外 parentCoating
     Dim: Object
   },
   data() {
     return {
       dragDom: null,
       dragStart: false,
-      dragging: false
-      //# 1 悬浮的父亲coating节点
-      //overCoating: null
+      dragging: false,
+      eventId: null
+
       //mouseX: null,
       //mouseY: null
     };
@@ -27,6 +28,7 @@ let Candy = {
       let me = this,
         uid = tool.random62(4),
         dom = $(me.$el).clone();
+      me.eventId = uid;
 
       console.log(["drag开始！", uid, me]);
 
@@ -73,6 +75,10 @@ let Candy = {
     },
     candyHandleUp(e) {
       let me = this;
+
+      $("body").off(`mousemove.${me.eventId}`);
+      $("body").off(`mouseup.${me.eventId}`);
+
       me.dragging = false;
       me.dragStart = false;
 
@@ -160,6 +166,7 @@ let CandyMaster = {
     checkDrop(pos, candy) {
       let me = this;
       me.overCoatings = [];
+      me.$emit("dropEnd");
     }
   }
 };
@@ -170,6 +177,11 @@ let Coating = {
     candyMaster: {
       type: Object
       //required: true
+    },
+    //# 2 识别是哪个套?
+    queryFlag: {
+      type: String,
+      required: true
     }
   },
   data() {
@@ -186,6 +198,11 @@ let Coating = {
         overCandyAt = me.candies.findIndex(c => {
           return !tool.isNull(c.$id) && c.$id === cDim.$id;
         });
+      //++ 1 父外套 关联
+      if (cDim.parentCoating && cDim.parentCoating !== me) {
+        cDim.parentCoating.candyLeave(candy);
+      }
+      cDim.parentCoating = me;
       //# 1 寻找正确的位置，然后置换
       tool.each(me.candies, (c, i) => {
         //~ 3 略过自身
@@ -231,13 +248,15 @@ let Coating = {
       }
     },
     candyLeave(candy) {
-      let me = this;
+      let me = this,
+        cDim = candy.Dim;
+      //++ 1 父外套
+      cDim.parentCoating === me && (cDim.parentCoating = null);
       //# 1 dragging中
       //if (candy.dragging) {
-      let cDim = candy.Dim,
-        candyAt = me.candies.findIndex(c => {
-          return c.$id === cDim.$id;
-        });
+      let candyAt = me.candies.findIndex(c => {
+        return c.$id === cDim.$id;
+      });
       if (candyAt > -1) {
         console.log(["走了移除", candyAt]);
         me.candies.splice(candyAt, 1);

@@ -52,7 +52,7 @@ module.exports = {
 
   //--------- v2 分开的项目
   publicPath: "/dist",
-  outputDir: "../../DesignBI/dist"
+  outputDir: "../dist"
 
   //--------- v1
   // publicPath: "/pages/designBI/",
