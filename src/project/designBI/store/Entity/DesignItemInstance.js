@@ -165,7 +165,7 @@ const BaseCfg = tool.apply(
       disabled: true,
       hidden: true
     },
-    //【12】【JSON】【将弃用】config_more：
+    //【12】【JSON】config_more：
     config_more: {
       desp: "设计时涉及更多的变量",
       $json: Object,

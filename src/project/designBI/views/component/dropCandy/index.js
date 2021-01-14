@@ -177,11 +177,6 @@ let Coating = {
     candyMaster: {
       type: Object
       //required: true
-    },
-    //# 2 识别是哪个套?
-    queryFlag: {
-      type: String,
-      required: true
     }
   },
   data() {

@@ -21,7 +21,9 @@ export default {
   name: "BIBase",
   mixins: [Instance],
   computed: {
+    //……1 这里的chartType是放在 Instance里面的
     chartTypeStr() {
+      //console.log(["chartType被吃了？"]);
       return "chart-" + this.chartType;
     }
   },

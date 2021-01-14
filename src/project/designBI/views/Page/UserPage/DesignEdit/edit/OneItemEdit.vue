@@ -87,7 +87,7 @@
             <CoatingDim
               style="height: 30px;"
               :candyMaster="candyMaster"
-              queryFlag="Dims"
+              ref="Dims"
             >
               <span class="noTip">请拖入左侧维度</span>
             </CoatingDim>
@@ -100,7 +100,7 @@
             <CoatingDim
               style="height: 30px;"
               :candyMaster="candyMaster"
-              queryFlag="Indices"
+              ref="Indices"
             >
               <span class="noTip">请拖入左侧指标</span>
             </CoatingDim>
@@ -111,13 +111,13 @@
       <div class="visualStage">
         <!-- ~~ 1 chart -->
         <div class="chartArea">
-          <!-- <AoaChart
-                ref="chart"
-                v-if="SummaryData"
-                :SummaryData="SummaryData"
-                :Dims="Dims"
-                :Indices="Indices"
-              ></AoaChart> -->
+          <BIBase
+            ref="chart"
+            :Entity="Instance"
+            :EditNode="EditNode"
+            :nowBoard="nowBoard"
+            v-if="sumData"
+          ></BIBase>
         </div>
         <div class="bottom">
           <el-checkbox v-model="checkAllData">查看所有数据</el-checkbox>
@@ -131,9 +131,11 @@
 import { CandyMaster } from "@designBI/views/component/dropCandy";
 import Vue from "vue";
 const CandyMasterCtor = Vue.extend(CandyMaster);
+import { Instance } from "@designBI/views/mixins/Entity";
 
 import CandyDimTag from "./CandyDimTag";
 import CoatingDim from "./CoatingDim";
+import tool from "@/plugins/js/tool";
 
 export default {
   name: "OneItemEdit",
@@ -141,6 +143,7 @@ export default {
     CoatingDim,
     CandyDimTag
   },
+  mixins: [Instance],
   props: {
     sumData: {
       type: Object
@@ -154,10 +157,7 @@ export default {
       tempName: "",
       checkAllData: false,
       //# 2 拖拽管理器
-      candyMaster: null,
-      //# 3 表有关
-      Dims: [],
-      Indices: []
+      candyMaster: null
     };
   },
   computed: {
@@ -177,17 +177,59 @@ export default {
         });
       }
       return { Dims, Indices };
+    },
+    //# 3 表有关
+    Dims() {
+      let me = this,
+        result = [],
+        dimsR = me.$refs.Dims;
+      if (dimsR) {
+        result = dimsR.candies;
+      }
+      return result;
+    },
+    Indices() {
+      let me = this,
+        result = [],
+        idxR = me.$refs.Indices;
+      if (idxR) {
+        result = idxR.candies;
+      }
+      return result;
     }
   },
-  methods: {},
+  methods: {
+    getPureDim(d) {
+      let d2 = tool.apply({}, d);
+      delete d2.parentCoating;
+      return d2;
+    }
+  },
   created() {
     let me = this;
     me.candyMaster = new CandyMasterCtor();
+    //# 1 只有可能是
     me.candyMaster.$on("dropEnd", () => {
       //save一次
-      //【update】注意Dim里面有个对象？
       console.log(["赋值保存一次", me.candyMaster]);
+      me.Instance.setData({
+        config_more: {
+          Dims: me.Dims.map(me.getPureDim),
+          Indices: me.Indices.map(me.getPureDim)
+        }
+      });
+      me.Instance.save();
     });
+  },
+  mounted() {
+    //# 2 来自ins的数据
+    let me = this,
+      cfg = me.Instance.getData("config_more");
+    //console.log(["查看如何添加到candy"]);
+    if (cfg) {
+      me.$refs.Dims.candies = cfg.Dims;
+      me.$refs.Indices.candies = cfg.Indices;
+    }
   }
 };
 </script>

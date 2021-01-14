@@ -48,7 +48,12 @@
           :key="ins.instanceCode"
           class="oneTabBody"
         >
-          <one-item-edit :sumData="getSumData(ins)"></one-item-edit>
+          <one-item-edit
+            :Entity="ins"
+            :EditNode="EditNode"
+            :nowBoard="nowBoard"
+            :sumData="getSumData(ins)"
+          ></one-item-edit>
         </div>
       </template>
     </div>
@@ -69,6 +74,7 @@ export default {
       type: Object,
       required: true
     },
+    nowBoard: Object,
     linkDatas: {
       type: Object,
       required: true
@@ -97,6 +103,7 @@ export default {
       let me = this;
       me.EditNode.goBackEdit();
     },
+    //【update】看会不会响应
     getSumData(ins) {
       return this.linkDatas[ins.linkDataId];
     }

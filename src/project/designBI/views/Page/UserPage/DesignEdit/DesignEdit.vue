@@ -166,6 +166,7 @@
           v-show="itemEditPage"
           :addInstances="addInstances"
           :EditNode="me"
+          :nowBoard="nowBoard"
           :linkDatas="linkDatas"
         ></ItemEdit>
       </transition>
