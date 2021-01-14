@@ -36,7 +36,7 @@ export default {
     //## 3 拖拽过来选择的维度【x轴】类目
     Dims() {
       let me = this,
-        itemDims = me.record.Dims,
+        itemDims = me.record.config_more && me.record.config_more.Dims,
         dims = [];
       if (me.dimension && itemDims) {
         me.dimension.forEach(d => {
@@ -53,7 +53,7 @@ export default {
     //## 4 拖拽过来选择的指标【y轴】类目的维度值
     Indices() {
       let me = this,
-        itemIdx = me.record.Indices,
+        itemIdx = me.record.config_more && me.record.config_more.Indices,
         dims = [];
       if (me.dimension && itemIdx) {
         me.dimension.forEach(d => {
@@ -141,8 +141,20 @@ export default {
             id: dataId,
             tableName,
             //@ 3 这两个产生个性
-            Dims: me.Dims,
-            Indices: me.Indices
+            Dims: JSON.stringify(
+              me.Dims.map(d => {
+                let d2 = tool.apply({}, d);
+                delete d2.parentCoating;
+                return d2;
+              })
+            ),
+            Indices: JSON.stringify(
+              me.Indices.map(d => {
+                let d2 = tool.apply({}, d);
+                delete d2.parentCoating;
+                return d2;
+              })
+            )
           }
         };
 

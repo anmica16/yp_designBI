@@ -34,7 +34,7 @@
           <el-table
             ref="operTable"
             :height="'100%'"
-            :data="operList"
+            :data="stepOperMap[nowStep]"
             :row-class-name="operTable_rowClass"
             @row-click="operTable_RowClick"
             @selection-change="operTable_SelChange"
@@ -118,6 +118,26 @@ export default {
         val: val.join(";"),
         key: key.join(";")
       };
+    },
+    stepOperMap() {
+      let me = this,
+        li = me.operList,
+        map = {},
+        nextCodes = me.nextSelectStepCode.split(";").filter(a => a),
+        nextOpers = me.nextSelectStepOper.split(";").filter(a => a);
+      nextCodes.forEach((code, i) => {
+        let opers = nextOpers[i]
+          .split(",")
+          .filter(a => a)
+          .map(a => {
+            return li.find(c => {
+              return c.username === a;
+            });
+          });
+        map[code] = opers;
+      });
+
+      return map;
     }
   },
   methods: {
@@ -131,9 +151,11 @@ export default {
       //【~ 1】切换目前所选
       me.nowStep = row.stepcode;
       //【~ 2】切换目前人员表选择状态
-      me.operTable.clearSelection();
-      Yw.each(operA, function(operRow) {
-        me.operTable.toggleRowSelection(operRow);
+      me.$nextTick(() => {
+        me.operTable.clearSelection();
+        Yw.each(operA, function(operRow) {
+          me.operTable.toggleRowSelection(operRow);
+        });
       });
       //console.log(["点击了！", arguments]);
     },

@@ -59,5 +59,5 @@ module.exports = {
   // outputDir: "../pages/designBI"
 
   //v8文件夹
-  //outputDir: "../Lserp_v8/dist"
+  //outputDir: "../../Lskj.WebErp.View_7.0/Lserp_v8/dist"
 };

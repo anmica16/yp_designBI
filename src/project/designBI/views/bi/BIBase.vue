@@ -28,7 +28,10 @@ export default {
     }
   },
   methods: {
-    chartResize() {}
+    chartResize() {},
+    refreshSource() {
+      this.$refs.chart.refreshSource();
+    }
   },
   mounted() {
     let me = this;

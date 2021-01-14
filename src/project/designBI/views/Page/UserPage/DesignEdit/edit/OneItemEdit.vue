@@ -203,6 +203,32 @@ export default {
       let d2 = tool.apply({}, d);
       delete d2.parentCoating;
       return d2;
+    },
+    getPropDim(d) {
+      let at = this.sumData.dimension.find(a => {
+        return a.$id === d.$id;
+      });
+      return at;
+    },
+    initDims() {
+      //# 2 来自ins的数据
+      let me = this;
+      let cfg = me.Instance.getData("config_more");
+      //console.log(["查看如何添加到candy"]);
+      if (cfg) {
+        cfg.Dims &&
+          (me.$refs.Dims.candies = cfg.Dims.map(d => {
+            let d2 = me.getPropDim(d);
+            d2.parentCoating = me.$refs.Dims;
+            return d2;
+          }));
+        cfg.Indices &&
+          (me.$refs.Indices.candies = cfg.Indices.map(d => {
+            let d2 = me.getPropDim(d);
+            d2.parentCoating = me.$refs.Indices;
+            return d2;
+          }));
+      }
     }
   },
   created() {
@@ -219,16 +245,16 @@ export default {
         }
       });
       me.Instance.save();
+      me.$refs.chart.refreshSource();
     });
   },
-  mounted() {
-    //# 2 来自ins的数据
-    let me = this,
-      cfg = me.Instance.getData("config_more");
-    //console.log(["查看如何添加到candy"]);
-    if (cfg) {
-      me.$refs.Dims.candies = cfg.Dims;
-      me.$refs.Indices.candies = cfg.Indices;
+  watch: {
+    "sumData.dimension": function(newVal) {
+      let me = this;
+      if (newVal && !me.$initDims) {
+        me.$initDims = true;
+        me.initDims();
+      }
     }
   }
 };
