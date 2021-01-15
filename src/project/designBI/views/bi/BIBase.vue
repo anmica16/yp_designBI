@@ -8,6 +8,8 @@
         :Entity="Instance"
         :EditNode="EditNode"
         :nowBoard="nowBoard"
+        @click.native.stop
+        @mousedown.native.stop
       ></div>
     </div>
   </div>

@@ -231,11 +231,11 @@ export default {
       this.refreshSource();
     },
     //自身变动
-    Dims() {
-      this.refreshSource();
+    Dims(newVal, oldVal) {
+      if (newVal.length !== oldVal.length) this.refreshSource();
     },
-    Indices() {
-      this.refreshSource();
+    Indices(newVal, oldVal) {
+      if (newVal.length !== oldVal.length) this.refreshSource();
     }
   },
   mounted() {
