@@ -63,8 +63,19 @@
       <div class="typeArea">
         <div class="title">图表类型</div>
         <!-- update -->
-        <div class="selectArea"></div>
+        <div class="selectArea">
+          <template v-for="(type, i) in selectTypes">
+            <el-link
+              :class="{ active: type === chartType }"
+              :key="i"
+              @click="selectTypeFn(type)"
+            >
+              {{ type }}
+            </el-link>
+          </template>
+        </div>
         <div class="desp"></div>
+        <div class="nowType">{{ chartType }}</div>
       </div>
       <!-- # 3 属性样式 -->
       <el-tabs class="cssArea">
@@ -137,6 +148,8 @@ import CandyDimTag from "./CandyDimTag";
 import CoatingDim from "./CoatingDim";
 import tool from "@/plugins/js/tool";
 
+const selectTypes = ["table", "line"];
+
 export default {
   name: "OneItemEdit",
   components: {
@@ -161,6 +174,9 @@ export default {
     };
   },
   computed: {
+    selectTypes() {
+      return selectTypes;
+    },
     //【update】改变的？
     dimAndIndex() {
       let me = this,
@@ -229,6 +245,14 @@ export default {
             return d2;
           }));
       }
+    },
+    //@ 1 选择BI类型
+    selectTypeFn(type) {
+      let me = this;
+      me.Instance.setData({
+        chartType: type
+      });
+      me.Instance.save();
     }
   },
   created() {

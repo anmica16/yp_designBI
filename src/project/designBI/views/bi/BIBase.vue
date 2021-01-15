@@ -14,6 +14,7 @@
 </template>
 
 <script>
+import tool from '@/plugins/js/tool';
 import { Instance } from "../mixins/Entity";
 
 //【1】要求必有 数据
@@ -38,7 +39,7 @@ export default {
     me.$on("bubble-resize", () => {
       //console.log(["测试转化得如何了"]);
       let chart = me.$refs.chart;
-      if (chart) {
+      if (chart && tool.isFunction(chart.resize)) {
         chart.resize();
       }
     });

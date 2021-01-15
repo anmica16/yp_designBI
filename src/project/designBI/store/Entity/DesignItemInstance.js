@@ -172,6 +172,13 @@ const BaseCfg = tool.apply(
       disabled: true,
       hidden: true
     },
+    chartType: {
+      desp: "BI图表类型",
+      defalut() {
+        return "table";
+      },
+      hidden: true
+    },
     //【12-2】【JSON】drag_resize_cfg：
     drag_resize_cfg: {
       desp: "拖拽、resize设定，无则表示不可",

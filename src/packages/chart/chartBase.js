@@ -9,7 +9,10 @@ export default {
   data() {
     return {
       //## 1 可变，外部筛选导致的数据变化
-      SummaryData: null
+      SummaryData: null,
+      //## 2 获取数据方式
+      type: "chart", // "treeTable"
+      requestData: null
     };
   },
   computed: {
@@ -39,10 +42,10 @@ export default {
         itemDims = me.record.config_more && me.record.config_more.Dims,
         dims = [];
       if (me.dimension && itemDims) {
-        me.dimension.forEach(d => {
-          tool.each(itemDims, id => {
+        itemDims.forEach(d => {
+          tool.each(me.dimension, id => {
             if (d.key === id.key) {
-              dims.push(d);
+              dims.push(id);
               return false;
             }
           });
@@ -56,10 +59,10 @@ export default {
         itemIdx = me.record.config_more && me.record.config_more.Indices,
         dims = [];
       if (me.dimension && itemIdx) {
-        me.dimension.forEach(d => {
-          tool.each(itemIdx, id => {
+        itemIdx.forEach(d => {
+          tool.each(me.dimension, id => {
             if (d.key === id.key) {
-              dims.push(d);
+              dims.push(id);
               return false;
             }
           });
@@ -125,7 +128,7 @@ export default {
 
     //## 2 item 全页数据中心
     //~ 1 刷新某id数据
-    refreshSource() {
+    refreshSource(addOptions) {
       let me = this,
         tableName = me.tableName;
       //console.log(["尝试刷新"]);
@@ -154,7 +157,8 @@ export default {
                 delete d2.parentCoating;
                 return d2;
               })
-            )
+            ),
+            type: me.type
           }
         };
 
@@ -163,6 +167,10 @@ export default {
         options.data.conditions = JSON.stringify(
           tool.isArray(conditions) ? conditions : [conditions]
         );
+      }
+
+      if (addOptions) {
+        tool.merge(options, addOptions);
       }
 
       return new Promise((res, rej) => {
@@ -174,15 +182,15 @@ export default {
           .then(result => {
             me.ajaxData = null;
             let data = result.data;
+            console.log(["查看堆积sum数据", data, result]);
             if (data) {
-              //# 1 这仅是初始数据
-              let //baseData = datas[0],
-                //# 2 总结数据
-                sumData = me.getDataSummary(data);
-              //# 3 设定好
-              me.SummaryData = sumData;
-              me.$emit("refreshSource", sumData);
-              res(sumData);
+              me.requestData = data;
+              if (me.type === "chart") {
+                //# 1 这仅是初始数据
+                me.SummaryData = me.getDataSummary(data);
+              }
+              me.$emit("refreshSource", me.requestData);
+              res(me.requestData);
             } else {
               res(false);
             }
