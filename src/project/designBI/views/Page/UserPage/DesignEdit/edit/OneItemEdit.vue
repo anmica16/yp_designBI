@@ -4,18 +4,18 @@
     <!-- ~~ 1 维度指标 -->
     <div class="dimensionArea">
       <!-- # 1 表信息 切换 -->
-      <div class="pre fileName">
-        <span>{{ sumData && sumData.baseData && sumData.baseData.name }}</span>
-        <i class="icon el-icon-document-copy"></i>
+      <div class="fileName">
+        <span>{{ sumData && sumData.fileName }}</span>
+        <i class="icon el-icon-document-copy bi bi-change"></i>
       </div>
       <!-- # 2 字段搜索 -->
-      <div class="pre fileName">
+      <div class="searchDim">
         <el-input
           placeholder="搜索字段"
           prefix-icon="el-icon-search"
           v-model="queryDim"
         ></el-input>
-        <i class="icon el-icon-document-copy"></i>
+        <i class="icon el-icon-plus"></i>
       </div>
       <!-- # 3 维度 -->
       <div class="dimenArea">
@@ -23,6 +23,7 @@
         <Scrollbar class="body">
           <!-- 【update】拖拽 -->
           <CandyDimTag
+            class="edit"
             v-for="dim in dimAndIndex.Dims"
             :key="dim.key"
             :Dim="dim"
@@ -36,6 +37,7 @@
         <Scrollbar class="body">
           <!-- 【update】拖拽 -->
           <CandyDimTag
+            class="edit"
             v-for="dim in dimAndIndex.Indices"
             :key="dim.key"
             :Dim="dim"
@@ -64,18 +66,24 @@
         <div class="title">图表类型</div>
         <!-- update -->
         <div class="selectArea">
-          <template v-for="(type, i) in selectTypes">
-            <el-link
-              :class="{ active: type === chartType }"
-              :key="i"
+          <template v-for="type in selectTypes">
+            <div
+              :key="type.type"
+              class="typeWrap"
+              :class="{
+                select: type === selectType,
+                hover: type === hoverType
+              }"
+              @mouseenter="mouseenterFn(type)"
+              @mouseleave="mouseleaveFn(type)"
               @click="selectTypeFn(type)"
             >
-              {{ type }}
-            </el-link>
+              <i :class="['icon', 'bi', type.icon]"></i>
+            </div>
           </template>
         </div>
-        <div class="desp"></div>
-        <div class="nowType">{{ chartType }}</div>
+        <div class="desp">{{ theDesp }}</div>
+        <div class="nowType">当前类型：{{ selectType && selectType.name }}</div>
       </div>
       <!-- # 3 属性样式 -->
       <el-tabs class="cssArea">
@@ -148,7 +156,117 @@ import CandyDimTag from "./CandyDimTag";
 import CoatingDim from "./CoatingDim";
 import tool from "@/plugins/js/tool";
 
-const selectTypes = ["table", "line"];
+const selectTypes = [
+  //~ 1 table表
+  {
+    type: "table",
+    icon: "bi-table",
+    name: "分组表",
+    desp: ""
+  },
+  {
+    type: "table-cross",
+    icon: "bi-table-cross",
+    name: "交叉表",
+    desp: ""
+  },
+  {
+    type: "table-mingxi",
+    icon: "bi-table-mingxi",
+    name: "明细表",
+    desp: ""
+  },
+  //~ 2 柱状图
+  {
+    type: "bar-divid",
+    icon: "bi-bar-divid",
+    name: "分区柱状图",
+    desp: "建议至少1个维度，至少1个指标"
+  },
+  {
+    type: "bar-stack",
+    icon: "bi-bar-stack",
+    name: "堆积柱形图",
+    desp: "建议至少1个维度，至少2个指标"
+  },
+  {
+    type: "bar",
+    icon: "bi-bar",
+    name: "多系列柱形图",
+    desp: "建议至少1个维度，至少2个指标"
+  },
+  {
+    type: "bar-bardiagram",
+    icon: "bi-bardiagram",
+    name: "对比柱状图",
+    desp: "建议1个维度，2个指标"
+  },
+  {
+    type: "bar-pubu",
+    icon: "bi-pubutu",
+    name: "瀑布图",
+    desp: "建议至少1个维度，2个指标"
+  },
+  //~ 3 折线图
+  {
+    type: "line-divid",
+    icon: "bi-line-divid",
+    name: "分区折线图",
+    desp: "建议至少1个维度，至少1个指标"
+  },
+  {
+    type: "line",
+    icon: "bi-zhexiantu",
+    name: "多系列折线图",
+    desp: "建议至少1个维度，至少2个指标"
+  },
+  {
+    type: "line-radio",
+    icon: "bi-leidatu",
+    name: "折线雷达图",
+    desp: "建议至少1个维度，至少1个指标"
+  },
+  {
+    type: "line-range",
+    icon: "bi-range",
+    name: "范围面积图",
+    desp: "建议至少1个维度，2个指标"
+  },
+  //~ 4 散点
+  {
+    type: "scatter",
+    icon: "bi-sandian",
+    name: "散点图",
+    desp: "建议至少1个维度，至少1个指标"
+  },
+  //~ 5 饼图
+  {
+    type: "pie",
+    icon: "bi-pie",
+    name: "饼图",
+    desp: "建议1个维度，1个指标"
+  },
+  {
+    type: "pie-meigui",
+    icon: "bi-meiguitu",
+    name: "玫瑰图",
+    desp: "建议1个维度，2个指标"
+  },
+  //~ 6 漏斗
+  {
+    type: "funnel",
+    icon: "bi-loudoutu",
+    name: "漏斗图",
+    desp: "建议1个维度，1个指标"
+  },
+  //~ 7 仪表盘
+  {
+    type: "dashboard",
+    icon: "bi-yibiaopan",
+    name: "仪表盘",
+    desp: "建议0个维度，1个指标"
+  }
+];
 
 export default {
   name: "OneItemEdit",
@@ -170,7 +288,10 @@ export default {
       tempName: "",
       checkAllData: false,
       //# 2 拖拽管理器
-      candyMaster: null
+      candyMaster: null,
+      //# 3 选择类型
+      hoverType: null,
+      selectType: null
     };
   },
   computed: {
@@ -212,6 +333,14 @@ export default {
         result = idxR.candies;
       }
       return result;
+    },
+    theDesp() {
+      let me = this,
+        theType = me.hoverType || me.selectType;
+      if (!theType) {
+        return "";
+      }
+      return theType.name + (theType.desp ? `:${theType.desp}` : "");
     }
   },
   methods: {
@@ -249,10 +378,22 @@ export default {
     //@ 1 选择BI类型
     selectTypeFn(type) {
       let me = this;
+      me.selectType = type;
       me.Instance.setData({
-        chartType: type
+        chartType: type.type
       });
       me.Instance.save();
+    },
+    mouseenterFn(type) {
+      this.hoverType = type;
+    },
+    mouseleaveFn() {
+      this.hoverType = null;
+    },
+    getType(typeStr) {
+      return this.selectTypes.find(a => {
+        return a.type === typeStr;
+      });
     }
   },
   created() {
@@ -278,6 +419,21 @@ export default {
       if (newVal && !me.$initDims) {
         me.$initDims = true;
         me.initDims();
+      }
+    },
+    "sumData.name": function(newVal) {
+      if (!this.$sumData_name && newVal) {
+        this.$sumData_name = true;
+        this.tempName = newVal;
+      }
+    },
+    "Instance.recordData.chartType": function(val) {
+      if (
+        !this.selectType ||
+        (this.selectType && val !== this.selectType.type)
+      ) {
+        let theType = this.getType(val);
+        this.selectType = theType;
       }
     }
   }

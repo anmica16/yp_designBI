@@ -19,6 +19,9 @@ $border: #e8eaed;
 $back: #eff1f4;
 $back2: #f7f8fa;
 
+$blue: #356feb;
+$blue2: #4078f0;
+
 //~ 3 transition设定
 %transition_fast {
   transition: all 0.18s;
@@ -829,128 +832,4 @@ body {
       }
     } //right
   } //body
-}
-
-//  edit附加页面
-// @@ 4-1 添加组件1 窗口
-.newBIItem {
-  width: 90%;
-  height: 80%;
-  overflow: auto;
-  .el-message-box__content {
-    height: calc(100% - 100px);
-  }
-  .el-message-box__container,
-  .el-message-box__message {
-    height: 100%;
-  }
-  //【update】后期可放外？
-  .dataSelector {
-    height: 100%;
-    @extend %flex-row;
-    $w: 210px;
-    .leftTree {
-      width: 210px;
-      overflow: auto;
-    }
-    .rightTable {
-      width: calc(100% - #{$w});
-      //~ 1 提示
-      .fileNotSelectTip {
-        height: 100%;
-        width: 100%;
-        @extend %flex-wh;
-        flex-direction: column;
-        .back {
-          height: 150px;
-          width: 200px;
-          background: url(./images/view3/target.png) no-repeat;
-          background-position: center;
-          background-size: auto 100%;
-          margin-top: -20px;
-          margin-bottom: 20px;
-        }
-        .text {
-          color: $font2_light;
-          font-size: 14px;
-        }
-      }
-      //~ 2 表
-      .DimTable {
-        height: 100%;
-      }
-    }
-  } //selector
-}
-// @@ 4-2 各子控件编辑全页 fix全局
-.ItemEdit {
-  position: fixed;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  right: 0;
-  background: white;
-  z-index: 11;
-  $h: 40px;
-  color: $font2;
-  > .headBar {
-    box-sizing: border-box;
-    height: $h - 1px;
-    border-bottom: 1px solid #e8eaed;
-    @extend %flex-row;
-    align-items: center;
-
-    .tabWrap {
-      flex-shrink: 0
-    }
-
-    .operBtns {
-      @extend %flex-row;
-    }
-  }
-  > .editBody {
-    background: $back2;
-    height: calc(100% - #{$h});
-
-    .oneTabBody {
-      height: 100%;
-      width: 100%;
-      @extend %flex-row;
-
-      $w_left: 200px;
-      $w_mid: 220px;
-
-      //~ 1 左侧 维度
-      .dimensionArea {
-        width: $w_left;
-        height: 100%;
-      }
-      //~ 2 中间 title type等
-      .typeMakeArea {
-        width: $w_mid;
-        height:100%;
-      }
-      //~ 3 右侧展示
-      .visualArea {
-        width: calc(100% - #{$w_left + $w_mid});
-        height: 100%;
-        $h_dim: 120px;
-        $h_chart: calc(100% - #{$h_dim});
-
-        .dropArea {
-          height: $h_dim;
-          .CoatingDim {
-            width: 100%;
-            @extend %flex-row;
-          }
-        }
-
-        .visualStage {
-          height: $h_chart;
-        }
-
-      }
-
-    } //onebody
-  }
 }

@@ -33,6 +33,7 @@ let Candy = {
       console.log(["drag开始！", uid, me]);
 
       $("body").append(dom);
+      dom.addClass("edit drag");
       dom.css({
         display: "none",
         position: "absolute",

@@ -2,6 +2,7 @@
   <div class="CoatingDim">
     <template v-for="candy in candies">
       <CandyDimTag
+        :class="candyCls"
         :ref="candy.key"
         :key="candy.key"
         :Dim="candy"
@@ -18,6 +19,14 @@ import CandyDimTag from "./CandyDimTag";
 export default {
   name: "CoatingDim",
   mixins: [Coating],
-  components: { CandyDimTag }
+  components: { CandyDimTag },
+  props: {
+    candyCls: {
+      type: String,
+      default() {
+        return "edit";
+      }
+    }
+  }
 };
 </script>
