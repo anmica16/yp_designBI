@@ -117,18 +117,42 @@
             </el-table>
           </el-popover>
           <el-popover
-            class="popover treeBtn"
+            class="popover conditionAddBar"
             @show="leftBarPopShow"
             ref="popover"
             placement="right-start"
           >
             <div class="barItem" slot="reference">
               <dir class="icon">
-                <i class="el-icon-map-location"></i>
+                <i class="el-icon-cold-drink"></i>
               </dir>
-              <dir class="text">控件树</dir>
+              <dir class="text">过滤组件</dir>
             </div>
-            <div class="treeView">待扩展</div>
+            <div class="conditionAddPop">
+              <template v-for="(section, j) in conditionCmps">
+                <div
+                  class="conditionSection"
+                  v-if="section.items.length"
+                  :key="section.key"
+                >
+                  <div class="sectionTitle">{{ section.name }}</div>
+                  <div class="sectionTags">
+                    <template v-for="(condition, i) in section.items">
+                      <el-button
+                        plain
+                        :type="['primary', 'success', 'info'][j % 3]"
+                        :key="i"
+                        class="oneCondition"
+                        :icon="'bi ' + condition.icon"
+                        @click="conditionAddFn(condition)"
+                      >
+                        {{ condition.text }}
+                      </el-button>
+                    </template>
+                  </div>
+                </div>
+              </template>
+            </div>
           </el-popover>
         </div>
 
@@ -187,6 +211,117 @@ import "@designBI/edit.js";
 //~ ++ 1 全页面fixed
 import ItemEdit from "./edit/ItemEdit";
 import { Xbase } from "@designBI/views/mixins/X";
+
+//~ ++ 2 过滤组件
+const conditionCmps = [
+  //# 0 总按钮
+  {
+    key: "btn",
+    name: "全局按钮",
+    items: [
+      {
+        xtype: "",
+        text: "查询按钮",
+        icon: "bi-search-btn"
+      },
+      {
+        xtype: "",
+        text: "重置按钮",
+        icon: "bi-re-btn"
+      }
+    ].filter(a => {
+      return a.xtype;
+    })
+  },
+  //# 1 数值
+  {
+    key: "number",
+    name: "数值过滤组件",
+    items: [
+      {
+        xtype: "cond-number-divid",
+        text: "数值区间",
+        icon: "bi-num-divid"
+      },
+      {
+        xtype: "",
+        text: "数值下拉",
+        icon: "bi-num-down"
+      },
+      {
+        xtype: "",
+        text: "区间滑块",
+        icon: "bi-num-range"
+      }
+    ].filter(a => {
+      return a.xtype;
+    })
+  },
+  //# 2 文本
+  {
+    key: "text",
+    name: "文本过滤组件",
+    items: [
+      {
+        xtype: "",
+        text: "文本下拉",
+        icon: "bi-text-down"
+      },
+      {
+        xtype: "",
+        text: "文本列表",
+        icon: "bi-text-list"
+      }
+    ].filter(a => {
+      return a.xtype;
+    })
+  },
+  //# 3 时间
+  {
+    key: "date",
+    name: "时间过滤组件",
+    items: [
+      {
+        xtype: "",
+        text: "年份",
+        icon: "bi-year"
+      },
+      {
+        xtype: "",
+        text: "年月",
+        icon: "bi-month"
+      },
+      {
+        xtype: "",
+        text: "年季度",
+        icon: "bi-year90"
+      },
+      {
+        xtype: "",
+        text: "日期",
+        icon: "bi-day"
+      },
+      {
+        xtype: "",
+        text: "日期面板",
+        icon: "bi-calendar"
+      },
+      {
+        xtype: "",
+        text: "日期区间",
+        icon: "bi-day-range"
+      },
+      {
+        xtype: "",
+        text: "年月区间",
+        icon: "bi-yearday-range"
+      }
+    ].filter(a => {
+      return a.xtype;
+    })
+  }
+];
+
 export default {
   name: "DesignEdit",
   mixins: [Xbase],
@@ -219,6 +354,9 @@ export default {
   computed: {
     me() {
       return this;
+    },
+    conditionCmps() {
+      return conditionCmps;
     },
     //在router进行切换的时候 切换
     nowTemplateCode() {
@@ -423,7 +561,7 @@ export default {
         me.$msgbox({
           title: "添加组件",
           message: h(dataSelector),
-          closeOnClickModal: false,
+          closeOnClickModal: true,
           showCancelButton: true,
           customClass: "newBIItem",
           beforeClose(action, ins, done) {
@@ -533,6 +671,58 @@ export default {
             res(sumData);
           });
         }
+      });
+    },
+    //~ 3 条件控件增加
+    conditionAddFn(condition) {
+      let me = this,
+        h = me.$createElement;
+      console.log(["条件控件增加", condition]);
+
+      return new Promise(res => {
+        me.$msgbox({
+          title: "添加组件",
+          message: h(dataSelector),
+          closeOnClickModal: true,
+          showCancelButton: true,
+          customClass: "newBIItem",
+          beforeClose(action, ins, done) {
+            if (action === "confirm") {
+              console.log(["这个ins 的 form？", ins]);
+              let selector = ins.down("dataSelector"),
+                theRec = selector.nowFileRec;
+              if (theRec) {
+                //# 2 ins建立关联，然后获取关联数据
+                let newIns = new DesignItemInstance({
+                  xtype: condition.xtype,
+                  templateCode: me.nowTemplateCode,
+                  linkDataId: theRec.id,
+                  name: "未命名子控件" + (me.addInstances.length + 1)
+                });
+                //# 3 add到主cell
+                newIns.$$newIns = true;
+                me.nowBoardRoot
+                  .add(newIns)
+                  .then(r => {
+                    me.$message.success("新增成功！");
+                    done();
+                    res(newIns);
+                  })
+                  .catch(r => {
+                    me.$message.error("添加失败！请检查服务器运行状态");
+                    res(false);
+                  });
+              } else {
+                //# 2 提示未选中
+                me.$message.warning("尚未选则数据源！");
+                res(false);
+              }
+            } else {
+              done();
+              res(false);
+            }
+          }
+        }).catch(() => {});
       });
     }
   },

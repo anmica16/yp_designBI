@@ -29,7 +29,7 @@ export default {
     //%% 1 归属board
     conditions() {
       let me = this;
-      return me.LinkData ? me.EditNode.conditionMap[me.dataId] : null;
+      return me.dataId ? me.EditNode.conditionMap[me.dataId] : null;
     },
     dimension() {
       return this.LinkData && this.LinkData.dimension;

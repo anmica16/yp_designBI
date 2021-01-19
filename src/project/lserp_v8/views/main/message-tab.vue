@@ -69,6 +69,7 @@
 
 <script>
 import tool from "@/plugins/js/tool";
+//import $ from 'jquery';
 export default {
   name: "message-tab",
   data() {
@@ -255,10 +256,14 @@ export default {
     },
     loopRefresh() {
       let me = this,
+        $ = window.$,
         callback = () => {
-          me.timer_refresh = setTimeout(() => {
-            me.loopRefresh();
-          }, 20000);
+          //console.log(["在刷新" + Date.now(), me, me.$stopLoop]);
+          if ($(me.$el).is(":visible")) {
+            me.timer_refresh = setTimeout(() => {
+              me.loopRefresh();
+            }, 20000);
+          }
         };
       if (!me.autoRefresh) {
         callback();
@@ -339,10 +344,5 @@ export default {
     console.log(["开始轮询消息"]);
     me.loopRefresh();
   }
-  // mounted() {
-  //   let me = this,
-  //     popover = me.$refs.popover;
-  //   popover.doShow();
-  // }
 };
 </script>

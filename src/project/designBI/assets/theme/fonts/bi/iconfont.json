@@ -6,6 +6,132 @@
   "description": "BI_v2",
   "glyphs": [
     {
+      "icon_id": "7920567",
+      "name": "小于",
+      "font_class": "lt",
+      "unicode": "e608",
+      "unicode_decimal": 58888
+    },
+    {
+      "icon_id": "7928444",
+      "name": "大于等于",
+      "font_class": "gteq",
+      "unicode": "e616",
+      "unicode_decimal": 58902
+    },
+    {
+      "icon_id": "7928445",
+      "name": "大于",
+      "font_class": "gt",
+      "unicode": "e619",
+      "unicode_decimal": 58905
+    },
+    {
+      "icon_id": "7928715",
+      "name": "小于等于",
+      "font_class": "lteq",
+      "unicode": "e630",
+      "unicode_decimal": 58928
+    },
+    {
+      "icon_id": "1766258",
+      "name": "符号-日期区间",
+      "font_class": "day-range",
+      "unicode": "e671",
+      "unicode_decimal": 58993
+    },
+    {
+      "icon_id": "3561026",
+      "name": "查询按钮",
+      "font_class": "search-btn",
+      "unicode": "e701",
+      "unicode_decimal": 59137
+    },
+    {
+      "icon_id": "3561230",
+      "name": "重置按钮",
+      "font_class": "re-btn",
+      "unicode": "e715",
+      "unicode_decimal": 59157
+    },
+    {
+      "icon_id": "5954326",
+      "name": "数值区间",
+      "font_class": "num-divid",
+      "unicode": "e602",
+      "unicode_decimal": 58882
+    },
+    {
+      "icon_id": "7531229",
+      "name": "年份",
+      "font_class": "year",
+      "unicode": "e613",
+      "unicode_decimal": 58899
+    },
+    {
+      "icon_id": "7531494",
+      "name": "文本列表",
+      "font_class": "text-list",
+      "unicode": "e617",
+      "unicode_decimal": 58903
+    },
+    {
+      "icon_id": "7531520",
+      "name": "文本下拉",
+      "font_class": "text-down",
+      "unicode": "e618",
+      "unicode_decimal": 58904
+    },
+    {
+      "icon_id": "8286302",
+      "name": "日期",
+      "font_class": "day",
+      "unicode": "e677",
+      "unicode_decimal": 58999
+    },
+    {
+      "icon_id": "8701666",
+      "name": "日期",
+      "font_class": "calendar",
+      "unicode": "e62f",
+      "unicode_decimal": 58927
+    },
+    {
+      "icon_id": "9817774",
+      "name": "日期区间",
+      "font_class": "yearday-range",
+      "unicode": "e60c",
+      "unicode_decimal": 58892
+    },
+    {
+      "icon_id": "12647403",
+      "name": "年月",
+      "font_class": "month",
+      "unicode": "e69b",
+      "unicode_decimal": 59035
+    },
+    {
+      "icon_id": "12726213",
+      "name": "区间滑块",
+      "font_class": "num-range",
+      "unicode": "e60e",
+      "unicode_decimal": 58894
+    },
+    {
+      "icon_id": "16548105",
+      "name": "数值下拉",
+      "font_class": "num-down",
+      "unicode": "e627",
+      "unicode_decimal": 58919
+    },
+    {
+      "icon_id": "17955868",
+      "name": "系统图标#BI系统@年季度",
+      "font_class": "year90",
+      "unicode": "e620",
+      "unicode_decimal": 58912
+    },
+    {
       "icon_id": "4549006",
       "name": "指标并列-横轴",
       "font_class": "zhibiaobinglie-hengzhou",
