@@ -8,6 +8,10 @@ export default {
       //# 1 key和 dataId的组合
       type: Array,
       required: true
+    },
+    newCondition: {
+      type: Boolean,
+      default: false
     }
   },
   computed: {

@@ -578,6 +578,7 @@ export default {
                   xtype: "BIBase",
                   templateCode: me.nowTemplateCode,
                   linkDataId: theRec.id,
+                  useType: 10,
                   name: "未命名子控件" + (me.addInstances.length + 1)
                 });
                 //# 3 add到主cell
@@ -682,13 +683,23 @@ export default {
         h = me.$createElement;
       console.log(["条件控件增加", condition]);
 
+      //@@ 1 可能加入的 ins
+      let readyIns = new DesignItemInstance({
+        xtype: condition.xtype,
+        templateCode: me.nowTemplateCode,
+        useType: 20, //20表示过滤控件
+        name: "未命名过滤控件" + (me.addInstances.length + 1)
+      });
+
       return new Promise(res => {
         me.$msgbox({
           title: "添加过滤组件",
           message: h(propertySelector, {
             key: tool.uniqueStr(),
             props: {
-              
+              xtype: condition.xtype,
+              newCondition: true,
+              Entity: readyIns
             }
           }),
           closeOnClickModal: true,
@@ -698,35 +709,26 @@ export default {
             if (action === "confirm") {
               let selector = ins.down("propertySelector");
 
-              console.log(["这个ins 的 form？", ins, selector]);
-              done();
-              res(false);
-              // if (theRec) {
-              //   //# 2 ins建立关联，然后获取关联数据
-              //   let newIns = new DesignItemInstance({
-              //     xtype: condition.xtype,
-              //     templateCode: me.nowTemplateCode,
-              //     linkDataId: theRec.id,
-              //     name: "未命名子控件" + (me.addInstances.length + 1)
-              //   });
-              //   //# 3 add到主cell
-              //   newIns.$$newIns = true;
-              //   me.nowBoardRoot
-              //     .add(newIns)
-              //     .then(r => {
-              //       me.$message.success("新增成功！");
-              //       done();
-              //       res(newIns);
-              //     })
-              //     .catch(r => {
-              //       me.$message.error("添加失败！请检查服务器运行状态");
-              //       res(false);
-              //     });
-              // } else {
-              //   //# 2 提示未选中
-              //   me.$message.warning("尚未选则数据源！");
-              //   res(false);
-              // }
+              //console.log(["这个ins 的 form？", ins, selector]);
+              if (selector.selProps.length) {
+                //# 3 add到主cell
+                //newIns.$$newIns = true;
+                me.nowBoardRoot
+                  .add(readyIns)
+                  .then(r => {
+                    me.$message.success("新增成功！");
+                    done();
+                    res(readyIns);
+                  })
+                  .catch(r => {
+                    me.$message.error("添加失败！请检查服务器运行状态");
+                    res(false);
+                  });
+              } else {
+                //# 2 提示未选中
+                me.$message.warning("请选择至少一个字段！");
+                res(false);
+              }
             } else {
               done();
               res(false);

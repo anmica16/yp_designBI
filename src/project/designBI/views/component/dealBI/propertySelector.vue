@@ -38,6 +38,7 @@
     <!-- 右侧 -->
     <div class="showPart">
       <div class="theCoat">
+        <div class="preText">字段</div>
         <CoatingDim
           ref="propCoat"
           style="height: 30px;"
@@ -46,7 +47,13 @@
       </div>
 
       <div class="conditionCmp">
-        <div ref="conditionCmp" :properties="selProps" :is="xtype"></div>
+        <div
+          ref="conditionCmp"
+          :properties="selProps"
+          :newCondition="newCondition"
+          :Entity="Entity"
+          :is="xtype"
+        ></div>
       </div>
     </div>
   </div>
@@ -73,6 +80,16 @@ export default {
     xtype: {
       type: String,
       required: true
+    },
+    newCondition: {
+      type: Boolean,
+      default() {
+        return false;
+      }
+    },
+    Entity: {
+      type: Object,
+      required: true
     }
   },
   data() {
@@ -82,7 +99,10 @@ export default {
       selectProps: [],
       tabName: "dataTree",
       treeDetail: null,
-      chartDetail: null
+      chartDetail: null,
+      //# 1 ref失灵
+      propCoat: null,
+      conditionCmp: null
     };
   },
   computed: {
@@ -107,8 +127,9 @@ export default {
     selProps() {
       let me = this,
         props = [];
-      if (me.$refs.propCoat) {
-        props = me.$refs.propCoat.candies;
+
+      if (me.propCoat) {
+        props = me.propCoat.candies;
       }
 
       return props;
@@ -124,6 +145,12 @@ export default {
         });
       }
     }
+  },
+  mounted() {
+    let me = this;
+
+    me.propCoat = me.$refs.propCoat;
+    me.conditionCmp = me.$refs.conditionCmp;
   }
 };
 </script>

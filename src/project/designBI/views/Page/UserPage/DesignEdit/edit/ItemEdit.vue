@@ -90,7 +90,7 @@ export default {
   computed: {
     theInstances() {
       return this.addInstances.filter(ins => {
-        return !ins.isRoot;
+        return !ins.isRoot && ins.recordData.useType == 10; //10表示echart
       });
     }
   },
