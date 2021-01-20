@@ -2,7 +2,6 @@ import Vue from "vue";
 import DesignItem from "@designBI/store/Entity/DesignItem";
 import itemManager from "@designBI/views/drawer/itemManager";
 
-
 // import b1 from "./btn-re.vue";
 // Vue.component("cond-btn-re", b1);
 // import b2 from "./btn-search.vue";

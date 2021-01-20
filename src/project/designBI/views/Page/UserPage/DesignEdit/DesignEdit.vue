@@ -204,6 +204,7 @@ import "@designBI/assets/theme/edit.scss";
 import Vue from "vue";
 import DesignItemInstance from "@designBI/store/Entity/DesignItemInstance";
 import dataSelector from "@designBI/views/component/dealBI/dataSelector.vue";
+import propertySelector from "@designBI/views/component/dealBI/propertySelector.vue";
 import tool from "@/plugins/js/tool";
 import $ from "jquery";
 import loader from "@/plugins/js/loader";
@@ -560,7 +561,9 @@ export default {
       return new Promise(res => {
         me.$msgbox({
           title: "添加组件",
-          message: h(dataSelector),
+          message: h(dataSelector, {
+            key: tool.uniqueStr()
+          }),
           closeOnClickModal: true,
           showCancelButton: true,
           customClass: "newBIItem",
@@ -681,42 +684,49 @@ export default {
 
       return new Promise(res => {
         me.$msgbox({
-          title: "添加组件",
-          message: h(dataSelector),
+          title: "添加过滤组件",
+          message: h(propertySelector, {
+            key: tool.uniqueStr(),
+            props: {
+              
+            }
+          }),
           closeOnClickModal: true,
           showCancelButton: true,
-          customClass: "newBIItem",
+          customClass: "newCondition",
           beforeClose(action, ins, done) {
             if (action === "confirm") {
-              console.log(["这个ins 的 form？", ins]);
-              let selector = ins.down("dataSelector"),
-                theRec = selector.nowFileRec;
-              if (theRec) {
-                //# 2 ins建立关联，然后获取关联数据
-                let newIns = new DesignItemInstance({
-                  xtype: condition.xtype,
-                  templateCode: me.nowTemplateCode,
-                  linkDataId: theRec.id,
-                  name: "未命名子控件" + (me.addInstances.length + 1)
-                });
-                //# 3 add到主cell
-                newIns.$$newIns = true;
-                me.nowBoardRoot
-                  .add(newIns)
-                  .then(r => {
-                    me.$message.success("新增成功！");
-                    done();
-                    res(newIns);
-                  })
-                  .catch(r => {
-                    me.$message.error("添加失败！请检查服务器运行状态");
-                    res(false);
-                  });
-              } else {
-                //# 2 提示未选中
-                me.$message.warning("尚未选则数据源！");
-                res(false);
-              }
+              let selector = ins.down("propertySelector");
+
+              console.log(["这个ins 的 form？", ins, selector]);
+              done();
+              res(false);
+              // if (theRec) {
+              //   //# 2 ins建立关联，然后获取关联数据
+              //   let newIns = new DesignItemInstance({
+              //     xtype: condition.xtype,
+              //     templateCode: me.nowTemplateCode,
+              //     linkDataId: theRec.id,
+              //     name: "未命名子控件" + (me.addInstances.length + 1)
+              //   });
+              //   //# 3 add到主cell
+              //   newIns.$$newIns = true;
+              //   me.nowBoardRoot
+              //     .add(newIns)
+              //     .then(r => {
+              //       me.$message.success("新增成功！");
+              //       done();
+              //       res(newIns);
+              //     })
+              //     .catch(r => {
+              //       me.$message.error("添加失败！请检查服务器运行状态");
+              //       res(false);
+              //     });
+              // } else {
+              //   //# 2 提示未选中
+              //   me.$message.warning("尚未选则数据源！");
+              //   res(false);
+              // }
             } else {
               done();
               res(false);

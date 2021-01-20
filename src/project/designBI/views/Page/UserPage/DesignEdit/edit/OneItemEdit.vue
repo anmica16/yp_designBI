@@ -152,8 +152,8 @@ import Vue from "vue";
 const CandyMasterCtor = Vue.extend(CandyMaster);
 import { Instance } from "@designBI/views/mixins/Entity";
 
-import CandyDimTag from "./CandyDimTag";
-import CoatingDim from "./CoatingDim";
+import CandyDimTag from "@designBI/views/component/dropCandy/CandyDimTag";
+import CoatingDim from "@designBI/views/component/dropCandy/CoatingDim";
 import tool from "@/plugins/js/tool";
 
 const selectTypes = [

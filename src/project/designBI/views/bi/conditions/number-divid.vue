@@ -77,15 +77,15 @@ export default {
         conds = [];
       if (tool.isNumber(parseFloat(me.leftValue))) {
         conds.push({
+          $id: me.condId + "_1",
           type: me.leftType,
-          property: me.property,
           value: me.leftValue
         });
       }
       if (tool.isNumber(parseFloat(me.rightValue))) {
         conds.push({
+          $id: me.condId + "_2",
           type: me.rightType,
-          property: me.property,
           value: me.rightValue
         });
       }
@@ -95,11 +95,36 @@ export default {
   watch: {
     conditionResult(conds) {
       let me = this,
-        dataId = me.dataId,
+        props = me.properties,
         edit = me.EditNode;
-      if (conds && conds.length && dataId && edit) {
-        //# 1 这里触发 改变对应的视图控件
-        Vue.set(edit.conditionMap, dataId, conds);
+      if (conds && conds.length && props.length && edit) {
+        props.forEach(prop => {
+          let dataId = prop.dataId,
+            propName = prop.key;
+          if (!tool.isArray(edit.conditionMap[dataId])) {
+            Vue.set(edit.conditionMap, dataId, []);
+          }
+          //# 1 找准对应dataid的范畴
+          let mapA = edit.conditionMap[dataId];
+          //# 2 合适的cond形状
+          let theConds = conds.map(cond => {
+            return {
+              ...cond,
+              property: propName
+            };
+          });
+          //# 3 再比较、合并、插入
+          theConds.forEach(cond => {
+            let findAt = mapA.findIndex(a => {
+              return a.$id === cond.$id && a.property === cond.property;
+            });
+            if (findAt > -1) {
+              mapA[findAt] = cond;
+            } else {
+              mapA.push(cond);
+            }
+          });
+        });
       }
       //# 2 同时改变ins的 值
       me.Instance.setData({
