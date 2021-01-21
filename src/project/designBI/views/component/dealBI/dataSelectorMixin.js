@@ -34,20 +34,29 @@ export default {
     //~ 2 点击演算
     nodeClickFn(rec, nodeData, node) {
       let me = this;
-      //~ 1 有子集
-      if (rec.isFolder) {
-        me.nowFolderRec = rec;
-      } else {
-        me.nowFileRec = rec;
-        if (rec.$parent) {
-          me.nowFolderRec = rec.$parent;
+      return new Promise((res, rej) => {
+        //~ 1 有子集
+        if (rec.isFolder) {
+          me.nowFolderRec = rec;
+          res(false);
         } else {
-          //~ 2 可能是根的 file选中，那么就无选中父节点了。
-          me.nowFolderRec = null;
+          me.nowFileRec = rec;
+          if (rec.$parent) {
+            me.nowFolderRec = rec.$parent;
+          } else {
+            //~ 2 可能是根的 file选中，那么就无选中父节点了。
+            me.nowFolderRec = null;
+          }
+          //~ 3 选中的 fileRec要进行DetailData获取
+          me.getDetailData(rec)
+            .then(r => {
+              res(r);
+            })
+            .catch(r => {
+              rej(r);
+            });
         }
-        //~ 3 选中的 fileRec要进行DetailData获取
-        me.getDetailData(rec);
-      }
+      });
     },
     //~ 3 获取详细数据
     getDetailData(rec) {

@@ -1,10 +1,15 @@
 <template>
   <div class="cond-base cond-number-divid">
     <div class="cond-title">数值区间</div>
-    <div class="cond-body">
+    <div class="cond-body" @mousedown.stop>
       <el-input v-model="leftValue" placeholder="无限制"></el-input>
       <el-select :class="leftType" v-model="leftType">
-        <el-option v-for="op in leftTypes" :key="op.type" :value="op.type">
+        <el-option
+          v-for="op in leftTypes"
+          :key="op.type"
+          :label="op.name"
+          :value="op.type"
+        >
           <span class="text"
             ><span :class="'bi ' + op.icon"></span>{{ `（${op.name}）` }}</span
           >
@@ -12,7 +17,12 @@
       </el-select>
       <span class="midValue">值</span>
       <el-select :class="rightType" v-model="rightType">
-        <el-option v-for="op in rightTypes" :key="op.type" :value="op.type">
+        <el-option
+          v-for="op in rightTypes"
+          :key="op.type"
+          :label="op.name"
+          :value="op.type"
+        >
           <span class="text"
             ><span :class="'bi ' + op.icon"></span>{{ `（${op.name}）` }}</span
           >
@@ -27,26 +37,27 @@
 import tool from "@/plugins/js/tool";
 import Vue from "vue";
 import mixin from "./mixin";
+//@@ 1 实际上是反起来的
 const less = [
   {
-    type: "lt",
+    type: "gt",
     icon: "bi-lt",
     name: "小于"
   },
   {
-    type: "lteq",
+    type: "gteq",
     icon: "bi-lteq",
     name: "小于等于"
   }
 ];
 const greater = [
   {
-    type: "gt",
+    type: "lt",
     icon: "bi-gt",
     name: "大于"
   },
   {
-    type: "gteq",
+    type: "lteq",
     icon: "bi-gteq",
     name: "大于等于"
   }
@@ -75,20 +86,16 @@ export default {
     conditionResult() {
       let me = this,
         conds = [];
-      if (tool.isNumber(parseFloat(me.leftValue))) {
-        conds.push({
-          $id: me.condId + "_1",
-          type: me.leftType,
-          value: me.leftValue
-        });
-      }
-      if (tool.isNumber(parseFloat(me.rightValue))) {
-        conds.push({
-          $id: me.condId + "_2",
-          type: me.rightType,
-          value: me.rightValue
-        });
-      }
+      conds.push({
+        $id: me.condId + "_1",
+        type: me.leftType,
+        value: me.leftValue
+      });
+      conds.push({
+        $id: me.condId + "_2",
+        type: me.rightType,
+        value: me.rightValue
+      });
       return conds;
     }
   },
@@ -119,11 +126,14 @@ export default {
               return a.$id === cond.$id && a.property === cond.property;
             });
             if (findAt > -1) {
-              mapA[findAt] = cond;
-            } else {
+              mapA.splice(findAt, 1);
+            }
+            if (tool.isNumber(parseFloat(cond.value))) {
               mapA.push(cond);
             }
           });
+          //# 4 触发一次
+          //Vue.set(edit.conditionMap, dataId, mapA);
         });
       }
       //# 2 同时改变ins的 值

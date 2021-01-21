@@ -147,6 +147,20 @@ body {
 .PageMove-leave-to {
   transform: translateX(100%);
 }
+//~ 3 从0宽度到100%宽度
+.Expand-enter-active {
+  transition: all 0.6s;
+  transform-origin: left top;
+}
+.Expand-leave-active {
+  transition: all 0.3s;
+  transform-origin: left top;
+}
+.Expand-enter,
+.Expand-leave-to {
+  opacity: 0.1;
+  transform: scale(0);
+}
 //--------------
 //二、 单实例
 //--------------

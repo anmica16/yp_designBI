@@ -281,6 +281,9 @@ let Xbase = {
         header = aoa[0],
         isKeySheet = tool.isObject(header),
         toDate = [];
+      if (!header) {
+        return false;
+      }
       //console.log(["查看 转化问题0"]);
       //# 1 对首行、维度进行匹配
       if (tool.isObject(dim)) {

@@ -711,6 +711,16 @@ export default {
 
               //console.log(["这个ins 的 form？", ins, selector]);
               if (selector.selProps.length) {
+                readyIns.setData({
+                  propsData: {
+                    properties: selector.selProps.map(a => {
+                      let b = tool.apply({}, a);
+                      delete b.parentCoating;
+                      return b;
+                    })
+                  }
+                });
+
                 //# 3 add到主cell
                 //newIns.$$newIns = true;
                 me.nowBoardRoot

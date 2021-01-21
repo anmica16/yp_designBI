@@ -349,5 +349,17 @@ $blue2: #4078f0;
 //@@ 5 过滤组件
 .newCondition {
   width: 900px;
-  height: 500px;
+  max-height: 90%;
+  overflow: auto;
+}
+//@@ 5-2 选择dataId、property用三步控件
+.dataPropCoat {
+  .el-table {
+    td {
+      padding: 0;
+      .cell {
+        white-space: nowrap;
+      }
+    }
+  }
 }
