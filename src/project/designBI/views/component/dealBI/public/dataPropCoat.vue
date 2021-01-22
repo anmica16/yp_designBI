@@ -114,6 +114,7 @@ export default {
         if (newVal === 3) {
           me.$emit("confirmData");
         } else if (newVal === 1) {
+          me.DetailData = null;
           me.$emit("revokeData");
         }
       }

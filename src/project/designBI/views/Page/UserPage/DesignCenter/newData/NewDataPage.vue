@@ -284,7 +284,10 @@ export default {
           dataType: me.dataType,
           //~~ 1 暂时不改
           //## 2 维度！
-          dimension: me.dimension,
+          dimension: me.dimension.map(d => {
+            d.dataId = me.id;
+            return d;
+          }),
           exist: true
         });
       }

@@ -62,6 +62,7 @@
                     <el-select
                       v-model="jt.joinThisProperty"
                       @change="propChangeFn(jt)"
+                      :disabled="!mainData.dataIdDims.length"
                     >
                       <template v-for="dim in mainData.dataIdDims">
                         <el-option
@@ -160,7 +161,8 @@ export default {
           dataId: null,
           //~ 2 下拉选择 1
           joinTableProperty: null,
-          joinThisProperty: null
+          joinThisProperty: null,
+          joinTableName: null
         };
       me.joinTables.push(join);
       //++ 1 改变为当前新增
@@ -185,6 +187,7 @@ export default {
         theJts = me.theJoinTables;
       //~~ 1 完善jt
       joinTable.dataId = dataId;
+      joinTable.joinTableName = refDetailData.tableName;
       //~~ 1-2 非保存信息
       if (!theJts[dataId]) {
         me.$set(theJts, dataId, refDetailData);
@@ -200,14 +203,23 @@ export default {
       me.Instance.setData({
         linkDataId: ifPass ? me.mainData.DetailData.id : null
       });
+      if (!ifPass) {
+        me.joinTables.forEach(jt => {
+          jt.joinThisProperty = null;
+        });
+      }
     },
     //# 2 取消
     revokeDataFn(joinTable) {
+      let me = this,
+        dataId = joinTable.dataId;
+      //me.$set(me.theJoinTables, dataId, null);
       tool.apply(joinTable, {
         dataId: null,
         //~ 2 下拉选择 1
         joinTableProperty: null,
-        joinThisProperty: null
+        joinThisProperty: null,
+        joinTableName: null
       });
     },
     //# 3 字段改变
