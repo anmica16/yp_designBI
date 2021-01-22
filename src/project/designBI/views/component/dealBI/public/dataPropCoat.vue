@@ -106,6 +106,18 @@ export default {
     reStep() {
       this.step = 1;
     }
+  },
+  watch: {
+    step(newVal, oldVal) {
+      let me = this;
+      if (newVal !== oldVal) {
+        if (newVal === 3) {
+          me.$emit("confirmData");
+        } else if (newVal === 1) {
+          me.$emit("revokeData");
+        }
+      }
+    }
   }
 };
 </script>

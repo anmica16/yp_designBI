@@ -395,7 +395,7 @@ let plusBase = {
       if (this.DetailData && this.X && this.DetailData.dimension) {
         return tool.parse(this.DetailData.dimension);
       } else {
-        return null;
+        return [];
       }
     }
   },

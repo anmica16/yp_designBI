@@ -116,6 +116,14 @@
               ></el-table-column>
             </el-table>
           </el-popover>
+          <!-- ~ 3 明细表控件 -->
+          <div class="barItem" @click="createDetail">
+            <dir class="icon">
+              <i class="el-icon-office-building"></i>
+            </dir>
+            <dir class="text">明细控件</dir>
+          </div>
+          <!-- ~ 2 过滤控件 -->
           <el-popover
             class="popover conditionAddBar"
             @show="leftBarPopShow"
@@ -203,8 +211,12 @@ import "@designBI/assets/theme/edit.scss";
 
 import Vue from "vue";
 import DesignItemInstance from "@designBI/store/Entity/DesignItemInstance";
+
+//@@ 1 多个新增器
 import dataSelector from "@designBI/views/component/dealBI/dataSelector.vue";
 import propertySelector from "@designBI/views/component/dealBI/propertySelector.vue";
+import detailSelector from "@designBI/views/component/dealBI/detailSelector.vue";
+
 import tool from "@/plugins/js/tool";
 import $ from "jquery";
 import loader from "@/plugins/js/loader";
@@ -681,7 +693,7 @@ export default {
     conditionAddFn(condition) {
       let me = this,
         h = me.$createElement;
-      console.log(["条件控件增加", condition]);
+      //console.log(["条件控件增加", condition]);
 
       //@@ 1 可能加入的 ins
       let readyIns = new DesignItemInstance({
@@ -739,6 +751,83 @@ export default {
                 me.$message.warning("请选择至少一个字段！");
                 res(false);
               }
+            } else {
+              done();
+              res(false);
+            }
+          }
+        }).catch(() => {});
+      });
+    },
+    //~ 4 明细控件增加
+    createDetail() {
+      let me = this,
+        h = me.$createElement;
+      console.log(["明细控件增加"]);
+      //@@ 1 可能加入的 ins
+      let readyIns = new DesignItemInstance({
+        xtype: "BIBase",
+        templateCode: me.nowTemplateCode,
+        useType: 11, //30表示明细控件
+        name: "未命名明细控件" + (me.addInstances.length + 1)
+      });
+
+      return new Promise(res => {
+        me.$msgbox({
+          title: "添加明细组件",
+          message: h(detailSelector, {
+            key: tool.uniqueStr(),
+            props: {
+              Entity: readyIns
+            }
+          }),
+          closeOnClickModal: true,
+          showCancelButton: true,
+          customClass: "newDetail",
+          beforeClose(action, ins, done) {
+            if (action === "confirm") {
+              //let selector = ins.down("detailSelector");
+
+              //# 1 如果是空
+              if (tool.isNull(readyIns.recordData.linkDataId)) {
+                me.$message.warning("请选择主表！");
+                res(false);
+                return;
+              }
+              let JTs = readyIns.recordData.config_more.JoinTables,
+                notHealthy = [];
+              //# 2 检测每个 join的配置是否完整
+              if (JTs && JTs.length) {
+                JTs.forEach(jt => {
+                  if (
+                    tool.isNull(jt.joinTableProperty) ||
+                    tool.isNull(jt.joinThisProperty)
+                  ) {
+                    //# 2-2 响应的反应出来
+                    me.$set(jt, "$notHealthy", true);
+                    notHealthy.push(jt);
+                  }
+                });
+              }
+              if (notHealthy.length) {
+                me.$message.warning(
+                  `存在${notHealthy.length}个明细配置不完整，请完善后再试！`
+                );
+                res(false);
+                return;
+              }
+              //# 3 进行保存
+              me.nowBoardRoot
+                .add(readyIns)
+                .then(r => {
+                  me.$message.success("新增成功！");
+                  done();
+                  res(readyIns);
+                })
+                .catch(r => {
+                  me.$message.error("添加失败！请检查服务器运行状态");
+                  res(false);
+                });
             } else {
               done();
               res(false);

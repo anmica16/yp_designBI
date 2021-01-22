@@ -70,6 +70,16 @@ export default {
       }
       return dims;
     },
+    //## 5 明细表 配置
+    JoinTables() {
+      let me = this,
+        itemJTs = me.record.config_more && me.record.config_more.JoinTables,
+        result = [];
+      if (itemJTs && itemJTs.length) {
+        result = itemJTs;
+      }
+      return result;
+    },
     //@@ 2 一表part2：序列值二维数组，首行为header
     aoa() {
       let me = this;
@@ -158,6 +168,8 @@ export default {
                 return d2;
               })
             ),
+            //@ 4 明细：
+            JoinTables: JSON.stringify(me.JoinTables),
             type: me.type
           }
         };
