@@ -25,7 +25,7 @@
           <CandyDimTag
             class="edit"
             v-for="dim in dimAndIndex.Dims"
-            :key="dim.key"
+            :key="dim.$id"
             :Dim="dim"
             :candyMaster="candyMaster"
           ></CandyDimTag>
@@ -39,7 +39,7 @@
           <CandyDimTag
             class="edit"
             v-for="dim in dimAndIndex.Indices"
-            :key="dim.key"
+            :key="dim.$id"
             :Dim="dim"
             :candyMaster="candyMaster"
           ></CandyDimTag>
@@ -305,7 +305,8 @@ export default {
         Dims = [],
         Indices = [];
       if (sumData) {
-        sumData.dimension.forEach(dim => {
+        sumData.dimension.forEach(_dim => {
+          let dim = tool.apply({}, _dim);
           if (dim.type === "number") {
             Indices.push(dim);
           } else if (["date", "string"].indexOf(dim.type) > -1) {

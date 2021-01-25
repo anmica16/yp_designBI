@@ -78,6 +78,18 @@ let Instance = tool.mergeClone({}, Base, {
     xtype() {
       return this.recordData.xtype;
     },
+    source() {
+      return this.recordData.source;
+    },
+    sourceDims() {
+      let me = this,
+        source = me.source,
+        dims = [];
+      if (source && source.Dims) {
+        dims = source.Dims;
+      }
+      return dims;
+    },
     //希望快速反应
     parent() {
       return this.record.parent;

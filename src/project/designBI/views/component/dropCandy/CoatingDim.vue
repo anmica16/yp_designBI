@@ -3,8 +3,8 @@
     <template v-for="candy in candies">
       <CandyDimTag
         :class="candyCls"
-        :ref="candy.key"
-        :key="candy.key"
+        :ref="candy.$id"
+        :key="candy.$id"
         :Dim="candy"
         :candyMaster="candyMaster"
       >

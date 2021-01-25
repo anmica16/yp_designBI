@@ -152,7 +152,10 @@ export default {
         let readVal = data[key],
           resultVal = null;
         //~ 1 数组 分别执行load
+        //# ++ 1 数组就不搞这么复杂了
         if (tool.isArray(readVal)) {
+          //resultVal = readVal;
+
           let readValArray = [];
           tool.each(readVal, rData => {
             //console.log(["针对Items进行检查", rData]);
@@ -189,6 +192,11 @@ export default {
           }
           //# 3 普通对象则继续深入
           else {
+            // let re = {};
+            // tool.each(readVal, (k, v) => {
+            //   re[k] = me.loadRecordData(v, true);
+            // });
+            // resultVal = re;
             resultVal = me.loadRecordData(readVal, true);
           }
         }

@@ -4,6 +4,10 @@ import loader from "@/plugins/js/loader";
 import { Instance } from "@designBI/views/mixins/Entity";
 import { Xbase } from "@designBI/views/mixins/X";
 
+const base = {};
+
+const chartBase = tool.apply({}, base, {});
+
 export default {
   mixins: [Instance, Xbase],
   data() {
@@ -31,8 +35,11 @@ export default {
       let me = this;
       return me.dataId ? me.EditNode.conditionMap[me.dataId] : null;
     },
+    //【update】source的优先级高
     dimension() {
-      return this.LinkData && this.LinkData.dimension;
+      return this.sourceDims.length
+        ? this.sourceDims
+        : this.LinkData && this.LinkData.dimension;
     },
     //%% 2 下面2个 归 item
     //@ 1 下面是默认的 xy
@@ -180,6 +187,13 @@ export default {
           tool.isArray(conditions) ? conditions : [conditions]
         );
       }
+
+      //# 4 明细 维度范围
+      // if (me.sourceDims.length) {
+      //   options.data.sourceDims = JSON.stringify(
+      //     tool.isArray(options.data.sourceDims)
+      //   );
+      // }
 
       if (addOptions) {
         tool.merge(options, addOptions);

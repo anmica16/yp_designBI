@@ -205,7 +205,7 @@ let Coating = {
         if (c.$id === cDim.$id) {
           return;
         }
-        let key = c.key,
+        let key = c.$id,
           cElBase = me.$refs[key],
           cEl2 = tool.isArray(cElBase) ? cElBase[0] : cElBase,
           cEl = cEl2.$el || cEl2,
@@ -231,7 +231,7 @@ let Coating = {
           tool.insert(me.candies, cgToDimAt, cDim);
         } else {
           //~ 2 加入 则替换
-          console.log(["~ 2 加入 则替换"]);
+          //console.log(["~ 2 加入 则替换"]);
           let overCandy = me.candies.splice(overCandyAt, 1);
           tool.insert(me.candies, cgToDimAt - 1, overCandy);
         }
@@ -254,12 +254,17 @@ let Coating = {
         return c.$id === cDim.$id;
       });
       if (candyAt > -1) {
-        console.log(["走了移除", candyAt]);
+        //console.log(["走了移除", candyAt]);
         me.candies.splice(candyAt, 1);
       }
       // } else {
       //   //# 2 结束drag
       // }
+    }
+  },
+  watch: {
+    candies(newVal) {
+      this.$emit("candyAddRemove", newVal);
     }
   },
   mounted() {

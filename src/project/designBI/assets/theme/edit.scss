@@ -362,4 +362,14 @@ $blue2: #4078f0;
       }
     }
   }
+  //~ 2 树结构紧选
+  .el-tree {
+    .el-tree-node {
+      &[aria-disabled="true"] {
+        * {
+          cursor: not-allowed;
+        }
+      }
+    }
+  }
 }

@@ -38,7 +38,7 @@ export default {
       default: "isLeaf"
     },
     disabled: {
-      type: String,
+      type: [String, Function],
       default: "disabled"
     },
     //@ 2 主要

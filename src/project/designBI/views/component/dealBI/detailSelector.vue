@@ -7,6 +7,7 @@
           ref="mainData"
           :candyMaster="candyMaster"
           @confirmData="mainDataConfirm(true)"
+          @revokeData="mainDataConfirm(false)"
         ></dataPropCoat>
       </div>
       <!-- ~ 2 多个 joinTable选择 -->
@@ -52,6 +53,7 @@
                 <dataPropCoat
                   :ref="'join' + jt.$id"
                   :candyMaster="candyMaster"
+                  :disabled="disabledFn"
                   @confirmData="confirmDataFn(jt)"
                   @revokeData="revokeDataFn(jt)"
                 ></dataPropCoat>
@@ -105,7 +107,19 @@
     </div>
     <div class="resultArea">
       <!-- ~ 1 上侧维度 加入 -->
-      <div class="detailDims"></div>
+      <div class="detailDims">
+        <div class="dimType">维度指标：</div>
+        <div class="dimsHere">
+          <CoatingDim
+            style="min-height: 30px;"
+            :candyMaster="candyMaster"
+            ref="detailDims"
+            @candyAddRemove="candyAddRemoveFn"
+          >
+            <span class="noTip">请拖入左侧指标</span>
+          </CoatingDim>
+        </div>
+      </div>
       <!-- ~ 2 底侧 表数据一栏 -->
       <div class="detailTable"></div>
     </div>
@@ -116,6 +130,7 @@
 import dataSelectorMixin from "./dataSelectorMixin";
 import { Instance } from "@designBI/views/mixins/Entity";
 import { CandyMaster } from "@designBI/views/component/dropCandy";
+import CoatingDim from "@designBI/views/component/dropCandy/CoatingDim";
 import Vue from "vue";
 const CandyMasterCtor = Vue.extend(CandyMaster);
 
@@ -126,7 +141,8 @@ export default {
   name: "detailSelector",
   mixins: [dataSelectorMixin, Instance],
   components: {
-    dataPropCoat
+    dataPropCoat,
+    CoatingDim
   },
   data() {
     return {
@@ -140,7 +156,8 @@ export default {
       //# 3 ，main
 
       //# 0 工具
-      mainData: null
+      mainData: null,
+      mainDataId: null
     };
   },
   computed: {
@@ -200,20 +217,37 @@ export default {
     mainDataConfirm(ifPass) {
       let me = this;
 
-      me.Instance.setData({
-        linkDataId: ifPass ? me.mainData.DetailData.id : null
-      });
+      if (ifPass) {
+        me.mainDataId = me.mainData.DetailData.id;
+      }
       if (!ifPass) {
+        //~~ 1 candies去除 dataId的
+        let detailDims = me.$refs.detailDims;
+        detailDims.candies = detailDims.candies.filter(c => {
+          return c.dataId != me.mainDataId;
+        });
+
         me.joinTables.forEach(jt => {
           jt.joinThisProperty = null;
         });
+        me.mainDataId = null;
       }
+      me.Instance.setData({
+        linkDataId: me.mainDataId
+      });
     },
     //# 2 取消
     revokeDataFn(joinTable) {
       let me = this,
         dataId = joinTable.dataId;
-      //me.$set(me.theJoinTables, dataId, null);
+
+      //~~ 1 candies去除 dataId的
+      let detailDims = me.$refs.detailDims;
+      detailDims.candies = detailDims.candies.filter(c => {
+        return c.dataId != dataId;
+      });
+
+      //~~ 2 select重置
       tool.apply(joinTable, {
         dataId: null,
         //~ 2 下拉选择 1
@@ -234,11 +268,34 @@ export default {
           me.$set(jt, "$notHealthy", false);
         }
       }
-      me.Instance.setData({
+      me.Instance.set({
         config_more: {
           JoinTables: me.joinTables
         }
       });
+    },
+    //# 4 维度指标选择变化
+    candyAddRemoveFn(candies) {
+      let me = this;
+      console.log(["维度指标选择变化", candies, arguments]);
+      me.Instance.setData({
+        source: {
+          Dims: candies.map(c => {
+            let tc = tool.apply({}, c);
+            delete tc.parentCoating;
+
+            return tc;
+          })
+        }
+      });
+    },
+    //# 5 判断是否为禁用的函数
+    disabledFn(data, node) {
+      let me = this,
+        disabled = !me.mainDataId || data.id == me.mainDataId;
+      data.$disabled = disabled;
+      //console.log(["# 5 判断是否为禁用的函数", node, arguments]);
+      return disabled;
     }
   },
   mounted() {

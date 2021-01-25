@@ -786,7 +786,8 @@ export default {
           customClass: "newDetail",
           beforeClose(action, ins, done) {
             if (action === "confirm") {
-              //let selector = ins.down("detailSelector");
+              let selector = ins.down("detailSelector"),
+                detailDims = selector.$refs.detailDims;
 
               //# 1 如果是空
               if (tool.isNull(readyIns.recordData.linkDataId)) {
@@ -816,6 +817,15 @@ export default {
                 res(false);
                 return;
               }
+
+              //# 2-2 检测所选维度数量
+              console.log(["//# 2-2 检测所选维度数量", selector, detailDims]);
+              if (!detailDims.candies.length) {
+                me.$message.warning("请至少选择1个维度指标！");
+                res(false);
+                return;
+              }
+
               //# 3 进行保存
               me.nowBoardRoot
                 .add(readyIns)

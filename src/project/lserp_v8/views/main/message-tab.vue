@@ -6,6 +6,7 @@
     width="422"
     transition="fade22"
     popper-class="message-pop"
+    :key="nowId"
   >
     <el-button slot="reference" class="msgBtn">
       <span class="fa fa-info"></span>
@@ -87,13 +88,12 @@ export default {
       autoRefresh: true,
 
       //【12-1】新增需求
-      search: ""
+      search: "",
+
+      nowId: null
     };
   },
   computed: {
-    userinfo() {
-      return window.Ywp.GetUserInfo();
-    },
     noSeeItems() {
       let me = this,
         count = 0,
@@ -136,6 +136,9 @@ export default {
     //     });
     //   }, 0);
     // },
+    userinfo() {
+      return window.Ywp.GetUserInfo();
+    },
     deleteItem(item) {
       let me = this,
         at = me.items.findIndex(a => {
@@ -203,6 +206,10 @@ export default {
 
             applyBtn.setText("确认");
             applyBtn.handler = function() {
+              let userinfo = me.userinfo();
+              if (!userinfo) {
+                return;
+              }
               //表示已查看
               Ywp.request({
                 url: Ywp.Api.Module,
@@ -211,7 +218,7 @@ export default {
                   method: Ywp.Api.Module.SeeOneAuditMsg,
                   ModuleId: item.moduleid,
                   idValue: item.keyvalue,
-                  userid: me.userinfo.UserId
+                  userid: userinfo.UserId
                 },
                 success(result) {
                   Ywp.Msg.success("成功", result.msg || "确认成功");
@@ -234,12 +241,16 @@ export default {
     SeeOver(item) {
       let me = this,
         Ywp = window.Ywp;
+      let userinfo = me.userinfo();
+      if (!userinfo) {
+        return;
+      }
       me.seeItems.push(item.$key);
       //console.log(["奇怪，怎么没运行？"]);
       Ywp.request({
         url: Ywp.Api.Module,
         params: {
-          userid: me.userinfo.UserId,
+          userid: userinfo.UserId,
           method: Ywp.Api.Module.SeeOveOneMsg,
           record: JSON.stringify(item)
         }
@@ -254,12 +265,18 @@ export default {
     mouseLeaveFn() {
       this.autoRefresh = true;
     },
-    loopRefresh() {
+    loopRefresh(isFirst) {
       let me = this,
         $ = window.$,
         callback = () => {
-          //console.log(["在刷新" + Date.now(), me, me.$stopLoop]);
-          if ($(me.$el).is(":visible")) {
+          // console.log([
+          //   "在刷新" + Date.now(),
+          //   me,
+          //   $(me.$el),
+          //   $(me.$el).is(":visible")
+          // ]);
+          let userinfo = me.userinfo();
+          if (userinfo && (isFirst || $(me.$el).is(":visible"))) {
             me.timer_refresh = setTimeout(() => {
               me.loopRefresh();
             }, 20000);
@@ -287,11 +304,16 @@ export default {
     refresh(callback) {
       let Ywp = window.Ywp,
         me = this;
+      let userinfo = me.userinfo();
+
+      if (!userinfo) {
+        return;
+      }
       me.loading = true;
       Ywp.request({
         url: Ywp.Api.Module,
         params: {
-          userid: me.userinfo.UserId,
+          userid: userinfo.UserId,
           method: Ywp.Api.Module.GetAuditMsgTab
         },
         OnSuccess(result) {
@@ -339,10 +361,11 @@ export default {
       });
     }
   },
-  created() {
+  mounted() {
     let me = this;
-    console.log(["开始轮询消息"]);
-    me.loopRefresh();
+    me.nowId = tool.uniqueStr();
+    console.log(["开始轮询消息", me.nowId]);
+    me.loopRefresh(true);
   }
 };
 </script>

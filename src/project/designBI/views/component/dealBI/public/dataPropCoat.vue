@@ -6,6 +6,7 @@
         class="dataTree"
         :records="records"
         valid="exist"
+        :disabled="disabled"
         @node-click="dataTreeNodeClick"
       >
       </IndexTree>
@@ -64,7 +65,11 @@ export default {
     candyMaster: {
       type: Object,
       required: true
-    }
+    },
+    disabled: {
+      type: [String, Function],
+      default: "disabled"
+    },
   },
   data() {
     return {
@@ -91,6 +96,10 @@ export default {
   methods: {
     dataTreeNodeClick(rec) {
       let me = this;
+      if (rec.$disabled) {
+        //【update】提示
+        return;
+      }
       if (!rec.isFolder) {
         me.getDetailData(rec).then(data => {
           if (data) {

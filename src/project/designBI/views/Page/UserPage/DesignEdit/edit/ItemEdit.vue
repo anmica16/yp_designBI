@@ -63,6 +63,7 @@
 </template>
 
 <script>
+import tool from '@/plugins/js/tool';
 import OneItemEdit from "./OneItemEdit.vue";
 export default {
   components: { OneItemEdit },
@@ -107,7 +108,11 @@ export default {
     },
     //【update】看会不会响应
     getSumData(ins) {
-      return this.linkDatas[ins.linkDataId];
+      let baseData = tool.apply({}, this.linkDatas[ins.linkDataId]);
+      if (ins.instanceVue.sourceDims.length) {
+        baseData.dimension = ins.instanceVue.sourceDims;
+      }
+      return baseData;
     },
     createBIItemFn() {
       let me = this;

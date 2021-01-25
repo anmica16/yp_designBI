@@ -120,6 +120,10 @@ const BaseCfg = tool.apply(
     //【9】source：
     source: {
       desp: "4种数据类型，同桌面BI的逻辑",
+      $json: Object,
+      default() {
+        return {};
+      },
       disabled: true,
       hidden: true
     },
