@@ -350,11 +350,16 @@ export default {
       delete d2.parentCoating;
       return d2;
     },
+    // 初始化用？
     getPropDim(d) {
       let at = this.sumData.dimension.find(a => {
-        return a.$id === d.$id;
-      });
-      return at;
+          return a.$id === d.$id;
+        }),
+        r = {};
+      if (at) {
+        r = tool.apply({}, at);
+      }
+      return r;
     },
     initDims() {
       //# 2 来自ins的数据

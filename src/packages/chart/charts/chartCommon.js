@@ -28,14 +28,15 @@ export default {
       let me = this,
         series = [];
       me.Indices.forEach(index => {
-        let s = {
-          type: me.type,
-          name: index.key,
-          encode: {
-            x: me.xAxis.key || 0,
-            y: index.key
-          }
-        };
+        let name = `${index.key}_t${index.dataId}`,
+          s = {
+            type: me.type,
+            name: name,
+            encode: {
+              x: me.xAxis.key || 0,
+              y: name
+            }
+          };
         series.push(s);
       });
       return series;

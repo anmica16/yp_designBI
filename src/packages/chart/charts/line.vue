@@ -27,17 +27,18 @@ export default {
     series() {
       let me = this,
         series = [];
-      me.dimension &&
-        me.dimension.forEach((index, i) => {
-          if (i < 1) return;
-          let s = {
-            type: me.chartType,
-            name: index.key,
-            encode: {
-              x: me.xAxis.key || 0,
-              y: index.key
-            }
-          };
+      me.Indices &&
+        me.Indices.forEach((index, i) => {
+          //if (i < 1) return;
+          let name = `${index.key}_t${index.dataId}`,
+            s = {
+              type: me.chartType,
+              name: name,
+              encode: {
+                x: me.xAxis.key || 0,
+                y: name
+              }
+            };
           series.push(s);
         });
       return series;

@@ -80,10 +80,20 @@ export default {
     //## 5 明细表 配置
     JoinTables() {
       let me = this,
+        edit = me.EditNode,
         itemJTs = me.record.config_more && me.record.config_more.JoinTables,
         result = [];
       if (itemJTs && itemJTs.length) {
-        result = itemJTs;
+        //~~ 1 明细所需被选择模糊rec
+        itemJTs.forEach(jt => {
+          let theJT = tool.apply(
+            {
+              selectRecord: edit.selectMap[jt.dataId]
+            },
+            jt
+          );
+          result.push(theJT);
+        });
       }
       return result;
     },
@@ -176,7 +186,11 @@ export default {
               })
             ),
             //@ 4 明细：
-            JoinTables: JSON.stringify(me.JoinTables),
+            JoinTables:
+              (me.JoinTables &&
+                me.JoinTables.length &&
+                JSON.stringify(me.JoinTables)) ||
+              "",
             type: me.type
           }
         };

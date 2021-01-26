@@ -268,7 +268,7 @@ export default {
           me.$set(jt, "$notHealthy", false);
         }
       }
-      me.Instance.set({
+      me.Instance.setData({
         config_more: {
           JoinTables: me.joinTables
         }

@@ -358,8 +358,11 @@ export default {
       linkDatas: {},
       ajaxLinkDatas: [],
       //# 3 条件汇总 联动
-      //【update】需有控件添加测试
       conditionMap: {},
+      //# 4 所选record，
+      //【update】目前只涉及到明细变化
+      selectMap: {},
+
       itemEditPage: false,
       addInstances: []
     };

@@ -117,7 +117,8 @@ export default {
           let theConds = conds.map(cond => {
             return {
               ...cond,
-              property: propName
+              property: propName,
+              dataId
             };
           });
           //# 3 再比较、合并、插入
