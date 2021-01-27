@@ -286,6 +286,8 @@ export default {
           //## 2 维度！
           dimension: me.dimension.map(d => {
             d.dataId = me.id;
+            d.tTable = `t${d.dataId}`;
+            d.tName = `${d.key}_t${d.dataId}`;
             return d;
           }),
           exist: true

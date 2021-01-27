@@ -304,7 +304,7 @@ export default {
         sumData = me.sumData,
         Dims = [],
         Indices = [];
-      if (sumData) {
+      if (sumData && sumData.dimension) {
         sumData.dimension.forEach(_dim => {
           let dim = tool.apply({}, _dim);
           if (dim.type === "number") {

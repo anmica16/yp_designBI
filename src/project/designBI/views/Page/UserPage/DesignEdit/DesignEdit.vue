@@ -812,6 +812,10 @@ export default {
                     notHealthy.push(jt);
                   }
                 });
+              } else {
+                me.$message.warning("明细控件至少配置一个关联表！");
+                res(false);
+                return;
               }
               if (notHealthy.length) {
                 me.$message.warning(

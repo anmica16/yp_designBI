@@ -69,7 +69,7 @@ export default {
     disabled: {
       type: [String, Function],
       default: "disabled"
-    },
+    }
   },
   data() {
     return {

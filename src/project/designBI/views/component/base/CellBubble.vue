@@ -97,7 +97,7 @@ export default {
         newInses = [],
         addItems = [],
         removeItems = [];
-      console.log(["在这步之后报错？", newVal]);
+      //console.log(["在这步之后报错？", newVal]);
       if (newVal && newVal.length) {
         //# 1 新加入 即 新的 在旧的找不到
         newVal.forEach(item => {

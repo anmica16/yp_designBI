@@ -63,7 +63,7 @@
 </template>
 
 <script>
-import tool from '@/plugins/js/tool';
+import tool from "@/plugins/js/tool";
 import OneItemEdit from "./OneItemEdit.vue";
 export default {
   components: { OneItemEdit },

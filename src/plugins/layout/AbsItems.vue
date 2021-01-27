@@ -1012,7 +1012,7 @@ export default {
     itemsAddRemove(addItems, removeItems) {
       let me = this,
         addItemsReady = [];
-      console.log(["itemsAddRemove 过程！", addItems, removeItems]);
+      //console.log(["itemsAddRemove 过程！", addItems, removeItems]);
       //# 1 先去掉items
       removeItems.forEach(item => {
         item.$cells.slice().forEach(cell => {

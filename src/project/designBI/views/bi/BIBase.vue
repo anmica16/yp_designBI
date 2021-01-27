@@ -16,7 +16,7 @@
 </template>
 
 <script>
-import tool from '@/plugins/js/tool';
+import tool from "@/plugins/js/tool";
 import { Instance } from "../mixins/Entity";
 
 //【1】要求必有 数据

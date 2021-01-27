@@ -132,6 +132,15 @@ let Instance = tool.mergeClone({}, Base, {
       let me = this,
         t = me.recordData ? me.recordData.theme : "";
       return t;
+    },
+    //++ 1 更多配置
+    config_more() {
+      let me = this;
+      return me.recordData ? me.recordData.config_more : null;
+    },
+    //++ 2 明细关联表
+    _joinTables() {
+      return this.config_more ? this.config_more.JoinTables : null;
     }
   }
 });

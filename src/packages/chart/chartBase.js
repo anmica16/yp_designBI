@@ -81,7 +81,7 @@ export default {
     JoinTables() {
       let me = this,
         edit = me.EditNode,
-        itemJTs = me.record.config_more && me.record.config_more.JoinTables,
+        itemJTs = me._joinTables,
         result = [];
       if (itemJTs && itemJTs.length) {
         //~~ 1 明细所需被选择模糊rec
@@ -276,6 +276,11 @@ export default {
     },
     Indices(newVal, oldVal) {
       if (newVal.length !== oldVal.length) this.refreshSource();
+    },
+    JoinTables(newJTs) {
+      let me = this;
+      console.log(["JoinTables有改变了！", newJTs, me]);
+      me.refreshSource();
     }
   },
   mounted() {

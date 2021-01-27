@@ -4,11 +4,10 @@
 
 <script>
 import tool from "@/plugins/js/tool";
-import chartBase from "../chartBase";
 import chartCommon from "./chartCommon";
 export default {
   name: "chart-line",
-  mixins: [chartBase, chartCommon],
+  mixins: [chartCommon],
   computed: {
     //%% 1 各type所需--类目（维度）
     xAxis() {
@@ -30,7 +29,8 @@ export default {
       me.Indices &&
         me.Indices.forEach((index, i) => {
           //if (i < 1) return;
-          let name = `${index.key}_t${index.dataId}`,
+          let name =
+              me._joinTables && me._joinTables.length ? index.tName : index.key,
             s = {
               type: me.chartType,
               name: name,
