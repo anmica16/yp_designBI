@@ -15,13 +15,33 @@
               icon="el-icon-folder-add"
               >新建文件夹</el-button
             >
-            <el-button
-              size="small"
-              @click="newData()"
-              type="primary"
-              icon="el-icon-document-add"
-              >新增数据集</el-button
-            >
+            <el-popover ref="newDataRef">
+              <el-button
+                slot="reference"
+                size="small"
+                type="primary"
+                icon="el-icon-document-add"
+                >新增数据集</el-button
+              >
+              <div class="addOption">
+                <el-button
+                  class="option"
+                  size="small"
+                  type="success"
+                  icon="el-icon-document-add"
+                  @click="newData()"
+                  >本地上传</el-button
+                >
+                <el-button
+                  class="option"
+                  size="small"
+                  type="success"
+                  icon="el-icon-document-add"
+                  @click="newData(null, true)"
+                  >数据库查询</el-button
+                >
+              </div>
+            </el-popover>
           </div>
         </div>
         <!-- ~ 2 过滤 -->
@@ -77,7 +97,9 @@
     <transition name="PageMove">
       <NewDataPage
         v-if="query"
+        :is="query.isSql ? 'NewSqlDataPage' : 'NewDataPage'"
         :id="query.id"
+        :dataType="query.isSql ? 'sql' : 'local'"
         :pIndex="query.pIndex"
         :index="query.index"
         :likeEdit="likeEdit_newData"
@@ -92,6 +114,7 @@ import $ from "@/plugins/js/loader";
 import Vue from "vue";
 import tool from "@/plugins/js/tool";
 import NewDataPage from "./newData/NewDataPage";
+import NewSqlDataPage from "./newSqlData/NewSqlDataPage";
 import CheckDataStage from "./newData/CheckDataStage";
 import dataSelectorMixin from "@designBI/views/component/dealBI/dataSelectorMixin.js";
 export default {
@@ -99,7 +122,8 @@ export default {
   mixins: [dataSelectorMixin],
   components: {
     NewDataPage,
-    CheckDataStage
+    CheckDataStage,
+    NewSqlDataPage
   },
   data() {
     return {
@@ -218,8 +242,11 @@ export default {
         .catch(r => {});
     },
     //~ 3 新data
-    newData(folderRec) {
-      let me = this;
+    newData(folderRec, isSql = false) {
+      let me = this,
+        pop = me.$refs.newDataRef;
+      pop && pop.handleBlur();
+
       me.$store.state.progress = 10;
       me.refreshRecords()
         .then(r => {
@@ -251,7 +278,7 @@ export default {
             me.$store.state.progress = 60;
             me.likeEdit_newData = false;
             me.$router.push({
-              query: { index, pIndex, id: result.other }
+              query: { index, pIndex, id: result.other, isSql: isSql }
             });
           });
         })
