@@ -21,7 +21,11 @@ let Api_custom = {
     //~ 3 数据库查询
     GetSqlSourceList: "GetSqlSourceList",
     AddSqlSource: "AddSqlSource",
-    DeleteSqlSource: "DeleteSqlSource"
+    DeleteSqlSource: "DeleteSqlSource",
+    GetLinkSourceDBList: "GetLinkSourceDBList",
+    GetLinkSourceDBTableList: "GetLinkSourceDBTableList",
+    GetLinkSourceDBTableDimList: "GetLinkSourceDBTableDimList",
+    GetLinkSourceDBTableData: "GetLinkSourceDBTableData"
   },
 
   Module: {

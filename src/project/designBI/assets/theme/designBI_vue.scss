@@ -22,6 +22,9 @@ $back2: #f7f8fa;
 $blue: #356feb;
 $blue2: #4078f0;
 
+$hover: rgba(54, 157, 242, 0.05);
+$hover_deep: rgba(51, 135, 204, 0.05);
+
 //~ 3 transition设定
 %transition_fast {
   transition: all 0.18s;
@@ -449,7 +452,7 @@ body {
 
     &:hover {
       color: $font2_deep;
-      background: rgba(54, 157, 242, 0.05);
+      background: $hover;
     }
   }
   %item_vertical {
@@ -467,7 +470,7 @@ body {
     }
     &:hover {
       color: $font2_deep;
-      background: rgba(54, 157, 242, 0.05);
+      background: $hover;
     }
   }
   //~ 1
@@ -846,4 +849,121 @@ body {
       }
     } //right
   } //body
+}
+// @@ 3-3 页面3-3，新数据源数据添加
+.NewSqlDataPage {
+  .operateBodySql {
+    $w_left: 300px;
+    font-size: 14px;
+
+    .leftArea {
+      width: $w_left;
+
+      $h_bar: 42px;
+      $h_pager: 36px;
+      .addRemoveBar {
+        height: $h_bar;
+      }
+      .listBody {
+        height: calc(100% - #{$h_bar + $h_pager});
+        .el-scrollbar {
+          height: 100%;
+
+          //#1 一个数据源
+          .oneServer {
+            cursor: pointer;
+            margin-bottom: 10px;
+
+            &:hover {
+              background: $hover;
+            }
+            &.selected {
+              background: $hover_deep;
+            }
+          }
+        }
+      }
+      .pager {
+        height: $h_pager;
+      }
+    }
+    //右侧
+    .rightArea {
+      padding: 10px;
+      left: $w_left + 20px;
+
+      $h_top: 100px;
+
+      //~ 0 没有的提示
+      .waitSqlSourceTip {
+        height: 100%;
+        width: 100%;
+        @extend %flex-wh;
+        flex-direction: column;
+        .back {
+          height: 150px;
+          width: 200px;
+          background: url(./images/view3/sqlSource.png) no-repeat;
+          background-position: center;
+          background-size: auto 100%;
+          margin-top: -20px;
+          margin-bottom: 20px;
+          margin-left: -20px;
+        }
+        .text {
+          color: $font2_light;
+          font-size: 14px;
+        }
+      }
+
+      //~ 1 上
+      .dbTableSelectArea {
+        height: $h_top;
+      }
+      //~ 2 下
+      .tableDataArea {
+        height: calc(100% - #{$h_top});
+        @extend %flex-row;
+        > * {
+          height: 100%;
+        }
+
+        $w_tree: 280px;
+
+        .dimensionArea {
+          width: $w_tree;
+          > .el-scrollbar {
+            height: 100%;
+            .dimTree {
+              padding: 6px 0;
+              .el-tree-node__expand-icon.is-leaf {
+                display: none;
+              }
+              .dimOption {
+                font-size: 14px;
+                .midText {
+                  margin-left: 4px;
+                }
+                .nameText {
+                  width: auto;
+                  .el-input__inner {
+                    height: 20px;
+                    border: 1px solid rgba(0, 0, 0, 0.05);
+                    width: auto;
+                    padding: 0 0 0 4px;
+                  }
+                }
+              }
+            }
+          }
+        }
+        .dataTableArea {
+          width: calc(100% - #{$w_tree});
+          .DimTable {
+            height: 100%;
+          }
+        }
+      }
+    }
+  }
 }

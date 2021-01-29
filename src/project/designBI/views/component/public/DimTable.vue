@@ -1,6 +1,7 @@
 <template>
   <div class="DimTable">
     <el-table
+      ref="table"
       :data="pageData"
       style="width: 100%"
       height="calc(100% - 36px)"
@@ -53,6 +54,12 @@ export default {
       } else {
         return datas;
       }
+    }
+  },
+  methods: {
+    doLayout() {
+      let me = this;
+      me.$refs.table.doLayout();
     }
   }
 };

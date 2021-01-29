@@ -17,12 +17,12 @@
       <el-input v-model="formData.ip" placeholder="请输入数据源地址"></el-input>
     </el-form-item>
 
-    <el-form-item label="数据库名" prop="dataBaseName">
+    <!-- <el-form-item label="数据库名" prop="dataBaseName">
       <el-input
         v-model="formData.dataBaseName"
         placeholder="请输入所连接的数据库名"
       ></el-input>
-    </el-form-item>
+    </el-form-item> -->
 
     <el-form-item label="登录用户" prop="username">
       <el-input
@@ -54,7 +54,7 @@ export default {
       formData: {
         name: "",
         ip: "",
-        dataBaseName: "",
+        //dataBaseName: "",
         username: "",
         password: ""
       },
@@ -63,9 +63,9 @@ export default {
           { required: true, message: "请输入数据源名称", trigger: "blur" }
         ],
         ip: [{ required: true, message: "请输入数据源地址", trigger: "blur" }],
-        dataBaseName: [
-          { required: true, message: "请输入所连接的数据库名", trigger: "blur" }
-        ],
+        // dataBaseName: [
+        //   { required: true, message: "请输入所连接的数据库名", trigger: "blur" }
+        // ],
         username: [
           { required: true, message: "请输入数据源登录用户", trigger: "blur" }
         ],
