@@ -37,9 +37,17 @@ export default {
     },
     //【update】source的优先级高
     dimension() {
-      return this.sourceDims.length
-        ? this.sourceDims
-        : this.LinkData && this.LinkData.dimension;
+      let me = this,
+        dims = this.sourceDims.length
+          ? this.sourceDims
+          : this.LinkData && this.LinkData.dimension;
+      return (
+        dims &&
+        dims.map(d => {
+          d.realKey = me.getRealKey(d);
+          return d;
+        })
+      );
     },
     //%% 2 下面2个 归 item
     //@ 1 下面是默认的 xy
@@ -151,6 +159,11 @@ export default {
       } else {
         return null;
       }
+    },
+
+    getRealKey(dim) {
+      let me = this;
+      return me._joinTables && me._joinTables.length ? dim.tName : dim.key;
     },
 
     //## 2 item 全页数据中心

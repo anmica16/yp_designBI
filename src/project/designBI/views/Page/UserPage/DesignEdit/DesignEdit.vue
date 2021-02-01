@@ -94,7 +94,7 @@
             </dir>
             <dir class="text">BI控件</dir>
           </div>
-          <el-popover
+          <!-- <el-popover
             class="popover addItemBtn"
             @show="leftBarPopShow"
             ref="popover"
@@ -115,7 +115,7 @@
                 v-bind="col"
               ></el-table-column>
             </el-table>
-          </el-popover>
+          </el-popover> -->
           <!-- ~ 3 明细表控件 -->
           <div class="barItem" @click="createDetail">
             <dir class="icon">
@@ -594,6 +594,7 @@ export default {
                   templateCode: me.nowTemplateCode,
                   linkDataId: theRec.id,
                   useType: 10,
+                  chartType: "bar",
                   name: "未命名子控件" + (me.addInstances.length + 1)
                 });
                 //# 3 add到主cell
@@ -772,6 +773,7 @@ export default {
         xtype: "BIBase",
         templateCode: me.nowTemplateCode,
         useType: 11, //30表示明细控件
+        chartType: "bar",
         name: "未命名明细控件" + (me.addInstances.length + 1)
       });
 

@@ -125,7 +125,7 @@ let Instance = tool.mergeClone({}, Base, {
     },
     chartType() {
       let me = this,
-        t = me.recordData ? me.recordData.chartType || "line" : "line";
+        t = me.recordData ? me.recordData.chartType || "bar" : "bar";
       return t;
     },
     theme() {
