@@ -97,9 +97,9 @@
     <transition name="PageMove">
       <NewDataPage
         v-if="query"
-        :is="query.isSql ? 'NewSqlDataPage' : 'NewDataPage'"
+        :is="query.isSql == 1 ? 'NewSqlDataPage' : 'NewDataPage'"
         :id="query.id"
-        :dataType="query.isSql ? 'sql' : 'local'"
+        :dataType="query.isSql == 1 ? 'sql' : 'local'"
         :pIndex="query.pIndex"
         :index="query.index"
         :likeEdit="likeEdit_newData"
@@ -247,6 +247,8 @@ export default {
         pop = me.$refs.newDataRef;
       pop && pop.handleBlur();
 
+      console.log(["打开newData"]);
+
       me.$store.state.progress = 10;
       me.refreshRecords()
         .then(r => {
@@ -278,7 +280,7 @@ export default {
             me.$store.state.progress = 60;
             me.likeEdit_newData = false;
             me.$router.push({
-              query: { index, pIndex, id: result.other, isSql: isSql }
+              query: { index, pIndex, id: result.other, isSql: isSql ? 1 : 0 }
             });
           });
         })

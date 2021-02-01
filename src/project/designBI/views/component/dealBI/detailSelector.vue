@@ -51,6 +51,7 @@
                 }"
               >
                 <dataPropCoat
+                  :key="jt.$id"
                   :ref="'join' + jt.$id"
                   :candyMaster="candyMaster"
                   :disabled="disabledFn"
@@ -199,12 +200,22 @@ export default {
       if (tool.isArray(jtRef)) {
         jtRef = jtRef[0];
       }
+      me.$set(me.jtRefs, joinTable.$id, jtRef);
       let refDetailData = jtRef.DetailData,
         dataId = refDetailData.id,
         theJts = me.theJoinTables;
+      console.log([
+        "这个confirmDataFn决定的jt数据",
+        refDetailData,
+        refDetailData.dataType,
+        refDetailData.dataBaseName
+      ]);
       //~~ 1 完善jt
       joinTable.dataId = dataId;
-      joinTable.joinTableName = refDetailData.tableName;
+      joinTable.joinTableName =
+        refDetailData.dataType == "sql"
+          ? `${refDetailData.sourceName}.${refDetailData.dataBaseName}.dbo.${refDetailData.tableName}`
+          : refDetailData.tableName;
       //~~ 1-2 非保存信息
       if (!theJts[dataId]) {
         me.$set(theJts, dataId, refDetailData);
@@ -228,7 +239,8 @@ export default {
         });
 
         me.joinTables.forEach(jt => {
-          jt.joinThisProperty = null;
+          //jt.joinThisProperty = null;
+          me.revokeDataFn(jt);
         });
         me.mainDataId = null;
       }
@@ -255,6 +267,12 @@ export default {
         joinThisProperty: null,
         joinTableName: null
       });
+
+      //~~ 3 对应ref也resetp
+      // let jtRef = me.jtRefs[joinTable.$id];
+      // jtRef.reStep();
+      me.$set(me.jtRefs, joinTable.$id, null);
+      //me.nowJoinTable = null;
     },
     //# 3 字段改变
     propChangeFn(jt) {

@@ -266,7 +266,8 @@ export default {
           name: me.name,
           //## 1 name！
           tableName: me.selTableName,
-          dataSource: me.dataSource,
+          sourceName: me.sqlSource && me.sqlSource.name,
+          dataBaseName: me.dataBaseName,
           editTime,
           dataType: me.dataType,
           //## 2 维度！

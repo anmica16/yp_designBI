@@ -159,7 +159,7 @@ export default {
       let me = this,
         tableName = me.tableName;
       //console.log(["尝试刷新"]);
-      if (!tableName || !me.Instance) {
+      if (!tableName || !me.Instance || !me.LinkData) {
         return;
       }
       let dataId = me.dataId,
@@ -169,7 +169,10 @@ export default {
           method: Vue.Api.designBI.GetDataDetail,
           data: {
             id: dataId,
-            tableName,
+            tableName:
+              me.LinkData.dataType == "sql"
+                ? `${me.LinkData.sourceName}.${me.LinkData.dataBaseName}.dbo.${tableName}`
+                : tableName,
             //@ 3 这两个产生个性
             Dims: JSON.stringify(
               me.Dims.map(d => {
