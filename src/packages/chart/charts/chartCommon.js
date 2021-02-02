@@ -4,6 +4,12 @@ import chartBase from "../chartBase";
 let echarts = require("echarts");
 export default {
   mixins: [chartBase],
+  props: {
+    useSvg: {
+      type: Boolean,
+      default: false
+    }
+  },
   data() {
     //%% 5 type下自属配置
     return {
@@ -120,9 +126,13 @@ export default {
   mounted() {
     let me = this;
     if (me.theme) {
-      me.chart = me.echarts.init(me.$refs.box, me.theme, { renderer: "svg" });
+      me.chart = me.echarts.init(me.$refs.box, me.theme, {
+        renderer: me.useSvg ? "svg" : "canvas"
+      });
     } else {
-      me.chart = me.echarts.init(me.$refs.box, null, { renderer: "svg" });
+      me.chart = me.echarts.init(me.$refs.box, null, {
+        renderer: me.useSvg ? "svg" : "canvas"
+      });
     }
     me.$on("refreshSource", () => {
       //console.log(["这里没处理号？"]);
