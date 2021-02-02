@@ -80,6 +80,19 @@ $blue2: #4078f0;
 }
 
 //  edit附加页面
+// @@ 4-0 各个group子控件内部
+.CellBubble.isRoot {
+  .BIBase > .chartTitle {
+    cursor: grab;
+  }
+  .DragResizeMouse-wrap {
+    &.dragging {
+      .BIBase > .chartTitle {
+        cursor: grabbing;
+      }
+    }
+  }
+}
 // @@ 4-1 添加组件1 窗口
 .newBIItem {
   width: 90%;

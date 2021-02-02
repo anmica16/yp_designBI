@@ -1,5 +1,5 @@
 <template>
-  <div class="BIBase">
+  <div class="BIBase" v-loading="ajaxLoading">
     <div class="chartTitle">BIBase</div>
     <div class="chartBody">
       <div
@@ -10,6 +10,7 @@
         :nowBoard="nowBoard"
         @click.native.stop
         @mousedown.native.stop
+        @ajaxLoading="ajaxLoadingFn"
       ></div>
     </div>
   </div>
@@ -24,6 +25,11 @@ import $ from "jquery";
 export default {
   name: "BIBase",
   mixins: [Instance],
+  data() {
+    return {
+      ajaxLoading: false
+    };
+  },
   computed: {
     //……1 这里的chartType是放在 Instance里面的
     chartTypeStr() {
@@ -41,6 +47,9 @@ export default {
     },
     refreshSource() {
       this.$refs.chart.refreshSource();
+    },
+    ajaxLoadingFn(isLoading) {
+      this.ajaxLoading = isLoading;
     }
   },
   mounted() {

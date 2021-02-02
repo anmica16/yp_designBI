@@ -161,23 +161,23 @@ import tool from "@/plugins/js/tool";
 const selectTypes = [
   //~ 1 table表
   {
-    type: "table",
-    icon: "bi-table",
-    name: "分组表",
-    desp: ""
-  },
-  {
-    type: "table-cross",
-    icon: "bi-table-cross",
-    name: "交叉表",
-    desp: ""
-  },
-  {
     type: "table-mingxi",
     icon: "bi-table-mingxi",
     name: "明细表",
     desp: ""
   },
+  {
+    type: "table",
+    icon: "bi-table",
+    name: "分组表",
+    desp: ""
+  },
+  // {
+  //   type: "table-cross",
+  //   icon: "bi-table-cross",
+  //   name: "交叉表",
+  //   desp: ""
+  // },
   //~ 2 柱状图
   {
     type: "bar-divid",

@@ -16,7 +16,9 @@ export default {
       SummaryData: null,
       //## 2 获取数据方式
       type: "chart", // "treeTable"
-      requestData: null
+      requestData: null,
+      ajaxData: null,
+      ajaxLoading: false
     };
   },
   computed: {
@@ -175,6 +177,7 @@ export default {
       if (!tableName || !me.Instance || !me.LinkData) {
         return;
       }
+      me.ajaxLoading = true;
       let dataId = me.dataId,
         conditions = me.conditions,
         options = {
@@ -248,14 +251,17 @@ export default {
               me.$emit("refreshSource", me.requestData);
               res(me.requestData);
             } else {
-              res(false);
+              res("noData");
             }
+            me.ajaxLoading = false;
           })
           .catch(r => {
             if (r && r.statusText === "abort") {
               me.ajaxData = null;
+            } else {
+              res(false);
+              me.ajaxLoading = false;
             }
-            res(false);
           });
       });
     },
@@ -297,6 +303,9 @@ export default {
       let me = this;
       console.log(["JoinTables有改变了！", newJTs, me]);
       me.refreshSource();
+    },
+    ajaxLoading(newVal) {
+      this.$emit("ajaxLoading", newVal);
     }
   },
   mounted() {

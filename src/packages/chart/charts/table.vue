@@ -6,7 +6,7 @@
       :data="treeData"
     >
       <template v-for="col in totDims">
-        <el-table-column :key="col.$id" :prop="col.key" :label="col.key">
+        <el-table-column :key="col.$id" :prop="col.realKey" :label="col.key">
         </el-table-column>
       </template>
     </el-table>

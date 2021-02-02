@@ -3,6 +3,8 @@ import line from "./line.vue";
 Vue.component("chart-line", line);
 import table from "./table.vue";
 Vue.component("chart-table", table);
+import tableM from "./table-mingxi.vue";
+Vue.component("chart-table-mingxi", tableM);
 
 import bar from "./bar.vue";
 Vue.component("chart-bar", bar);
