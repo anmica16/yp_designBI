@@ -107,6 +107,7 @@
               style="height: 30px;"
               :candyMaster="candyMaster"
               ref="Dims"
+              :receiveCheck="receiveCheckDims"
             >
               <span class="noTip">请拖入左侧维度</span>
             </CoatingDim>
@@ -120,6 +121,7 @@
               style="height: 30px;"
               :candyMaster="candyMaster"
               ref="Indices"
+              :receiveCheck="receiveCheckIndices"
             >
               <span class="noTip">请拖入左侧指标</span>
             </CoatingDim>
@@ -400,6 +402,17 @@ export default {
       return this.selectTypes.find(a => {
         return a.type === typeStr;
       });
+    },
+    //~~ 2 看是否可加入
+    receiveCheckDims(candy) {
+      let me = this,
+        cDim = candy.Dim;
+      return ["number", "date", "string"].indexOf(cDim.type) > -1;
+    },
+    receiveCheckIndices(candy) {
+      let me = this,
+        cDim = candy.Dim;
+      return ["number"].indexOf(cDim.type) > -1;
     }
   },
   created() {

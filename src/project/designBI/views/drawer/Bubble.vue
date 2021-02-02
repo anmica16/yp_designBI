@@ -263,6 +263,14 @@ export default {
     goEditPage() {
       let me = this;
       me.EditNode.goEditPage(me.Instance);
+    },
+    //@ 4 朴实的 resize，看host有没有
+    resize() {
+      let me = this,
+        host = me.$refs.host;
+      if (host && tool.isFunction(host.resize)) {
+        host.resize();
+      }
     }
   },
   watch: {

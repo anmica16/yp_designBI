@@ -48,6 +48,10 @@ $blue2: #4078f0;
   }
 }
 
+%transition-mid {
+  transition: all .5s;
+}
+
 //~~ 1 type标签
 .DimTypeTag {
   &.edit {
@@ -327,6 +331,8 @@ $blue2: #4078f0;
       .visualArea {
         width: calc(100% - #{$w_left + $w_mid});
         height: 100%;
+        padding: 5px 8px 5px 5px;
+        box-sizing: border-box;
         $h_dim: 120px;
         $h_chart: calc(100% - #{$h_dim});
 
@@ -335,11 +341,22 @@ $blue2: #4078f0;
           .CoatingDim {
             width: 100%;
             @extend %flex-row;
+            &.active {
+              border: 1px solid rgb(53, 129, 228);
+              box-shadow: 0 0 0 2px rgba(69, 144, 236, 0.15);
+            }
           }
         }
 
         .visualStage {
           height: $h_chart;
+          $h_bottom: 40px;
+          .chartArea {
+            height: calc(100% - #{$h_bottom});
+          }
+          .bottom {
+            height: $h_bottom;
+          }
         }
       }
     } //onebody

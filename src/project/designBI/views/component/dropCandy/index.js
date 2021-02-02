@@ -6,8 +6,8 @@ let Candy = {
   props: {
     //# 1 管理拖拽用
     candyMaster: {
-      type: Object
-      //required: true
+      type: Object,
+      required: true
     },
     //# 2 放在这里面的一些变量！通用性强，同一个对象 里有 额外 parentCoating
     Dim: Object
@@ -48,9 +48,11 @@ let Candy = {
       // me.mouseY = e.pageY;
 
       //~ 2 【update】从coating中触发？
-
       $("body").on(`mousemove.${uid}`, me.candyHandleMove);
       $("body").on(`mouseup.${uid}`, me.candyHandleUp);
+
+      //~ 3 给master一个信号，表示开始拖拽
+      me.candyMaster.startDrag(me);
     },
     candyHandleMove(e) {
       let me = this;
@@ -72,7 +74,7 @@ let Candy = {
       });
 
       //~ 2 master over检测
-      me.candyMaster.checkOver({ left, top }, me);
+      me.candyMaster.checkOver({ left: e.pageX, top: e.pageY }, me);
     },
     candyHandleUp(e) {
       let me = this;
@@ -87,16 +89,30 @@ let Candy = {
       me.dragDom.remove();
 
       me.candyMaster.checkDrop({ left: e.pageX, top: e.pageY }, me);
+      //~ 3 给master一个信号，表示结束拖拽
+      me.candyMaster.stopDrag(me);
     }
   }
 };
 
 let CandyMaster = {
+  props: {
+    blur: {
+      type: Number,
+      default() {
+        return 5;
+      }
+    }
+  },
   data() {
     return {
       //# 1 vNode形式的
       coatings: [],
-      overCoatings: []
+      overCoatings: [],
+      //# 2 可以和不可以的，每次点击为一个开始
+      canDropC: [],
+      cannotDropC: [],
+      draggingCandy: null
     };
   },
   methods: {
@@ -136,10 +152,10 @@ let CandyMaster = {
           rectH = dom.height();
         //console.log(["比较与client的点 X", stopX, rectX, "Y", stopY, rectY]);
         if (
-          stopX > rectX &&
-          stopX < rectX + rectW &&
-          stopY > rectY &&
-          stopY < rectY + rectH
+          stopX > rectX - me.blur &&
+          stopX < rectX + rectW + me.blur &&
+          stopY > rectY - me.blur &&
+          stopY < rectY + rectH + me.blur
         ) {
           fitOwners.push(coat);
         }
@@ -168,6 +184,24 @@ let CandyMaster = {
       let me = this;
       me.overCoatings = [];
       me.$emit("dropEnd");
+    },
+    startDrag(candy) {
+      let me = this;
+      me.draggingCandy = candy;
+      me.coatings.forEach(ct => {
+        let canR = ct.receiveCheck(candy) ? true : false;
+        ct.canReceive = canR;
+        //(canR ? me.canDropC : me.cannotDropC).push(ct);
+      });
+    },
+    stopDrag(candy) {
+      let me = this;
+      me.draggingCandy = null;
+      me.coatings.forEach(ct => {
+        ct.canReceive = false;
+      });
+      // me.canDropC = [];
+      // me.cannotDropC = [];
     }
   }
 };
@@ -176,20 +210,40 @@ let Coating = {
   props: {
     //# 1 管理拖拽用
     candyMaster: {
-      type: Object
-      //required: true
+      type: Object,
+      required: true
+    },
+    receiveCheck: {
+      type: Function,
+      default() {
+        return function(candy) {
+          return true;
+        };
+      }
     }
   },
   data() {
     return {
       //# 1 里面也许有，ref为对应 key
-      candies: []
+      candies: [],
+      canReceive: false
     };
+  },
+  computed: {
+    draggingCandy() {
+      return this.candyMaster.draggingCandy;
+    },
+    isActive() {
+      return this.draggingCandy && this.canReceive;
+    }
   },
   methods: {
     candyOver(pos, candy) {
-      let me = this,
-        cDim = candy.Dim,
+      let me = this;
+      if (!me.canReceive) {
+        return;
+      }
+      let cDim = candy.Dim,
         cgToDimAt = null,
         overCandyAt = me.candies.findIndex(c => {
           return !tool.isNull(c.$id) && c.$id === cDim.$id;

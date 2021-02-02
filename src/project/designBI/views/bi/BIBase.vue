@@ -18,6 +18,7 @@
 <script>
 import tool from "@/plugins/js/tool";
 import { Instance } from "../mixins/Entity";
+import $ from "jquery";
 
 //【1】要求必有 数据
 export default {
@@ -31,19 +32,26 @@ export default {
     }
   },
   methods: {
-    chartResize() {},
+    resize() {
+      let me = this,
+        chart = me.$refs.chart;
+      if (chart && tool.isFunction(chart.resize)) {
+        chart.resize();
+      }
+    },
     refreshSource() {
       this.$refs.chart.refreshSource();
     }
   },
   mounted() {
-    let me = this;
+    let me = this,
+      resizeFn = tool.throttle(me.resize, 100);
     me.$on("bubble-resize", () => {
       //console.log(["测试转化得如何了"]);
-      let chart = me.$refs.chart;
-      if (chart && tool.isFunction(chart.resize)) {
-        chart.resize();
-      }
+      me.resize();
+    });
+    $(window).on(`resize.${tool.uniqueStr()}`, () => {
+      resizeFn();
     });
   }
 };

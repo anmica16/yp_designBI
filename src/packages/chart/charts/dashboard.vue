@@ -23,15 +23,15 @@ export default {
               : `数据${i}`,
             x = 0,
             y = 50,
-            y2 = y + 11;
+            y2 = y + 13;
           if (me.keySheet.length == 2) {
             x = i == 1 ? 25 : -25;
           } else if (me.keySheet.length > 2) {
             let orderX = i % 3,
               orderY = Math.floor(i / 3);
             x = 33.33 * orderX - 40;
-            y = 50 + 22 * orderY;
-            y2 = y + 11;
+            y = 50 + 24 * orderY;
+            y2 = y + 13;
           }
 
           data.push({
@@ -78,7 +78,7 @@ export default {
           },
           detail: {
             width: 36,
-            height: 12,
+            height: 10,
             fontSize: 13,
             color: "#fff",
             backgroundColor: "auto",

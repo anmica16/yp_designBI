@@ -865,6 +865,10 @@ export default {
       if (newBoard && newBoard != oldBoard) {
         me.nowInstances = me.getNowInstances();
       }
+    },
+    //@ 4 resize跟进
+    itemEditPage() {
+      $(window).trigger("resize");
     }
   },
   created() {

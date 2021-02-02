@@ -1,5 +1,5 @@
 <template>
-  <div class="CoatingDim">
+  <div class="CoatingDim" :class="{ active: isActive }">
     <template v-for="candy in candies">
       <CandyDimTag
         :class="candyCls"
