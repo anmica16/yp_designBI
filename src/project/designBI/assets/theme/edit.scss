@@ -49,7 +49,7 @@ $blue2: #4078f0;
 }
 
 %transition-mid {
-  transition: all .5s;
+  transition: all 0.5s;
 }
 
 //~~ 1 type标签
@@ -82,13 +82,38 @@ $blue2: #4078f0;
 //  edit附加页面
 // @@ 4-0 各个group子控件内部
 .CellBubble.isRoot {
-  .BIBase > .chartTitle {
-    cursor: grab;
+  //~ 1 BI控件的头部
+  .BIBase {
+    > .chartTitle {
+      cursor: grab;
+    }
+    > .chartBody {
+      .chart-table {
+        height: 100%;
+        padding: 0 1px;
+        .DimTable {
+          height: 100%;
+        }
+      }
+    }
   }
   .DragResizeMouse-wrap {
     &.dragging {
       .BIBase > .chartTitle {
         cursor: grabbing;
+      }
+    }
+  }
+
+  //~ 2 表样式
+  .el-table {
+    th {
+      padding: 6px 0;
+    }
+    td {
+      padding: 0;
+      .cell {
+        white-space: nowrap;
       }
     }
   }

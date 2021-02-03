@@ -23,7 +23,7 @@
     @mouseleave.native="mouseleaveFn"
     :mouseDownStop="false"
     @mousedown.native.stop="mousedownFn"
-    @transitionend.native="transitionEndFn"
+    @transitionend.native.self="transitionEndFn"
   >
     <!-- <div
       class="hostWrap-withLineDot"
@@ -147,6 +147,11 @@ export default {
     },
     isSelect() {
       return this.selectManager.selectItem === this;
+    },
+    hostResize() {
+      let me = this,
+        fn = tool.throttle(me.hostResizeBase, 200);
+      return fn;
     }
   },
   methods: {
@@ -222,7 +227,7 @@ export default {
       }
       this.hostResize();
     },
-    hostResize() {
+    hostResizeBase() {
       let me = this,
         host = me.$refs.host;
       if (host) {

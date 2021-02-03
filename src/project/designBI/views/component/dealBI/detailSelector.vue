@@ -5,6 +5,8 @@
       <div class="dataIdSelect">
         <dataPropCoat
           ref="mainData"
+          :dimClass="'main'"
+          preText="主表"
           :candyMaster="candyMaster"
           @confirmData="mainDataConfirm(true)"
           @revokeData="mainDataConfirm(false)"
@@ -40,7 +42,7 @@
           </div>
           <!-- #2 tabBody部分 -->
           <div class="jTabBodies">
-            <template v-for="jt in joinTables">
+            <template v-for="(jt, j) in joinTables">
               <div
                 v-show="jt === nowJoinTable"
                 class="oneBody"
@@ -55,6 +57,8 @@
                   :ref="'join' + jt.$id"
                   :candyMaster="candyMaster"
                   :disabled="disabledFn"
+                  :dimClass="`detail_${j + 1}`"
+                  :preText="`明细${j + 1}`"
                   @confirmData="confirmDataFn(jt)"
                   @revokeData="revokeDataFn(jt)"
                 ></dataPropCoat>

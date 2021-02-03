@@ -96,12 +96,19 @@ export default {
       if (itemJTs && itemJTs.length) {
         //~~ 1 明细所需被选择模糊rec
         itemJTs.forEach(jt => {
-          let theJT = tool.apply(
-            {
-              selectRecord: edit.selectMap[jt.dataId]
-            },
-            jt
-          );
+          let rec = edit.selectMap[jt.dataId],
+            theJT = tool.apply(
+              {
+                selectRecord: rec
+              },
+              jt
+            );
+          console.log([
+            "//## 5 明细表 配置",
+            rec,
+            jt,
+            edit.selectMap[jt.dataId]
+          ]);
           result.push(theJT);
         });
       }
@@ -283,6 +290,27 @@ export default {
         aoaKey,
         workSheet
       };
+    },
+    //@ 3 选择一条数据
+    selectOneRecord(rec, Dims) {
+      let me = this,
+        edit = me.EditNode;
+
+      Dims.forEach(d => {
+        //~~ 1 record
+        let dataId = d.dataId;
+        let record = {};
+        //~~ 3 先去掉！
+        delete edit.selectMap[dataId];
+
+        let key = d.realKey,
+          val = rec[key];
+        if (!tool.isNull(val)) {
+          //~~ 2 有值的维度，放入对应dataId的rec去
+          me.$set(record, key, val);
+          me.$set(edit.selectMap, dataId, record);
+        }
+      });
     }
   }, //methods
   watch: {

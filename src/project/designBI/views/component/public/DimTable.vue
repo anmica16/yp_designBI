@@ -5,7 +5,9 @@
       :data="pageData"
       style="width: 100%"
       height="calc(100% - 36px)"
+      :highlight-current-row="selMode == 'single' ? true : false"
       border
+      @row-click="rowClickFn"
     >
       <template v-for="(dim, i) in dimension">
         <el-table-column
@@ -14,9 +16,16 @@
           :prop="dim.key"
           :index="i"
           :width="dim.type === 'date' ? '200' : ''"
+          sortable
+          :formatter="dim.formatter ? dim.formatter : null"
         >
           <template slot="header">
-            <DimTypeTag :type="dimension[i].type" :name="dimension[i].key">
+            <DimTypeTag
+              :type="dimension[i].type"
+              :name="dimension[i].key"
+              xtype="span"
+              :preText="preText"
+            >
             </DimTypeTag>
           </template>
         </el-table-column>
@@ -42,6 +51,21 @@ export default {
     pageSize: {
       type: Number,
       default: 10
+    },
+    //# 2 表配置
+    rowClickFn: {
+      type: Function,
+      default() {
+        return function() {};
+      }
+    },
+    selMode: {
+      type: String,
+      default: "single"
+    },
+    //# 3 拖拽维度归属文本
+    preText: {
+      type: String
     }
   },
   computed: {

@@ -88,32 +88,10 @@ export default {
     },
     targetRecordDims(clickParams) {
       let me = this,
-        edit = me.EditNode,
-        value = clickParams.value,
-        withJts = me._joinTables && me._joinTables.length,
+        rec = clickParams.value,
         Dims = me.Dims;
 
-      Dims.forEach(d => {
-        //~~ 1 record
-        let dataId = d.dataId;
-        if (!edit.selectMap[dataId]) {
-          me.$set(edit.selectMap, dataId, {});
-        }
-        let record = edit.selectMap[dataId];
-
-        let key = withJts ? d.tName : d.key,
-          val = value[key];
-        if (!tool.isNull(val)) {
-          //~~ 2 有值的维度，放入对应dataId的rec去
-          me.$set(
-            edit.selectMap,
-            dataId,
-            tool.apply({}, record, {
-              [d.key]: val
-            })
-          );
-        }
-      });
+      me.selectOneRecord(rec, Dims);
     }
   },
   // watch: {

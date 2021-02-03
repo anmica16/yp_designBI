@@ -930,6 +930,36 @@ tool.apply(tool, {
       result.push(select);
     }
     return result;
+  },
+  fmtNumber(val, dotCount = 2) {
+    let me = this,
+      sVal = val + "";
+    if (!me.isNumber(val)) {
+      throw `请传入数字类型值${val}`;
+    }
+    let dotAt = sVal.indexOf("."),
+      intPart = sVal,
+      dotPart = "";
+    //# 1 如有小数点
+    if (dotAt > -1) {
+      intPart = sVal.substr(0, dotAt);
+      dotPart = sVal.substr(dotAt + 1);
+      dotPart =
+        dotPart.length > dotCount ? dotPart.substr(0, dotCount) : dotPart;
+    }
+    //@ 2 整数部分处理
+    let intA = [];
+    for (let i = intPart.length - 1, c = 0; i >= 0; --i, ++c) {
+      if (c !== 0 && c % 3 === 0) {
+        intA.push(",");
+      }
+      intA.push(intPart[i]);
+    }
+    let result = intA.reverse().join("");
+    if (dotPart) {
+      result = result + "." + dotPart;
+    }
+    return result;
   }
 });
 

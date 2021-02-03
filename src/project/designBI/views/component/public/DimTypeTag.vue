@@ -1,5 +1,6 @@
 <template>
-  <div :title="title" class="DimTypeTag" :class="type">
+  <div :is="xtype" :title="title" class="DimTypeTag" :class="type">
+    <span v-if="preText" class="preText">{{ preText }}</span>
     <i class="icon" :class="icon"></i>
     <span class="text">{{ name || typeName }}</span>
   </div>
@@ -17,6 +18,13 @@ export default {
       }
     },
     name: {
+      type: String
+    },
+    xtype: {
+      type: String,
+      default: "div"
+    },
+    preText: {
       type: String
     }
   },

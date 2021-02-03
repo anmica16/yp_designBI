@@ -69,6 +69,13 @@ export default {
     disabled: {
       type: [String, Function],
       default: "disabled"
+    },
+    //%% 1 较为不方便的加入类别，貌似也只有明细这里会用到，所以无所谓了
+    dimClass: {
+      type: String
+    },
+    preText: {
+      type: String
     }
   },
   data() {
@@ -86,7 +93,9 @@ export default {
         result = dims.map(d => {
           return {
             ...d,
-            dataId: me.DetailData.id
+            dataId: me.DetailData.id,
+            dimClass: me.dimClass,
+            preText: me.preText
           };
         });
       }

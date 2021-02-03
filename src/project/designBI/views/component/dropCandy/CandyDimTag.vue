@@ -1,8 +1,9 @@
 <template>
   <DimTypeTag
-    :class="{ dragging }"
+    :class="[{ dragging }, Dim.dimClass]"
     :type="Dim.type"
     :name="Dim.key"
+    :preText="Dim.preText"
     @mousedown.native.prevent="candyHandleDown"
   ></DimTypeTag>
 </template>
@@ -14,5 +15,3 @@ export default {
   mixins: [Candy]
 };
 </script>
-
-<style></style>
