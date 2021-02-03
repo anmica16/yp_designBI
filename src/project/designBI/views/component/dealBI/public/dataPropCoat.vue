@@ -17,8 +17,10 @@
         <SimpleCheckData v-if="DetailData" :DetailData="DetailData">
         </SimpleCheckData>
         <div class="btns">
-          <el-button @click="step2Fn(true)">确认</el-button>
-          <el-button @click="step2Fn(false)">取消</el-button>
+          <el-button size="mini" type="primary" @click="step2Fn(true)"
+            >确认</el-button
+          >
+          <el-button size="mini" @click="step2Fn(false)">取消</el-button>
         </div>
       </div>
     </transition>

@@ -116,12 +116,12 @@
               ></el-table-column>
             </el-table>
           </el-popover> -->
-          <!-- ~ 3 明细表控件 -->
+          <!-- ~ 3 关联表控件 -->
           <div class="barItem" @click="createDetail">
             <dir class="icon">
               <i class="el-icon-office-building"></i>
             </dir>
-            <dir class="text">明细控件</dir>
+            <dir class="text">关联控件</dir>
           </div>
           <!-- ~ 2 过滤控件 -->
           <el-popover
@@ -360,7 +360,7 @@ export default {
       //# 3 条件汇总 联动
       conditionMap: {},
       //# 4 所选record，
-      //【update】目前只涉及到明细变化
+      //【update】目前只涉及到关联变化
       selectMap: {},
 
       itemEditPage: false,
@@ -763,23 +763,23 @@ export default {
         }).catch(() => {});
       });
     },
-    //~ 4 明细控件增加
+    //~ 4 关联控件增加
     createDetail() {
       let me = this,
         h = me.$createElement;
-      console.log(["明细控件增加"]);
+      console.log(["关联控件增加"]);
       //@@ 1 可能加入的 ins
       let readyIns = new DesignItemInstance({
         xtype: "BIBase",
         templateCode: me.nowTemplateCode,
-        useType: 11, //30表示明细控件
+        useType: 11, //30表示关联控件
         chartType: "bar",
-        name: "未命名明细控件" + (me.addInstances.length + 1)
+        name: "未命名关联控件" + (me.addInstances.length + 1)
       });
 
       return new Promise(res => {
         me.$msgbox({
-          title: "添加明细组件",
+          title: "添加关联控件",
           message: h(detailSelector, {
             key: tool.uniqueStr(),
             props: {
@@ -815,13 +815,13 @@ export default {
                   }
                 });
               } else {
-                me.$message.warning("明细控件至少配置一个关联表！");
+                me.$message.warning("关联控件至少配置一个关联表！");
                 res(false);
                 return;
               }
               if (notHealthy.length) {
                 me.$message.warning(
-                  `存在${notHealthy.length}个明细配置不完整，请完善后再试！`
+                  `存在${notHealthy.length}个关联配置不完整，请完善后再试！`
                 );
                 res(false);
                 return;

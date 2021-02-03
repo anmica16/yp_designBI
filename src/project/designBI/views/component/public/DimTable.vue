@@ -88,3 +88,9 @@ export default {
   }
 };
 </script>
+
+<style lang="scss">
+.DimTable {
+  height: 100%;
+}
+</style>

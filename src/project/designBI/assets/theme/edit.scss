@@ -5,6 +5,7 @@ $font2_deep: #232e40;
 $font2_light: #9ea6b2;
 
 $border: #e8eaed;
+$border2: #f6f8fa;
 $back: #eff1f4;
 $back2: #f7f8fa;
 
@@ -168,6 +169,153 @@ $blue2: #4078f0;
     }
   } //selector
 }
+// @@ 4-3 明细组件添加
+.newDetail {
+  height: 90%;
+  max-height: 780px;
+  width: 88%;
+  max-width: 1240px;
+
+  //其实这适用每个 message-box
+  $h_head: 43px;
+  $h_bbar: 37px;
+  $h_body: calc(100% - #{$h_head + $h_bbar});
+  > * {
+    box-sizing: border-box;
+  }
+  .el-message-box__header {
+    height: $h_head;
+  }
+  .el-message-box__content {
+    height: $h_body;
+    .el-message-box__container,
+    .el-message-box__message {
+      height: 100%;
+      > * {
+        height: 100%;
+      }
+    }
+  }
+  .el-message-box__btns {
+    height: $h_bbar;
+  }
+
+  //选择
+  .detailSelector {
+    $h_bottom: 44%;
+    $h_top: 100% - $h_bottom;
+    $h_title: 30px;
+
+    .oneArea {
+      padding: 5px;
+      box-sizing: border-box;
+      > .areaTitle {
+        height: $h_title;
+      }
+      > .areaBody {
+        border: 1px solid $border;
+        height: calc(100% - #{$h_title});
+      }
+    }
+
+    //# 1 上部 main与明细选择
+    .selectArea {
+      height: $h_top;
+      @extend %flex-row;
+      $w_left: 44%;
+      $w_right: 100% - $w_left;
+
+      //# 1-1 左侧 主表
+      .dataIdSelect {
+        width: $w_left;
+        height: 100%;
+
+        .mainTableSelector {
+          > * {
+            height: 100%;
+          }
+        }
+      }
+
+      //# 1-2 右侧 明细表
+      .joinTablesSelect {
+        width: $w_right;
+        height: 100%;
+
+        .detailTableSelector {
+          @extend %flex-row;
+          $w_tab: 150px;
+          $w_tabBody: calc(100% - #{$w_tab});
+
+          > .jTabs {
+            width: $w_tab;
+          }
+
+          > .jTabBodies {
+            width: $w_tabBody;
+          }
+        }
+
+        .notSelectTip {
+          height: 100%;
+          width: 100%;
+          @extend %flex-wh;
+          flex-direction: column;
+          .back {
+            height: 110px;
+            width: 150px;
+            background: url(./images/view3/join.png) no-repeat;
+            background-position: center;
+            background-size: auto 100%;
+            margin-top: -20px;
+            margin-bottom: 20px;
+          }
+          .text {
+            color: $font2_light;
+            font-size: 14px;
+          }
+        }
+      }
+    }
+    //# 2 下部 维度选择、统计信息
+    .dimsAndResult {
+      height: $h_bottom;
+      @extend %flex-row;
+      $w_left: 44%;
+      $w_right: 100% - $w_left;
+      .resultArea {
+        width: $w_left;
+        height: 100%;
+      }
+
+      .detailTableArea {
+        width: $w_right;
+        height: 100%;
+
+        .notDataTip {
+          height: 100%;
+          width: 100%;
+          @extend %flex-wh;
+          flex-direction: column;
+          .back {
+            height: 110px;
+            width: 150px;
+            background: url(./images/view3/joinTotal.png) no-repeat;
+            background-position: center;
+            background-size: auto 100%;
+            margin-top: -20px;
+            margin-bottom: 20px;
+          }
+          .text {
+            color: $font2_light;
+            font-size: 14px;
+          }
+        }
+      }
+    }
+  }
+}
+
 // @@ 4-2 各子控件编辑全页 fix全局
 .ItemEdit {
   position: fixed;
@@ -409,6 +557,7 @@ $blue2: #4078f0;
 }
 //@@ 5-2 选择dataId、property用三步控件
 .dataPropCoat {
+  //~ 1 表
   .el-table {
     td {
       padding: 0;
@@ -423,6 +572,45 @@ $blue2: #4078f0;
       &[aria-disabled="true"] {
         * {
           cursor: not-allowed;
+        }
+      }
+    }
+  }
+  > * {
+    height: 100%;
+  }
+  //~ 3 data表确认
+  .dataIdConfirm {
+    $h_btn: 32px;
+    > .DimTable {
+      height: calc(100% - #{$h_btn});
+    }
+    > .btns {
+      height: $h_btn;
+      display: flex;
+      justify-content: flex-end;
+      padding-right: 5px;
+      border-top: 1px solid $border2;
+      padding: 2px 5px;
+      box-sizing: border-box;
+      .el-button {
+        padding: 2px 15px;
+      }
+    }
+  }
+  //~ 4 维度选择
+  .dimList {
+    $h_btn: 40px;
+    .reSelect {
+      height: $h_btn;
+    }
+    .theDims {
+      height: calc(100% - #{$h_btn});
+      .el-scrollbar {
+        height: 100%;
+        .el-scrollbar__view {
+          @extend %flex-col;
+          flex-wrap: wrap;
         }
       }
     }

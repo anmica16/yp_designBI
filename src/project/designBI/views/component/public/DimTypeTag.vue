@@ -22,7 +22,7 @@ export default {
     },
     xtype: {
       type: String,
-      default: "div"
+      default: "span"
     },
     preText: {
       type: String

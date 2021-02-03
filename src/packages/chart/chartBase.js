@@ -103,12 +103,12 @@ export default {
               },
               jt
             );
-          console.log([
-            "//## 5 明细表 配置",
-            rec,
-            jt,
-            edit.selectMap[jt.dataId]
-          ]);
+          // console.log([
+          //   "//## 5 明细表 配置",
+          //   rec,
+          //   jt,
+          //   edit.selectMap[jt.dataId]
+          // ]);
           result.push(theJT);
         });
       }
