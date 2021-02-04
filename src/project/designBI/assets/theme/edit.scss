@@ -288,7 +288,6 @@ $hover_deep: rgba(51, 135, 204, 0.05);
                 color: $font2_light;
                 &:hover {
                   color: $font2_deep;
-                  background:  rgba(51, 135, 204, 0.01);
                 }
               }
 
@@ -304,6 +303,11 @@ $hover_deep: rgba(51, 135, 204, 0.05);
               }
               &.notHealthy {
                 color: rgb(207, 60, 60);
+              }
+
+              &.addNewJoinBtn {
+                padding: 12px 5px;
+                border-top: 1px dashed #9e9e9e;
               }
             }
           }

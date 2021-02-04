@@ -322,14 +322,19 @@ export default {
             newItems = [],
             theItems = result.data;
           Yw.each(theItems, function(item) {
-            item.$key = [
-              item.keyvalue,
-              item.stepcode,
-              item.menuid,
-              item.messid,
-              item.UserId,
-              item.AuditMessages
-            ].join(";");
+            // item.$key = [
+            //   item.keyvalue,
+            //   item.stepcode,
+            //   item.menuid,
+            //   item.messid,
+            //   item.UserId,
+            //   item.AuditMessages
+            // ].join(";");
+            let keys = [];
+            tool.each(item, (key, val)=>{
+              keys.push(val + "");
+            });
+            item.$key = keys.join(";");
             if (!me.itemMap[item.$key]) {
               newItems.push(item);
             }

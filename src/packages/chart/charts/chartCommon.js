@@ -20,6 +20,9 @@ export default {
     echarts() {
       return echarts;
     },
+    seriesType() {
+      return this.chartType;
+    },
     //%% 1 各type所需--类目（维度）
     xAxis() {
       let x = { type: "category" };
@@ -41,7 +44,7 @@ export default {
         let name =
             me._joinTables && me._joinTables.length ? index.tName : index.key,
           s = {
-            type: me.type,
+            type: me.seriesType,
             name: name,
             encode: {
               x: me.xAxis.key || 0,

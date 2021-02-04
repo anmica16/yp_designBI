@@ -8,6 +8,9 @@ Vue.component("chart-table-mingxi", tableM);
 
 import bar from "./bar.vue";
 Vue.component("chart-bar", bar);
+import barD from "./bar-divid.vue";
+Vue.component("chart-bar-divid", barD);
+
 import scatter from "./bar.vue";
 Vue.component("chart-scatter", scatter);
 

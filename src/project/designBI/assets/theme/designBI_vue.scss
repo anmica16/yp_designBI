@@ -620,6 +620,11 @@ $color5: #a83be7;
     }
     .barItem {
       @extend %item_vertical;
+      width: 100%;
+    }
+    .dividLine {
+      border-bottom: 1px solid $border;
+      width: 100%;
     }
   }
 

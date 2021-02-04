@@ -4,6 +4,7 @@
     :type="Dim.type"
     :name="Dim.key"
     :preText="Dim.preText"
+    :xtype="dimXtype"
     @mousedown.native.prevent="candyHandleDown"
   ></DimTypeTag>
 </template>
@@ -12,6 +13,12 @@
 import { Candy } from "@designBI/views/component/dropCandy";
 export default {
   name: "CandyDimTag",
-  mixins: [Candy]
+  mixins: [Candy],
+  props: {
+    dimXtype: {
+      type: String,
+      default: "span"
+    }
+  }
 };
 </script>

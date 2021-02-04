@@ -7,6 +7,7 @@
         :key="candy.$id"
         :Dim="candy"
         :candyMaster="candyMaster"
+        :dimXtype="dimXtype"
       >
       </CandyDimTag>
     </template>
@@ -26,6 +27,10 @@ export default {
       default() {
         return "edit";
       }
+    },
+    dimXtype: {
+      type: String,
+      default: "span"
     }
   }
 };

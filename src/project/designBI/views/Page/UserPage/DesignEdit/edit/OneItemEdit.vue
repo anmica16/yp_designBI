@@ -108,6 +108,7 @@
               :candyMaster="candyMaster"
               ref="Dims"
               :receiveCheck="receiveCheckDims"
+              dimXtype="div"
             >
               <span class="noTip">请拖入左侧维度</span>
             </CoatingDim>
@@ -122,6 +123,7 @@
               :candyMaster="candyMaster"
               ref="Indices"
               :receiveCheck="receiveCheckIndices"
+              dimXtype="div"
             >
               <span class="noTip">请拖入左侧指标</span>
             </CoatingDim>

@@ -88,12 +88,13 @@
 
         <!-- 【2】左侧工具栏 -->
         <div class="EditLeftBar" slot="w">
-          <div class="barItem" @click="createBIItem">
+          <div class="barItem core" @click="createBIItem">
             <dir class="icon">
               <i class="el-icon-circle-plus-outline"></i>
             </dir>
             <dir class="text">BI控件</dir>
           </div>
+          <div class="dividLine"></div>
           <!-- <el-popover
             class="popover addItemBtn"
             @show="leftBarPopShow"
