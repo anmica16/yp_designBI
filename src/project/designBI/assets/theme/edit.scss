@@ -12,6 +12,9 @@ $back2: #f7f8fa;
 $blue: #356feb;
 $blue2: #4078f0;
 
+$hover: rgba(54, 157, 242, 0.05);
+$hover_deep: rgba(51, 135, 204, 0.05);
+
 %flex-wh {
   display: flex;
   justify-content: center;
@@ -119,6 +122,15 @@ $blue2: #4078f0;
     }
   }
 }
+//# (2) 选择dataId的树结构
+.dataTree {
+  padding-left: 5px;
+  .el-tree-node {
+    .is-leaf.el-tree-node__expand-icon {
+      display: none;
+    }
+  }
+}
 // @@ 4-1 添加组件1 窗口
 .newBIItem {
   width: 90%;
@@ -135,13 +147,15 @@ $blue2: #4078f0;
   .dataSelector {
     height: 100%;
     @extend %flex-row;
-    $w: 210px;
+    $w: 240px;
     .leftTree {
-      width: 210px;
+      width: $w;
       overflow: auto;
+      border-right: 1px solid $border;
     }
     .rightTable {
       width: calc(100% - #{$w});
+      padding-left: 5px;
       //~ 1 提示
       .fileNotSelectTip {
         height: 100%;
@@ -249,10 +263,77 @@ $blue2: #4078f0;
 
           > .jTabs {
             width: $w_tab;
+            border-right: 1px solid $border2;
+            .el-scrollbar {
+              height: 100%;
+            }
+            //tab切换
+            .oneTab {
+              position: relative;
+              border-bottom: 1px solid $border2;
+              padding: 7px 5px;
+              cursor: pointer;
+              margin-bottom: 1px;
+              word-break: break-all;
+
+              .deleteBtn {
+                position: absolute;
+                right: 3px;
+                top: 2px;
+                width: 30px;
+                height: 30px;
+                display: none;
+                line-height: 30px;
+                text-align: center;
+                color: $font2_light;
+                &:hover {
+                  color: $font2_deep;
+                  background:  rgba(51, 135, 204, 0.01);
+                }
+              }
+
+              &:hover {
+                background: $hover;
+                .deleteBtn {
+                  display: block;
+                }
+              }
+              &.active {
+                background: $hover_deep;
+                color: $font2_deep;
+              }
+              &.notHealthy {
+                color: rgb(207, 60, 60);
+              }
+            }
           }
 
           > .jTabBodies {
             width: $w_tabBody;
+            > .oneBody {
+              height: 100%;
+
+              $h_prop: 60px;
+              .propSelector {
+                height: $h_prop;
+                .selItem {
+                  padding: 0 20px;
+                  box-sizing: border-box;
+                  $w_pre: 100px;
+                  .pre {
+                    width: $w_pre;
+                  }
+                  .el-select {
+                    width: calc(100% - $w_pre);
+                    max-width: 200px;
+                  }
+                  margin-bottom: 3px;
+                }
+              }
+              .dataPropCoat {
+                height: calc(100% - #{$h_prop});
+              }
+            }
           }
         }
 
@@ -283,11 +364,49 @@ $blue2: #4078f0;
       @extend %flex-row;
       $w_left: 44%;
       $w_right: 100% - $w_left;
+
+      //# 2-1 维度统计
       .resultArea {
         width: $w_left;
         height: 100%;
+        .detailDims {
+          height: 100%;
+
+          @extend %flex-row;
+
+          $w_dim: 40%;
+          $w_info: 100% - $w_dim;
+
+          > * {
+            height: 100%;
+          }
+
+          //~~ 1 维度
+          .dimsSelectArea {
+            width: $w_dim;
+            $h_t: 20px;
+
+            .dimType {
+              height: $h_t;
+            }
+
+            .dimsHere {
+              height: calc(100% - #{$h_t});
+              .CoatingDim {
+                height: 100%;
+                @extend %flex-col;
+              }
+            }
+          }
+
+          //~~ 2 信息
+          .summaryInfo {
+            width: $w_info;
+          }
+        }
       }
 
+      //# 2-2 结果表
       .detailTableArea {
         width: $w_right;
         height: 100%;

@@ -8,7 +8,8 @@ export default {
       nowFolderRec: null,
       nowFileRec: null,
       DetailDataAjax: null,
-      DetailData: null
+      DetailData: null,
+      DetailDataLoading: false
     };
   },
   methods: {
@@ -65,6 +66,7 @@ export default {
       if (me.DetailDataAjax) {
         me.DetailDataAjax.abort();
       }
+      me.DetailDataLoading = true;
       return new Promise((res, rej) => {
         me.DetailDataAjax = $.ajax({
           url: Vue.Api.designBI,
@@ -89,6 +91,7 @@ export default {
           }
           //# 2 center选中的 都应是完整确立的数据！
           me.DetailData = data;
+          me.DetailDataLoading = false;
 
           res(data);
         }).catch(r => {
@@ -100,6 +103,7 @@ export default {
               message: "从服务器获取数据集数据失败",
               type: "error"
             };
+            me.DetailDataLoading = false;
             me.$msgbox(info);
             rej(info);
           }

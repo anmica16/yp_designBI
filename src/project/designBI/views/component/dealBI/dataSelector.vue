@@ -10,7 +10,7 @@
       >
       </IndexTree>
     </div>
-    <div class="rightTable">
+    <div class="rightTable" v-loading="DetailDataLoading">
       <template v-if="!nowFileRec">
         <div class="fileNotSelectTip">
           <div class="back"></div>
@@ -19,25 +19,57 @@
       </template>
       <!-- ~ 4 先写在这里 再独立 -->
       <template v-else-if="DetailData">
-        <SimpleCheckData :DetailData="DetailData"> </SimpleCheckData>
+        <DimTable
+          ref="resultTable"
+          :data="DetailData.dataTable"
+          :dimension="totDims"
+        ></DimTable>
       </template>
     </div>
   </div>
 </template>
 
 <script>
+import tool from "@/plugins/js/tool";
 import dataSelectorMixin from "./dataSelectorMixin";
-import SimpleCheckData from "../../Page/UserPage/DesignCenter/newData/SimpleCheckData";
+//import SimpleCheckData from "../../Page/UserPage/DesignCenter/newData/SimpleCheckData";
 export default {
   name: "dataSelector",
-  components: {
-    SimpleCheckData
-  },
+  // components: {
+  //   SimpleCheckData
+  // },
   mixins: [dataSelectorMixin],
   data() {
     return {
       queryFlag: "dataSelector"
     };
+  },
+  computed: {
+    dimension() {
+      if (this.DetailData && this.DetailData.dimension) {
+        return tool.parse(this.DetailData.dimension);
+      } else {
+        return [];
+      }
+    },
+    totDims() {
+      let me = this,
+        tot = me.dimension.map(d => {
+          let fd = tool.apply({}, d, {
+            formatter: row => {
+              //这里温和点，只有key
+              let val = row[d.key];
+              if (d.type === "number") {
+                return tool.fmtNumber(val);
+              } else {
+                return val;
+              }
+            }
+          });
+          return fd;
+        });
+      return tot;
+    }
   }
 };
 </script>

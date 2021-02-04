@@ -935,7 +935,9 @@ tool.apply(tool, {
     let me = this,
       sVal = val + "";
     if (!me.isNumber(val)) {
-      throw `请传入数字类型值${val}`;
+      let msg = `请传入数字类型值${val}`;
+      console.error([msg]);
+      throw msg;
     }
     let dotAt = sVal.indexOf("."),
       intPart = sVal,

@@ -7,7 +7,7 @@
         <dataPropCoat
           class="mainTableSelector areaBody"
           ref="mainData"
-          :dimClass="'main'"
+          :dimClass="'joinTagCard main'"
           preText="主表"
           :candyMaster="candyMaster"
           @confirmData="mainDataConfirm(true)"
@@ -21,28 +21,34 @@
           <template v-if="dataId">
             <!-- #1 可新增，所以手动循环 -->
             <div class="jTabs">
-              <template v-for="jt in joinTables">
-                <div
-                  :key="jt.$id"
-                  class="oneTab"
-                  :class="{
-                    active: jt === nowJoinTable,
-                    notHealthy: jt.$notHealthy
-                  }"
-                  @click="changeJoin(jt)"
-                >
-                  <span class="tabTitle">{{
-                    (jt.dataId &&
-                      theJoinTables[jt.dataId] &&
-                      theJoinTables[jt.dataId].name) ||
-                      "未选定"
-                  }}</span>
+              <Scrollbar>
+                <template v-for="jt in joinTables">
+                  <div
+                    :key="jt.$id"
+                    class="oneTab"
+                    :class="{
+                      active: jt === nowJoinTable,
+                      notHealthy: jt.$notHealthy
+                    }"
+                    @click="changeJoin(jt)"
+                  >
+                    <span class="tabTitle">{{
+                      (jt.dataId &&
+                        theJoinTables[jt.dataId] &&
+                        theJoinTables[jt.dataId].name) ||
+                        "未选定"
+                    }}</span>
+                    <span
+                      class="deleteBtn el-icon-delete"
+                      @click="deleteJoinTable(jt)"
+                    ></span>
+                  </div>
+                </template>
+                <div class="oneTab addNewJoinBtn" @click="addNewJoinFn">
+                  <span class="el-icon-circle-plus-outline"></span>
+                  <span class="text">添加关联表</span>
                 </div>
-              </template>
-              <div class="addNewJoinBtn" @click="addNewJoinFn">
-                <span class="el-icon-circle-plus-outline"></span>
-                <span class="text">添加关联表</span>
-              </div>
+              </Scrollbar>
             </div>
             <!-- #2 tabBody部分 -->
             <div class="jTabBodies">
@@ -61,16 +67,17 @@
                     :ref="'join' + jt.$id"
                     :candyMaster="candyMaster"
                     :disabled="disabledFn"
-                    :dimClass="`detail_${j + 1}`"
+                    :dimClass="`joinTagCard detail ${detailClass(j)}`"
                     :preText="`关联${j + 1}`"
                     @confirmData="confirmDataFn(jt)"
                     @revokeData="revokeDataFn(jt)"
                   ></dataPropCoat>
                   <!-- #3 两个字段的选择 -->
                   <div class="propSelector">
-                    <div class="joinThis">
+                    <div class="selItem joinThis">
                       <span class="pre">主表字段：</span>
                       <el-select
+                        size="mini"
                         v-model="jt.joinThisProperty"
                         @change="propChangeFn(jt)"
                         :disabled="!mainData.dataIdDims.length"
@@ -84,9 +91,10 @@
                         </template>
                       </el-select>
                     </div>
-                    <div class="joinTable">
+                    <div class="selItem joinTable">
                       <span class="pre">join表字段：</span>
                       <el-select
+                        size="mini"
                         :disabled="
                           !jtRefs[jt.$id] ||
                             !jtRefs[jt.$id].dataIdDims ||
@@ -141,20 +149,36 @@
           <!-- ~~ 1-2 右侧 统计信息 -->
           <div class="summaryInfo">
             <div class="MainT">
-              <span>主表</span>
-              <span>{{
+              <span class="mTitle">所选主表：</span>
+              <span class="mTitleName">{{
                 mainData && mainData.DetailData && mainData.DetailData.name
               }}</span>
             </div>
 
             <div class="JoinT">
-              <div>关联表</div>
+              <div class="JoinTitle">关联表：</div>
               <div class="JoinTBody">
-                <template v-for="(jt, j) in validJTs">
+                <template v-for="(jt, j) in fullInfoJTs">
                   <div class="oneJTBody" :key="jt.$id">
-                    <span>{{ j + 1 }}、</span>
-                    <span>{{ jt.name }}</span>
-                    <span>on</span>
+                    <div class="tbName">
+                      <span class="count">{{ j + 1 }}、</span>
+                      <span class="name">{{ jt.joinTableNameCH }}</span>
+                    </div>
+                    <div class="joinInfo">
+                      <DimTypeTag
+                        :class="jt.mainDim.dimClass"
+                        :type="jt.mainDim.type"
+                        :name="jt.mainDim.key"
+                        :preText="jt.mainDim.preText"
+                      ></DimTypeTag>
+                      <span> = </span>
+                      <DimTypeTag
+                        :class="jt.joinDim.dimClass"
+                        :type="jt.joinDim.type"
+                        :name="jt.joinDim.key"
+                        :preText="jt.joinDim.preText"
+                      ></DimTypeTag>
+                    </div>
                   </div>
                 </template>
               </div>
@@ -188,6 +212,7 @@ import dataSelectorMixin from "./dataSelectorMixin";
 import { Instance } from "@designBI/views/mixins/Entity";
 import { CandyMaster } from "@designBI/views/component/dropCandy";
 import CoatingDim from "@designBI/views/component/dropCandy/CoatingDim";
+
 import Vue from "vue";
 const CandyMasterCtor = Vue.extend(CandyMaster);
 
@@ -245,6 +270,39 @@ export default {
           return at ? true : false;
         });
       return theDims;
+    },
+    fullInfoJTs() {
+      let me = this,
+        mainRef = me.mainData,
+        vJTs = me.validJTs,
+        r = [];
+      vJTs.forEach(jt => {
+        let jtRef = me.jtRefs[jt.$id],
+          mainDimName = jt.joinThisProperty,
+          joinDimName = jt.joinTableProperty,
+          mainDim = null,
+          joinDim = null;
+        //~ 1 join的Dim
+        tool.each(jtRef.dataIdDims, d => {
+          if (d.key == joinDimName && d.dataId == jt.dataId) {
+            joinDim = d;
+            return false;
+          }
+        });
+        //~ 2 main的Dim
+        tool.each(mainRef.dataIdDims, d => {
+          if (d.key == mainDimName && d.dataId == me.mainDataId) {
+            mainDim = d;
+            return false;
+          }
+        });
+        r.push({
+          ...jt,
+          joinDim,
+          mainDim
+        });
+      });
+      return r;
     }
   },
   methods: {
@@ -274,6 +332,14 @@ export default {
       me.$nextTick(() => {
         me.$set(me.jtRefs, join.$id, me.$refs["join" + join.$id][0]);
       });
+    },
+    deleteJoinTable(jt) {
+      let me = this;
+      me.joinTables = me.joinTables.filter(theJT => {
+        return theJT !== jt;
+      });
+      me.propChangeFn();
+      me.joinTables.length && me.changeJoin(me.joinTables[0]);
     },
     //# 1 确认，那么可dataId
     confirmDataFn(joinTable) {
@@ -362,7 +428,7 @@ export default {
     propChangeFn(jt) {
       let me = this;
       //~~ 1 可结束不健康状态
-      if (jt.$notHealthy) {
+      if (jt && jt.$notHealthy) {
         if (
           !tool.isNull(jt.joinTableProperty) &&
           !tool.isNull(jt.joinThisProperty)
@@ -372,7 +438,17 @@ export default {
       }
       me.Instance.setData({
         config_more: {
-          JoinTables: me.joinTables
+          JoinTables: me.joinTables.map(theJT => {
+            let _jt = {
+              dataId: theJT.dataId,
+              //~ 2 下拉选择 1
+              joinTableProperty: theJT.joinTableProperty,
+              joinThisProperty: theJT.joinThisProperty,
+              joinTableName: theJT.joinTableName,
+              joinTableNameCH: theJT.joinTableNameCH
+            };
+            return _jt;
+          })
         }
       });
     },
@@ -443,6 +519,10 @@ export default {
             me.resultDataLoading = false;
           }
         });
+    },
+    detailClass(count) {
+      let a = ["d1", "d2", "d3", "d4", "d5"];
+      return a[Math.floor(count) % a.length];
     }
   },
   watch: {

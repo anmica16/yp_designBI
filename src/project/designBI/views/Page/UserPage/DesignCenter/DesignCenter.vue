@@ -41,7 +41,52 @@
             <div class="topArea">
               <div class="leftPart">
                 <!-- 新增用 -->
-                <AttachBoard :isAdd="true"></AttachBoard>
+                <!-- <AttachBoard :isAdd="true"></AttachBoard> -->
+
+                <el-link
+                  :underline="false"
+                  class="addTip"
+                  @click="dialogBoard = true"
+                  ><i class="el-icon-brush"></i
+                  ><span class="text">新增绘板</span>
+                </el-link>
+                <el-dialog
+                  :append-to-body="true"
+                  class="newBoardDialog"
+                  title="新增绘板"
+                  :visible.sync="dialogBoard"
+                >
+                  <el-form
+                    ref="newBoardForm"
+                    :model="dialogBoardForm"
+                    :rules="dialogBoardRules"
+                    label-width="120px"
+                  >
+                    <el-form-item label="绘板名" prop="name">
+                      <el-input
+                        v-model="dialogBoardForm.name"
+                        placeholder="请输入绘板名称"
+                        autocomplete="off"
+                      ></el-input>
+                    </el-form-item>
+                    <el-form-item label="备注说明" prop="desp">
+                      <el-input
+                        v-model="dialogBoardForm.desp"
+                        placeholder="可做一些备注说明"
+                        autocomplete="off"
+                      ></el-input>
+                    </el-form-item>
+                  </el-form>
+                  <div slot="footer" class="dialog-footer">
+                    <el-button @click="dialogBoard = false">取 消</el-button>
+                    <el-button
+                      v-loading="dialogBoardLoading"
+                      type="primary"
+                      @click="createBoard"
+                      >确 定</el-button
+                    >
+                  </div>
+                </el-dialog>
               </div>
               <div class="rightPart"></div>
             </div>
@@ -106,16 +151,27 @@
 
 <script>
 import tool from "@/plugins/js/tool";
-import AttachBoard from "./AttachBoard";
+import DrawingBoard from "@designBI/store/Entity/DrawingBoard";
+//import AttachBoard from "./AttachBoard";
 export default {
   name: "DesignCenter",
-  components: {
-    AttachBoard
-  },
+  // components: {
+  //   AttachBoard
+  // },
   data() {
     return {
       windowMap: {},
-      nowMain: "board"
+      nowMain: "board",
+      //# 1 新绘板
+      dialogBoard: false,
+      dialogBoardLoading: false,
+      dialogBoardForm: {
+        name: "",
+        desp: ""
+      },
+      dialogBoardRules: {
+        name: [{ required: true, message: "请输入绘板名称", trigger: "blur" }]
+      }
     };
   },
   computed: {
@@ -192,6 +248,33 @@ export default {
       if (route.name !== toName) {
         router.push({ name: toName });
       }
+    },
+    createBoard() {
+      let me = this,
+        newBoardForm = me.$refs.newBoardForm;
+      newBoardForm.validate(ifPass => {
+        if (ifPass) {
+          let formCfg = me.dialogBoardForm,
+            board = new DrawingBoard();
+          board.setData(formCfg);
+          me.dialogBoardLoading = true;
+          board
+            .save()
+            .then(function() {
+              me.$message.success("成功新建绘板");
+              tool.apply(me.dialogBoardForm, {
+                name: "",
+                desp: ""
+              });
+              me.dialogBoard = false;
+              me.dialogBoardLoading = false;
+            })
+            .catch(r => {
+              me.$message.success("新建绘板失败");
+              me.dialogBoardLoading = false;
+            });
+        }
+      });
     }
   },
   created() {
