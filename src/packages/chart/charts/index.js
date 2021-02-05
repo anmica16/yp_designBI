@@ -1,6 +1,12 @@
 import Vue from "vue";
+
 import line from "./line.vue";
 Vue.component("chart-line", line);
+import lineD from "./line-divid.vue";
+Vue.component("chart-line-divid", lineD);
+import lineR from "./line-range.vue";
+Vue.component("chart-line-range", lineR);
+
 import table from "./table.vue";
 Vue.component("chart-table", table);
 import tableM from "./table-mingxi.vue";
@@ -10,6 +16,12 @@ import bar from "./bar.vue";
 Vue.component("chart-bar", bar);
 import barD from "./bar-divid.vue";
 Vue.component("chart-bar-divid", barD);
+import barS from "./bar-stack.vue";
+Vue.component("chart-bar-stack", barS);
+import barC from "./bar-contrast.vue";
+Vue.component("chart-bar-contrast", barC);
+import barP from "./bar-pubu.vue";
+Vue.component("chart-bar-pubu", barP);
 
 import scatter from "./bar.vue";
 Vue.component("chart-scatter", scatter);

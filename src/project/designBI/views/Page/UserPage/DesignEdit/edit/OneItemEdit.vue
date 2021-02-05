@@ -27,6 +27,7 @@
             v-for="dim in dimAndIndex.Dims"
             :key="dim.$id"
             :Dim="dim"
+            dimXtype="div"
             :candyMaster="candyMaster"
           ></CandyDimTag>
         </Scrollbar>
@@ -41,6 +42,7 @@
             v-for="dim in dimAndIndex.Indices"
             :key="dim.$id"
             :Dim="dim"
+            dimXtype="div"
             :candyMaster="candyMaster"
           ></CandyDimTag>
         </Scrollbar>
@@ -108,7 +110,6 @@
               :candyMaster="candyMaster"
               ref="Dims"
               :receiveCheck="receiveCheckDims"
-              dimXtype="div"
             >
               <span class="noTip">请拖入左侧维度</span>
             </CoatingDim>
@@ -123,7 +124,6 @@
               :candyMaster="candyMaster"
               ref="Indices"
               :receiveCheck="receiveCheckIndices"
-              dimXtype="div"
             >
               <span class="noTip">请拖入左侧指标</span>
             </CoatingDim>
@@ -200,7 +200,7 @@ const selectTypes = [
     desp: "建议至少1个维度，至少2个指标"
   },
   {
-    type: "bar-bardiagram",
+    type: "bar-contrast",
     icon: "bi-bardiagram",
     name: "对比柱状图",
     desp: "建议1个维度，2个指标"

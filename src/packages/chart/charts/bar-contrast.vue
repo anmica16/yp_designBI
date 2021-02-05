@@ -6,13 +6,13 @@
 import tool from "@/plugins/js/tool";
 import chartCommon from "./chartCommon";
 export default {
-  name: "chart-bar-divid",
+  name: "chart-bar-contrast",
   mixins: [chartCommon],
   computed: {
     seriesType() {
       return "bar";
     },
-    xAxis() {
+    yAxis() {
       let me = this,
         xKey = me.Dims.length ? me.Dims[0].realKey : null,
         xs = [],
@@ -21,6 +21,7 @@ export default {
         let x = {
           gridIndex: i,
           type: "category",
+          position: "left",
           boundaryGap: true,
           data: me.keySheet.map(rec => {
             return xKey ? rec[xKey] : "无维度";
@@ -41,14 +42,15 @@ export default {
 
       return xs;
     },
-    yAxis() {
+    xAxis() {
       let me = this,
         ys = [],
         count = me.Indices.length;
       for (let i = 0; i < count; ++i) {
         let y = {
           gridIndex: i,
-          position: i % 2 == 0 ? "left" : "right"
+          type: "value",
+          inverse: i == 0 ? true : false
         };
         ys.push(y);
       }
@@ -62,8 +64,8 @@ export default {
         divid = 80 / count;
       for (let i = 0; i < count; ++i) {
         let y = {
-          bottom: `${(10 + divid * i).toFixed(1)}%`,
-          top: `${(90 - divid * (i + 1)).toFixed(1)}%`
+          left: `${(10 + divid * i).toFixed(1)}%`,
+          right: `${(90 - divid * (i + 1)).toFixed(1)}%`
         };
         ys.push(y);
       }
@@ -79,13 +81,13 @@ export default {
           s = {
             type: me.seriesType,
             name: name,
+            encode: {
+              y: me.Dims.length ? me.Dims[0].realKey : 0,
+              x: name
+            },
             label: {
               show: true,
-              position: "top"
-            },
-            encode: {
-              x: me.Dims.length ? me.Dims[0].realKey : 0,
-              y: name
+              position: i > 0 ? "right" : "left"
             },
             xAxisIndex: i,
             yAxisIndex: i

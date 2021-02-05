@@ -20,6 +20,19 @@ export default {
     echarts() {
       return echarts;
     },
+    themeColors() {
+      return [
+        "#5470c6",
+        "#91cc75",
+        "#fac858",
+        "#ee6666",
+        "#73c0de",
+        "#3ba272",
+        "#fc8452",
+        "#9a60b4",
+        "#ea7ccc"
+      ];
+    },
     seriesType() {
       return this.chartType;
     },
@@ -47,7 +60,7 @@ export default {
             type: me.seriesType,
             name: name,
             encode: {
-              x: me.xAxis.key || 0,
+              x: me.Dims.length ? me.Dims[0].realKey : 0,
               y: name
             }
           };

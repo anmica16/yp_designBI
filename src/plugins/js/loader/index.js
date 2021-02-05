@@ -24,6 +24,7 @@ let pureLoader = {
         tool.applyIf(options.data, me.defaultData);
 
         //【=2=】传输，然后结果处理,将false都归于 catch了
+        //console.log(["ajax检测", $, options]);
         theAjax = $.ajax(options);
         // 先always 再 done 再 then
         theAjax.then(function(_result) {

@@ -34,6 +34,10 @@ export default {
             s = {
               type: me.chartType,
               name: name,
+              label: {
+                show: true,
+                position: "top"
+              },
               encode: {
                 x: me.xAxis.key || 0,
                 y: name
@@ -53,7 +57,12 @@ export default {
               return index.name;
             })
           },
-          tooltip: {},
+          tooltip: {
+            trigger: "axis",
+            axisPointer: {
+              type: "line" // 默认为直线，可选为：'line' | 'shadow'
+            }
+          },
 
           //# 1 核心部分
           dataset: {

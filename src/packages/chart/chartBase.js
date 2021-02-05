@@ -247,10 +247,21 @@ export default {
         me.ajaxData
           .then(result => {
             me.ajaxData = null;
-            let data = result.data;
-            console.log(["查看堆积sum数据", data, result]);
-            if (data) {
-              me.requestData = data;
+            let oData = result.data;
+            //console.log(["查看堆积sum数据", oData, result]);
+            if (oData) {
+              me.requestData = oData;
+              let data = tool.clone(oData);
+              data = data.map(rec => {
+                tool.each(rec, (key, val) => {
+                  if (tool.isNumber(val)) {
+                    val = parseFloat(val.toFixed(2));
+                    rec[key] = val;
+                  }
+                });
+                return rec;
+              });
+
               if (me.type === "chart") {
                 //# 1 这仅是初始数据
                 me.SummaryData = me.getDataSummary(data);

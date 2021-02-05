@@ -3,10 +3,15 @@
 </template>
 
 <script>
-import line from "./line";
+import barD from "./bar-divid";
 export default {
-  extends: line,
+  name: "chart-line-divid",
+  extends: barD,
   computed: {
+    seriesType() {
+      return "line";
+    },
+
     //%% 4 各type--option组合
     option() {
       let me = this,
@@ -20,9 +25,10 @@ export default {
           tooltip: {
             trigger: "axis",
             axisPointer: {
-              type: "shadow" // 默认为直线，可选为：'line' | 'shadow'
+              type: "line" // 默认为直线，可选为：'line' | 'shadow'
             }
           },
+          grid: me.grid,
 
           //# 1 核心部分
           dataset: {

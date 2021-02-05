@@ -37,6 +37,9 @@ export default {
           let key = index.realKey,
             s = {
               name: key,
+              label: {
+                show: true
+              },
               value: me.getDimColData(key)
             };
           data.push(s);
