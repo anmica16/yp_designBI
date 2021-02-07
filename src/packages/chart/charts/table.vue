@@ -1,6 +1,7 @@
 <template>
   <div class="chart-table">
     <el-table
+      v-if="hasDimension"
       row-key="$id"
       :tree-props="{ children: 'items' }"
       :data="treeData"
@@ -10,6 +11,11 @@
         </el-table-column>
       </template>
     </el-table>
+
+    <div v-else class="noDimensionTip">
+      <div class="back"></div>
+      <div class="text">请先进入修改界面添加维度指标</div>
+    </div>
   </div>
 </template>
 

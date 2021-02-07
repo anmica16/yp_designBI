@@ -1,8 +1,21 @@
 <template>
-  <div class="echartsBox" ref="box" style="width: 100%; height: 100%;"></div>
+  <div class="echartsBoxWrap">
+    <div
+      v-show="hasDimension"
+      class="echartsBox"
+      ref="box"
+      style="width: 100%; height: 100%;"
+    ></div>
+
+    <div v-show="!hasDimension" class="noDimensionTip">
+      <div class="back"></div>
+      <div class="text">请先进入修改界面添加维度指标</div>
+    </div>
+  </div>
 </template>
 
 <script>
+import tool from "@/plugins/js/tool";
 import chartCommon from "./chartCommon";
 export default {
   name: "chart-pie",
@@ -70,6 +83,31 @@ export default {
     },
     option() {
       return this.option_pie;
+    }
+  },
+  methods: {
+    //@ 3 选择一条数据
+    selectOneRecord(rec, Dims, clickParams) {
+      let me = this,
+        edit = me.EditNode;
+
+      //# 1 pie只有第一个维度
+      let d = Dims.length ? Dims[0] : null;
+      if (d) {
+        //~~ 1 record
+        let dataId = d.dataId;
+        let record = {};
+        //~~ 3 先去掉！
+        delete edit.selectMap[dataId];
+
+        let key = d.realKey,
+          val = clickParams.name;
+        if (!tool.isNull(val)) {
+          //~~ 2 有值的维度，放入对应dataId的rec去
+          me.$set(record, key, val);
+          me.$set(edit.selectMap, dataId, record);
+        }
+      }
     }
   }
 };

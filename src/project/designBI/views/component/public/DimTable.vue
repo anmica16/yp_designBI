@@ -13,7 +13,7 @@
         <el-table-column
           :key="dim.key"
           :label="dim.key"
-          :prop="dim.key"
+          :prop="dim.realKey || dim.key"
           :index="i"
           :width="dim.type === 'date' ? '200' : ''"
           sortable

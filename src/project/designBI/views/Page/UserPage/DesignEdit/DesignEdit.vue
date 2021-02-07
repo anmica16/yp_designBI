@@ -595,7 +595,7 @@ export default {
                   templateCode: me.nowTemplateCode,
                   linkDataId: theRec.id,
                   useType: 10,
-                  chartType: "bar",
+                  chartType: "table-mingxi",
                   name: "未命名子控件" + (me.addInstances.length + 1)
                 });
                 //# 3 add到主cell
@@ -774,7 +774,7 @@ export default {
         xtype: "BIBase",
         templateCode: me.nowTemplateCode,
         useType: 11, //30表示关联控件
-        chartType: "bar",
+        chartType: "table-mingxi",
         name: "未命名关联控件" + (me.addInstances.length + 1)
       });
 

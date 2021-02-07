@@ -107,16 +107,19 @@ export default {
         rec = clickParams.value,
         Dims = me.Dims;
 
-      me.selectOneRecord(rec, Dims);
+      me.selectOneRecord(rec, Dims, clickParams);
     }
   },
-  // watch: {
-  //   option(newVal, oldVal) {
-  //     if (newVal) {
-  //       this.setOption();
-  //     }
-  //   }
-  // },
+  watch: {
+    hasDimension(newVal) {
+      let me = this;
+      if (newVal) {
+        me.$nextTick(() => {
+          me.resize();
+        });
+      }
+    }
+  },
   mounted() {
     let me = this;
     if (me.theme) {

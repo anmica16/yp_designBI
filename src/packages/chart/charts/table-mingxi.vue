@@ -1,11 +1,16 @@
 <template>
   <div class="chart-table">
     <DimTable
+      v-if="hasDimension"
       ref="table"
       :data="requestData || []"
       :dimension="totDims"
       :rowClickFn="rowClickFn"
     ></DimTable>
+    <div v-else class="noDimensionTip">
+      <div class="back"></div>
+      <div class="text">请先进入修改界面添加维度指标</div>
+    </div>
   </div>
 </template>
 

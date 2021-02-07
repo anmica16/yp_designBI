@@ -1,5 +1,17 @@
 <template>
-  <div class="echartsBox" ref="box" style="width: 100%; height: 100%;"></div>
+  <div class="echartsBoxWrap">
+    <div
+      v-show="hasDimension"
+      class="echartsBox"
+      ref="box"
+      style="width: 100%; height: 100%;"
+    ></div>
+
+    <div v-show="!hasDimension" class="noDimensionTip">
+      <div class="back"></div>
+      <div class="text">请先进入修改界面添加维度指标</div>
+    </div>
+  </div>
 </template>
 
 <script>

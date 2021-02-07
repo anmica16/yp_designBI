@@ -194,7 +194,7 @@
             v-show="resultData.length"
             ref="resultTable"
             :data="resultData"
-            :dimension="sourceDims"
+            :dimension="sourceDimsReal"
           ></DimTable>
 
           <div v-show="!resultData.length" class="notDataTip">
@@ -302,6 +302,24 @@ export default {
           mainDim
         });
       });
+      return r;
+    },
+    sourceDimsReal() {
+      let me = this,
+        hasJoin = me.validJTs.length,
+        dims = me.sourceDims,
+        r = [];
+      if (dims && dims.length) {
+        r = dims.map(d => {
+          let dim = tool.apply(
+            {
+              realKey: hasJoin ? d.tName : d.key
+            },
+            d
+          );
+          r.push(dim);
+        });
+      }
       return r;
     }
   },
@@ -469,11 +487,14 @@ export default {
     },
     //# 5 判断是否为禁用的函数
     disabledFn(data, node) {
-      let me = this,
-        disabled = !me.mainDataId || data.id == me.mainDataId;
-      data.$disabled = disabled;
-      //console.log(["# 5 判断是否为禁用的函数", node, arguments]);
-      return disabled;
+      //++ 1 可以自己join自己！
+      return false;
+
+      // let me = this,
+      //   disabled = !me.mainDataId || data.id == me.mainDataId;
+      // data.$disabled = disabled;
+      // //console.log(["# 5 判断是否为禁用的函数", node, arguments]);
+      // return disabled;
     },
     //# 6 维度选择之后的 结果数据展示
     getResultData() {

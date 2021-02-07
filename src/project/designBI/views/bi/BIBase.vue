@@ -56,7 +56,7 @@ export default {
     let me = this,
       resizeFn = tool.throttle(me.resize, 100);
     me.$on("bubble-resize", () => {
-      console.log(["咋就触发bubble-resize了呢？"]);
+      //console.log(["咋就触发bubble-resize了呢？"]);
       me.resize();
     });
     $(window).on(`resize.${tool.uniqueStr()}`, () => {

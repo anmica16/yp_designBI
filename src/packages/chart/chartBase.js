@@ -87,6 +87,10 @@ export default {
       }
       return dims;
     },
+    hasDimension() {
+      let me = this;
+      return me.Dims.length && me.Indices.length;
+    },
     //## 5 明细表 配置
     JoinTables() {
       let me = this,
@@ -303,23 +307,26 @@ export default {
       };
     },
     //@ 3 选择一条数据
-    selectOneRecord(rec, Dims) {
+    selectOneRecord(rec, Dims, clickParams) {
       let me = this,
-        edit = me.EditNode;
+        edit = me.EditNode,
+        records = {};
+
+      console.log(["点击了一个record", rec]);
 
       Dims.forEach(d => {
         //~~ 1 record
         let dataId = d.dataId;
-        let record = {};
+        let record = records[dataId] || {};
         //~~ 3 先去掉！
         delete edit.selectMap[dataId];
 
-        let key = d.realKey,
-          val = rec[key];
+        let val = rec[d.realKey || d.key];
         if (!tool.isNull(val)) {
           //~~ 2 有值的维度，放入对应dataId的rec去
-          me.$set(record, key, val);
+          me.$set(record, d.key, val);
           me.$set(edit.selectMap, dataId, record);
+          records[dataId] = record;
         }
       });
     }
@@ -340,7 +347,7 @@ export default {
     },
     JoinTables(newJTs) {
       let me = this;
-      console.log(["JoinTables有改变了！", newJTs, me]);
+      //console.log(["JoinTables有改变了！", newJTs, me]);
       me.refreshSource();
     },
     ajaxLoading(newVal) {

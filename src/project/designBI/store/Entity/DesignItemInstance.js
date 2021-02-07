@@ -179,7 +179,7 @@ const BaseCfg = tool.apply(
     chartType: {
       desp: "BI图表类型",
       defalut() {
-        return "table";
+        return "table-mingxi";
       },
       hidden: true
     },

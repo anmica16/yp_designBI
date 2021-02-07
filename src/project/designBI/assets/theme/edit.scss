@@ -84,6 +84,34 @@ $hover_deep: rgba(51, 135, 204, 0.05);
 }
 
 //  edit附加页面
+.BIBase {
+  .chart-table {
+    height: 100%;
+  }
+  .echartsBoxWrap {
+    height: 100%;
+  }
+
+  .noDimensionTip {
+    height: 100%;
+    width: 100%;
+    @extend %flex-wh;
+    flex-direction: column;
+    .back {
+      height: 80px;
+      width: 100px;
+      background: url(./images/view3/noDim.png) no-repeat;
+      background-position: center;
+      background-size: auto 100%;
+      margin-top: -15px;
+      margin-bottom: 15px;
+    }
+    .text {
+      color: $font2_light;
+      font-size: 12px;
+    }
+  }
+}
 // @@ 4-0 各个group子控件内部
 .CellBubble.isRoot {
   //~ 1 BI控件的头部
