@@ -62,17 +62,19 @@
           @click="configDetail"
         ></el-button>
 
-        <el-button
+        <!-- <el-button
           type="info"
           title="简介"
           icon="el-icon-share"
           size="mini"
-        ></el-button>
+        ></el-button> -->
         <el-button
-          type="info"
+          v-if="_joinTables && _joinTables.length"
+          :type="limitedByJoin ? 'success' : 'info'"
           title="清除联动项"
-          icon="el-icon-s-open"
+          :icon="limitedByJoin ? 'el-icon-paperclip' : 'el-icon-link'"
           size="mini"
+          @click="clearJoinLimits"
         ></el-button>
         <el-button
           type="danger"
@@ -317,7 +319,8 @@ export default {
       let me = this,
         h = me.$createElement;
       //@@ 1 当前Ins
-      let readyIns = me.Instance;
+      let readyIns = me.Instance,
+        cancelData = tool.clone(me.Instance.recordData);
 
       return new Promise(res => {
         me.$msgbox({
@@ -391,11 +394,23 @@ export default {
                   res(false);
                 });
             } else {
+              me.Instance.setData(cancelData);
               done();
               res(false);
             }
           }
         }).catch(() => {});
+      });
+    },
+    clearJoinLimits() {
+      let me = this,
+        edit = me.EditNode,
+        jts = me.JoinTables;
+
+      tool.each(jts, jt => {
+        if (jt.selectRecord) {
+          me.$set(edit.selectMap, jt.dataId, null);
+        }
       });
     }
   },

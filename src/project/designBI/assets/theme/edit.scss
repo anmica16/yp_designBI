@@ -272,11 +272,8 @@ $hover_deep: rgba(51, 135, 204, 0.05);
         width: $w_left;
         height: 100%;
 
-        .mainTableSelector {
-          > * {
-            height: 100%;
-          }
-        }
+        // .mainTableSelector {
+        // }
       }
 
       //# 1-2 右侧 明细表

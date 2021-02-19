@@ -55,6 +55,9 @@
             :EditNode="EditNode"
             :nowBoard="nowBoard"
             :sumData="getSumData(ins)"
+            :isShow="
+              isShow && nowIns && nowIns.instanceCode === ins.instanceCode
+            "
           ></one-item-edit>
         </div>
       </template>
@@ -81,6 +84,10 @@ export default {
     linkDatas: {
       type: Object,
       required: true
+    },
+    isShow: {
+      type: Boolean,
+      default: false
     }
   },
   data() {

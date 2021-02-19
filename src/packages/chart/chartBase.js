@@ -91,33 +91,6 @@ export default {
       let me = this;
       return me.Dims.length && me.Indices.length;
     },
-    //## 5 明细表 配置
-    JoinTables() {
-      let me = this,
-        edit = me.EditNode,
-        itemJTs = me._joinTables,
-        result = [];
-      if (itemJTs && itemJTs.length) {
-        //~~ 1 明细所需被选择模糊rec
-        itemJTs.forEach(jt => {
-          let rec = edit.selectMap[jt.dataId],
-            theJT = tool.apply(
-              {
-                selectRecord: rec
-              },
-              jt
-            );
-          // console.log([
-          //   "//## 5 明细表 配置",
-          //   rec,
-          //   jt,
-          //   edit.selectMap[jt.dataId]
-          // ]);
-          result.push(theJT);
-        });
-      }
-      return result;
-    },
     //@@ 2 一表part2：序列值二维数组，首行为header
     aoa() {
       let me = this;
@@ -184,7 +157,7 @@ export default {
     refreshSource(addOptions) {
       let me = this,
         tableName = me.tableName;
-      //console.log(["尝试刷新"]);
+      //console.log(["尝试刷新,查看触发缘故"]);
       if (!tableName || !me.Instance || !me.LinkData) {
         return;
       }
@@ -312,7 +285,7 @@ export default {
         edit = me.EditNode,
         records = {};
 
-      console.log(["点击了一个record", rec]);
+      //console.log(["点击了一个record", rec]);
 
       Dims.forEach(d => {
         //~~ 1 record
@@ -332,23 +305,54 @@ export default {
     }
   }, //methods
   watch: {
-    LinkData() {
+    LinkData(newVal, oldVal) {
+      //if (newVal.length !== oldVal.length) {
+      //console.log(["【LinkData】尝试刷新,查看触发缘故"]);
       this.refreshSource();
+      //}
     },
-    conditions() {
+    conditions(newVal, oldVal) {
+      //if (newVal.length !== oldVal.length) {
+      //console.log(["【conditions】尝试刷新,查看触发缘故"]);
       this.refreshSource();
+      //}
     },
     //自身变动
     Dims(newVal, oldVal) {
-      if (newVal.length !== oldVal.length) this.refreshSource();
+      if (newVal.length !== oldVal.length) {
+        //console.log(["【Dims】尝试刷新,查看触发缘故"]);
+        this.refreshSource();
+      }
     },
     Indices(newVal, oldVal) {
-      if (newVal.length !== oldVal.length) this.refreshSource();
+      if (newVal.length !== oldVal.length) {
+        //console.log(["【Indices】尝试刷新,查看触发缘故"]);
+        this.refreshSource();
+      }
     },
-    JoinTables(newJTs) {
-      let me = this;
-      //console.log(["JoinTables有改变了！", newJTs, me]);
-      me.refreshSource();
+    JoinTables(newVal, oldVal) {
+      let me = this,
+        isSame = true;
+      if ((newVal && !oldVal) || (!newVal && oldVal)) {
+        isSame = false;
+      } else if (newVal && oldVal) {
+        if (newVal.length != oldVal.length) {
+          isSame = false;
+        } else {
+          for (let i = 0; i < newVal.length; ++i) {
+            let nJT = newVal[i],
+              oJT = oldVal[i];
+            if (nJT.selectRecord != oJT.selectRecord) {
+              isSame = false;
+              break;
+            }
+          }
+        }
+      }
+      if (!isSame) {
+        console.log(["【JoinTables】尝试刷新,查看触发缘故"]);
+        me.refreshSource();
+      }
     },
     ajaxLoading(newVal) {
       this.$emit("ajaxLoading", newVal);

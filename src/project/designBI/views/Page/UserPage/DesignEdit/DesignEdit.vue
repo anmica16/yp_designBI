@@ -201,6 +201,7 @@
           :EditNode="me"
           :nowBoard="nowBoard"
           :linkDatas="linkDatas"
+          :isShow="itemEditPage"
         ></ItemEdit>
       </transition>
     </template>

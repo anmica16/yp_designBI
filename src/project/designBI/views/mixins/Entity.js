@@ -143,6 +143,45 @@ let Instance = tool.mergeClone({}, Base, {
     //++ 2 明细关联表
     _joinTables() {
       return this.config_more ? this.config_more.JoinTables : null;
+    },
+    //## 5 明细表 配置
+    JoinTables() {
+      let me = this,
+        edit = me.EditNode,
+        itemJTs = me._joinTables,
+        result = [];
+      if (itemJTs && itemJTs.length) {
+        //~~ 1 明细所需被选择模糊rec
+        itemJTs.forEach(jt => {
+          let rec = edit.selectMap[jt.dataId],
+            theJT = tool.apply(
+              {
+                selectRecord: rec
+              },
+              jt
+            );
+          // console.log([
+          //   "//## 5 明细表 配置",
+          //   rec,
+          //   jt,
+          //   edit.selectMap[jt.dataId]
+          // ]);
+          result.push(theJT);
+        });
+      }
+      return result;
+    },
+    limitedByJoin() {
+      let me = this,
+        isLimited = false,
+        jts = me.JoinTables;
+      tool.each(jts, jt => {
+        if (jt.selectRecord) {
+          isLimited = true;
+          return false;
+        }
+      });
+      return isLimited;
     }
   }
 });

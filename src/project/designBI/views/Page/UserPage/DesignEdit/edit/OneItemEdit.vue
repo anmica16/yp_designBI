@@ -139,7 +139,7 @@
             :Entity="Instance"
             :EditNode="EditNode"
             :nowBoard="nowBoard"
-            v-if="sumData"
+            v-if="isShow && sumData"
           ></BIBase>
         </div>
         <div class="bottom">
@@ -282,6 +282,10 @@ export default {
   props: {
     sumData: {
       type: Object
+    },
+    isShow: {
+      type: Boolean,
+      default: false
     }
   },
   data() {

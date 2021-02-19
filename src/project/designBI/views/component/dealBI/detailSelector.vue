@@ -3,7 +3,7 @@
     <div class="selectArea">
       <!-- ~ 1 左侧 dataId选择 -->
       <div class="dataIdSelect oneArea">
-        <div class="mainTitle areaTitle">主表选择</div>
+        <div class="mainTitle areaTitle">一、主表选择</div>
         <dataPropCoat
           class="mainTableSelector areaBody"
           ref="mainData"
@@ -16,7 +16,7 @@
       </div>
       <!-- ~ 2 多个 joinTable选择 -->
       <div class="joinTablesSelect oneArea">
-        <div class="detailTitle areaTitle">关联表选择</div>
+        <div class="detailTitle areaTitle">二、关联表选择</div>
         <div class="detailTableSelector areaBody">
           <template v-if="dataId">
             <!-- #1 可新增，所以手动循环 -->
@@ -129,7 +129,7 @@
     </div>
     <div class="dimsAndResult">
       <div class="resultArea oneArea">
-        <div class="resultTitle areaTitle">主表关联统计</div>
+        <div class="resultTitle areaTitle">三、主表关联统计</div>
         <!-- ~ 1 上侧维度 加入 -->
         <div class="detailDims areaBody">
           <div class="dimsSelectArea">
@@ -192,7 +192,7 @@
       </div>
       <!-- ~ 2 底侧 表数据一栏 -->
       <div class="detailTableArea oneArea">
-        <div class="areaTitle">关联结果表</div>
+        <div class="areaTitle">四、关联结果表</div>
         <div class="areaBody" v-loading="resultDataLoading">
           <DimTable
             v-show="resultData.length"
@@ -467,7 +467,7 @@ export default {
       me.Instance.setData({
         config_more: {
           //+ 2 关联表选项启动
-          JoinTables: me.joinTables.map(theJT => {
+          JoinTables: me.validJTs.map(theJT => {
             let _jt = {
               dataId: theJT.dataId,
               //~ 2 下拉选择 1
