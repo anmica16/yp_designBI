@@ -109,6 +109,7 @@ export default {
     //【update】看会不会响应
     getSumData(ins) {
       let baseData = tool.apply({}, this.linkDatas[ins.linkDataId]);
+      //+ 3 关联表选项中的备用，有则替换掉
       if (ins.instanceVue.sourceDims.length) {
         baseData.dimension = ins.instanceVue.sourceDims;
       }

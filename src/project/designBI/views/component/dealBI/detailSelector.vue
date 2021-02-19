@@ -159,7 +159,11 @@
               <div class="JoinTitle">关联表：</div>
               <div class="JoinTBody">
                 <template v-for="(jt, j) in fullInfoJTs">
-                  <div class="oneJTBody" :key="jt.$id">
+                  <div
+                    class="oneJTBody"
+                    v-if="jt.mainDim && jt.joinDim"
+                    :key="jt.$id"
+                  >
                     <div class="tbName">
                       <span class="count">{{ j + 1 }}、</span>
                       <span class="name">{{ jt.joinTableNameCH }}</span>
@@ -226,6 +230,12 @@ export default {
   components: {
     dataPropCoat,
     CoatingDim
+  },
+  props: {
+    isEdit: {
+      type: Boolean,
+      default: false
+    }
   },
   data() {
     return {
@@ -317,7 +327,7 @@ export default {
             },
             d
           );
-          r.push(dim);
+          return dim;
         });
       }
       return r;
@@ -456,6 +466,7 @@ export default {
       }
       me.Instance.setData({
         config_more: {
+          //+ 2 关联表选项启动
           JoinTables: me.joinTables.map(theJT => {
             let _jt = {
               dataId: theJT.dataId,
@@ -473,8 +484,9 @@ export default {
     //# 4 维度指标选择变化
     candyAddRemoveFn(candies) {
       let me = this;
-      console.log(["维度指标选择变化", candies, arguments]);
+      //console.log(["维度指标选择变化", candies, arguments]);
       me.Instance.setData({
+        // + 1 可被选择的维度集合，在《ItemEdit》中通过Entity化 Ins的sourceDims传递给《OneItemEdit》，从而可被拖拽选中
         source: {
           Dims: candies.map(c => {
             let tc = tool.apply({}, c);
@@ -503,11 +515,12 @@ export default {
         linkRec = mainData.DetailData,
         //剔除无效的
         theJTs = me.validJTs,
-        theDims = me.validDims;
+        theDims = me.sourceDimsReal;
       //~~ 1 避免失败请求
       if (!linkRec || !theDims.length) {
         return;
       }
+      //console.log(["右下数据获取？"]);
 
       me.resultDataAjax && me.resultDataAjax.abort();
       me.resultDataLoading = true;
@@ -547,16 +560,79 @@ export default {
     }
   },
   watch: {
-    sourceDims() {
+    sourceDimsReal() {
       this.getResultData();
     },
-    joinTables() {
+    fullInfoJTs() {
       this.getResultData();
     }
   },
   mounted() {
     let me = this;
     me.mainData = me.$refs.mainData;
+
+    //++ 1 提供修改入口
+    if (me.isEdit) {
+      //~~ 1 左上
+      let idRec = {
+        id: me.dataId
+      };
+      me.mainData.getDetailData(idRec).then(data => {
+        if (data) {
+          me.mainData.step = 3;
+        }
+      });
+
+      //~~ 2 右上
+      let JTs =
+        me._joinTables && me._joinTables.length
+          ? tool.clone(me._joinTables)
+          : [];
+      JTs = JTs.map(j => {
+        j.$id = tool.uniqueStr();
+        return j;
+      });
+      me.joinTables = JTs.map(jt => {
+        let tJT = tool.apply({}, jt, {
+          dataId: null,
+          //~ 2 下拉选择 1
+          joinTableProperty: null,
+          joinThisProperty: null,
+          joinTableName: null,
+          joinTableNameCH: null
+        });
+        return tJT;
+      });
+      me.$nextTick(() => {
+        me.joinTables.forEach(jt => {
+          let jtRef = me.$refs["join" + jt.$id][0];
+          me.$set(me.jtRefs, jt.$id, jtRef);
+          let okJT = JTs.find(j => {
+            return j.$id == jt.$id;
+          });
+          jtRef
+            .getDetailData({
+              id: okJT.dataId
+            })
+            .then(data => {
+              if (data) {
+                jtRef.step = 3;
+                tool.apply(jt, okJT);
+              }
+            });
+        });
+
+        me.joinTables.length && me.changeJoin(me.joinTables[0]);
+      });
+
+      //~~ 3 左下
+      let sourceDims = me.sourceDims || [],
+        detailDims = me.$refs.detailDims;
+      detailDims.candies = sourceDims.map(d => {
+        let theD = tool.apply({}, d);
+        return theD;
+      });
+    }
   }
 };
 </script>

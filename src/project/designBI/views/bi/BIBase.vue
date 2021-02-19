@@ -1,6 +1,13 @@
 <template>
   <div class="BIBase" v-loading="ajaxLoading">
-    <div class="chartTitle">BIBase</div>
+    <div class="chartTitle">
+      <span
+        class="chartType"
+        :class="{ join: _joinTables && _joinTables.length }"
+        >{{ _joinTables && _joinTables.length ? "关联图表" : "图表" }}</span
+      >
+      <span class="chartName">{{ name }}</span>
+    </div>
     <div class="chartBody">
       <div
         ref="chart"
@@ -70,9 +77,31 @@ export default {
 .BIBase {
   height: 100%;
   background: white;
-  $h_title: 26px;
+  $h_title: 28px;
   > .chartTitle {
     height: $h_title;
+    box-sizing: border-box;
+    padding: 1px 8px;
+
+    $color: #3b94e7;
+    $color1: #fad075;
+
+    .chartType {
+      display: inline-block;
+      font-size: 12px;
+      padding: 2px 6px;
+      border-radius: 50px;
+      background: $color;
+      color: white;
+      &.join {
+        background: $color1;
+        color: #2c3e50;
+      }
+    }
+    .chartName {
+      margin-left: 4px;
+      font-size: 14px;
+    }
   }
   > .chartBody {
     height: calc(100% - #{$h_title});

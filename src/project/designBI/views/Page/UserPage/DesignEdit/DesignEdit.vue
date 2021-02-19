@@ -787,7 +787,7 @@ export default {
               Entity: readyIns
             }
           }),
-          closeOnClickModal: true,
+          closeOnClickModal: false,
           showCancelButton: true,
           customClass: "newDetail",
           beforeClose(action, ins, done) {

@@ -39,7 +39,7 @@ let Candy = {
         position: "absolute",
         left: 0,
         top: 0,
-        "z-index": 999
+        "z-index": 9999
       });
       me.dragDom = dom;
       me.dragStart = true;

@@ -601,6 +601,9 @@ $hover_deep: rgba(51, 135, 204, 0.05);
           }
           > .body {
             height: calc(100% - #{$h_t});
+            .DimTypeTag {
+              display: block;
+            }
           }
         }
         .dimenArea {

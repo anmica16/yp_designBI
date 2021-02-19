@@ -346,7 +346,7 @@ let Xbase = {
     let me = this;
     Xpro.then(mod => {
       me.X = mod;
-      console.log(["Xready！", mod, me]);
+      //console.log(["Xready！", mod, me]);
       me.$emit("Xready");
     });
   }
@@ -402,7 +402,7 @@ let plusBase = {
   methods: {
     refresh() {
       let me = this;
-      console.log(["refresh检查"]);
+      //console.log(["refresh检查"]);
       if (me.DetailData && this.X) {
         let table = tool.isString(me.DetailData.dataTable)
           ? tool.parse(me.DetailData.dataTable)

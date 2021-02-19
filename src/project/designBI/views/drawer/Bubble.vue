@@ -45,9 +45,42 @@
       @touchstart.stop
     >
       <div class="toolLayer">
-        <el-button @click="goEditPage">修改</el-button>
-        <el-button>实例信息</el-button>
-        <el-button @click="deleteFn">删除</el-button>
+        <el-button
+          type="primary"
+          icon="el-icon-edit"
+          size="mini"
+          title="修改配置"
+          @click="goEditPage"
+        ></el-button>
+
+        <el-button
+          v-if="_joinTables && _joinTables.length"
+          type="primary"
+          icon="el-icon-office-building"
+          size="mini"
+          title="修改关联配置"
+          @click="configDetail"
+        ></el-button>
+
+        <el-button
+          type="info"
+          title="简介"
+          icon="el-icon-share"
+          size="mini"
+        ></el-button>
+        <el-button
+          type="info"
+          title="清除联动项"
+          icon="el-icon-s-open"
+          size="mini"
+        ></el-button>
+        <el-button
+          type="danger"
+          title="删除该控件"
+          size="mini"
+          icon="el-icon-delete"
+          @click="deleteFn"
+        ></el-button>
       </div>
     </div>
 
@@ -79,6 +112,7 @@
 
 <script>
 import Vue from "vue";
+import detailSelector from "@designBI/views/component/dealBI/detailSelector.vue";
 import tool from "@/plugins/js/tool";
 import { Instance } from "@designBI/views/mixins/Entity.js";
 import dropManager from "@designBI/views/drawer/dropManager";
@@ -276,6 +310,93 @@ export default {
       if (host && tool.isFunction(host.resize)) {
         host.resize();
       }
+    },
+
+    //++ 5 关联控件配置改变
+    configDetail() {
+      let me = this,
+        h = me.$createElement;
+      //@@ 1 当前Ins
+      let readyIns = me.Instance;
+
+      return new Promise(res => {
+        me.$msgbox({
+          title: "关联控件配置",
+          message: h(detailSelector, {
+            key: tool.uniqueStr(),
+            props: {
+              Entity: readyIns,
+              isEdit: true
+            }
+          }),
+          closeOnClickModal: false,
+          showCancelButton: true,
+          customClass: "newDetail",
+          beforeClose(action, ins, done) {
+            if (action === "confirm") {
+              let selector = ins.down("detailSelector"),
+                detailDims = selector.$refs.detailDims;
+
+              //# 1 如果是空
+              if (tool.isNull(readyIns.recordData.linkDataId)) {
+                me.$message.warning("请选择主表！");
+                res(false);
+                return;
+              }
+              let JTs = readyIns.recordData.config_more.JoinTables,
+                notHealthy = [];
+              //# 2 检测每个 join的配置是否完整
+              if (JTs && JTs.length) {
+                JTs.forEach(jt => {
+                  if (
+                    tool.isNull(jt.joinTableProperty) ||
+                    tool.isNull(jt.joinThisProperty)
+                  ) {
+                    //# 2-2 响应的反应出来
+                    me.$set(jt, "$notHealthy", true);
+                    notHealthy.push(jt);
+                  }
+                });
+              } else {
+                me.$message.warning("关联控件至少配置一个关联表！");
+                res(false);
+                return;
+              }
+              if (notHealthy.length) {
+                me.$message.warning(
+                  `存在${notHealthy.length}个关联配置不完整，请完善后再试！`
+                );
+                res(false);
+                return;
+              }
+
+              //# 2-2 检测所选维度数量
+              //console.log(["//# 2-2 检测所选维度数量", selector, detailDims]);
+              if (!detailDims.candies.length) {
+                me.$message.warning("请至少选择1个维度指标！");
+                res(false);
+                return;
+              }
+
+              //# 3 进行保存
+              readyIns
+                .save()
+                .then(r => {
+                  me.$message.success("修改关联配置成功！");
+                  done();
+                  res(readyIns);
+                })
+                .catch(r => {
+                  me.$message.error("添加失败！请检查服务器运行状态");
+                  res(false);
+                });
+            } else {
+              done();
+              res(false);
+            }
+          }
+        }).catch(() => {});
+      });
     }
   },
   watch: {
@@ -303,7 +424,7 @@ export default {
           console.log(["调试 drag start 开始！"]);
           //(1) shadow显现
           me.shadow.show = true;
-          me.toggleZIndex(true);
+          //me.toggleZIndex(true);
         });
         //@ 6-1 拖拽的mousemove时，shadow的放入与否
         me.$refs.dragNode.$on("dragging", (e, dragNode) => {
@@ -341,7 +462,7 @@ export default {
         me.$refs.dragNode.$on("dragstop", function(e, dragNode) {
           //(1) shadow隐藏
           me.shadow.show = false;
-          me.toggleZIndex(false);
+          //me.toggleZIndex(false);
           if (!me.nowBoard.$dragMode) {
             me.Instance.syncCellStyle();
           }
@@ -379,7 +500,7 @@ export default {
         me.$refs.dragNode.$on("resizeStart", (e, dragNode) => {
           console.log(["调试 resizeStart 开始！"]);
           //(1) shadow显现
-          me.toggleZIndex(true);
+          //me.toggleZIndex(true);
         });
         //@ 6-1 拖拽的mousemove时，shadow的放入与否
         me.$refs.dragNode.$on("resizing", (e, maskStyle) => {
@@ -401,7 +522,7 @@ export default {
         //@ 2 正常的 松开手指 drop判定
         me.$refs.dragNode.$on("resizestop", function(e, dragNode) {
           me.mask.show = false;
-          me.toggleZIndex(false);
+          //me.toggleZIndex(false);
           //(2) 上传
           me.saveCellsMap();
           //(3) resize
@@ -469,13 +590,33 @@ $blue: #35ace4;
   }
   &:not(.isRoot) {
     padding: 3px;
+    &.isSelect {
+      z-index: 11 !important;
+    }
   }
   > .DragResizeMouse-event {
     //# 1 右上工具
     > .attachTool {
       position: absolute;
-      left: 100%;
-      top: 0;
+      left: calc(100% - 2px);
+      top: 3px;
+      .toolLayer {
+        display: flex;
+        flex-direction: column;
+        width: 25px;
+        background: white;
+        border: 1px solid white;
+        border-left: none;
+        .el-button {
+          margin-left: 0;
+          padding: 6px 2px;
+          margin-bottom: 1px;
+          border-radius: 0;
+          &:last-child {
+            margin-bottom: 0;
+          }
+        }
+      }
     }
     //# 2 边界线 点
     > .hostWrap-withLineDot {
