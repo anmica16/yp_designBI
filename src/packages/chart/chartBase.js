@@ -350,7 +350,7 @@ export default {
         }
       }
       if (!isSame) {
-        console.log(["【JoinTables】尝试刷新,查看触发缘故"]);
+        //console.log(["【JoinTables】尝试刷新,查看触发缘故"]);
         me.refreshSource();
       }
     },

@@ -5,6 +5,7 @@
       <div class="dataIdSelect oneArea">
         <div class="mainTitle areaTitle">一、主表选择</div>
         <dataPropCoat
+          v-loading="loadStep1"
           class="mainTableSelector areaBody"
           ref="mainData"
           :dimClass="'joinTagCard main'"
@@ -17,7 +18,7 @@
       <!-- ~ 2 多个 joinTable选择 -->
       <div class="joinTablesSelect oneArea">
         <div class="detailTitle areaTitle">二、关联表选择</div>
-        <div class="detailTableSelector areaBody">
+        <div class="detailTableSelector areaBody" v-loading="loadStep2">
           <template v-if="dataId">
             <!-- #1 可新增，所以手动循环 -->
             <div class="jTabs">
@@ -255,7 +256,11 @@ export default {
       //# 6 load
       resultData: [],
       resultDataAjax: null,
-      resultDataLoading: false
+      resultDataLoading: false,
+
+      //# 7 配置界面加载
+      loadStep1: false,
+      loadStep2: false
     };
   },
   computed: {
@@ -275,9 +280,10 @@ export default {
         theJTs = me.validJTs,
         theDims = (me.sourceDims || []).filter(d => {
           let at = theJTs.find(jt => {
-            return jt.dataId == d.dataId;
-          });
-          return at ? true : false;
+              return jt.dataId == d.dataId;
+            }),
+            at2 = d.dataId == me.mainDataId;
+          return at || at2 ? true : false;
         });
       return theDims;
     },
@@ -317,7 +323,7 @@ export default {
     sourceDimsReal() {
       let me = this,
         hasJoin = me.validJTs.length,
-        dims = me.sourceDims,
+        dims = me.validDims,
         r = [];
       if (dims && dims.length) {
         r = dims.map(d => {
@@ -573,6 +579,8 @@ export default {
 
     //++ 1 提供修改入口
     if (me.isEdit) {
+      me.loadStep1 = true;
+      me.loadStep2 = true;
       //~~ 1 左上
       let idRec = {
         id: me.dataId
@@ -580,6 +588,7 @@ export default {
       me.mainData.getDetailData(idRec).then(data => {
         if (data) {
           me.mainData.step = 3;
+          me.loadStep1 = false;
         }
       });
 
@@ -604,22 +613,26 @@ export default {
         return tJT;
       });
       me.$nextTick(() => {
+        let pros = [];
         me.joinTables.forEach(jt => {
           let jtRef = me.$refs["join" + jt.$id][0];
           me.$set(me.jtRefs, jt.$id, jtRef);
           let okJT = JTs.find(j => {
             return j.$id == jt.$id;
           });
-          jtRef
-            .getDetailData({
-              id: okJT.dataId
-            })
-            .then(data => {
-              if (data) {
-                jtRef.step = 3;
-                tool.apply(jt, okJT);
-              }
-            });
+          let pro = jtRef.getDetailData({
+            id: okJT.dataId
+          });
+          pros.push(pro);
+          pro.then(data => {
+            if (data) {
+              jtRef.step = 3;
+              tool.apply(jt, okJT);
+            }
+          });
+        });
+        Promise.all(pros).then(r => {
+          me.loadStep2 = false;
         });
 
         me.joinTables.length && me.changeJoin(me.joinTables[0]);

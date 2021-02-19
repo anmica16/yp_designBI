@@ -1,6 +1,7 @@
 <template>
   <div class="chart-table">
     <el-table
+      height="100%"
       v-if="hasDimension"
       row-key="$id"
       :tree-props="{ children: 'items' }"

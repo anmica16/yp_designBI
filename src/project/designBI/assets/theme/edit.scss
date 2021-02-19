@@ -83,10 +83,14 @@ $hover_deep: rgba(51, 135, 204, 0.05);
   }
 }
 
+
 //  edit附加页面
 .BIBase {
   .chart-table {
     height: 100%;
+    > .el-table {
+      height: 100%;
+    }
   }
   .echartsBoxWrap {
     height: 100%;

@@ -244,6 +244,19 @@ body {
     }
   }
 }
+
+//~ 2 表样式
+.el-table {
+  th {
+    padding: 3px 0;
+  }
+  td {
+    padding: 0;
+    .cell {
+      white-space: nowrap;
+    }
+  }
+}
 $color: #3b94e7;
 $color1: #fad075;
 $color2: #f8423c;
@@ -252,7 +265,6 @@ $color4: #18406e;
 $color5: #a83be7;
 //# 3 拖拽小标签
 .DimTypeTag {
-
   &.drag {
     z-index: 9999;
   }
