@@ -1,5 +1,7 @@
 import DrawEntityBase from "@designBI/store/Entity/DrawEntityBase.js";
 import tool from "@/plugins/js/tool";
+import detailSelector from "@designBI/views/component/dealBI/detailSelector.vue";
+import dataSelector from "@designBI/views/component/dealBI/dataSelector.vue";
 let Base = {
   props: {
     //是否不必须 交给使用者覆盖
@@ -182,6 +184,151 @@ let Instance = tool.mergeClone({}, Base, {
         }
       });
       return isLimited;
+    }
+  },
+  methods: {
+    //++ 5 关联控件配置改变
+    configDetail() {
+      let me = this,
+        h = me.$createElement;
+      //@@ 1 当前Ins
+      let readyIns = me.Instance,
+        cancelData = tool.clone(me.Instance.recordData);
+
+      return new Promise(res => {
+        me.$msgbox({
+          title: "关联控件数据配置",
+          message: h(detailSelector, {
+            key: tool.uniqueStr(),
+            props: {
+              Instance: readyIns,
+              isEdit: true
+            }
+          }),
+          closeOnClickModal: false,
+          showCancelButton: true,
+          customClass: "newDetail",
+          beforeClose(action, ins, done) {
+            if (action === "confirm") {
+              let selector = ins.down("detailSelector"),
+                detailDims = selector.$refs.detailDims;
+
+              //# 1 如果是空
+              if (tool.isNull(readyIns.recordData.linkDataId)) {
+                me.$message.warning("请选择主表！");
+                res(false);
+                return;
+              }
+              let JTs = readyIns.recordData.config_more.JoinTables,
+                notHealthy = [];
+              //# 2 检测每个 join的配置是否完整
+              if (JTs && JTs.length) {
+                JTs.forEach(jt => {
+                  if (
+                    tool.isNull(jt.joinTableProperty) ||
+                    tool.isNull(jt.joinThisProperty)
+                  ) {
+                    //# 2-2 响应的反应出来
+                    me.$set(jt, "$notHealthy", true);
+                    notHealthy.push(jt);
+                  }
+                });
+              } else {
+                me.$message.warning("关联控件至少配置一个关联表！");
+                res(false);
+                return;
+              }
+              if (notHealthy.length) {
+                me.$message.warning(
+                  `存在${notHealthy.length}个关联配置不完整，请完善后再试！`
+                );
+                res(false);
+                return;
+              }
+
+              //# 2-2 检测所选维度数量
+              //console.log(["//# 2-2 检测所选维度数量", selector, detailDims]);
+              if (!detailDims.candies.length) {
+                me.$message.warning("请至少选择1个维度指标！");
+                res(false);
+                return;
+              }
+
+              //# 3 进行保存
+              readyIns
+                .save()
+                .then(r => {
+                  me.$message.success("修改关联配置成功！");
+                  done();
+                  res(readyIns);
+                })
+                .catch(r => {
+                  me.$message.error("添加失败！请检查服务器运行状态");
+                  res(false);
+                });
+            } else {
+              me.Instance.setData(cancelData);
+              done();
+              res(false);
+            }
+          }
+        }).catch(() => {});
+      });
+    },
+
+    //++ 6 BI控件数据源更改
+    configData() {
+      let me = this,
+        h = me.$createElement;
+
+      return new Promise(res => {
+        let ops = h(dataSelector, {
+          key: tool.uniqueStr(),
+          props: {
+            Instance: me.Instance,
+            isLoadByHand: true
+          }
+        });
+        me.$msgbox({
+          title: "BI控件数据源更改",
+          message: ops,
+          closeOnClickModal: true,
+          showCancelButton: true,
+          customClass: "newBIItem",
+          beforeClose(action, ins, done) {
+            if (action === "confirm") {
+              //console.log(["这个ins 的 form？", ins]);
+              let selector = ins.down("dataSelector"),
+                theRec = selector.nowFileRec;
+              if (theRec) {
+                //# 2 ins建立关联，然后获取关联数据
+                me.Instance.setData({
+                  linkDataId: theRec.id
+                });
+                me.Instance.save()
+                  .then(r => {
+                    me.$message.success("BI控件数据源更改成功！");
+                    done();
+                    res(me.Instance);
+                  })
+                  .catch(r => {
+                    me.$message.error(
+                      "BI控件数据源更改失败！请检查服务器运行状态"
+                    );
+                    res(false);
+                  });
+              } else {
+                //# 2 提示未选中
+                me.$message.warning("尚未选则数据源！");
+                res(false);
+              }
+            } else {
+              done();
+              res(false);
+            }
+          }
+        }).catch(() => {});
+      });
     }
   }
 });

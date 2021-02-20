@@ -1,6 +1,12 @@
 import $ from "@/plugins/js/loader";
 import Vue from "vue";
 export default {
+  props: {
+    isLoadByHand: {
+      type: Boolean,
+      default: false
+    }
+  },
   data() {
     return {
       records: [],
@@ -113,6 +119,8 @@ export default {
   },
   created() {
     let me = this;
-    me.refreshRecords();
+    if (!me.isLoadByHand) {
+      me.refreshRecords();
+    }
   }
 };

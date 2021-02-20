@@ -68,11 +68,16 @@ export default {
       type: String
     }
   },
+  data() {
+    return {
+      pager: null
+    };
+  },
   computed: {
     pageData() {
       let me = this,
         datas = me.data,
-        pager = me.$refs.pager;
+        pager = me.pager;
       if (pager) {
         return datas.slice(pager.start, pager.end);
       } else {
@@ -85,6 +90,10 @@ export default {
       let me = this;
       me.$refs.table.doLayout();
     }
+  },
+  mounted() {
+    let me = this;
+    me.pager = me.$refs.pager;
   }
 };
 </script>

@@ -214,7 +214,6 @@
 
 <script>
 import dataSelectorMixin from "./dataSelectorMixin";
-import { Instance } from "@designBI/views/mixins/Entity";
 import { CandyMaster } from "@designBI/views/component/dropCandy";
 import CoatingDim from "@designBI/views/component/dropCandy/CoatingDim";
 
@@ -227,7 +226,7 @@ import $ from "@/plugins/js/loader";
 
 export default {
   name: "detailSelector",
-  mixins: [dataSelectorMixin, Instance],
+  mixins: [dataSelectorMixin],
   components: {
     dataPropCoat,
     CoatingDim
@@ -236,6 +235,10 @@ export default {
     isEdit: {
       type: Boolean,
       default: false
+    },
+    Instance: {
+      type: Object,
+      required: true
     }
   },
   data() {
@@ -278,7 +281,8 @@ export default {
     validDims() {
       let me = this,
         theJTs = me.validJTs,
-        theDims = (me.sourceDims || []).filter(d => {
+        insVue = me.Instance.instanceVue,
+        theDims = (insVue.sourceDims || []).filter(d => {
           let at = theJTs.find(jt => {
               return jt.dataId == d.dataId;
             }),
@@ -337,6 +341,11 @@ export default {
         });
       }
       return r;
+    },
+    dataId() {
+      let me = this,
+        ins = me.Instance;
+      return ins.instanceVue.dataId;
     }
   },
   methods: {
@@ -574,7 +583,8 @@ export default {
     }
   },
   mounted() {
-    let me = this;
+    let me = this,
+      insVue = me.Instance.instanceVue;
     me.mainData = me.$refs.mainData;
 
     //++ 1 提供修改入口
@@ -594,8 +604,8 @@ export default {
 
       //~~ 2 右上
       let JTs =
-        me._joinTables && me._joinTables.length
-          ? tool.clone(me._joinTables)
+        insVue._joinTables && insVue._joinTables.length
+          ? tool.clone(insVue._joinTables)
           : [];
       JTs = JTs.map(j => {
         j.$id = tool.uniqueStr();
@@ -639,7 +649,7 @@ export default {
       });
 
       //~~ 3 左下
-      let sourceDims = me.sourceDims || [],
+      let sourceDims = insVue.sourceDims || [],
         detailDims = me.$refs.detailDims;
       detailDims.candies = sourceDims.map(d => {
         let theD = tool.apply({}, d);

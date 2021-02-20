@@ -5,8 +5,28 @@
     <div class="dimensionArea">
       <!-- # 1 表信息 切换 -->
       <div class="fileName">
-        <span>{{ sumData && sumData.fileName }}</span>
-        <i class="icon el-icon-document-copy bi bi-change"></i>
+        <div class="tableName">
+          <span class="type" :class="sourceType">{{ sourceType }}</span>
+          <span class="tableName">{{ sourceTableName }}</span>
+        </div>
+        <div class="cgBtnArea">
+          <el-button
+            v-if="_joinTables && _joinTables.length"
+            type="primary"
+            icon="el-icon-office-building"
+            size="mini"
+            title="修改关联数据配置"
+            @click="configDetail"
+          ></el-button>
+          <el-button
+            v-else
+            type="primary"
+            icon="el-icon-s-data"
+            size="mini"
+            title="修改数据源"
+            @click="configData"
+          ></el-button>
+        </div>
       </div>
       <!-- # 2 字段搜索 -->
       <div class="searchDim">
@@ -350,6 +370,37 @@ export default {
         return "";
       }
       return theType.name + (theType.desp ? `:${theType.desp}` : "");
+    },
+    DetailData() {
+      let me = this,
+        edit = me.EditNode,
+        id = me.dataId,
+        rec = edit.linkDatas[id];
+      return rec;
+    },
+    //+ 1 类型提示
+    sourceType() {
+      let me = this,
+        d = me.DetailData,
+        r = "";
+      if (d) {
+        r = d.dataType == "sql" ? d.dataType : d.fileType || d.dataType;
+      }
+      return r;
+    },
+    sourceTableName() {
+      let me = this,
+        d = me.DetailData,
+        r = "",
+        type = me.sourceType;
+      if (d) {
+        if (type == "sql") {
+          r = `[${d.sourceName}].[${d.dataBaseName}].dbo.[${d.tableName}]`;
+        } else {
+          r = d.fileName;
+        }
+      }
+      return r;
     }
   },
   methods: {

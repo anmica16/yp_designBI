@@ -785,7 +785,7 @@ export default {
           message: h(detailSelector, {
             key: tool.uniqueStr(),
             props: {
-              Entity: readyIns
+              Instance: readyIns
             }
           }),
           closeOnClickModal: false,

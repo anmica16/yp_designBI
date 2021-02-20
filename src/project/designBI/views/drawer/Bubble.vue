@@ -58,8 +58,16 @@
           type="primary"
           icon="el-icon-office-building"
           size="mini"
-          title="修改关联配置"
+          title="修改关联数据配置"
           @click="configDetail"
+        ></el-button>
+        <el-button
+          v-else
+          type="primary"
+          icon="el-icon-s-data"
+          size="mini"
+          title="修改数据源"
+          @click="configData"
         ></el-button>
 
         <!-- <el-button
@@ -114,6 +122,7 @@
 
 <script>
 import Vue from "vue";
+import dataSelector from "@designBI/views/component/dealBI/dataSelector.vue";
 import detailSelector from "@designBI/views/component/dealBI/detailSelector.vue";
 import tool from "@/plugins/js/tool";
 import { Instance } from "@designBI/views/mixins/Entity.js";
@@ -314,94 +323,6 @@ export default {
       }
     },
 
-    //++ 5 关联控件配置改变
-    configDetail() {
-      let me = this,
-        h = me.$createElement;
-      //@@ 1 当前Ins
-      let readyIns = me.Instance,
-        cancelData = tool.clone(me.Instance.recordData);
-
-      return new Promise(res => {
-        me.$msgbox({
-          title: "关联控件配置",
-          message: h(detailSelector, {
-            key: tool.uniqueStr(),
-            props: {
-              Entity: readyIns,
-              isEdit: true
-            }
-          }),
-          closeOnClickModal: false,
-          showCancelButton: true,
-          customClass: "newDetail",
-          beforeClose(action, ins, done) {
-            if (action === "confirm") {
-              let selector = ins.down("detailSelector"),
-                detailDims = selector.$refs.detailDims;
-
-              //# 1 如果是空
-              if (tool.isNull(readyIns.recordData.linkDataId)) {
-                me.$message.warning("请选择主表！");
-                res(false);
-                return;
-              }
-              let JTs = readyIns.recordData.config_more.JoinTables,
-                notHealthy = [];
-              //# 2 检测每个 join的配置是否完整
-              if (JTs && JTs.length) {
-                JTs.forEach(jt => {
-                  if (
-                    tool.isNull(jt.joinTableProperty) ||
-                    tool.isNull(jt.joinThisProperty)
-                  ) {
-                    //# 2-2 响应的反应出来
-                    me.$set(jt, "$notHealthy", true);
-                    notHealthy.push(jt);
-                  }
-                });
-              } else {
-                me.$message.warning("关联控件至少配置一个关联表！");
-                res(false);
-                return;
-              }
-              if (notHealthy.length) {
-                me.$message.warning(
-                  `存在${notHealthy.length}个关联配置不完整，请完善后再试！`
-                );
-                res(false);
-                return;
-              }
-
-              //# 2-2 检测所选维度数量
-              //console.log(["//# 2-2 检测所选维度数量", selector, detailDims]);
-              if (!detailDims.candies.length) {
-                me.$message.warning("请至少选择1个维度指标！");
-                res(false);
-                return;
-              }
-
-              //# 3 进行保存
-              readyIns
-                .save()
-                .then(r => {
-                  me.$message.success("修改关联配置成功！");
-                  done();
-                  res(readyIns);
-                })
-                .catch(r => {
-                  me.$message.error("添加失败！请检查服务器运行状态");
-                  res(false);
-                });
-            } else {
-              me.Instance.setData(cancelData);
-              done();
-              res(false);
-            }
-          }
-        }).catch(() => {});
-      });
-    },
     clearJoinLimits() {
       let me = this,
         edit = me.EditNode,

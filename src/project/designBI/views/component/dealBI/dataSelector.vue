@@ -19,11 +19,20 @@
       </template>
       <!-- ~ 4 先写在这里 再独立 -->
       <template v-else-if="DetailData">
-        <DimTable
-          ref="resultTable"
-          :data="DetailData.dataTable"
-          :dimension="totDims"
-        ></DimTable>
+        <div class="tableSelector">
+          <div class="selectInfo" v-if="DetailData">
+            <span class="type" :class="sourceType">{{ sourceType }}</span>
+            <span class="tableName">{{ sourceTableName }}</span>
+          </div>
+          <div class="selectBody">
+            <DimTable
+              height="100%"
+              ref="resultTable"
+              :data="DetailData.dataTable"
+              :dimension="totDims"
+            ></DimTable>
+          </div>
+        </div>
       </template>
     </div>
   </div>
@@ -39,6 +48,9 @@ export default {
   //   SimpleCheckData
   // },
   mixins: [dataSelectorMixin],
+  props: {
+    Instance: Object
+  },
   data() {
     return {
       queryFlag: "dataSelector"
@@ -69,7 +81,78 @@ export default {
           return fd;
         });
       return tot;
+    },
+    //+ 1 类型提示
+    sourceType() {
+      let me = this,
+        d = me.DetailData,
+        r = "";
+      if (d) {
+        r = d.dataType == "sql" ? d.dataType : d.fileType || d.dataType;
+      }
+      return r;
+    },
+    sourceTableName() {
+      let me = this,
+        d = me.DetailData,
+        r = "",
+        type = me.sourceType;
+      if (d) {
+        if (type == "sql") {
+          r = `[${d.sourceName}].[${d.dataBaseName}].dbo.[${d.tableName}]`;
+        } else {
+          r = d.fileName;
+        }
+      }
+      return r;
+    }
+  },
+  created() {
+    let me = this,
+      ins = me.Instance;
+    if (me.isLoadByHand) {
+      me.refreshRecords().then(result => {
+        let rec = me.records.find(r => {
+          return r.id == ins.instanceVue.dataId;
+        });
+        me.nodeClickFn(rec);
+      });
     }
   }
 };
 </script>
+
+<style lang="scss">
+.tableSelector {
+  height: 100%;
+  $h: 28px;
+  $color: #3b94e7;
+  $color1: #fad075;
+  $color2: #f8423c;
+  $color3: #3ac02e;
+  $color4: #18406e;
+  $color5: #a83be7;
+  .selectInfo {
+    height: $h;
+    padding-left: 8px;
+    font-size: 14px;
+    .type {
+      display: inline-block;
+      padding: 2px 6px;
+      font-size: 12px;
+      color: white;
+      background: $color3;
+      border-radius: 50px;
+      &.sql {
+        background: $color4;
+      }
+    }
+    .tableName {
+      margin-left: 4px;
+    }
+  }
+  > .selectBody {
+    height: calc(100% - #{$h});
+  }
+}
+</style>

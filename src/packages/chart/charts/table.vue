@@ -6,6 +6,7 @@
       row-key="$id"
       :tree-props="{ children: 'items' }"
       :data="treeData"
+      border
     >
       <template v-for="col in totDims">
         <el-table-column :key="col.$id" :prop="col.realKey" :label="col.key">
