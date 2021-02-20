@@ -83,7 +83,6 @@ $hover_deep: rgba(51, 135, 204, 0.05);
   }
 }
 
-
 //  edit附加页面
 .BIBase {
   .chart-table {
@@ -566,15 +565,51 @@ $hover_deep: rgba(51, 135, 204, 0.05);
           padding: 8px 10px;
         }
 
+        //# + 1
+        .controlName {
+          .pre {
+            color: $font2_light;
+          }
+        }
+
         //# 1
         .fileName {
-          span {
+          @extend %flex-row;
+          align-items: center;
+
+          $color: #3b94e7;
+          $color1: #fad075;
+          $color2: #f8423c;
+          $color3: #3ac02e;
+          $color4: #18406e;
+          $color5: #a83be7;
+          .tableName {
             width: calc(100% - #{$w_icon});
-            display: inline-block;
+            .pre {
+              color: $font2_light;
+            }
+            .type {
+              display: inline-block;
+              padding: 2px 6px;
+              font-size: 12px;
+              color: white;
+              background: $color3;
+              border-radius: 50px;
+              &.sql {
+                background: $color4;
+              }
+            }
+            .theName {
+              font-size: 14px;
+              word-break: break-all;
+            }
           }
-          .icon {
+          .cgBtnArea {
             width: $w_icon;
             text-align: center;
+            > * {
+              padding: 3px;
+            }
           }
         }
         //# 2

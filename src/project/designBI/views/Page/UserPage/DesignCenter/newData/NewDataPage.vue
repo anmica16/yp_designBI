@@ -2,8 +2,8 @@
   <div class="NewDataPage">
     <div class="headBar">
       <div class="dataName">
-        <span class="pre">表名</span>
-        <el-input v-model="name" placeholder="请输入表名"></el-input>
+        <span class="pre">数据名</span>
+        <el-input v-model="name" placeholder="请输入数据名"></el-input>
       </div>
       <div class="fill"></div>
       <div class="yesno">
@@ -104,6 +104,14 @@
                       <DimTypeTag :type="scope.row.type"> </DimTypeTag>
                     </template>
                   </el-table-column>
+                  <el-table-column label="自定义名" prop="chineseName">
+                    <template slot-scope="scope">
+                      <el-input
+                        size="small"
+                        v-model="scope.row.chineseName"
+                      ></el-input>
+                    </template>
+                  </el-table-column>
                 </el-table>
               </div>
             </div>
@@ -126,10 +134,12 @@
             <div class="topArea">
               <el-link :underline="false" class="el-icon-date"></el-link>
             </div>
-            <DimTable
-              :data="getStrDateAoa(keySheet)"
-              :dimension="dimension"
-            ></DimTable>
+            <div class="tableWrap">
+              <DimTable
+                :data="getStrDateAoa(keySheet)"
+                :dimension="dimension"
+              ></DimTable>
+            </div>
           </div>
         </template>
         <div v-else class="noTip">
@@ -413,6 +423,7 @@ export default {
               key: k,
               type: v.type,
               order: order++,
+              chineseName: k,
               //axisType: me.getAxisType(v.type),
               $id: tool.uniqueStr()
             });
@@ -506,6 +517,7 @@ export default {
               message: "获取数据集数据失败，页面将返回",
               type: "error"
             }).finally(() => {
+              me.cancelFn();
               res(false);
             });
           });

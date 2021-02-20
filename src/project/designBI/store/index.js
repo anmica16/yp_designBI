@@ -17,7 +17,9 @@ let theStore = new Vuex.Store({
     //【1】点开一个绘板之后，获取到的数据就在这里面，key - 数组的形式保存
     templateMap: {},
     //【2】进度条，用于显示一次加载请求的进度情况，null表示无，数字0~100表示一次开始到结束
-    progress: null
+    progress: null,
+    centerTitle: "朗速BI设计系统-主界面",
+    loginTitle: "朗速BI设计系统-登录"
   },
   getters: {
     getBoard: state => templateCode => {

@@ -1,8 +1,9 @@
 <template>
   <div class="DesignEdit" style="width: 100%; height: 100%">
     <div v-if="!nowBoard">
-      您访问了一个不存在的绘板！请<router-link :to="{ name: 'DesignCenter' }"
-        >返回</router-link
+      正在努力搜索和加载该绘板！若等待过久可<router-link
+        :to="{ name: 'DesignCenter' }"
+        >返回主界面</router-link
       >
     </div>
     <template v-else>
@@ -17,7 +18,7 @@
             </div>
 
             <!-- ~ 2 导出 撤销、还原 预留 -->
-            <el-popover
+            <!-- <el-popover
               class="popover"
               @show="headPopShow"
               placement="bottom-start"
@@ -76,9 +77,15 @@
                   <span class="text">选项2</span>
                 </div>
               </div>
-            </el-popover>
+            </el-popover> -->
           </div>
+
           <dir class="rightPart">
+            <div class="item return" @click="returnToCenter">
+              <i class="el-icon-s-promotion"></i>
+              <span class="text">返回主界面</span>
+            </div>
+
             <div class="item view">
               <i class="el-icon-data-analysis"></i>
               <span class="text">预览绘板</span>
@@ -856,6 +863,10 @@ export default {
           }
         }).catch(() => {});
       });
+    },
+    returnToCenter() {
+      let me = this;
+      me.$router.push({ name: "DesignCenter" });
     }
   },
   watch: {

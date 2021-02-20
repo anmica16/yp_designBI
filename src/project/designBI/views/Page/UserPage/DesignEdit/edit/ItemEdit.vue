@@ -25,7 +25,7 @@
       <div class="fill"></div>
 
       <div class="operBtns">
-        <div class="item">
+        <!-- <div class="item">
           <i class="bi bi-undo"></i>
           <span class="text">撤销</span>
         </div>
@@ -33,7 +33,7 @@
         <div class="item">
           <span class="text">还原</span>
           <i class="bi bi-retry"></i>
-        </div>
+        </div> -->
 
         <div class="item back" @click="goBackEdit">
           <i class="bi bi-board"></i>

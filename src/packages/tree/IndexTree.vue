@@ -53,6 +53,7 @@ export default {
     return {
       tree: null,
       firstRecs: [],
+      validFirstRecs: [],
       //~~ 1 累积点击的数据节点，便于刷新的时候对应起来
       clickIndexs: [],
       //~~ 2 累积展开的 id，以便复原！
@@ -82,7 +83,7 @@ export default {
           {
             props,
             "node-key": me.recordKey,
-            data: me.firstRecs
+            data: me.validFirstRecs
           },
           me.treeCfg
         );
@@ -184,12 +185,16 @@ export default {
     refresh() {
       let me = this,
         firstRecs = me.getItemRecs();
-      console.log(["indexTree created", firstRecs, me]);
-      firstRecs.forEach(rec => {
+      //console.log(["indexTree created", firstRecs, me]);
+      let validFirstRecs = firstRecs.filter(r => {
+        return me.valid ? r[me.valid] : true;
+      });
+      validFirstRecs.forEach(rec => {
         me.expandOneRec(rec, true);
       });
       //~ 2 顺序，看是否需要 loading
       me.firstRecs = firstRecs;
+      me.validFirstRecs = validFirstRecs;
       //~ 3 复原 下一次刷新时搞
       me.$nextTick(() => {
         me.expandIds.forEach(id => {

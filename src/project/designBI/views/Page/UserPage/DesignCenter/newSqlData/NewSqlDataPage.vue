@@ -142,6 +142,7 @@
         </div>
         <div class="tableDataArea" v-show="selTableName">
           <div class="dimensionArea">
+            <div>步骤3：选择表维度</div>
             <Scrollbar v-loading="dimLoading">
               <el-tree
                 class="dimTree"
@@ -165,6 +166,7 @@
             </Scrollbar>
           </div>
           <div class="dataTableArea">
+            <div>步骤4：确认表数据</div>
             <DimTable
               ref="table"
               v-loading="tbDTLoading"

@@ -257,6 +257,19 @@ body {
     }
   }
 }
+
+//~ 3 树样式
+.IndexTree {
+  .el-tree-node {
+    &.is-current,
+    &:focus {
+      > .el-tree-node__content {
+        background-color: #f5f7fa;
+      }
+    }
+  }
+}
+
 $color: #3b94e7;
 $color1: #fad075;
 $color2: #f8423c;
@@ -596,9 +609,8 @@ $color5: #a83be7;
       }
     }
     .rightPart {
-      .view {
-        margin-right: 16px;
-      }
+      @extend %flex-row;
+      margin-right: 16px;
     }
 
     .item {

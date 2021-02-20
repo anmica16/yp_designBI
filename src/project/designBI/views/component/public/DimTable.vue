@@ -12,7 +12,7 @@
       <template v-for="(dim, i) in dimension">
         <el-table-column
           :key="dim.key"
-          :label="dim.key"
+          :label="dim.chineseName || dim.key"
           :prop="dim.realKey || dim.key"
           :index="i"
           :width="dim.type === 'date' ? '200' : ''"
@@ -22,7 +22,7 @@
           <template slot="header">
             <DimTypeTag
               :type="dimension[i].type"
-              :name="dimension[i].key"
+              :name="dim.chineseName || dimension[i].key"
               xtype="span"
               :preText="preText"
             >

@@ -234,6 +234,10 @@ export default {
     setTimeout(() => {
       //console.log(["开始check！"]);
       me.checkResize();
+      setTimeout(() => {
+        //console.log(["开始check！"]);
+        me.checkResize();
+      }, 150);
     }, 300);
   }
 };

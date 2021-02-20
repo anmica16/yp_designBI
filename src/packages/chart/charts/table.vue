@@ -4,6 +4,7 @@
       height="100%"
       v-if="hasDimension"
       row-key="$id"
+      :expand-row-keys="['1']"
       :tree-props="{ children: 'items' }"
       :data="treeData"
       border

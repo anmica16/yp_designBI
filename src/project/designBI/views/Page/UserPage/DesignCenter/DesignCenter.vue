@@ -152,6 +152,7 @@
 <script>
 import tool from "@/plugins/js/tool";
 import DrawingBoard from "@designBI/store/Entity/DrawingBoard";
+import $ from "jquery";
 //import AttachBoard from "./AttachBoard";
 export default {
   name: "DesignCenter",
@@ -287,6 +288,9 @@ export default {
     } else {
       me.nowMain = "DesignCenter";
     }
+    //# 4 标题名改变
+    let theTitle = me.$store.state.centerTitle;
+    $("title").html(`${theTitle}`);
   }
 };
 </script>

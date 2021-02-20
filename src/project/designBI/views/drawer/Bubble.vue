@@ -149,7 +149,9 @@ export default {
     return {
       host: null,
       shadow: null,
-      mask: null
+      mask: null,
+      hasDragging: false,
+      hasResizing: false
     };
   },
   computed: {
@@ -357,13 +359,14 @@ export default {
 
         //@ 6-1-2 为move服务
         me.$refs.dragNode.$on("dragstart", (e, dragNode) => {
-          console.log(["调试 drag start 开始！"]);
+          //console.log(["调试 drag start 开始！"]);
           //(1) shadow显现
           me.shadow.show = true;
           //me.toggleZIndex(true);
         });
         //@ 6-1 拖拽的mousemove时，shadow的放入与否
         me.$refs.dragNode.$on("dragging", (e, dragNode) => {
+          me.hasDragging = true;
           //(2-1) 一般就是该模式
           if (!me.nowBoard.$dragMode) {
             //(3)对shadow重设 std
@@ -403,7 +406,10 @@ export default {
             me.Instance.syncCellStyle();
           }
           //(2) 上传
-          me.saveCellsMap();
+          if (me.hasDragging) {
+            me.saveCellsMap();
+            me.hasDragging = false;
+          }
 
           // //~ 2 先将对应的 style放入
           // me.syncStyle();
@@ -440,6 +446,7 @@ export default {
         });
         //@ 6-1 拖拽的mousemove时，shadow的放入与否
         me.$refs.dragNode.$on("resizing", (e, maskStyle) => {
+          me.hasResizing = true;
           me.mask.show = true;
           //【1219 here start！】正确响应
           //~~ 1 mask正确pos
@@ -459,8 +466,12 @@ export default {
         me.$refs.dragNode.$on("resizestop", function(e, dragNode) {
           me.mask.show = false;
           //me.toggleZIndex(false);
+
           //(2) 上传
-          me.saveCellsMap();
+          if (me.hasResizing) {
+            me.saveCellsMap();
+            me.hasResizing = false;
+          }
           //(3) resize
           me.hostResize();
         });

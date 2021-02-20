@@ -3,11 +3,29 @@
     <!-- ~ 3 内部 -->
     <!-- ~~ 1 维度指标 -->
     <div class="dimensionArea">
+      <!-- # + 1 控件名称 -->
+      <div class="controlName">
+        <div class="pre">控件名称：</div>
+        <div class="name">
+          <el-input
+            size="small"
+            v-model="controlName"
+            @change="controlNameCg"
+          ></el-input>
+        </div>
+      </div>
+
       <!-- # 1 表信息 切换 -->
       <div class="fileName">
         <div class="tableName">
-          <span class="type" :class="sourceType">{{ sourceType }}</span>
-          <span class="tableName">{{ sourceTableName }}</span>
+          <div class="line1">
+            <span class="pre">数据类型：</span>
+            <span class="type" :class="sourceType">{{ sourceType }}</span>
+          </div>
+          <div class="theName">
+            <span class="pre">表名：</span>
+            <span class="text">{{ sourceTableName }}</span>
+          </div>
         </div>
         <div class="cgBtnArea">
           <el-button
@@ -29,14 +47,14 @@
         </div>
       </div>
       <!-- # 2 字段搜索 -->
-      <div class="searchDim">
+      <!-- <div class="searchDim">
         <el-input
           placeholder="搜索字段"
           prefix-icon="el-icon-search"
           v-model="queryDim"
         ></el-input>
         <i class="icon el-icon-plus"></i>
-      </div>
+      </div> -->
       <!-- # 3 维度 -->
       <div class="dimenArea">
         <div class="title">维度</div>
@@ -71,7 +89,7 @@
     <!-- ~~ 2 类型属性样式 -->
     <div class="typeMakeArea">
       <!-- # 1 标题 -->
-      <div class="nameArea">
+      <!-- <div class="nameArea">
         <div class="title">
           <span class="pre">标题</span>
           <span class="nameOk">
@@ -82,7 +100,7 @@
         <div class="name">
           <el-input v-model="tempName"></el-input>
         </div>
-      </div>
+      </div> -->
       <!-- # 2 图表类型 -->
       <div class="typeArea">
         <div class="title">图表类型</div>
@@ -108,15 +126,15 @@
         <div class="nowType">当前类型：{{ selectType && selectType.name }}</div>
       </div>
       <!-- # 3 属性样式 -->
-      <el-tabs class="cssArea">
+      <!-- <el-tabs class="cssArea">
         <el-tab-pane label="表格属性"></el-tab-pane>
         <el-tab-pane label="组件样式"></el-tab-pane>
-      </el-tabs>
+      </el-tabs> -->
       <!-- # 4 过滤 -->
-      <div class="filterArea">
+      <!-- <div class="filterArea">
         <div class="title">结果过滤器</div>
         <div class="filters"></div>
-      </div>
+      </div> -->
     </div>
     <!-- ~~ 3 拖拽xy结果视图 -->
     <div class="visualArea">
@@ -313,7 +331,7 @@ export default {
       //# 1 小字段
       queryDim: "",
       checkName: true,
-      tempName: "",
+      controlName: "",
       checkAllData: false,
       //# 2 拖拽管理器
       candyMaster: null,
@@ -470,6 +488,14 @@ export default {
       let me = this,
         cDim = candy.Dim;
       return ["number"].indexOf(cDim.type) > -1;
+    },
+    controlNameCg(newVal) {
+      let me = this,
+        ins = me.Instance;
+      ins.setData({
+        name: newVal
+      });
+      ins.save();
     }
   },
   created() {
@@ -489,6 +515,10 @@ export default {
       me.$refs.chart.refreshSource();
     });
   },
+  mounted() {
+    let me = this;
+    me.controlName = me.name;
+  },
   watch: {
     "sumData.dimension": function(newVal) {
       let me = this;
@@ -497,12 +527,15 @@ export default {
         me.initDims();
       }
     },
-    "sumData.name": function(newVal) {
-      if (!this.$sumData_name && newVal) {
-        this.$sumData_name = true;
-        this.tempName = newVal;
-      }
-    },
+    // "sumData.name": function(newVal) {
+    //   if (!this.$sumData_name && newVal) {
+    //     this.$sumData_name = true;
+    //     this.tempName = newVal;
+    //   }
+    // },
+    // name(newVal, oldVal) {
+    //   if (newVal != oldVal) this.controlName = newVal;
+    // },
     "Instance.recordData.chartType": function(val) {
       if (
         !this.selectType ||
