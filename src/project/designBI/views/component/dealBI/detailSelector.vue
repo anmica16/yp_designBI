@@ -395,12 +395,12 @@ export default {
       let refDetailData = jtRef.DetailData,
         dataId = refDetailData.id,
         theJts = me.theJoinTables;
-      console.log([
-        "这个confirmDataFn决定的jt数据",
-        refDetailData,
-        refDetailData.dataType,
-        refDetailData.dataBaseName
-      ]);
+      // console.log([
+      //   "这个confirmDataFn决定的jt数据",
+      //   refDetailData,
+      //   refDetailData.dataType,
+      //   refDetailData.dataBaseName
+      // ]);
       //~~ 1 完善jt
       joinTable.dataId = dataId;
       joinTable.joinTableName =
@@ -479,6 +479,14 @@ export default {
           me.$set(jt, "$notHealthy", false);
         }
       }
+      let joinDataIds = me.validJTs.length
+        ? `,${me.validJTs
+            .map(theJT => {
+              return theJT.dataId;
+            })
+            .join(",")},`
+        : "";
+
       me.Instance.setData({
         config_more: {
           //+ 2 关联表选项启动
@@ -493,7 +501,8 @@ export default {
             };
             return _jt;
           })
-        }
+        },
+        joinDataIds
       });
     },
     //# 4 维度指标选择变化

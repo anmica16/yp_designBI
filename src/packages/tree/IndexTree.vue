@@ -11,6 +11,7 @@
 
 <script>
 import tool from "@/plugins/js/tool";
+import Vue from "vue";
 export default {
   name: "IndexTree",
   props: {
@@ -83,7 +84,8 @@ export default {
           {
             props,
             "node-key": me.recordKey,
-            data: me.validFirstRecs
+            data: me.validFirstRecs,
+            "render-content": me.renderContent
           },
           me.treeCfg
         );
@@ -220,6 +222,29 @@ export default {
       if (at > -1) {
         me.expandIds.splice(at, 1);
       }
+    },
+    //+ 7 想要一个区分文件夹和节点的图标：
+    renderContent(h, { node, data, store }) {
+      let me = this,
+        ctor = Vue.extend({
+          template: `
+        <span class="custom-tree-node">
+          <span :class="config.isFolder ?  node.expanded ? 'el-icon-folder-opened' : 'el-icon-folder' : 'el-icon-paperclip'"></span>
+          <span>{{config[tree.label]}}</span>
+        </span>`,
+          props: {
+            config: Object,
+            tree: Object,
+            node: Object
+          }
+        });
+      return h(ctor, {
+        props: {
+          config: data,
+          tree: me,
+          node
+        }
+      });
     }
   },
   watch: {
