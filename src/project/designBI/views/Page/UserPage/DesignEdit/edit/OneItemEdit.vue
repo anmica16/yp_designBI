@@ -180,9 +180,9 @@
             v-if="isShow && sumData"
           ></BIBase>
         </div>
-        <div class="bottom">
+        <!-- <div class="bottom">
           <el-checkbox v-model="checkAllData">查看所有数据</el-checkbox>
-        </div>
+        </div> -->
       </div>
     </div>
   </div>

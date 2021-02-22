@@ -277,6 +277,25 @@ $color2: #f8423c;
 $color3: #3ac02e;
 $color4: #18406e;
 $color5: #a83be7;
+
+.selectInfo {
+  padding: 8px;
+  font-size: 14px;
+  .type {
+    display: inline-block;
+    padding: 2px 6px;
+    font-size: 12px;
+    color: white;
+    background: $color3;
+    border-radius: 50px;
+    &.sql {
+      background: $color4;
+    }
+  }
+  .tableName {
+    margin-left: 4px;
+  }
+}
 //# 3 拖拽小标签
 .DimTypeTag {
   &.drag {
@@ -507,12 +526,18 @@ $color5: #a83be7;
                 .el-table__row {
                   cursor: pointer;
                 }
-                .el-table__header-wrapper {
-                  height: $h_head;
+                th {
+                  padding: 10px 0;
                 }
-                .el-table__body-wrapper {
-                  height: calc(100% - #{$h_head});
+                td {
+                  padding: 8px 0;
                 }
+                // .el-table__header-wrapper {
+                //   height: $h_head;
+                // }
+                // .el-table__body-wrapper {
+                //   height: calc(100% - #{$h_head});
+                // }
               } //table
               > .el-pagination {
                 margin-bottom: 3px;
@@ -697,6 +722,12 @@ $color5: #a83be7;
           font-size: 14px;
           color: $font2;
         }
+        > .addOption {
+          padding-bottom: 8px;
+          > .el-button {
+            margin-right: 5px;
+          }
+        }
       }
       //【简易】
       .IndexTree {
@@ -747,10 +778,15 @@ $color5: #a83be7;
           height: calc(100% - 60px);
           > .el-tabs {
             height: 100%;
-            > .el-tabs__content,
+            > .el-tabs__content {
+              height: calc(100% - 40px);
+            }
             .viewBody,
             .DimTable {
-              height: calc(100% - 40px);
+              height: 100%;
+              td {
+                padding: 6px 0;
+              }
             }
           }
         }
@@ -785,7 +821,7 @@ $color5: #a83be7;
       .pre {
         font-size: 14px;
         margin-left: 10px;
-        width: 40px;
+        width: 60px;
       }
       .el-button {
         display: block;
@@ -941,6 +977,9 @@ $color5: #a83be7;
         > .tableWrap {
           height: calc(100% - #{$h_icon});
           padding: 0 10px;
+          td {
+            padding: 6px 0;
+          }
         }
       }
     } //right
@@ -1029,7 +1068,7 @@ $color5: #a83be7;
         .dimensionArea {
           width: $w_tree;
           > .el-scrollbar {
-            height: 100%;
+            height: calc(100% - 20px);
             .dimTree {
               padding: 6px 0;
               .el-tree-node__expand-icon.is-leaf {
@@ -1056,7 +1095,7 @@ $color5: #a83be7;
         .dataTableArea {
           width: calc(100% - #{$w_tree});
           .DimTable {
-            height: 100%;
+            height: calc(100% - 20px);
           }
         }
       }

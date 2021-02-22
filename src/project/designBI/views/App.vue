@@ -69,6 +69,16 @@ export default {
     me.$store.dispatch("getBoardsInDB");
     console.log(["app对象", me, tool]);
     Vue.$root = me;
+
+    //+ 1 无登录，那么直接导向center页
+    if (me.$route.path === "/") {
+      me.$router.push({
+        name: "DesignCenter",
+        params: {
+          id: "default"
+        }
+      });
+    }
   }
 };
 </script>

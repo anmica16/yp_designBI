@@ -3,7 +3,11 @@
     <div class="headBar">
       <div class="dataName">
         <span class="pre">数据名</span>
-        <el-input v-model="name" placeholder="请输入数据名"></el-input>
+        <el-input
+          v-model="name"
+          :disabled="!(workSheet && dimension)"
+          placeholder="请输入数据名"
+        ></el-input>
       </div>
       <div class="fill"></div>
       <div class="yesno">
@@ -36,14 +40,14 @@
             >
             <input ref="newInput" type="file" name="file" @change="newUpdFn" />
 
-            <el-button
+            <!-- <el-button
               size="medium"
               @click="addUpdBtn"
               type="primary"
               v-if="workSheet"
               >追加上传</el-button
             >
-            <input ref="addInput" type="file" name="file2" @change="addUpdFn" />
+            <input ref="addInput" type="file" name="file2" @change="addUpdFn" /> -->
 
             <el-button
               class="reNew"
@@ -132,7 +136,12 @@
         <template v-if="workSheet && dimension">
           <div class="dataResult">
             <div class="topArea">
-              <el-link :underline="false" class="el-icon-date"></el-link>
+              <!-- <el-link :underline="false" class="el-icon-date"></el-link> -->
+
+              <div class="selectInfo">
+                <span class="type" :class="sourceType">{{ sourceType }}</span>
+                <span class="tableName">{{ sourceTableName }}</span>
+              </div>
             </div>
             <div class="tableWrap">
               <DimTable
@@ -221,6 +230,15 @@ export default {
         (this.DetailData && this.DetailData.tableName) ||
         `P_designBI_local_${tool.uniqueStr()}`
       );
+    },
+    //+ 1 类型提示
+    sourceType() {
+      let me = this;
+      return me.fileType;
+    },
+    sourceTableName() {
+      let me = this;
+      return me.fileName;
     }
   },
   methods: {
@@ -379,17 +397,26 @@ export default {
                     if (v.type === "string") {
                       rec[k] = rec[k] + "";
                       if (!tool.isString(rec[k])) {
-                        throw `转换为字符串类型失败，第【${i}】行，关键字【${k}】，值【${oldVal}】->【${rec[k]}】`;
+                        throw `转换为字符串类型失败，第【${i +
+                          1}】行，关键字【${k}】，值【${oldVal}】->【${
+                          rec[k]
+                        }】`;
                       }
                     } else if (v.type === "number") {
                       rec[k] = parseFloat(rec[k]);
                       if (!tool.isNumber(rec[k])) {
-                        throw `转换为数值类型失败，第【${i}】行，关键字【${k}】，值【${oldVal}】->【${rec[k]}】`;
+                        throw `转换为数值类型失败，第【${i +
+                          1}】行，关键字【${k}】，值【${oldVal}】->【${
+                          rec[k]
+                        }】`;
                       }
                     } else if (v.type === "date") {
                       rec[k] = tool.Date.toDateTime(rec[k]);
                       if (!tool.isDate(rec[k])) {
-                        throw `转换为日期类型失败，第【${i}】行，关键字【${k}】，值【${oldVal}】->【${rec[k]}】`;
+                        throw `转换为日期类型失败，第【${i +
+                          1}】行，关键字【${k}】，值【${oldVal}】->【${
+                          rec[k]
+                        }】`;
                       }
                     } else {
                       throw "遇到了未知类型，程序出错！";

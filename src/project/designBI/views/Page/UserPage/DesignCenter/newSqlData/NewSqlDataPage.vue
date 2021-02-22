@@ -159,6 +159,7 @@
                     @click.native.stop
                     class="nameText"
                     size="mini"
+                    @change="dimChangeName(data)"
                     v-model="data.chineseName"
                   ></el-input>
                 </span>
@@ -500,7 +501,10 @@ export default {
       me.dimAjax
         .then(r => {
           let ls = r.data;
-          me.tableDims = ls;
+          me.tableDims = ls.map(d => {
+            d.$id = tool.uniqueStr();
+            return d;
+          });
           me.dimLoading = false;
         })
         .catch(r => {
@@ -512,6 +516,16 @@ export default {
           }
         });
     },
+    dimChangeName(data) {
+      let me = this,
+        tDim = me.dimension.find(d => {
+          return d.$id === data.$id;
+        }),
+        tableDim = me.tableDims.find(d => {
+          return d.$id === data.$id;
+        });
+      me.$set(tDim, "chineseName", tableDim["chineseName"]);
+    },
     //@#@ 3 选择了一个
     dimCheckFn(cNode, checkInfo) {
       let me = this,
@@ -520,7 +534,7 @@ export default {
       checkNodes.forEach(n => {
         let t = `t${me.dataId}`,
           dim = {
-            $id: tool.uniqueStr(),
+            $id: n.$id,
             key: n.name,
             chineseName: n.chineseName,
             dataId: me.id,

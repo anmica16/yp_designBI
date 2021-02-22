@@ -45,7 +45,7 @@
           </div>
         </div>
         <!-- ~ 2 过滤 -->
-        <div class="filterArea">
+        <!-- <div class="filterArea">
           <el-input placeholder="搜索文件夹和数据集">
             <i slot="prefix" class="el-icon-search"></i>
           </el-input>
@@ -66,7 +66,7 @@
               </div>
             </div>
           </el-popover>
-        </div>
+        </div> -->
         <!-- ~ 3 树结构 -->
         <IndexTree
           ref="tree"
@@ -89,7 +89,11 @@
         </template>
         <!-- ~ 4 先写在这里 再独立 -->
         <template v-else-if="passDetailData">
-          <CheckDataStage :DetailData="passDetailData"> </CheckDataStage>
+          <CheckDataStage
+            v-loading="DetailDataLoading"
+            :DetailData="passDetailData"
+          >
+          </CheckDataStage>
         </template>
       </div>
     </div>

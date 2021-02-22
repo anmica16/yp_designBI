@@ -92,6 +92,7 @@
             </div>
             <div class="bodyArea">
               <el-table
+                v-loading="boardsLoading"
                 height="100%"
                 :data="boardDatasPager"
                 @row-click="rowClickFn"
@@ -110,7 +111,7 @@
                 </el-table-column>
                 <el-table-column
                   prop="editTime"
-                  label="最后修改时间"
+                  label="创建时间"
                 ></el-table-column>
               </el-table>
               <Pager
@@ -176,12 +177,21 @@ export default {
     };
   },
   computed: {
+    boardsLoading() {
+      let me = this;
+      return me.$store.state.getBoardsInDBLoading;
+    },
     boards() {
       let me = this,
         list = [],
         map = this.$store.state.templateMap;
       tool.each(map, (key, val) => {
         list.push(val.board);
+      });
+      list.sort((a, b) => {
+        let d1 = tool.Date.toDateTime(a.getData("editTime")),
+          d2 = tool.Date.toDateTime(b.getData("editTime"));
+        return d1 && d2 && d1 < d2;
       });
       return list;
     },

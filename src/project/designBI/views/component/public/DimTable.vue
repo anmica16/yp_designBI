@@ -11,7 +11,7 @@
     >
       <template v-for="(dim, i) in dimension">
         <el-table-column
-          :key="dim.key"
+          :key="dim.chineseName || dim.realKey"
           :label="dim.chineseName || dim.key"
           :prop="dim.realKey || dim.key"
           :index="i"
@@ -89,6 +89,18 @@ export default {
     doLayout() {
       let me = this;
       me.$refs.table.doLayout();
+    }
+  },
+  watch: {
+    data() {
+      this.$nextTick(() => {
+        this.doLayout();
+      });
+    },
+    dimension() {
+      this.$nextTick(() => {
+        this.doLayout();
+      });
     }
   },
   mounted() {

@@ -31,7 +31,7 @@
         </p>
       </template>
     </div>
-    <el-table border :data="rows" style="width: 100%; height: 100%"
+    <el-table border :data="rows" ref="repTab" style="width: 100%; height: 100%"
       ><el-table-column v-for="col in cols" :key="col.prop" v-bind="col">
         <template slot-scope="scope">
           <template v-if="col.prop === 'type'">
@@ -148,6 +148,18 @@ export default {
       let analyse = this.analyse;
       return analyse.perfect ? 1 : analyse.healthy ? 2 : 3;
     }
+  },
+  // watch: {
+  //   rows() {
+  //     this.$nextTick(() => {
+  //       this.$refs.repTab.doLayout();
+  //     });
+  //   }
+  // },
+  mounted() {
+    setTimeout(() => {
+      this.$refs.repTab.doLayout();
+    }, 150);
   }
 };
 </script>

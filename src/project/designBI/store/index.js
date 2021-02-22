@@ -19,7 +19,8 @@ let theStore = new Vuex.Store({
     //【2】进度条，用于显示一次加载请求的进度情况，null表示无，数字0~100表示一次开始到结束
     progress: null,
     centerTitle: "朗速BI设计系统-主界面",
-    loginTitle: "朗速BI设计系统-登录"
+    loginTitle: "朗速BI设计系统-登录",
+    getBoardsInDBLoading: false
   },
   getters: {
     getBoard: state => templateCode => {
@@ -145,23 +146,28 @@ let theStore = new Vuex.Store({
     //@1 进来第一个获取
     getBoardsInDB({ state, commit }) {
       return new Promise(res => {
+        state.getBoardsInDBLoading = true;
         $.ajax({
           url: Vue.Api.designBI,
           method: Vue.Api.designBI.BoardList
-        }).then(result => {
-          if (result.data && result.data.length) {
-            tool.each(result.data, board => {
-              let boardEntity = new DrawingBoard(board);
+        })
+          .then(result => {
+            if (result.data && result.data.length) {
+              tool.each(result.data, board => {
+                let boardEntity = new DrawingBoard(board);
 
-              commit("AddOrUpdRecord", {
-                //table: "board",
-                Entity: boardEntity
-                //templateCode: board.templateCode
+                commit("AddOrUpdRecord", {
+                  //table: "board",
+                  Entity: boardEntity
+                  //templateCode: board.templateCode
+                });
               });
-            });
-          }
-          res();
-        });
+            }
+            res();
+          })
+          .finally(() => {
+            state.getBoardsInDBLoading = false;
+          });
       });
     },
     //@2 从数据库中获取一次 template的 items数据
