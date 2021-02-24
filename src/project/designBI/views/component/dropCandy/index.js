@@ -238,6 +238,13 @@ let Coating = {
     }
   },
   methods: {
+    candyAddSimple(candy) {
+      let me = this,
+        cDim = candy.Dim;
+      cDim.parentCoating = me;
+
+      me.candies.push(cDim);
+    },
     candyOver(pos, candy) {
       let me = this;
       if (!me.canReceive) {

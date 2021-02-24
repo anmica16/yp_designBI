@@ -1,5 +1,5 @@
 <template>
-  <div class="detailSelector">
+  <div class="detailSelector" v-loading="confirmLoading">
     <div class="selectArea">
       <!-- ~ 1 左侧 dataId选择 -->
       <div class="dataIdSelect oneArea">

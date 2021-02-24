@@ -190,7 +190,7 @@ export default {
   $color5: #a83be7;
   .selectInfo {
     height: $h;
-    padding-left: 8px;
+    padding: 0 0 0 8px;
     font-size: 14px;
     .type {
       display: inline-block;

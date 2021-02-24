@@ -274,6 +274,7 @@ $hover_deep: rgba(51, 135, 204, 0.05);
       .dataIdSelect {
         width: $w_left;
         height: 100%;
+        overflow: auto;
 
         // .mainTableSelector {
         // }
@@ -488,6 +489,8 @@ $hover_deep: rgba(51, 135, 204, 0.05);
     .tabWrap {
       @extend %flex-row;
       flex-shrink: 0;
+      width: calc(100% - 200px);
+      overflow: auto;
       .tabs {
         height: 40px;
         .oneTab {
@@ -726,7 +729,7 @@ $hover_deep: rgba(51, 135, 204, 0.05);
 
         .visualStage {
           height: $h_chart;
-          $h_bottom: 0px;//取消bottom
+          $h_bottom: 0px; //取消bottom
           .chartArea {
             height: calc(100% - #{$h_bottom});
           }

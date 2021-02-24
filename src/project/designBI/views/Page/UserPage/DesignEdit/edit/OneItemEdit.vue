@@ -135,6 +135,39 @@
         <div class="title">结果过滤器</div>
         <div class="filters"></div>
       </div> -->
+      <!-- # 5 自定义名 -->
+      <div class="cusDimNameArea" v-if="itemCusDimNames">
+        <div class="title">自定义名</div>
+
+        <div class="tableWrap">
+          <el-table
+            :data="sumData.dimension"
+            border
+            style="width: 100%"
+            height="100%"
+          >
+            <el-table-column label="自定义名" prop="chineseName">
+              <template slot-scope="scope">
+                <el-input
+                  size="small"
+                  @change="cusNameCgFn(scope.row.$id)"
+                  v-model="itemCusDimNames[scope.row.$id]"
+                ></el-input>
+              </template>
+            </el-table-column>
+            <el-table-column label="原名称" prop="type">
+              <template slot-scope="scope">
+                <DimTypeTag
+                  :type="scope.row.type"
+                  :name="scope.row.chineseName || scope.row.key"
+                >
+                </DimTypeTag>
+              </template>
+            </el-table-column>
+            <el-table-column label="字段名" prop="key"></el-table-column>
+          </el-table>
+        </div>
+      </div>
     </div>
     <!-- ~~ 3 拖拽xy结果视图 -->
     <div class="visualArea">
@@ -337,22 +370,42 @@ export default {
       candyMaster: null,
       //# 3 选择类型
       hoverType: null,
-      selectType: null
+      selectType: null,
+
+      //# 4 自定义名加入，辅助v
+      itemCusDimNames: null //{}
     };
   },
   computed: {
     selectTypes() {
       return selectTypes;
     },
-    //【update】改变的？
-    dimAndIndex() {
+    trueDimensions() {
       let me = this,
         sumData = me.sumData,
-        Dims = [],
-        Indices = [];
+        cusNames = me._cusDimNames,
+        r = [];
+
       if (sumData && sumData.dimension) {
         sumData.dimension.forEach(_dim => {
           let dim = tool.apply({}, _dim);
+          //+ 6 自定义名
+          if (cusNames && cusNames[dim.$id]) {
+            dim.chineseName = cusNames[dim.$id];
+          }
+          r.push(dim);
+        });
+      }
+      return r;
+    },
+    //【update】改变的？
+    dimAndIndex() {
+      let me = this,
+        trueDims = me.trueDimensions,
+        Dims = [],
+        Indices = [];
+      if (trueDims.length) {
+        trueDims.forEach(dim => {
           if (dim.type === "number") {
             Indices.push(dim);
           } else if (["date", "string"].indexOf(dim.type) > -1) {
@@ -429,7 +482,7 @@ export default {
     },
     // 初始化用？
     getPropDim(d) {
-      let at = this.sumData.dimension.find(a => {
+      let at = this.trueDimensions.find(a => {
           return a.$id === d.$id;
         }),
         r = {};
@@ -496,15 +549,41 @@ export default {
         name: newVal
       });
       ins.save();
-    }
-  },
-  created() {
-    let me = this;
-    me.candyMaster = new CandyMasterCtor();
-    //# 1 只有可能是
-    me.candyMaster.$on("dropEnd", () => {
-      //save一次
-      console.log(["赋值保存一次", me.candyMaster]);
+    },
+    //++ 3 自定义名改变函数
+    cusNameCgFn(dimId) {
+      let me = this;
+      //=1= ins的 config_more中改变，然后导致输入d i改变
+      me.Instance.setData({
+        config_more: {
+          CusDimNames: {
+            [dimId]: me.itemCusDimNames[dimId]
+          }
+        }
+      });
+
+      me.$nextTick(() => {
+        //=2= 当前所选的看有没得，有则改变
+        me.candyMaster.coatings.forEach(ct => {
+          let cs = ct.candies.slice();
+          cs.forEach(c => {
+            if (c.$id == dimId) {
+              ct.candyLeave({ Dim: c });
+              let trueC = me.trueDimensions.find(dim => {
+                return dim.$id == dimId;
+              });
+              ct.candyAddSimple({ Dim: trueC });
+            }
+          });
+        });
+
+        //=3= 同步一下
+        console.log(["同步检查"]);
+        me.syncDimIndexFn();
+      });
+    },
+    syncDimIndexFn() {
+      let me = this;
       me.Instance.setData({
         config_more: {
           Dims: me.Dims.map(me.getPureDim),
@@ -513,6 +592,16 @@ export default {
       });
       me.Instance.save();
       me.$refs.chart.refreshSource();
+    }
+  },
+  created() {
+    let me = this;
+    me.candyMaster = new CandyMasterCtor();
+    //# 1 只有可能是
+    me.candyMaster.$on("dropEnd", () => {
+      //save一次
+      //console.log(["赋值保存一次", me.candyMaster]);
+      me.syncDimIndexFn();
     });
   },
   mounted() {
@@ -525,6 +614,15 @@ export default {
       if (newVal && !me.$initDims) {
         me.$initDims = true;
         me.initDims();
+
+        //+ 4 自定义名 初始
+        let cusDimNames = {},
+          _cusNames = me._cusDimNames;
+        newVal.forEach(dim => {
+          cusDimNames[dim.$id] =
+            (_cusNames && _cusNames[dim.$id]) || dim.chineseName || dim.key;
+        });
+        me.itemCusDimNames = cusDimNames;
       }
     },
     // "sumData.name": function(newVal) {

@@ -15,7 +15,9 @@ export default {
       nowFileRec: null,
       DetailDataAjax: null,
       DetailData: null,
-      DetailDataLoading: false
+      DetailDataLoading: false,
+
+      confirmLoading: false
     };
   },
   methods: {

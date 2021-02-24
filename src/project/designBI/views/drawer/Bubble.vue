@@ -84,6 +84,20 @@
           size="mini"
           @click="clearJoinLimits"
         ></el-button>
+        <el-popover v-if="parent" class="tool-morePop" placement="right-start">
+          <el-button
+            slot="reference"
+            type="success"
+            icon="el-icon-more"
+            size="mini"
+            title="更多"
+          ></el-button>
+          <div class="oneMore" @click="newCopyFn">
+            <i class="el-icon-document-copy"></i>
+            <span class="moreText">复制</span>
+          </div>
+          <span>选项2</span>
+        </el-popover>
         <el-button
           type="danger"
           title="删除该控件"
@@ -335,6 +349,32 @@ export default {
           me.$set(edit.selectMap, jt.dataId, null);
         }
       });
+    },
+
+    //+ 5 复制本Ins到父节点上
+    newCopyFn() {
+      let me = this,
+        pIns = me.parent;
+      if (pIns) {
+        me.$msgbox
+          .confirm("要复制本控件到父节点上吗？", "确认")
+          .then(() => {
+            let newIns = me.Instance.newCopy();
+            newIns.setData({
+              templateCode: me.Instance.templateCode
+            });
+            pIns
+              .add(newIns)
+              .then(() => {
+                me.$message.success("复制成功");
+                newIns.$bubble.mousedownFn();
+              })
+              .catch(() => {
+                me.$message.warning("复制失败");
+              });
+          })
+          .catch(() => {});
+      }
     }
   },
   watch: {
@@ -561,6 +601,10 @@ $blue: #35ace4;
           border-radius: 0;
           &:last-child {
             margin-bottom: 0;
+          }
+          &.el-popover__reference {
+            width: 25px;
+            margin-bottom: 1px;
           }
         }
       }

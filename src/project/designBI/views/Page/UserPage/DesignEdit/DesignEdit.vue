@@ -584,7 +584,7 @@ export default {
 
       return new Promise(res => {
         me.$msgbox({
-          title: "添加组件",
+          title: "添加BI组件--选择数据源",
           message: h(dataSelector, {
             key: tool.uniqueStr()
           }),
@@ -608,16 +608,23 @@ export default {
                 });
                 //# 3 add到主cell
                 newIns.$$newIns = true;
+                selector.confirmLoading = true;
                 me.nowBoardRoot
                   .add(newIns)
                   .then(r => {
                     me.$message.success("新增成功！");
                     done();
+
+                    newIns.$bubble.goEditPage();
+                    newIns.$bubble.mousedownFn();
                     res(newIns);
                   })
                   .catch(r => {
                     me.$message.error("添加失败！请检查服务器运行状态");
                     res(false);
+                  })
+                  .finally(() => {
+                    selector.confirmLoading = false;
                   });
               } else {
                 //# 2 提示未选中
@@ -843,18 +850,23 @@ export default {
                 res(false);
                 return;
               }
-
+              selector.confirmLoading = true;
               //# 3 进行保存
               me.nowBoardRoot
                 .add(readyIns)
                 .then(r => {
                   me.$message.success("新增成功！");
                   done();
+                  readyIns.$bubble.goEditPage();
+                  readyIns.$bubble.mousedownFn();
                   res(readyIns);
                 })
                 .catch(r => {
                   me.$message.error("添加失败！请检查服务器运行状态");
                   res(false);
+                })
+                .finally(() => {
+                  selector.confirmLoading = false;
                 });
             } else {
               done();

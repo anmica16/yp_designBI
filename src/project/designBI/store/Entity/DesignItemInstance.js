@@ -586,4 +586,18 @@ export default class DesignItemInstance extends DrawEntityBase {
       }
     }
   }
+  //+ 1 复制传入cfg或本Ins，加在哪先不管，返回后由调用方处理
+  newCopy(cfg) {
+    let me = this,
+      cfgData = cfg || tool.clone(me.recordData);
+    delete cfgData.id;
+    delete cfgData.templateCode;
+    delete cfgData.instanceCode;
+    cfgData.name = cfgData.name + "-复制";
+    //~~ 2 父子级忽视版
+    delete cfgData.parent;
+    delete cfgData.items;
+    let copyIns = new DesignItemInstance(cfgData);
+    return copyIns;
+  }
 }

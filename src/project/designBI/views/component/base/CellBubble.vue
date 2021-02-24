@@ -77,7 +77,7 @@ export default {
         layout = me.layout,
         style = {};
       if (layout) {
-        style.height = layout.cellsMap.length * layout.rowHeight + "px";
+        style.height = layout.cellsMap.length * layout.rowHeight + 105 + "px";
       }
       return style;
     }
@@ -235,8 +235,10 @@ export default {
       //console.log(["开始check！"]);
       me.checkResize();
       setTimeout(() => {
-        //console.log(["开始check！"]);
         me.checkResize();
+        setTimeout(() => {
+          me.checkResize();
+        }, 150);
       }, 150);
     }, 300);
   }

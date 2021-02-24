@@ -1,5 +1,5 @@
 <template>
-  <div class="dataSelector">
+  <div class="dataSelector" v-loading="confirmLoading">
     <div class="leftTree">
       <IndexTree
         ref="tree"

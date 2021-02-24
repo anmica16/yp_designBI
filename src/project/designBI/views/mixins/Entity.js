@@ -146,6 +146,10 @@ let Instance = tool.mergeClone({}, Base, {
     _joinTables() {
       return this.config_more ? this.config_more.JoinTables : null;
     },
+    //++ 6 自定义名
+    _cusDimNames() {
+      return this.config_more ? this.config_more.CusDimNames : null;
+    },
     //## 5 明细表 配置
     JoinTables() {
       let me = this,
@@ -185,6 +189,7 @@ let Instance = tool.mergeClone({}, Base, {
       });
       return isLimited;
     }
+
   },
   methods: {
     //++ 5 关联控件配置改变

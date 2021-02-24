@@ -934,10 +934,17 @@ tool.apply(tool, {
   fmtNumber(val, dotCount = 2) {
     let me = this,
       sVal = val + "";
-    if (!me.isNumber(val)) {
-      let msg = `请传入数字类型值${val}`;
-      console.error([msg]);
-      throw msg;
+    if (me.isBoolean(val)) {
+      sVal = val ? "1" : "0";
+    }
+    // else if (!me.isNumber(val)) {
+    //   let msg = `请传入数字类型值${val}`;
+    //   console.error([msg]);
+    //   throw msg;
+    // }
+    let reVal = parseFloat(sVal);
+    if (!me.isNumber(reVal)) {
+      return "";
     }
     let dotAt = sVal.indexOf("."),
       intPart = sVal,

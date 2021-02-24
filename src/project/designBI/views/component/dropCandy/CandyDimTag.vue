@@ -2,7 +2,7 @@
   <DimTypeTag
     :class="[{ dragging }, Dim.dimClass]"
     :type="Dim.type"
-    :name="Dim.key"
+    :name="Dim.chineseName || Dim.key"
     :preText="Dim.preText"
     :xtype="dimXtype"
     @mousedown.native.prevent="candyHandleDown"
