@@ -7,8 +7,10 @@ let Api_custom = {
     //~ public
     AddOrUpd: "AddOrUpdTable",
     Delete: "DeleteRecords",
+    AddNewTreeItem: "AddNewTreeItem",
     //~ 1 绘板
     BoardList: "GetBoardList",
+    BoardListFolder: "GetBoardListFolderMode",
     InstanceList: "GetInstanceList",
     DeleteBoard: "DeleteBoard",
     //~ 2 data

@@ -16,6 +16,9 @@ const BaseCfg = tool.apply(
       disabled: true,
       hidden: true
     },
+    index: "树节点值",
+    pIndex: "父级的树节点值",
+    isFolder: "是否为文件夹",
     templateCode: {
       name: "绘板CODE",
       desp: "绘板识别码ID",
@@ -85,44 +88,48 @@ export default class DrawingBoard extends DrawEntityBase {
   table = "board";
   constructor(record) {
     super(BaseCfg, record);
-    let me = this,
-      insKey = "rootInstance",
-      ins = me.getData(insKey);
-
+    let me = this;
     //~ 1 绑定this到record
     me.set({ $el: me });
 
-    //console.log(["加入的时候，子控件", me.recordData.templateCode]);
-    if (!ins.$context.instanceCode) {
-      //~ 2 会转化为 cfg后面的 值
-      me.setData({
-        [insKey]: {
-          //~ 2.2 根据以下参数在 store中寻找，如果没找到，那么根据以下可选参数进行新建一个实例
-          $context: {
-            type: "item",
-            useType: 2,
-            instanceCode: "root_" + tool.uniqueStr(),
-            templateCode: me.recordData.templateCode,
-            drag_resize_cfg: {
-              can_dragTo: false
-            },
-            style: {
-              width: 1080,
-              height: 720
+    if (!me.recordData.isFolder) {
+      let insKey = "rootInstance",
+        ins = me.getData(insKey);
+
+      //console.log(["加入的时候，子控件", me.recordData.templateCode]);
+      if (!ins.$context.instanceCode) {
+        //~ 2 会转化为 cfg后面的 值
+        me.setData({
+          [insKey]: {
+            //~ 2.2 根据以下参数在 store中寻找，如果没找到，那么根据以下可选参数进行新建一个实例
+            $context: {
+              type: "item",
+              useType: 2,
+              instanceCode: "root_" + tool.uniqueStr(),
+              templateCode: me.recordData.templateCode,
+              drag_resize_cfg: {
+                can_dragTo: false
+              },
+              style: {
+                width: 1080,
+                height: 720
+              }
             }
           }
-        }
-      });
+        });
+      }
     }
     //~ 3 传出值
     Vue.set(me, "templateCode", me.recordData.templateCode);
   }
 
-  // save(options) {
-  //   options = options || {};
-  //   //options.table = "board";
-  //   return super.save.call(this, options);
-  // }
+  save(options) {
+    options = options || {};
+    tool.apply(options, {
+      method: Vue.Api.designBI.AddNewTreeItem
+    });
+    return super.save.call(this, options);
+  }
 
   delete(options) {
     let me = this;

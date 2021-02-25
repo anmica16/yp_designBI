@@ -66,7 +66,9 @@ export default {
   },
   created() {
     let me = this;
-    me.$store.dispatch("getBoardsInDB");
+
+    //文件夹模式取消该store过程
+    //me.$store.dispatch("getBoardsInDB");
     console.log(["app对象", me, tool]);
     Vue.$root = me;
 

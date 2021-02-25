@@ -220,6 +220,7 @@ import "@designBI/assets/theme/edit.scss";
 
 import Vue from "vue";
 import DesignItemInstance from "@designBI/store/Entity/DesignItemInstance";
+import DrawingBoard from "@designBI/store/Entity/DrawingBoard";
 
 //@@ 1 多个新增器
 import dataSelector from "@designBI/views/component/dealBI/dataSelector.vue";
@@ -354,7 +355,7 @@ export default {
     return {
       queryFlag: "DesignEdit",
       loadRoot: false,
-      nowInstances: null,
+      nowInstances: [],
       //activeName: "",
       //drawingBoards: [],
       //在router进行切换的时候 切换
@@ -509,6 +510,11 @@ export default {
     }
   },
   methods: {
+    //+ 1 文件夹模式
+    getNowBoard() {
+      let me = this;
+      me.$store.dispatch("getNowBoard", me.nowTemplateCode);
+    },
     getNowInstances() {
       let me = this,
         templateCode = me.nowTemplateCode,
@@ -532,6 +538,31 @@ export default {
       }
 
       return items;
+    },
+
+    getNowInstances_v2(doLoop = false) {
+      let me = this,
+        templateCode = me.nowTemplateCode;
+      //# 1 第一次就新增一个
+      me.$store.dispatch("getInstancesFn", { templateCode }).then(theItems => {
+        console.log(["数据库获取一次！检查数量！", theItems]);
+        if (!theItems.length) {
+          let rootIns = new DesignItemInstance({
+            ...me.nowBoard.getData("rootInstance").$context,
+            xtype: "CellBubble"
+          });
+          //# 2 保存和添加到map，然后重新获取
+          rootIns.save();
+          //【update】
+          // .then(() => {
+          //   if (!doLoop) {
+          //     //# 3 重新获取一次
+          //     me.getNowInstances(true);
+          //   }
+          // });
+        }
+        me.nowInstances = theItems;
+      });
     },
     handleAddTip(oneItem) {
       let me = this;
@@ -888,12 +919,18 @@ export default {
       //# 4 标题名改变
       $("title").html(`绘板：${newBoard.recordData.name}`);
       if (newBoard && newBoard != oldBoard) {
-        me.nowInstances = me.getNowInstances();
+        me.getNowInstances();
       }
     },
     //@ 4 resize跟进
     itemEditPage() {
       $(window).trigger("resize");
+    },
+    nowTemplateCode(newVal) {
+      let me = this;
+      if (newVal) {
+        me.getNowBoard();
+      }
     }
   },
   created() {
@@ -907,10 +944,12 @@ export default {
       let at = me.addInstances.indexOf(ins);
       at > -1 && me.addInstances.splice(at, 1);
     });
-  },
-  mounted() {
-    let me = this;
-    me.nowInstances = me.getNowInstances();
+    //@ 2 文件夹模式
+    me.getNowBoard();
   }
+  // mounted() {
+  //   let me = this;
+  //   me.getNowInstances();
+  // }
 };
 </script>

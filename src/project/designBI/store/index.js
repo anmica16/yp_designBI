@@ -144,12 +144,15 @@ let theStore = new Vuex.Store({
   },
   actions: {
     //@1 进来第一个获取
-    getBoardsInDB({ state, commit }) {
+    getBoardsInDB({ state, commit }, nowPIndex) {
       return new Promise(res => {
         state.getBoardsInDBLoading = true;
         $.ajax({
           url: Vue.Api.designBI,
-          method: Vue.Api.designBI.BoardList
+          data: {
+            method: Vue.Api.designBI.BoardListFolder,
+            pIndex: nowPIndex
+          }
         })
           .then(result => {
             if (result.data && result.data.length) {
@@ -170,6 +173,65 @@ let theStore = new Vuex.Store({
           });
       });
     },
+    //@ 1-2 外部调用获取 boards
+    getBoardList({ state, getters }, nowPIndex) {
+      return new Promise((res, rej) => {
+        $.ajax({
+          url: Vue.Api.designBI,
+          data: {
+            method: Vue.Api.designBI.BoardListFolder,
+            pIndex: nowPIndex
+          }
+        })
+          .then(result => {
+            let boardDatas = [];
+            if (result.data && result.data.length) {
+              boardDatas = result.data.sort((a, b) => {
+                let d1 = tool.Date.toDateTime(a.editTime),
+                  d2 = tool.Date.toDateTime(b.editTime);
+                return d1 && d2 && d1 < d2;
+              });
+            }
+            res(boardDatas);
+          })
+          .catch(r => {
+            rej(r);
+          });
+      });
+    },
+
+    //@ 1-3 外部调用获取 单独board
+    getNowBoard({ state, getters, commit }, templateCode) {
+      let me = this;
+      return new Promise((res, rej) => {
+        let findBoard = getters.getBoard(templateCode);
+        if (findBoard) {
+          res(findBoard);
+          return;
+        }
+        $.ajax({
+          url: Vue.Api.designBI,
+          data: {
+            method: Vue.Api.designBI.BoardList,
+            templateCode
+          }
+        })
+          .then(result => {
+            let boardEntity = null;
+            if (result.data && result.data.length) {
+              boardEntity = new DrawingBoard(result.data[0]);
+              commit("AddOrUpdRecord", {
+                Entity: boardEntity
+              });
+            }
+            res(boardEntity);
+          })
+          .catch(r => {
+            rej(r);
+          });
+      });
+    },
+
     //@2 从数据库中获取一次 template的 items数据
     getInstancesInDB({ state, getters }, params) {
       let templateCode = tool.isString(params) ? params : params.templateCode;
@@ -182,6 +244,32 @@ let theStore = new Vuex.Store({
           }
         }).then(result => {
           let items = getters.getInstances(templateCode);
+          //console.log(["咋是2个？"]);
+          tool.each(result.data, item => {
+            try {
+              let itemEntity = new DesignItemInstance(item);
+              items.push(itemEntity);
+            } catch (e) {
+              console.error(["初始化-getInstances-new实例错误：", item]);
+            }
+          });
+          //Vue.set(state.templateMap[params.templateCode], "items", result.data);
+          res(items);
+        });
+      });
+    },
+    //@ 2-2 外部调用获取 items
+    getInstancesFn({ state, getters }, params) {
+      let templateCode = tool.isString(params) ? params : params.templateCode;
+      return new Promise(res => {
+        $.ajax({
+          url: Vue.Api.designBI,
+          method: Vue.Api.designBI.InstanceList,
+          data: {
+            templateCode: templateCode
+          }
+        }).then(result => {
+          let items = [];
           //console.log(["咋是2个？"]);
           tool.each(result.data, item => {
             try {

@@ -46,14 +46,24 @@
                 <el-link
                   :underline="false"
                   class="addTip"
-                  @click="dialogBoard = true"
+                  @click="(dialogBoard = true), (folderMode = false)"
                   ><i class="el-icon-brush"></i
                   ><span class="text">新增绘板</span>
                 </el-link>
+
+                <el-link
+                  :underline="false"
+                  class="addTip"
+                  @click="(dialogBoard = true), (folderMode = true)"
+                  ><i class="el-icon-s-cooperation"></i
+                  ><span class="text">新增文件夹</span>
+                </el-link>
+
                 <el-dialog
                   :append-to-body="true"
                   class="newBoardDialog"
-                  title="新增绘板"
+                  :title="`新增${folderMode ? '绘板文件夹' : '绘板'}`"
+                  :before-close="boardLogClear"
                   :visible.sync="dialogBoard"
                 >
                   <el-form
@@ -62,10 +72,15 @@
                     :rules="dialogBoardRules"
                     label-width="120px"
                   >
-                    <el-form-item label="绘板名" prop="name">
+                    <el-form-item
+                      :label="`绘板${folderMode ? '文件夹' : ''}名`"
+                      prop="name"
+                    >
                       <el-input
                         v-model="dialogBoardForm.name"
-                        placeholder="请输入绘板名称"
+                        :placeholder="
+                          `请输入绘板${folderMode ? '文件夹' : ''}名称`
+                        "
                         autocomplete="off"
                       ></el-input>
                     </el-form-item>
@@ -154,6 +169,8 @@
 import tool from "@/plugins/js/tool";
 import DrawingBoard from "@designBI/store/Entity/DrawingBoard";
 import $ from "jquery";
+import loader from "@/plugins/js/loader";
+import Vue from "vue";
 //import AttachBoard from "./AttachBoard";
 export default {
   name: "DesignCenter",
@@ -171,9 +188,12 @@ export default {
         name: "",
         desp: ""
       },
-      dialogBoardRules: {
-        name: [{ required: true, message: "请输入绘板名称", trigger: "blur" }]
-      }
+      //# 2 新绘板 文件夹模式
+      folderMode: false,
+      nowFolder: null
+      //# 3 文件夹模式 列表加载
+      // boardsLoading: false,
+      // boardDatas: []
     };
   },
   computed: {
@@ -186,7 +206,9 @@ export default {
         list = [],
         map = this.$store.state.templateMap;
       tool.each(map, (key, val) => {
-        list.push(val.board);
+        if (val.board && val.board.recordData.pIndex == me.nowPIndex) {
+          list.push(val.board);
+        }
       });
       list.sort((a, b) => {
         let d1 = tool.Date.toDateTime(a.getData("editTime")),
@@ -205,6 +227,10 @@ export default {
 
       return list;
     },
+    nowPIndex() {
+      let me = this;
+      return me.nowFolder ? me.nowFolder.pIndex : "";
+    },
     boardDatasPager() {
       let me = this,
         datas = me.boardDatas,
@@ -220,6 +246,19 @@ export default {
         loc = window.location,
         editLoc = loc.pathname + "#/user/" + me.$route.params.id + "/edit/";
       return editLoc;
+    },
+    //# 2 文件夹模式提示
+    dialogBoardRules() {
+      let me = this;
+      return {
+        name: [
+          {
+            required: true,
+            message: `请输入绘板${me.folderMode ? "文件夹" : ""}名称`,
+            trigger: "blur"
+          }
+        ]
+      };
     }
   },
   methods: {
@@ -260,23 +299,34 @@ export default {
         router.push({ name: toName });
       }
     },
+    //+ 2 文件夹式绘板模式
+    boardLogClear(done) {
+      let me = this;
+
+      tool.apply(me.dialogBoardForm, {
+        name: "",
+        desp: ""
+      });
+
+      done();
+    },
     createBoard() {
       let me = this,
         newBoardForm = me.$refs.newBoardForm;
       newBoardForm.validate(ifPass => {
         if (ifPass) {
           let formCfg = me.dialogBoardForm,
-            board = new DrawingBoard();
+            board = new DrawingBoard({
+              //=1= 文件夹模式所需
+              isFolder: me.folderMode,
+              pIndex: me.nowPIndex
+            });
           board.setData(formCfg);
           me.dialogBoardLoading = true;
           board
             .save()
             .then(function() {
               me.$message.success("成功新建绘板");
-              tool.apply(me.dialogBoardForm, {
-                name: "",
-                desp: ""
-              });
               me.dialogBoard = false;
               me.dialogBoardLoading = false;
             })
@@ -286,6 +336,19 @@ export default {
             });
         }
       });
+    },
+    //+ 3 文件夹模式的获取列表
+    getBoardList() {
+      let me = this;
+      me.$store.dispatch("getBoardsInDB", me.nowPIndex);
+    }
+  },
+  watch: {
+    nowPIndex(newVal, oldVal) {
+      let me = this;
+      if (newVal != oldVal) {
+        me.getBoardList();
+      }
     }
   },
   created() {
@@ -301,6 +364,9 @@ export default {
     //# 4 标题名改变
     let theTitle = me.$store.state.centerTitle;
     $("title").html(`${theTitle}`);
+
+    //# 5 启动时，获取一次列表
+    me.getBoardList();
   }
 };
 </script>
