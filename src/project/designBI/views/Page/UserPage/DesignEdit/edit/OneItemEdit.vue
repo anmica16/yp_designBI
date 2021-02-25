@@ -566,20 +566,23 @@ export default {
         //=2= 当前所选的看有没得，有则改变
         me.candyMaster.coatings.forEach(ct => {
           let cs = ct.candies.slice();
-          cs.forEach(c => {
+          cs.forEach((c, i) => {
             if (c.$id == dimId) {
               ct.candyLeave({ Dim: c });
               let trueC = me.trueDimensions.find(dim => {
                 return dim.$id == dimId;
               });
-              ct.candyAddSimple({ Dim: trueC });
+              ct.candyAddSimple({ Dim: trueC }, i);
             }
           });
         });
 
         //=3= 同步一下
-        console.log(["同步检查"]);
+        //console.log(["同步检查"]);
         me.syncDimIndexFn();
+        me.Instance.$bubble.host &&
+          me.Instance.$bubble.host.refreshSource &&
+          me.Instance.$bubble.host.refreshSource();
       });
     },
     syncDimIndexFn() {

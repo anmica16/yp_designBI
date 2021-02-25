@@ -48,7 +48,7 @@ export default {
         me.Indices.forEach((index, i) => {
           let key = index.realKey,
             s = {
-              name: key,
+              name: index.chineseName || key,
               label: {
                 show: true
               },
@@ -71,7 +71,7 @@ export default {
           //# 2 小组件
           legend: {
             data: me.Indices.map(index => {
-              return index.realKey;
+              return index.chineseName || index.realKey;
             })
           },
           tooltip: {},

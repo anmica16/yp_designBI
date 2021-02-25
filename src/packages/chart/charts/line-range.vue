@@ -33,7 +33,7 @@ export default {
           baseColor = me.themeColors[i % me.themeColors.length],
           s = {
             type: me.seriesType,
-            name: name,
+            name: index.chineseName || name,
             stack: "总量",
             label: {
               show: true

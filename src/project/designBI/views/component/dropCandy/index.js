@@ -238,12 +238,20 @@ let Coating = {
     }
   },
   methods: {
-    candyAddSimple(candy) {
+    candyAddSimple(candy, insertAt) {
       let me = this,
         cDim = candy.Dim;
       cDim.parentCoating = me;
 
-      me.candies.push(cDim);
+      if (tool.isNumber(insertAt)) {
+        let tempA = me.candies
+          .slice(0, insertAt)
+          .concat([cDim])
+          .concat(me.candies.slice(insertAt));
+        me.candies = tempA;
+      } else {
+        me.candies.push(cDim);
+      }
     },
     candyOver(pos, candy) {
       let me = this;

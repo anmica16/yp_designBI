@@ -62,7 +62,7 @@ export default {
         itemDims.forEach(d => {
           tool.each(me.dimension, id => {
             if (d.key === id.key) {
-              dims.push(id);
+              dims.push(d);
               return false;
             }
           });
@@ -79,7 +79,7 @@ export default {
         itemIdx.forEach(d => {
           tool.each(me.dimension, id => {
             if (d.key === id.key) {
-              dims.push(id);
+              dims.push(d);
               return false;
             }
           });

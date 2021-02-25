@@ -33,7 +33,7 @@ export default {
             me._joinTables && me._joinTables.length ? index.tName : index.key,
           s = {
             type: me.seriesType,
-            name: name,
+            name: index.chineseName || name,
             stack: "总量",
             label: {
               show: true
@@ -69,7 +69,9 @@ export default {
         option = {
           //# 2 小组件
           legend: {
-            data: me.aoaData[0]
+            data: me.series.map(index => {
+              return index.name;
+            })
           },
           tooltip: {
             trigger: "axis",

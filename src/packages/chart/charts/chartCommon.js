@@ -58,7 +58,7 @@ export default {
             me._joinTables && me._joinTables.length ? index.tName : index.key,
           s = {
             type: me.seriesType,
-            name: name,
+            name: index.chineseName || name,
             encode: {
               x: me.Dims.length ? me.Dims[0].realKey : 0,
               y: name
@@ -74,7 +74,13 @@ export default {
         option = {
           //# 2 小组件
           legend: {
-            data: me.aoaData[0]
+            data: me.Indices.map(index => {
+              let name =
+                me._joinTables && me._joinTables.length
+                  ? index.tName
+                  : index.key;
+              return index.chineseName || name;
+            })
           },
           tooltip: {},
 

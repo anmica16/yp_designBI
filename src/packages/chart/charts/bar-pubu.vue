@@ -74,7 +74,7 @@ export default {
             yAxisIndex: i
           },
           plusS = {
-            name: `${index.realKey}_增`,
+            name: `${index.chineseName || index.realKey}(增)`,
             type: me.seriesType,
             stack: totName,
             label: {
@@ -86,7 +86,7 @@ export default {
             yAxisIndex: i
           },
           minusS = {
-            name: `${index.realKey}_减`,
+            name: `${index.chineseName || index.realKey}(减)`,
             type: me.seriesType,
             stack: totName,
             label: {

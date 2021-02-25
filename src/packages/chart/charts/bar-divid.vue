@@ -90,7 +90,7 @@ export default {
             me._joinTables && me._joinTables.length ? index.tName : index.key,
           s = {
             type: me.seriesType,
-            name: name,
+            name: index.chineseName || name,
             label: {
               show: true,
               position: "top"
