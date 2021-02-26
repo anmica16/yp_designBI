@@ -47,7 +47,7 @@
                   :underline="false"
                   class="addTip"
                   @click="(dialogBoard = true), (folderMode = false)"
-                  ><i class="el-icon-brush"></i
+                  ><i class="icon el-icon-brush"></i
                   ><span class="text">新增绘板</span>
                 </el-link>
 
@@ -55,9 +55,29 @@
                   :underline="false"
                   class="addTip"
                   @click="(dialogBoard = true), (folderMode = true)"
-                  ><i class="el-icon-s-cooperation"></i
+                  ><i class="icon el-icon-s-cooperation"></i
                   ><span class="text">新增文件夹</span>
                 </el-link>
+
+                <span class="nowFolderTip">
+                  <span class="preT">当前文件夹：</span>
+                  <span class="tipT">{{
+                    (nowFolder && nowFolder.name) || "根目录"
+                  }}</span>
+                  <span v-if="nowFolder">
+                    <span class="preT preT2">树节点：</span>
+                    <span class="tipT">{{ nowFolder.index }}</span>
+                  </span>
+
+                  <el-button
+                    size="mini"
+                    :title="!nowFolder ? '已是根目录' : '返回上一级文件夹'"
+                    type="primary"
+                    icon="bi bi-undo"
+                    :disabled="!nowFolder"
+                    @click="backParentFolderFn"
+                  ></el-button>
+                </span>
 
                 <el-dialog
                   :append-to-body="true"
@@ -112,9 +132,21 @@
                 :data="boardDatasPager"
                 @row-click="rowClickFn"
               >
-                <el-table-column type="selection" width="50">
-                  <template #header>
-                    <div>全选</div>
+                <el-table-column width="36">
+                  <template slot="default" slot-scope="scope">
+                    <span
+                      class="iconWrap"
+                      :class="scope.row.isFolder ? 'folder' : 'board'"
+                    >
+                      <i
+                        class="icon"
+                        :class="
+                          scope.row.isFolder
+                            ? 'el-icon-folder'
+                            : 'el-icon-data-analysis'
+                        "
+                      ></i>
+                    </span>
                   </template>
                 </el-table-column>
                 <el-table-column prop="name" label="名称"></el-table-column>
@@ -229,7 +261,7 @@ export default {
     },
     nowPIndex() {
       let me = this;
-      return me.nowFolder ? me.nowFolder.pIndex : "";
+      return me.nowFolder ? me.nowFolder.index : "";
     },
     boardDatasPager() {
       let me = this,
@@ -266,13 +298,17 @@ export default {
       let me = this,
         map = me.windowMap,
         tempCode = row.templateCode;
-      //【update】以后注意 session
-      if (!map[tempCode] || !map[tempCode].window.location.pathname) {
-        let toLoc = me.editLocBase + tempCode,
-          newWin = window.open(toLoc);
-        map[tempCode] = newWin;
+      if (row.isFolder) {
+        me.nowFolder = row;
       } else {
-        map[tempCode].window.location.reload();
+        //【update】以后注意 session
+        if (!map[tempCode] || !map[tempCode].window.location.pathname) {
+          let toLoc = me.editLocBase + tempCode,
+            newWin = window.open(toLoc);
+          map[tempCode] = newWin;
+        } else {
+          map[tempCode].window.location.reload();
+        }
       }
     },
     deleteBoard(scope) {
@@ -341,6 +377,19 @@ export default {
     getBoardList() {
       let me = this;
       me.$store.dispatch("getBoardsInDB", me.nowPIndex);
+    },
+    backParentFolderFn() {
+      let me = this,
+        folderPIndex = me.nowFolder.pIndex;
+      if (!folderPIndex) {
+        me.nowFolder = null;
+        return;
+      }
+      me.$store.dispatch("getNowBoard", { index: folderPIndex }).then(board => {
+        if (board) {
+          me.nowFolder = board.recordData;
+        }
+      });
     }
   },
   watch: {

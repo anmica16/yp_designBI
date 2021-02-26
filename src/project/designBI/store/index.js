@@ -201,9 +201,15 @@ let theStore = new Vuex.Store({
     },
 
     //@ 1-3 外部调用获取 单独board
-    getNowBoard({ state, getters, commit }, templateCode) {
-      let me = this;
+    getNowBoard({ state, getters, commit }, params) {
+      let me = this,
+        templateCode = params,
+        index = null;
       return new Promise((res, rej) => {
+        if (tool.isObject(templateCode)) {
+          templateCode = params.templateCode;
+          index = params.index;
+        }
         let findBoard = getters.getBoard(templateCode);
         if (findBoard) {
           res(findBoard);
@@ -213,7 +219,8 @@ let theStore = new Vuex.Store({
           url: Vue.Api.designBI,
           data: {
             method: Vue.Api.designBI.BoardList,
-            templateCode
+            templateCode,
+            index
           }
         })
           .then(result => {

@@ -9,7 +9,7 @@ For example, to overwrite the theme color:
 $--font-path: "~element-ui/lib/theme-chalk/fonts";
 
 @import "~element-ui/packages/theme-chalk/src/index";
-
+@import url(./fonts/bi/iconfont.css);
 $font1: #2c3e50;
 $font2: #3d4d66;
 $font2_deep: #232e40;
@@ -507,13 +507,34 @@ $color5: #a83be7;
                   letter-spacing: 0.3px;
                 }
               }
-              .el-icon-brush {
-                color: rgb(117, 230, 25);
+              .icon {
                 margin-right: 2px;
                 font-size: 18px;
                 position: relative;
                 top: 2px;
                 margin-left: 8px;
+                &.el-icon-brush {
+                  color: rgb(117, 230, 25);
+                }
+                &.el-icon-s-cooperation {
+                  color: rgb(230, 165, 25);
+                }
+              }
+              .nowFolderTip {
+                margin-left: 25px;
+                font-size: 12px;
+                position: relative;
+                top: 2px;
+                display: inline-block;
+                height: 19px;
+                .el-button {
+                  padding: 1px;
+                  margin-left: 8px;
+                }
+                .preT {
+                  margin-left: 8px;
+                  color: $font2_light;
+                }
               }
             }
             .bodyArea {
@@ -538,6 +559,19 @@ $color5: #a83be7;
                 // .el-table__body-wrapper {
                 //   height: calc(100% - #{$h_head});
                 // }
+
+                //+ 1 文件夹是否的图表
+                .iconWrap {
+                  display: inline-block;
+                  padding: 2px 6px;
+                  background: $color;
+                  border-radius: 3px;
+                  color: white;
+                  &.board {
+                    background: $color1;
+                    border-radius: 50px;
+                  }
+                }
               } //table
               > .el-pagination {
                 margin-bottom: 3px;

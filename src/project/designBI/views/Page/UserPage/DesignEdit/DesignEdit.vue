@@ -516,8 +516,11 @@ export default {
       me.$store.dispatch("getNowBoard", me.nowTemplateCode);
     },
     getNowInstances() {
-      let me = this,
-        templateCode = me.nowTemplateCode,
+      let me = this;
+      if (me.nowBoard && me.nowBoard.recordData.isFolder) {
+        return;
+      }
+      let templateCode = me.nowTemplateCode,
         //不一定会反应过来
         items = me.$store.getters.getInstances(templateCode);
       //# 1 第一次就新增一个
