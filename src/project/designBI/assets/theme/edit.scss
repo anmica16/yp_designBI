@@ -508,6 +508,18 @@ $hover_deep: rgba(51, 135, 204, 0.05);
     font-size: 14px;
   }
 }
+.BoardInsPropSelector {
+  $h: 26px;
+  > .TipArea {
+    height: $h;
+  }
+  > .selectArea {
+    height: calc(100% - #{$h});
+    > * {
+      height: 100%;
+    }
+  }
+}
 // @@ 4-2 各子控件编辑全页 fix全局
 .ItemEdit {
   position: fixed;
