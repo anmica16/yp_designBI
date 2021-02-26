@@ -276,18 +276,7 @@ let theStore = new Vuex.Store({
             templateCode: templateCode
           }
         }).then(result => {
-          let items = [];
-          //console.log(["咋是2个？"]);
-          tool.each(result.data, item => {
-            try {
-              let itemEntity = new DesignItemInstance(item);
-              items.push(itemEntity);
-            } catch (e) {
-              console.error(["初始化-getInstances-new实例错误：", item]);
-            }
-          });
-          //Vue.set(state.templateMap[params.templateCode], "items", result.data);
-          res(items);
+          res(result.data);
         });
       });
     }
@@ -295,5 +284,126 @@ let theStore = new Vuex.Store({
 });
 
 export { theStore };
+
+const selectTypes = [
+  //~ 1 table表
+  {
+    type: "table-mingxi",
+    icon: "bi-table-mingxi",
+    name: "明细表",
+    desp: ""
+  },
+  {
+    type: "table",
+    icon: "bi-table",
+    name: "分组表",
+    desp: ""
+  },
+  // {
+  //   type: "table-cross",
+  //   icon: "bi-table-cross",
+  //   name: "交叉表",
+  //   desp: ""
+  // },
+  //~ 2 柱状图
+  {
+    type: "bar-divid",
+    icon: "bi-bar-divid",
+    name: "分区柱状图",
+    desp: "建议至少1个维度，至少1个指标"
+  },
+  {
+    type: "bar-stack",
+    icon: "bi-bar-stack",
+    name: "堆积柱形图",
+    desp: "建议至少1个维度，至少2个指标"
+  },
+  {
+    type: "bar",
+    icon: "bi-bar",
+    name: "多系列柱形图",
+    desp: "建议至少1个维度，至少2个指标"
+  },
+  {
+    type: "bar-contrast",
+    icon: "bi-bardiagram",
+    name: "对比柱状图",
+    desp: "建议1个维度，2个指标"
+  },
+  {
+    type: "bar-pubu",
+    icon: "bi-pubutu",
+    name: "瀑布图",
+    desp: "建议至少1个维度，2个指标"
+  },
+  //~ 3 折线图
+  {
+    type: "line-divid",
+    icon: "bi-line-divid",
+    name: "分区折线图",
+    desp: "建议至少1个维度，至少1个指标"
+  },
+  {
+    type: "line",
+    icon: "bi-zhexiantu",
+    name: "多系列折线图",
+    desp: "建议至少1个维度，至少2个指标"
+  },
+  {
+    type: "line-radio",
+    icon: "bi-leidatu",
+    name: "折线雷达图",
+    desp: "建议至少1个维度，至少1个指标"
+  },
+  {
+    type: "line-range",
+    icon: "bi-range",
+    name: "范围面积图",
+    desp: "建议至少1个维度，2个指标"
+  },
+  //~ 4 散点
+  {
+    type: "scatter",
+    icon: "bi-sandian",
+    name: "散点图",
+    desp: "建议至少1个维度，至少1个指标"
+  },
+  //~ 5 饼图
+  {
+    type: "pie",
+    icon: "bi-pie",
+    name: "饼图",
+    desp: "建议1个维度，1个指标"
+  },
+  {
+    type: "pie-meigui",
+    icon: "bi-meiguitu",
+    name: "玫瑰图",
+    desp: "建议1个维度，2个指标"
+  },
+  //~ 6 漏斗
+  {
+    type: "funnel",
+    icon: "bi-loudoutu",
+    name: "漏斗图",
+    desp: "建议1个维度，1个指标"
+  },
+  //~ 7 仪表盘
+  {
+    type: "dashboard",
+    icon: "bi-yibiaopan",
+    name: "仪表盘",
+    desp: "建议0个维度，1个指标"
+  }
+];
+let getSelectType = type => {
+  return (
+    selectTypes.find(a => {
+      return a.type === type;
+    }) || selectTypes[0]
+  );
+};
+
+export { selectTypes, getSelectType };
 
 import "./Factory";

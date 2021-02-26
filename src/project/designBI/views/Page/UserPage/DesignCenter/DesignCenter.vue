@@ -164,7 +164,7 @@
               <Pager
                 ref="pager"
                 :total="boardDatas.length"
-                :page-size="10"
+                :page-size="15"
               ></Pager>
             </div>
           </div>

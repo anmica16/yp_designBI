@@ -170,6 +170,14 @@
               </template>
             </div>
           </el-popover>
+
+          <!-- ~ 4 复用 -->
+          <div class="barItem" @click="selectCopyItemFn">
+            <dir class="icon">
+              <i class="el-icon-money"></i>
+            </dir>
+            <dir class="text">复用</dir>
+          </div>
         </div>
 
         <!-- 【1】中间部分 绘板 -->
@@ -226,6 +234,7 @@ import DrawingBoard from "@designBI/store/Entity/DrawingBoard";
 import dataSelector from "@designBI/views/component/dealBI/dataSelector.vue";
 import propertySelector from "@designBI/views/component/dealBI/propertySelector.vue";
 import detailSelector from "@designBI/views/component/dealBI/detailSelector.vue";
+import BoardInsPropSelector from "@designBI/views/component/dealBI/BoardInsPropSelector.vue";
 
 import tool from "@/plugins/js/tool";
 import $ from "jquery";
@@ -543,30 +552,6 @@ export default {
       return items;
     },
 
-    getNowInstances_v2(doLoop = false) {
-      let me = this,
-        templateCode = me.nowTemplateCode;
-      //# 1 第一次就新增一个
-      me.$store.dispatch("getInstancesFn", { templateCode }).then(theItems => {
-        console.log(["数据库获取一次！检查数量！", theItems]);
-        if (!theItems.length) {
-          let rootIns = new DesignItemInstance({
-            ...me.nowBoard.getData("rootInstance").$context,
-            xtype: "CellBubble"
-          });
-          //# 2 保存和添加到map，然后重新获取
-          rootIns.save();
-          //【update】
-          // .then(() => {
-          //   if (!doLoop) {
-          //     //# 3 重新获取一次
-          //     me.getNowInstances(true);
-          //   }
-          // });
-        }
-        me.nowInstances = theItems;
-      });
-    },
     handleAddTip(oneItem) {
       let me = this;
       me.$refs.popover.handleBlur();
@@ -913,6 +898,35 @@ export default {
     returnToCenter() {
       let me = this;
       me.$router.push({ name: "DesignCenter" });
+    },
+    //~ 6 新复用
+    selectCopyItemFn() {
+      let me = this,
+        h = me.$createElement;
+
+      return new Promise(res => {
+        me.$msgbox({
+          title: "通过复用添加控件",
+          message: h(BoardInsPropSelector, {
+            key: tool.uniqueStr(),
+            // props: {
+            //   prePIndex: readyIns
+            // }
+          }),
+          closeOnClickModal: false,
+          showCancelButton: true,
+          customClass: "newDetail newCopyItem",
+          beforeClose(action, ins, done) {
+            if (action === "confirm") {
+              done();
+              res(true);
+            } else {
+              done();
+              res(false);
+            }
+          }
+        });
+      });
     }
   },
   watch: {

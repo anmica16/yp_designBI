@@ -82,26 +82,6 @@ export default {
     height: $h_title;
     box-sizing: border-box;
     padding: 1px 8px;
-
-    $color: #3b94e7;
-    $color1: #fad075;
-
-    .chartType {
-      display: inline-block;
-      font-size: 12px;
-      padding: 2px 6px;
-      border-radius: 50px;
-      background: $color;
-      color: white;
-      &.join {
-        background: $color1;
-        color: #2c3e50;
-      }
-    }
-    .chartName {
-      margin-left: 4px;
-      font-size: 14px;
-    }
   }
   > .chartBody {
     height: calc(100% - #{$h_title});

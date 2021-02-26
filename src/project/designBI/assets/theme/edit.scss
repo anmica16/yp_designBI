@@ -467,6 +467,47 @@ $hover_deep: rgba(51, 135, 204, 0.05);
   }
 }
 
+.newDetail.newCopyItem {
+  width: 70%;
+  height: 70%;
+  .boardArea {
+    height: 100%;
+  }
+}
+.boardChoose {
+  .boardTip {
+    font-size: 12px;
+    .el-button {
+      padding: 1px;
+      margin-left: 8px;
+    }
+    .preT {
+      margin-left: 8px;
+      color: $font2_light;
+    }
+  }
+}
+.chartTitle {
+  $color: #3b94e7;
+  $color1: #fad075;
+
+  .chartType {
+    display: inline-block;
+    font-size: 12px;
+    padding: 2px 6px;
+    border-radius: 50px;
+    background: $color;
+    color: white;
+    &.join {
+      background: $color1;
+      color: #2c3e50;
+    }
+  }
+  .chartName {
+    margin-left: 4px;
+    font-size: 14px;
+  }
+}
 // @@ 4-2 各子控件编辑全页 fix全局
 .ItemEdit {
   position: fixed;
