@@ -27,7 +27,9 @@ let Api_custom = {
     GetLinkSourceDBList: "GetLinkSourceDBList",
     GetLinkSourceDBTableList: "GetLinkSourceDBTableList",
     GetLinkSourceDBTableDimList: "GetLinkSourceDBTableDimList",
-    GetLinkSourceDBTableData: "GetLinkSourceDBTableData"
+    GetLinkSourceDBTableData: "GetLinkSourceDBTableData",
+    //~ 4 登录页有关
+    Login: "Login"
   },
 
   Module: {

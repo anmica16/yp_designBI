@@ -14,11 +14,11 @@ import UserPage from "../views/Page/UserPage/UserPage.vue";
 //--------
 // 阿里云皮肤
 //--------
-import aliLogin from "../views/Page_ali/Login.vue";
-import aliMain from "../views/Page_ali/Main.vue";
-import aliMyPage from "../views/Page_ali/main/MyPage.vue";
-import aliWorkSpace from "../views/Page_ali/main/WorkSpace.vue";
-import aliCreatorArea from "../views/Page_ali/main/CreatorArea.vue";
+// import aliLogin from "../views/Page_ali/Login.vue";
+// import aliMain from "../views/Page_ali/Main.vue";
+// import aliMyPage from "../views/Page_ali/main/MyPage.vue";
+// import aliWorkSpace from "../views/Page_ali/main/WorkSpace.vue";
+// import aliCreatorArea from "../views/Page_ali/main/CreatorArea.vue";
 
 const routes = [
   {
@@ -78,33 +78,42 @@ const routes = [
           }
         ]
       },
+      //21 0301 团队设置页
       {
-        path: "ali/login",
-        name: "aliLogin",
-        component: aliLogin
-      },
-      {
-        path: "ali/main",
-        name: "aliMain",
-        component: aliMain,
-        children: [
-          {
-            path: "mypage",
-            name: "aliMyPage",
-            component: aliMyPage
-          },
-          {
-            path: "work",
-            name: "aliWorkSpace",
-            component: aliWorkSpace
-          },
-          {
-            path: "creator",
-            name: "aliCreatorArea",
-            component: aliCreatorArea
-          }
-        ]
+        path: "group",
+        name: "Group",
+        component: () =>
+          import(
+            /* webpackChunkName: "bi-group" */ "../views/Page/Group/Group.vue"
+          )
       }
+      // {
+      //   path: "ali/login",
+      //   name: "aliLogin",
+      //   component: aliLogin
+      // },
+      // {
+      //   path: "ali/main",
+      //   name: "aliMain",
+      //   component: aliMain,
+      //   children: [
+      //     {
+      //       path: "mypage",
+      //       name: "aliMyPage",
+      //       component: aliMyPage
+      //     },
+      //     {
+      //       path: "work",
+      //       name: "aliWorkSpace",
+      //       component: aliWorkSpace
+      //     },
+      //     {
+      //       path: "creator",
+      //       name: "aliCreatorArea",
+      //       component: aliCreatorArea
+      //     }
+      //   ]
+      // }
     ]
   }
   // {

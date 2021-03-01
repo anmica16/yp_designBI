@@ -1,73 +1,182 @@
 <template>
-  <div @keydown.enter="login">
-    <div>
-      <label for="name">用户名</label>
-      <el-input
-        type="text"
-        name="name"
-        placeholder="请输入用户名"
-        v-model="name"
-      />
+  <div class="LoginPage" @keydown.enter="enterFn">
+    <div class="topSpace"></div>
+    <div class="formSpace">
+      <transition>
+        <div class="loginWrap" v-if="!isRegister">
+          <div class="title">登录</div>
+          <el-form
+            ref="loginForm"
+            :model="loginInfo"
+            label-position="top"
+            v-loading="logining"
+          >
+            <el-form-item
+              label="用户名"
+              prop="userCode"
+              :rules="{
+                required: true,
+                message: '用户名不能为空',
+                trigger: 'blur'
+              }"
+            >
+              <el-input
+                v-model="loginInfo.userCode"
+                placeholder="请输入用户名"
+              ></el-input>
+            </el-form-item>
+
+            <el-form-item label="密码" prop="password">
+              <el-input
+                type="password"
+                v-model="loginInfo.password"
+                placeholder="请输入密码"
+              ></el-input>
+            </el-form-item>
+
+            <el-form-item>
+              <el-button type="primary" @click="login">登录</el-button>
+            </el-form-item>
+
+            <el-form-item class="loginTip">
+              <el-link
+                type="primary"
+                :underline="false"
+                @click="isRegister = true"
+                >免费注册👨‍🔧</el-link
+              >
+              <div class="fill"></div>
+              <el-link :underline="false">忘记密码？</el-link>
+            </el-form-item>
+          </el-form>
+        </div>
+      </transition>
+
+      <transition>
+        <div class="registerWrap" v-if="isRegister">
+          <div class="leftPart"></div>
+          <div class="rightPart">
+            <div class="title">免费注册</div>
+            <el-form
+              ref="registerForm"
+              :model="registerInfo"
+              label-position="top"
+              v-loading="registering"
+            >
+              <el-form-item
+                label="用户名"
+                prop="userCode"
+                :rules="{
+                  required: true,
+                  message: '用户名不能为空',
+                  trigger: 'blur'
+                }"
+              >
+                <el-input
+                  v-model="registerInfo.userCode"
+                  placeholder="请输入用户名"
+                ></el-input>
+              </el-form-item>
+
+              <el-form-item label="密码" prop="password">
+                <el-input
+                  v-model="registerInfo.password"
+                  type="password"
+                  placeholder="请输入密码"
+                ></el-input>
+              </el-form-item>
+
+              <el-form-item>
+                <el-button type="primary" @click="register">立即使用</el-button>
+              </el-form-item>
+
+              <el-form-item class="registerTip">
+                <span class="tipText"
+                  >已有账号
+                  <el-link
+                    type="primary"
+                    :underline="false"
+                    @click="isRegister = false"
+                    >去登录</el-link
+                  ></span
+                >
+              </el-form-item>
+            </el-form>
+          </div>
+        </div>
+      </transition>
     </div>
-    <div>
-      <label for="password">密码</label>
-      <el-input
-        type="password"
-        name="password"
-        placeholder="请输入密码"
-        v-model="password"
-      />
-    </div>
-    <el-button v-loading="onLogin" type="primary" plain @click="login"
-      >登录</el-button
-    >
+    <div class="bottomSpace"></div>
   </div>
 </template>
 
 <script>
-import tool from "@/plugins/js/tool";
-import $ from "@/plugins/js/loader";
+import Vue from "vue";
+import loader from "@/plugins/js/loader";
 export default {
   name: "Login",
-  data: () => {
+  data() {
     return {
-      name: "",
-      password: "",
-      onLogin: false,
-      onTest: false
+      loginInfo: {
+        userCode: "",
+        password: ""
+      },
+      logining: false,
+      //@ 2 注册页也在这里
+      isRegister: false,
+      registerInfo: {
+        userCode: "",
+        password: ""
+      },
+      registering: false
     };
   },
   methods: {
+    enterFn() {
+      let me = this;
+      me.isRegister ? me.register() : me.login();
+    },
     login() {
-      console.log(["查看本component", this]);
-      let me = this,
-        Yw = window.Yw;
-      me.onLogin = true;
-      $.ajax({
-        url: Yw.Api.user,
-        data: {
-          method: Yw.Api.user.login,
-          username: this.name,
-          password: this.password
+      let me = this;
+
+      me.$refs.loginForm.validate(ifPass => {
+        if (ifPass) {
+          me.logining = true;
+
+          loader
+            .ajax({
+              url: Vue.Api.designBI,
+              data: {
+                method: Vue.Api.designBI.Login,
+                ...me.loginInfo
+              }
+            })
+            .then(result => {
+              me.logining = false;
+              let user = result.data;
+              me.$store.dispatch("setLoginUser", user);
+              if (user.defaultGroup) {
+                me.$router.push({ name: "DesignCenter" });
+              } else {
+                me.$msgbox({
+                  type: "warning",
+                  message:
+                    "用户没有设置默认团队，将跳转至团队设置页，请于该页设置！"
+                }).finally(() => {
+                  me.$router.push({ name: "Group" });
+                });
+              }
+            })
+            .catch(r => {
+              me.logining = false;
+              me.$message.warning(r.msg);
+            });
         }
-      })
-        .then(data => {
-          if (data.success) {
-            let user = data.data;
-            this.$store.dispatch("setUser", user);
-            this.$router.push({ name: "Main" });
-          }
-        })
-        .finally(() => {
-          me.onLogin = false;
-        });
+      });
+    },
+    register() {
+      let me = this;
     }
   }
 };
 </script>
-
-<style scoped>
-div {
-  color: aqua;
-}
-</style>

@@ -20,7 +20,10 @@ let theStore = new Vuex.Store({
     progress: null,
     centerTitle: "朗速BI设计系统-主界面",
     loginTitle: "朗速BI设计系统-登录",
-    getBoardsInDBLoading: false
+    getBoardsInDBLoading: false,
+
+    //【3】登录有关
+    loginUser: null
   },
   getters: {
     getBoard: state => templateCode => {
@@ -279,6 +282,17 @@ let theStore = new Vuex.Store({
           res(result.data);
         });
       });
+    },
+
+    //@ 3-1 登录的设置登录用户
+    setLoginUser({ state }, user) {
+      state.loginUser = user;
+
+      if (user) {
+        sessionStorage.setItem("loginUser", user);
+      } else {
+        sessionStorage.removeItem("loginUser");
+      }
     }
   }
 });
