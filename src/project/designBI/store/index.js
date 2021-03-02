@@ -23,7 +23,8 @@ let theStore = new Vuex.Store({
     getBoardsInDBLoading: false,
 
     //【3】登录有关
-    loginUser: null
+    loginUser: null,
+    errorPageMsg: "服务器出现了一些错误……"
   },
   getters: {
     getBoard: state => templateCode => {
@@ -289,7 +290,7 @@ let theStore = new Vuex.Store({
       state.loginUser = user;
 
       if (user) {
-        sessionStorage.setItem("loginUser", user);
+        sessionStorage.setItem("loginUser", JSON.stringify(user));
       } else {
         sessionStorage.removeItem("loginUser");
       }

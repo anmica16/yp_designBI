@@ -29,7 +29,9 @@ let Api_custom = {
     GetLinkSourceDBTableDimList: "GetLinkSourceDBTableDimList",
     GetLinkSourceDBTableData: "GetLinkSourceDBTableData",
     //~ 4 登录页有关
-    Login: "Login"
+    Login: "Login",
+    Register: "Register",
+    CheckLogin: "CheckLogin"
   },
 
   Module: {

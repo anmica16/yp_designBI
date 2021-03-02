@@ -4,9 +4,12 @@ import VueRouter from "vue-router";
 Vue.use(VueRouter);
 
 import { theStore } from "../store";
+import loader from "@/plugins/js/loader";
+import tool from "@/plugins/js/tool";
 
 import App from "../views/App.vue";
 import Login from "../views/Page/Login/Login.vue";
+import Error from "../views/Page/Error/Error.vue";
 import UserPage from "../views/Page/UserPage/UserPage.vue";
 //import DesignCenter from "../views/Page/UserPage/DesignCenter/DesignCenter.vue";
 //import DesignEdit from "../views/Page/UserPage/DesignEdit/DesignEdit.vue";
@@ -31,9 +34,21 @@ const routes = [
         name: "Login",
         component: Login
       },
+      //21 0301 团队设置页
       {
-        path: "user/:id",
+        path: "group",
+        name: "Group",
+        component: () =>
+          import(
+            /* webpackChunkName: "bi-group" */ "../views/Page/Group/Group.vue"
+          )
+      },
+      {
+        path: "user",
         name: "UserPage",
+        meta: {
+          needDefaultGroup: true
+        },
         component: UserPage,
         children: [
           {
@@ -78,14 +93,10 @@ const routes = [
           }
         ]
       },
-      //21 0301 团队设置页
       {
-        path: "group",
-        name: "Group",
-        component: () =>
-          import(
-            /* webpackChunkName: "bi-group" */ "../views/Page/Group/Group.vue"
-          )
+        path: "error",
+        name: "Error",
+        component: Error
       }
       // {
       //   path: "ali/login",
@@ -116,15 +127,114 @@ const routes = [
       // }
     ]
   }
-  // {
-  //   path: "/error/:msg",
-  //   name: "Error",
-  //   component: () => import("../views/user/Error.vue")
-  // }
 ];
 
 const router = new VueRouter({
   routes
+});
+
+//检查是否登录
+router.beforeEach((to, from, next) => {
+  //${//to and from are Route Object,next() must be called to resolve the hook}
+  console.log(["to 和 from", to, from]);
+
+  //【=4=】不需要守卫的页面：
+  let purePages = ["Error"];
+  if (purePages.indexOf(to.name) > -1) {
+    next();
+    return;
+  }
+  //【=4-2=】直接说明了不需要检查登录的to页面
+  if (to.query.noCheck) {
+    next();
+    return;
+  }
+
+  let hasLoginFn = function(loginUser) {
+    //~~ 1 再次访问login无效，弹回选择绘板页
+    if (to.name === "Login" || to.name === "App") {
+      if (loginUser.defaultGroup) {
+        next({ name: "DesignCenter" });
+      } else {
+        next({ name: "Group" });
+      }
+    } else {
+      //~~ 2 如果访问user下的用户页，那么至少也要有一个group才行
+      let toGroup = false;
+      tool.each(to.matched, r => {
+        if (r.meta.needDefaultGroup) {
+          toGroup = true;
+          return false;
+        }
+      });
+      if (toGroup) {
+        next({ name: "Group" });
+      } else {
+        next();
+      }
+    }
+  };
+  let noLoginFn = function() {
+    //【=5.1=】已经在登录页
+    if (to.name === "Login") {
+      next();
+    } else {
+      //【=5.2=】跳转到登录页
+      next({
+        name: "Login",
+        query: {
+          noCheck: true
+        }
+      });
+    }
+  };
+
+  //【=1=】已经登录
+  let loginUserStr = sessionStorage.getItem("loginUser");
+  if (loginUserStr) {
+    let loginUser = JSON.parse(loginUserStr);
+    hasLoginFn(loginUser);
+    return;
+  }
+  //console.log(["router的 导航首位", store]);
+  //【=3=】session未有，检测服务端是否有登录信息
+  loader
+    .ajax({
+      url: Vue.Api.designBI,
+      data: {
+        method: Vue.Api.designBI.CheckLogin
+      }
+    })
+    .then(function(result) {
+      let user = result.data;
+      if (user) {
+        theStore.dispatch("setLoginUser", user);
+        hasLoginFn(user);
+      } else {
+        //【=5=】确定未登录
+        noLoginFn();
+      }
+    })
+    .catch(function(result) {
+      //console.error(["错误信息页", error, arguments]);
+      if (result.other) {
+        noLoginFn();
+      } else {
+        Vue.$msgbox({
+          type: "warning",
+          message:
+            "检测登录失败！" +
+            `${result.msg ? "错误信息如下：\n" + result.msg : ""}`
+        })
+          .catch(() => {})
+          .finally(() => {
+            if (result.msg) {
+              theStore.state.errorPageMsg = result.msg;
+            }
+            next({ name: "Error" });
+          });
+      }
+    });
 });
 
 export default router;

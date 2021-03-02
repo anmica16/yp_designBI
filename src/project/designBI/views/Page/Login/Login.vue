@@ -162,9 +162,9 @@ export default {
                   type: "warning",
                   message:
                     "用户没有设置默认团队，将跳转至团队设置页，请于该页设置！"
-                }).finally(() => {
-                  me.$router.push({ name: "Group" });
-                });
+                }).catch(() => {});
+
+                me.$router.push({ name: "Group" });
               }
             })
             .catch(r => {
@@ -176,6 +176,41 @@ export default {
     },
     register() {
       let me = this;
+
+      me.$refs.registerForm.validate(ifPass => {
+        if (ifPass) {
+          me.registering = true;
+
+          loader
+            .ajax({
+              url: Vue.Api.designBI,
+              data: {
+                method: Vue.Api.designBI.Register,
+                ...me.registerInfo
+              }
+            })
+            .then(result => {
+              me.registering = false;
+              let user = result.data;
+              me.$store.dispatch("setLoginUser", user);
+              if (user.defaultGroup) {
+                me.$router.push({ name: "DesignCenter" });
+              } else {
+                me.$msgbox({
+                  type: "info",
+                  message:
+                    "注册成功！新注册用户需要设置默认团队，将跳转至团队设置页，请于该页设置！"
+                }).catch(() => {});
+
+                me.$router.push({ name: "Group" });
+              }
+            })
+            .catch(r => {
+              me.registering = false;
+              me.$message.warning(r.msg);
+            });
+        }
+      });
     }
   }
 };
