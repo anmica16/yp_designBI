@@ -144,11 +144,12 @@ router.beforeEach((to, from, next) => {
     next();
     return;
   }
+  //再检查一次也无所谓
   //【=4-2=】直接说明了不需要检查登录的to页面
-  if (to.query.noCheck) {
-    next();
-    return;
-  }
+  // if (to.moreParams && to.moreParams.noCheck) {
+  //   next();
+  //   return;
+  // }
 
   let hasLoginFn = function(loginUser) {
     //~~ 1 再次访问login无效，弹回选择绘板页
@@ -181,10 +182,7 @@ router.beforeEach((to, from, next) => {
     } else {
       //【=5.2=】跳转到登录页
       next({
-        name: "Login",
-        query: {
-          noCheck: true
-        }
+        name: "Login"
       });
     }
   };

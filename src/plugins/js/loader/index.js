@@ -1,5 +1,6 @@
 import $ from "jquery";
 import tool from "../tool";
+import Vue from "vue";
 
 let pureLoader = {
   defaultCfg: {
@@ -34,7 +35,12 @@ let pureLoader = {
           if (suc) {
             res(result);
           } else {
-            rej(result);
+            //【=3=】特殊后台反应机制，在App里面集中建立Fn来对应，这里来激活
+            if (result.msg === "response_login") {
+              tool.isFunction(Vue.$goLogin) && Vue.$goLogin();
+            } else {
+              rej(result);
+            }
           }
         });
         //先fail 再 always

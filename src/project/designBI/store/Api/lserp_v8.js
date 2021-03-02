@@ -31,7 +31,9 @@ let Api_custom = {
     //~ 4 登录页有关
     Login: "Login",
     Register: "Register",
-    CheckLogin: "CheckLogin"
+    CheckLogin: "CheckLogin",
+    //~ 5 团队有关
+    CreateNewGroup: "CreateNewGroup"
   },
 
   Module: {
