@@ -29,24 +29,54 @@
           </div>
           <div class="bodyArea">
             <div class="formArea">
-              <el-input
-                v-model="newGroupName"
-                placeholder="团队名称"
-              ></el-input>
-              <el-button type="primary" @click="createNewGroupFn"
-                >创建</el-button
-              >
+              <el-form>
+                <el-form-item
+                  :rules="{
+                    required: true,
+                    message: '团队名称不能为空',
+                    trigger: 'blur'
+                  }"
+                >
+                  <el-input
+                    v-model="newGroupName"
+                    placeholder="团队名称"
+                  ></el-input>
+                </el-form-item>
+
+                <el-form-item>
+                  <el-button type="primary" @click="createNewGroupFn"
+                    >创建</el-button
+                  >
+                </el-form-item>
+              </el-form>
             </div>
           </div>
         </div>
       </transition>
     </div>
 
-    <div class="groupBody">
-      <div class="leftPart"></div>
+    <div class="groupBody" v-loading="userGroupsLoading">
+      <div class="leftPart">
+        <div class="defaultTab">
+          <div class="oneTab" @click="changeTab(defaultGroup)">
+            <span>默认团队：</span>
+            <span>{{ defaultGroup.name }}</span>
+          </div>
+        </div>
+        <div class="groupTab">
+          <template v-for="oneGroup in userGroups">
+            <div :key="oneGroup.id" class="oneTab" @click="changeTab(oneGroup)">
+              <span></span>
+              <span>{{ defaultGroup.name }}</span>
+            </div>
+          </template>
+        </div>
+      </div>
       <div class="rightPart">
-        <div class="defaultStage"></div>
-        <div class="groupStage"></div>
+        <OneGroup v-if="cNowGroup" :groupRec="cNowGroup"></OneGroup>
+        <div v-else>
+          请在左侧选择一个团队
+        </div>
       </div>
     </div>
   </div>
@@ -54,17 +84,26 @@
 
 <script>
 import "@designBI/assets/theme/group.scss";
+import OneGroup from "./OneGroup";
 import Vue from "vue";
 import loader from "@/plugins/js/loader";
 export default {
   name: "Group",
+  components: {
+    OneGroup
+  },
   data() {
     return {
-      userGroups: [],
       //~~ 1 团队新建跳转
       atNewGroupPage: false,
       newGroupName: "",
-      newGrouping: false
+      newGrouping: false,
+      //~~ 2 团队列表
+      userGroups: [],
+      userGroupsLoading: false,
+      //~~ 3 显示默认 ？
+      showDefault: true,
+      nowGroup: null
     };
   },
   computed: {
@@ -72,9 +111,24 @@ export default {
       let me = this;
       return me.$store.state.loginUser;
     },
-    cUserGroups() {
+    defaultGroupId() {
       let me = this;
-      return me.userGroups;
+      return me.loginUser ? me.loginUser.defaultGroup : "";
+    },
+    defaultGroup() {
+      let me = this,
+        id = me.defaultGroupId;
+      if (id) {
+        return me.userGroups.find(group => {
+          return group.id === id;
+        });
+      } else {
+        return null;
+      }
+    },
+    cNowGroup() {
+      let me = this;
+      return me.nowGroup || me.defaultGroup;
     }
   },
   methods: {
@@ -90,8 +144,7 @@ export default {
     },
     //@ 2 创建团队接口调用
     createNewGroupFn() {
-      let me = this,
-        user = me.loginUser;
+      let me = this;
       me.newGrouping = true;
       loader
         .ajax({
@@ -102,13 +155,50 @@ export default {
           }
         })
         .then(result => {
-          //=1= 返回 这个 group和 新的更新了group的user
+          //=1= 返回更新了group的user
           me.$message.success("创建新团队成功！");
+          me.$store.dispatch("setLoginUser", result.data);
+
+          //=2= 调用一次团队列表获取
+          me.getUserGroupFn();
+
+          me.newGrouping = false;
+          //=3= 返回界面
+          me.backGroupPageFn();
         })
         .catch(r => {
           me.$message.warning("创建团队时服务器出现了一些问题……");
+          me.newGrouping = false;
         });
+    },
+    //@ 3 获取团队列表
+    getUserGroupFn(groupId) {
+      let me = this;
+      me.userGroupsLoading = true;
+      loader
+        .ajax({
+          url: Vue.Api.designBI,
+          data: {
+            method: Vue.Api.designBI.GetUserGroup,
+            groupId: groupId
+          }
+        })
+        .then(result => {
+          me.userGroupsLoading = false;
+          me.userGroups = result.data;
+        })
+        .catch(r => {
+          me.$message.warning("获取团队列表时服务器出现了一些问题……");
+          me.userGroupsLoading = false;
+        });
+    },
+    changeTab(aGroup) {
+      let me = this;
     }
+  },
+  created() {
+    let me = this;
+    me.getUserGroupFn();
   }
 };
 </script>

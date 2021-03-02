@@ -73,16 +73,12 @@ import "./views/drawer";
 import "./views/component";
 
 //=========--------
-// Section 4 BI页面 在上述材料准备好之后再引入
-//=========--------
-//import App from "./views/Page/App.vue";
-
-//=========--------
 // Section 4-2 Ali式 BI界面
 //=========--------
-import "./assets/theme/view3.scss";
+//import "./assets/theme/view3.scss";
 
 new Vue({
+  name: "DesignBI",
   store: theStore,
   router: router,
   el: "#app"

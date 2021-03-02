@@ -33,7 +33,8 @@ let Api_custom = {
     Register: "Register",
     CheckLogin: "CheckLogin",
     //~ 5 团队有关
-    CreateNewGroup: "CreateNewGroup"
+    CreateNewGroup: "CreateNewGroup",
+    GetUserGroup: "GetUserGroup"
   },
 
   Module: {
