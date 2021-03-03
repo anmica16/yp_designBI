@@ -24,6 +24,8 @@ let theStore = new Vuex.Store({
 
     //【3】登录有关
     loginUser: null,
+    userDefaultGroup: null,
+
     errorPageMsg: "服务器出现了一些错误……"
   },
   getters: {
@@ -287,13 +289,67 @@ let theStore = new Vuex.Store({
 
     //@ 3-1 登录的设置登录用户
     setLoginUser({ state }, user) {
+      let me = this,
+        oldUser = state.loginUser;
       state.loginUser = user;
 
       if (user) {
         sessionStorage.setItem("loginUser", JSON.stringify(user));
+
+        //=2= 跟着也要更新userDefaultGroup
+        if ((oldUser && user.userCode !== oldUser.userCode) || !oldUser) {
+          if (user.defaultGroup) {
+            me.dispatch("pullUserGroup");
+          }
+        }
       } else {
         sessionStorage.removeItem("loginUser");
       }
+    },
+
+    //@ 3-2 获取
+    pullUserGroup({ state }, payload) {
+      let me = this,
+        groupId = payload && payload.groupId,
+        userCode = payload && payload.userCode,
+        globalUserGroup = false,
+        user = state.loginUser;
+      return new Promise((res, rej) => {
+        if (!groupId && !userCode) {
+          globalUserGroup = true;
+        }
+        if (!userCode || !groupId) {
+          if (!user) {
+            console.error(["还未登录！"]);
+            rej("未登录");
+            return;
+          }
+          userCode = userCode || user.userCode;
+          groupId = groupId || user.defaultGroup;
+        }
+        //console.log(["检测group获取,store"]);
+        $.ajax({
+          url: Vue.Api.designBI,
+          data: {
+            method: Vue.Api.designBI.GetUserGroup,
+            groupId: groupId,
+            userCode: userCode
+          }
+        })
+          .then(result => {
+            if (globalUserGroup) {
+              if (result.data.length) {
+                state.userDefaultGroup = result.data[0];
+              } else {
+                console.error(["未在数据库中找到userGroup！", result]);
+              }
+            }
+            res(result);
+          })
+          .catch(r => {
+            rej(r);
+          });
+      });
     }
   }
 });

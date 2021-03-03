@@ -152,6 +152,9 @@ router.beforeEach((to, from, next) => {
   // }
 
   let hasLoginFn = function(loginUser) {
+    //~~ 0 首先确定一下loginUser
+    theStore.dispatch("setLoginUser", loginUser);
+
     //~~ 1 再次访问login无效，弹回选择绘板页
     if (to.name === "Login" || to.name === "App") {
       if (loginUser.defaultGroup) {
@@ -163,7 +166,7 @@ router.beforeEach((to, from, next) => {
       //~~ 2 如果访问user下的用户页，那么至少也要有一个group才行
       let toGroup = false;
       tool.each(to.matched, r => {
-        if (r.meta.needDefaultGroup) {
+        if (r.meta.needDefaultGroup && !loginUser.defaultGroup) {
           toGroup = true;
           return false;
         }

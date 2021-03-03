@@ -58,22 +58,31 @@
     <div class="groupBody" v-loading="userGroupsLoading">
       <div class="leftPart">
         <div class="defaultTab">
-          <div class="oneTab" @click="changeTab(defaultGroup)">
+          <div
+            class="oneTab default"
+            :class="{ active: showDefault }"
+            @click="changeTab(userDefaultGroup, true)"
+          >
             <span>默认团队：</span>
-            <span>{{ defaultGroup.name }}</span>
+            <span>{{ userDefaultGroup ? userDefaultGroup.name : "尚无" }}</span>
           </div>
         </div>
         <div class="groupTab">
           <template v-for="oneGroup in userGroups">
-            <div :key="oneGroup.id" class="oneTab" @click="changeTab(oneGroup)">
+            <div
+              :key="oneGroup.id"
+              class="oneTab"
+              :class="{ active: !showDefault && nowGroup === oneGroup }"
+              @click="changeTab(oneGroup)"
+            >
               <span></span>
-              <span>{{ defaultGroup.name }}</span>
+              <span>{{ oneGroup.name }}</span>
             </div>
           </template>
         </div>
       </div>
       <div class="rightPart">
-        <OneGroup v-if="cNowGroup" :groupRec="cNowGroup"></OneGroup>
+        <OneGroup ref="oneGroup" v-if="cNowGroup" :Group="cNowGroup"></OneGroup>
         <div v-else>
           请在左侧选择一个团队
         </div>
@@ -87,8 +96,10 @@ import "@designBI/assets/theme/group.scss";
 import OneGroup from "./OneGroup";
 import Vue from "vue";
 import loader from "@/plugins/js/loader";
+import LoginUser from "@designBI/views/mixins/LoginUser";
 export default {
   name: "Group",
+  mixins: [LoginUser],
   components: {
     OneGroup
   },
@@ -107,28 +118,20 @@ export default {
     };
   },
   computed: {
-    loginUser() {
-      let me = this;
-      return me.$store.state.loginUser;
-    },
-    defaultGroupId() {
-      let me = this;
-      return me.loginUser ? me.loginUser.defaultGroup : "";
-    },
-    defaultGroup() {
-      let me = this,
-        id = me.defaultGroupId;
-      if (id) {
-        return me.userGroups.find(group => {
-          return group.id === id;
-        });
-      } else {
-        return null;
-      }
-    },
+    // defaultGroup() {
+    //   let me = this,
+    //     id = me.defaultGroupId;
+    //   if (id) {
+    //     return me.userGroups.find(group => {
+    //       return group.id === id;
+    //     });
+    //   } else {
+    //     return null;
+    //   }
+    // },
     cNowGroup() {
       let me = this;
-      return me.nowGroup || me.defaultGroup;
+      return me.nowGroup || me.userDefaultGroup;
     }
   },
   methods: {
@@ -192,8 +195,25 @@ export default {
           me.userGroupsLoading = false;
         });
     },
-    changeTab(aGroup) {
+    changeTab(aGroup, isDefault) {
       let me = this;
+      me.nowGroup = aGroup;
+      if (isDefault) {
+        me.showDefault = true;
+      } else {
+        me.showDefault = false;
+      }
+    }
+  },
+  watch: {
+    cNowGroup(newVal) {
+      let me = this;
+      if (newVal) {
+        me.$nextTick(() => {
+          //=2= 数据刷新
+          me.$refs.oneGroup.getGroupUserList();
+        });
+      }
     }
   },
   created() {
