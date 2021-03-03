@@ -10,9 +10,13 @@ let LoginUser = {
       let me = this;
       return me.loginUser ? me.loginUser.defaultGroup : "";
     },
-    userDefaultGroup() {
+    pageGroupId() {
       let me = this;
-      return me.$store.state.userDefaultGroup;
+      return me.$store.state.pageGroupId;
+    },
+    pageGroup() {
+      let me = this;
+      return me.$store.state.pageGroup;
     }
   }
 };

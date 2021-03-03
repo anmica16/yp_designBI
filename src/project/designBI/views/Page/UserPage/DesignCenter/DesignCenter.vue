@@ -203,12 +203,14 @@ import DrawingBoard from "@designBI/store/Entity/DrawingBoard";
 import $ from "jquery";
 import loader from "@/plugins/js/loader";
 import Vue from "vue";
+import LoginUser from "@designBI/views/mixins/LoginUser";
 //import AttachBoard from "./AttachBoard";
 export default {
   name: "DesignCenter",
   // components: {
   //   AttachBoard
   // },
+  mixins: [LoginUser],
   data() {
     return {
       windowMap: {},
@@ -355,7 +357,10 @@ export default {
             board = new DrawingBoard({
               //=1= 文件夹模式所需
               isFolder: me.folderMode,
-              pIndex: me.nowPIndex
+              pIndex: me.nowPIndex,
+              createTime: tool.now(),
+              createOperId: me.loginUser.userCode,
+              ownerGroup: me.pageGroupId
             });
           board.setData(formCfg);
           me.dialogBoardLoading = true;

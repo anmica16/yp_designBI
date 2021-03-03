@@ -72,7 +72,8 @@ const BaseCfg = tool.apply(
     desp: {
       name: "备注",
       desp: "该控件实例的详细描述"
-    }
+    },
+    ownerGroup: "所属团队ID"
   },
 
   //----------------------

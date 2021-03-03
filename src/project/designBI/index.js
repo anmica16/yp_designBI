@@ -77,6 +77,12 @@ import "./views/component";
 //=========--------
 //import "./assets/theme/view3.scss";
 
+//=========--------
+// Section 5 用户管理全局混入
+//=========--------
+// import LoginUser from "@designBI/views/mixins/LoginUser";
+// Vue.mixin(LoginUser);
+
 new Vue({
   name: "DesignBI",
   store: theStore,

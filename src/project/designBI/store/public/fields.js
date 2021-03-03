@@ -1,4 +1,5 @@
 import tool from "@/plugins/js/tool";
+import { theStore } from "../index";
 
 const createAndTime = {
   //----------------------
@@ -46,7 +47,11 @@ const createAndTime = {
     name: "修改者ID",
     desp: "修改者ID",
     hidden: true,
-    disabled: true
+    disabled: true,
+    default_save: function() {
+      let user = theStore.state.loginUser;
+      return user.userCode;
+    }
   }
 };
 

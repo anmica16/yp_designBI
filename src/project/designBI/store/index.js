@@ -24,7 +24,8 @@ let theStore = new Vuex.Store({
 
     //【3】登录有关
     loginUser: null,
-    userDefaultGroup: null,
+    pageGroupId: 0, //一定大于0
+    pageGroup: null,
 
     errorPageMsg: "服务器出现了一些错误……"
   },
@@ -297,11 +298,11 @@ let theStore = new Vuex.Store({
         sessionStorage.setItem("loginUser", JSON.stringify(user));
 
         //=2= 跟着也要更新userDefaultGroup
-        if ((oldUser && user.userCode !== oldUser.userCode) || !oldUser) {
-          if (user.defaultGroup) {
-            me.dispatch("pullUserGroup");
-          }
-        }
+        // if ((oldUser && user.userCode !== oldUser.userCode) || !oldUser) {
+        //   if (user.defaultGroup) {
+        //     me.dispatch("pullUserGroup");
+        //   }
+        // }
       } else {
         sessionStorage.removeItem("loginUser");
       }
@@ -312,12 +313,12 @@ let theStore = new Vuex.Store({
       let me = this,
         groupId = payload && payload.groupId,
         userCode = payload && payload.userCode,
-        globalUserGroup = false,
+        //globalUserGroup = false,
         user = state.loginUser;
       return new Promise((res, rej) => {
-        if (!groupId && !userCode) {
-          globalUserGroup = true;
-        }
+        // if (!groupId && !userCode) {
+        //   globalUserGroup = true;
+        // }
         if (!userCode || !groupId) {
           if (!user) {
             console.error(["还未登录！"]);
@@ -337,13 +338,13 @@ let theStore = new Vuex.Store({
           }
         })
           .then(result => {
-            if (globalUserGroup) {
-              if (result.data.length) {
-                state.userDefaultGroup = result.data[0];
-              } else {
-                console.error(["未在数据库中找到userGroup！", result]);
-              }
-            }
+            // if (globalUserGroup) {
+            //   if (result.data.length) {
+            //     state.userDefaultGroup = result.data[0];
+            //   } else {
+            //     console.error(["未在数据库中找到userGroup！", result]);
+            //   }
+            // }
             res(result);
           })
           .catch(r => {
@@ -353,6 +354,29 @@ let theStore = new Vuex.Store({
     }
   }
 });
+
+//---------
+//响应式监听部分
+// =1= pageGroupId以即时改变 pageGroup
+theStore.watch(
+  (state, getters) => {
+    return state.pageGroupId;
+  },
+  function(newVal, oldVal) {
+    if (newVal !== oldVal) {
+      //console.log(["2次？", newVal, oldVal]);
+      theStore
+        .dispatch("pullUserGroup", {
+          groupId: newVal
+        })
+        .then(result => {
+          if (result.data.length) {
+            theStore.state.pageGroup = result.data[0];
+          }
+        });
+    }
+  }
+);
 
 export { theStore };
 

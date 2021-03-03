@@ -243,6 +243,7 @@ import "@designBI/edit.js";
 //~ ++ 1 全页面fixed
 import ItemEdit from "./edit/ItemEdit";
 import { Xbase } from "@designBI/views/mixins/X";
+import LoginUser from "@designBI/views/mixins/LoginUser";
 
 //~ ++ 2 过滤组件
 const conditionCmps = [
@@ -356,7 +357,7 @@ const conditionCmps = [
 
 export default {
   name: "DesignEdit",
-  mixins: [Xbase],
+  mixins: [Xbase, LoginUser],
   components: {
     ItemEdit
   },
@@ -623,7 +624,10 @@ export default {
                   linkDataId: theRec.id,
                   useType: 10,
                   chartType: "table-mingxi",
-                  name: "未命名子控件" + (me.addInstances.length + 1)
+                  name: "未命名子控件" + (me.addInstances.length + 1),
+                  createTime: tool.now(),
+                  createOperId: me.loginUser.userCode,
+                  ownerGroup: me.pageGroupId
                 });
                 //# 3 add到主cell
                 newIns.$$newIns = true;
@@ -769,7 +773,10 @@ export default {
                       delete b.parentCoating;
                       return b;
                     })
-                  }
+                  },
+                  createTime: tool.now(),
+                  createOperId: me.loginUser.userCode,
+                  ownerGroup: me.pageGroupId
                 });
 
                 //# 3 add到主cell
@@ -809,7 +816,10 @@ export default {
         templateCode: me.nowTemplateCode,
         useType: 11, //30表示关联控件
         chartType: "table-mingxi",
-        name: "未命名关联控件" + (me.addInstances.length + 1)
+        name: "未命名关联控件" + (me.addInstances.length + 1),
+        createTime: tool.now(),
+        createOperId: me.loginUser.userCode,
+        ownerGroup: me.pageGroupId
       });
 
       return new Promise(res => {
@@ -908,7 +918,7 @@ export default {
         me.$msgbox({
           title: "通过复用添加控件",
           message: h(BoardInsPropSelector, {
-            key: tool.uniqueStr(),
+            key: tool.uniqueStr()
             // props: {
             //   prePIndex: readyIns
             // }

@@ -121,9 +121,10 @@ import NewDataPage from "./newData/NewDataPage";
 import NewSqlDataPage from "./newSqlData/NewSqlDataPage";
 import CheckDataStage from "./newData/CheckDataStage";
 import dataSelectorMixin from "@designBI/views/component/dealBI/dataSelectorMixin.js";
+import LoginUser from "@designBI/views/mixins/LoginUser";
 export default {
   name: "CenterData",
-  mixins: [dataSelectorMixin],
+  mixins: [dataSelectorMixin, LoginUser],
   components: {
     NewDataPage,
     CheckDataStage,
@@ -222,7 +223,9 @@ export default {
                       {
                         ...refForm.form,
                         createTime: now,
-                        editTime: now
+                        editTime: now,
+                        createOperId: me.loginUser.userCode,
+                        ownerGroup: me.pageGroupId
                       }
                     ])
                   }
@@ -276,7 +279,10 @@ export default {
                   editTime: now,
                   name: index,
                   //# 1 表示预备加入
-                  exist: false
+                  exist: false,
+
+                  createOperId: me.loginUser.userCode,
+                  ownerGroup: me.pageGroupId
                 }
               ])
             }

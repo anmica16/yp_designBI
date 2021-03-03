@@ -389,7 +389,9 @@ export default {
         url: Vue.Api.designBI,
         method: Vue.Api.designBI.AddSqlSource,
         data: {
-          ...formData
+          ...formData,
+          createOperId: me.loginUser.userCode,
+          ownerGroup: me.pageGroupId
         }
       })
         .then(result => {

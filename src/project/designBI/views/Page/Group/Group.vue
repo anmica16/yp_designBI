@@ -61,10 +61,10 @@
           <div
             class="oneTab default"
             :class="{ active: showDefault }"
-            @click="changeTab(userDefaultGroup, true)"
+            @click="changeTab(defaultGroup, true)"
           >
             <span>默认团队：</span>
-            <span>{{ userDefaultGroup ? userDefaultGroup.name : "尚无" }}</span>
+            <span>{{ defaultGroup ? defaultGroup.name : "尚无" }}</span>
           </div>
         </div>
         <div class="groupTab">
@@ -118,20 +118,20 @@ export default {
     };
   },
   computed: {
-    // defaultGroup() {
-    //   let me = this,
-    //     id = me.defaultGroupId;
-    //   if (id) {
-    //     return me.userGroups.find(group => {
-    //       return group.id === id;
-    //     });
-    //   } else {
-    //     return null;
-    //   }
-    // },
+    defaultGroup() {
+      let me = this,
+        id = me.defaultGroupId;
+      if (id) {
+        return me.userGroups.find(group => {
+          return group.id === id;
+        });
+      } else {
+        return null;
+      }
+    },
     cNowGroup() {
       let me = this;
-      return me.nowGroup || me.userDefaultGroup;
+      return me.nowGroup || me.defaultGroup;
     }
   },
   methods: {
