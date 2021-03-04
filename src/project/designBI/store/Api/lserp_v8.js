@@ -36,7 +36,8 @@ let Api_custom = {
     //~ 5 团队有关
     CreateNewGroup: "CreateNewGroup",
     GetUserGroup: "GetUserGroup",
-    GetGroupUserList: "GetGroupUserList"
+    GetGroupUserList: "GetGroupUserList",
+    GetInviteUserList: "GetInviteUserList"
   },
 
   Module: {

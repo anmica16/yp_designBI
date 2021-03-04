@@ -487,10 +487,7 @@ export default {
     },
     pageGroupId(newVal, oldVal) {
       let me = this;
-      if (newVal && !me.$$initGetList) {
-        me.$$initGetList = true;
-
-        //# 5 启动时，获取一次列表
+      if (newVal && newVal != oldVal) {
         me.getBoardList();
       }
     }
@@ -511,7 +508,6 @@ export default {
 
     //# 5 启动时，获取一次列表
     if (me.pageGroupId) {
-      me.$$initGetList = true;
       me.getBoardList();
     }
   }

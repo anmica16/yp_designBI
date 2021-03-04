@@ -45,7 +45,7 @@ let LoginUser = {
         map = {
           "1": "超级管理员",
           "10": "管理员",
-          "20": "普通成员",
+          "20": "编辑者",
           "30": "查看者"
         };
       return me.loginUserRank ? map[me.loginUserRank] : "";

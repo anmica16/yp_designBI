@@ -14,8 +14,70 @@
         <el-button
           class="inviteBtn"
           icon="el-icon-user-solid"
-          title="邀请新成员"
-        ></el-button>
+          title="邀请成员"
+          @click="showDialogFn"
+          >添加成员</el-button
+        >
+        <el-dialog
+          title="邀请成员"
+          :visible.sync="inviteDialog"
+          :append-to-body="true"
+          @closed="reInitInviteDialogFn"
+          :destroy-on-close="true"
+        >
+          <div class="rankSelect">
+            <div class="rankTitle">步骤一：选择权限类型</div>
+            <div class="rankeRadio">
+              <el-radio-group v-model="inviteRank">
+                <div class="oneRank">
+                  <el-radio label="10"
+                    >管理员<span class="rankDesp"
+                      >创建、删除绘板|编辑绘板|管理团队成员</span
+                    ></el-radio
+                  >
+                </div>
+                <div class="oneRank">
+                  <el-radio label="20"
+                    >编辑者<span class="rankDesp">编辑绘板</span></el-radio
+                  >
+                </div>
+                <div class="oneRank">
+                  <el-radio label="30"
+                    >查看者<span class="rankDesp">查看绘板</span></el-radio
+                  >
+                </div>
+              </el-radio-group>
+            </div>
+          </div>
+
+          <div class="userSelect">
+            <div class="userTitle">步骤二：选择邀请用户</div>
+            <div class="userFind">
+              <el-select
+                v-model="inviteUser"
+                multiple
+                placeholder="输入用户登录名以搜索"
+                filterable
+                remote
+                :remote-method="inviteUserFindFn"
+                :loading="inviteUserFinding"
+              >
+                <el-option
+                  v-for="oneUser in inviteUserFinds"
+                  :key="oneUser.userCode"
+                  :label="oneUser.nickName || `用户${oneUser.userCode}`"
+                  :value="oneUser.userCode"
+                ></el-option>
+              </el-select>
+            </div>
+          </div>
+
+          <div class="btnArea">
+            <el-button type="primary" @click="confirmInviteFn"
+              >确认邀请</el-button
+            >
+          </div>
+        </el-dialog>
       </div>
 
       <el-table :data="userList">
@@ -29,8 +91,10 @@
 import Vue from "vue";
 import loader from "@/plugins/js/loader";
 import tool from "@/plugins/js/tool";
+import LoginUser from "@designBI/views/mixins/LoginUser";
 export default {
   name: "OneGroup",
+  mixins: [LoginUser],
   props: {
     Group: {
       type: Object,
@@ -40,7 +104,15 @@ export default {
   data() {
     return {
       userList: [],
-      userListLoading: false
+      userListLoading: false,
+
+      //~ 2 邀请窗口
+      inviteDialog: false,
+      inviteRank: "20",
+      //inviteUserQuery: "",
+      inviteUserFinds: [],
+      inviteUser: [],
+      inviteUserFinding: false
     };
   },
   computed: {
@@ -80,6 +152,68 @@ export default {
           groupId: me.Group.id
         }
       });
+    },
+    showDialogFn() {
+      let me = this;
+      me.inviteDialog = true;
+    },
+    // 3 搜索方法
+    inviteUserFindFn(query) {
+      let me = this;
+      if (query) {
+        me.inviteUserFinding = true;
+        loader
+          .ajax({
+            url: Vue.Api.designBI,
+            data: {
+              method: Vue.Api.designBI.GetInviteUserList,
+              query: query
+            }
+          })
+          .then(result => {
+            let data = result.data;
+            me.inviteUserFinds = data
+              .filter(d => {
+                return d.userCode != me.loginUserCode;
+              })
+              .map(d => {
+                d.$name = d.nickName || `用户${d.userCode}`;
+                return d;
+              });
+            me.inviteUserFinding = false;
+          })
+          .catch(r => {
+            me.$message.warning("请求用户列表时服务器出现了一些错误……");
+            me.inviteUserFinding = false;
+          });
+      }
+    },
+    reInitInviteDialogFn() {
+      let me = this;
+      me.inviteRank = "20";
+      me.inviteUserFinds = [];
+      me.inviteUser = [];
+    },
+    // 4 确认邀请
+    confirmInviteFn() {
+      let me = this;
+      me.$msgbox({
+        type: "success",
+        title: "确认邀请",
+        showCancelButton: true,
+        message: [
+          "确认邀请",
+          me.inviteUser.join("、"),
+          "至【",
+          me.Group.name,
+          "】团队中吗？"
+        ].join("")
+      })
+        .then(() => {
+          //【=2=】这里就可以发“邀请”信息到所选择的用户中去了！
+          
+        })
+        .catch(() => {});
     }
   }
   // created() {

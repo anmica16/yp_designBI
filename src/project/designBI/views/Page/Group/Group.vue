@@ -211,7 +211,9 @@ export default {
   mounted() {
     let me = this;
     //=2= 数据刷新
-    me.$refs.oneGroup.getGroupUserList();
+    if (me.$refs.oneGroup) {
+      me.$refs.oneGroup.getGroupUserList();
+    }
   }
 };
 </script>
