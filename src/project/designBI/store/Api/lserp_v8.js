@@ -30,6 +30,7 @@ let Api_custom = {
     GetLinkSourceDBTableData: "GetLinkSourceDBTableData",
     //~ 4 登录页有关
     Login: "Login",
+    LoginOut: "LoginOut",
     Register: "Register",
     CheckLogin: "CheckLogin",
     //~ 5 团队有关

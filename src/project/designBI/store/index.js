@@ -7,6 +7,7 @@ import tool from "@/plugins/js/tool";
 import $ from "@/plugins/js/loader";
 import Api from "./Api/lserp_v8";
 Vue.Api = Api;
+import router from "../router";
 
 import DesignItemInstance from "./Entity/DesignItemInstance";
 import DrawingBoard from "./Entity/DrawingBoard";
@@ -158,7 +159,8 @@ let theStore = new Vuex.Store({
           url: Vue.Api.designBI,
           data: {
             method: Vue.Api.designBI.BoardListFolder,
-            pIndex: nowPIndex
+            pIndex: nowPIndex,
+            groupId: state.pageGroupId
           }
         })
           .then(result => {
@@ -308,7 +310,23 @@ let theStore = new Vuex.Store({
       }
     },
 
-    //@ 3-2 获取
+    //@ 3-2 登出
+    loginOut({ state }) {
+      let me = this;
+      $.ajax({
+        url: Vue.Api.designBI,
+        data: {
+          method: Vue.Api.designBI.LoginOut
+        }
+      }).then(() => {
+        state.loginUser = null;
+        sessionStorage.removeItem("loginUser");
+        Vue.$message.success("已登出，返回登录页面");
+        router.push({ name: "Login" });
+      });
+    },
+
+    //@ 3-3 获取
     pullUserGroup({ state }, payload) {
       let me = this,
         groupId = payload && payload.groupId,
@@ -502,3 +520,4 @@ let getSelectType = type => {
 export { selectTypes, getSelectType };
 
 import "./Factory";
+import loader from "sass-loader";

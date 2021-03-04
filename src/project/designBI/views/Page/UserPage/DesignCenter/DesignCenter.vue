@@ -9,15 +9,34 @@
           <h1 class="app-title-text">朗速BI商业设计</h1>
         </div>
         <dir class="rightItems">
-          <div class="oneItem star">
-            <i class="el-icon-star-off"></i>
+          <div class="oneItem group">
+            <el-popover trigger="hover">
+              <el-link slot="reference" :underline="false">
+                <i class="el-icon-connection"></i
+                ><span class="text">{{
+                  pageGroupName || "尚无"
+                }}</span></el-link
+              >
+              <el-button size="mini" type="success" @click="goGroupPageFn"
+                >团队设置</el-button
+              >
+            </el-popover>
           </div>
+          <!-- <div class="oneItem star">
+            <i class="el-icon-star-off"></i>
+          </div> -->
           <div class="oneItem user">
-            <el-link :underline="false"
-              ><i class="el-icon-user-solid"></i
-              ><span class="text">{{ $route.params.id || "用户" }}</span
-              ><i class="el-icon-arrow-down"></i
-            ></el-link>
+            <el-popover trigger="hover">
+              <el-link slot="reference" :underline="false"
+                ><i class="el-icon-user-solid"></i
+                ><span class="text">{{ loginUserName }}</span>
+                <span class="rankText">{{ `(${loginUserRankStr})` }}</span>
+                <i class="el-icon-arrow-down"></i
+              ></el-link>
+              <el-button size="mini" type="danger" @click="loginOutFn"
+                >登出</el-button
+              >
+            </el-popover>
           </div>
         </dir>
       </div>
@@ -240,7 +259,12 @@ export default {
         list = [],
         map = this.$store.state.templateMap;
       tool.each(map, (key, val) => {
-        if (val.board && val.board.recordData.pIndex == me.nowPIndex) {
+        if (
+          val.board &&
+          val.board.recordData.pIndex == me.nowPIndex &&
+          (val.board.recordData.ownerGroup == me.pageGroupId ||
+            val.board.recordData.ownerGroup == -1)
+        ) {
           list.push(val.board);
         }
       });
@@ -395,12 +419,40 @@ export default {
           me.nowFolder = board.recordData;
         }
       });
+    },
+    //+ 4 登出
+    loginOutFn() {
+      let me = this;
+      me.$msgbox({
+        type: "info",
+        title: "确认",
+        message: "确认登出吗？",
+        showCancelButton: true
+      })
+        .then(() => {
+          me.$store.dispatch("loginOut");
+        })
+        .catch(() => {});
+    },
+    //+ 5 前往团队页
+    goGroupPageFn() {
+      let me = this;
+      me.$router.push({ name: "Group" });
     }
   },
   watch: {
     nowPIndex(newVal, oldVal) {
       let me = this;
       if (newVal != oldVal) {
+        me.getBoardList();
+      }
+    },
+    pageGroupId(newVal, oldVal) {
+      let me = this;
+      if (newVal && !me.$$initGetList) {
+        me.$$initGetList = true;
+
+        //# 5 启动时，获取一次列表
         me.getBoardList();
       }
     }
@@ -420,7 +472,10 @@ export default {
     $("title").html(`${theTitle}`);
 
     //# 5 启动时，获取一次列表
-    me.getBoardList();
+    if (me.pageGroupId) {
+      me.$$initGetList = true;
+      me.getBoardList();
+    }
   }
 };
 </script>
