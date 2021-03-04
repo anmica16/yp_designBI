@@ -177,7 +177,7 @@ router.beforeEach((to, from, next) => {
 
   let hasLoginFn = function(loginUser) {
     //~~ 0 首先确定一下loginUser
-    theStore.dispatch("setLoginUser", loginUser);
+    theStore.dispatch("loginIn", loginUser);
 
     //~~ 1 再次访问login无效，弹回选择绘板页
     if (to.name === "Login" || to.name === "App") {
@@ -236,7 +236,6 @@ router.beforeEach((to, from, next) => {
     .then(function(result) {
       let user = result.data;
       if (user) {
-        theStore.dispatch("setLoginUser", user);
         hasLoginFn(user);
       } else {
         //【=5=】确定未登录

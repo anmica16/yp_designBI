@@ -112,7 +112,9 @@ export default {
       //inviteUserQuery: "",
       inviteUserFinds: [],
       inviteUser: [],
-      inviteUserFinding: false
+      inviteUserFinding: false,
+      //~ 2.2 消息
+      inviteMsgSending: false
     };
   },
   computed: {
@@ -197,6 +199,12 @@ export default {
     // 4 确认邀请
     confirmInviteFn() {
       let me = this;
+
+      if (!me.inviteUser.length) {
+        me.$message.warning("请添加至少一名邀请成员！");
+        return;
+      }
+
       me.$msgbox({
         type: "success",
         title: "确认邀请",
@@ -211,7 +219,32 @@ export default {
       })
         .then(() => {
           //【=2=】这里就可以发“邀请”信息到所选择的用户中去了！
-          
+          me.inviteMsgSending = true;
+          me.$store
+            .dispatch("sendMessage", {
+              type: Vue.Api.Message.inviteMember,
+              message: `${me.loginUserName}邀请你加入【${
+                me.Group.name
+              }】团队，加入后权限：${me.getLoginUserRankStr(me.inviteRank)}`,
+
+              targetUsers: me.inviteUser,
+
+              fromUser: me.loginUserCode,
+              fromGroup: me.Group.id,
+
+              needReply: true,
+              sendParams: {
+                userRank: me.inviteRank
+              }
+            })
+            .then(result => {
+              me.$message.success("发送邀请成功！");
+              me.inviteMsgSending = false;
+              me.inviteDialog = false;
+            })
+            .catch(r => {
+              me.inviteMsgSending = false;
+            });
         })
         .catch(() => {});
     }

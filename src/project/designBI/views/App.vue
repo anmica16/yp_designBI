@@ -78,7 +78,7 @@ export default {
         .catch(() => {})
         .finally(() => {
           //=1= 抹去session
-          me.$store.dispatch("setLoginUser", null);
+          me.$store.dispatch("loginOut");
 
           //=2= 跳转
           me.$router.push({

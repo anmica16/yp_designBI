@@ -154,7 +154,7 @@ export default {
             .then(result => {
               me.logining = false;
               let user = result.data;
-              me.$store.dispatch("setLoginUser", user);
+              me.$store.dispatch("loginIn", user);
               if (user.defaultGroup) {
                 me.$router.push({ name: "DesignCenter" });
               } else {
@@ -192,7 +192,7 @@ export default {
             .then(result => {
               me.registering = false;
               let user = result.data;
-              me.$store.dispatch("setLoginUser", user);
+              me.$store.dispatch("loginIn", user);
               if (user.defaultGroup) {
                 me.$router.push({ name: "DesignCenter" });
               } else {

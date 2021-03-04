@@ -41,14 +41,33 @@ let LoginUser = {
       return me.pageGroup ? me.pageGroup.userRank : "";
     },
     loginUserRankStr() {
-      let me = this,
-        map = {
-          "1": "超级管理员",
-          "10": "管理员",
-          "20": "编辑者",
-          "30": "查看者"
-        };
-      return me.loginUserRank ? map[me.loginUserRank] : "";
+      let me = this;
+      return me.getLoginUserRankStr(me.loginUserRank);
+    }
+  },
+  methods: {
+    //+ 4 登出
+    loginOutFn() {
+      let me = this;
+      me.$msgbox({
+        type: "info",
+        title: "确认",
+        message: "确认登出吗？",
+        showCancelButton: true
+      })
+        .then(() => {
+          me.$store.dispatch("loginOut");
+        })
+        .catch(() => {});
+    },
+    getLoginUserRankStr(userRank) {
+      let map = {
+        "1": "超级管理员",
+        "10": "管理员",
+        "20": "编辑者",
+        "30": "查看者"
+      };
+      return userRank ? map[userRank] : "";
     }
   }
 };

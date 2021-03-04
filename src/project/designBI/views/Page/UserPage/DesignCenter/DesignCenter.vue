@@ -446,20 +446,6 @@ export default {
         }
       });
     },
-    //+ 4 登出
-    loginOutFn() {
-      let me = this;
-      me.$msgbox({
-        type: "info",
-        title: "确认",
-        message: "确认登出吗？",
-        showCancelButton: true
-      })
-        .then(() => {
-          me.$store.dispatch("loginOut");
-        })
-        .catch(() => {});
-    },
     //+ 5 前往团队页
     goGroupPageFn() {
       let me = this;

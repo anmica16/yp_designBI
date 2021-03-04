@@ -12,6 +12,8 @@ import router from "../router";
 import DesignItemInstance from "./Entity/DesignItemInstance";
 import DrawingBoard from "./Entity/DrawingBoard";
 import DrawEntityBase from "./Entity/DrawEntityBase";
+import LoopGetMsg from "./Assist/LoopGetMsg.vue";
+const LoopGetMsgCtor = Vue.extend(LoopGetMsg);
 
 let theStore = new Vuex.Store({
   state: {
@@ -28,6 +30,9 @@ let theStore = new Vuex.Store({
     pageGroupId: 0, //一定大于0
     pageGroups: [],
     //pageGroup: null,
+
+    //【4】消息有关
+    loopGetMsgWorker: null,
 
     errorPageMsg: "服务器出现了一些错误……"
   },
@@ -306,23 +311,25 @@ let theStore = new Vuex.Store({
     },
 
     //@ 3-1 登录的设置登录用户
-    setLoginUser({ state }, user) {
-      let me = this,
-        oldUser = state.loginUser;
-      state.loginUser = user;
-
-      if (user) {
-        sessionStorage.setItem("loginUser", JSON.stringify(user));
-
-        //=2= 跟着也要更新userDefaultGroup
-        // if ((oldUser && user.userCode !== oldUser.userCode) || !oldUser) {
-        //   if (user.defaultGroup) {
-        //     me.dispatch("pullUserGroup");
-        //   }
-        // }
-      } else {
-        sessionStorage.removeItem("loginUser");
+    loginIn({ state }, user) {
+      let me = this;
+      if (!user) {
+        console.error(["没有给出user！登录失败！"]);
+        return;
       }
+
+      state.loginUser = user;
+      sessionStorage.setItem("loginUser", JSON.stringify(user));
+
+      //@@ 1 循环收集消息程序启动
+      if (!state.loopGetMsgWorker) {
+        state.loopGetMsgWorker = new LoopGetMsgCtor({
+          propsData: {
+            theStore: me
+          }
+        });
+      }
+      state.loopGetMsgWorker.start();
     },
 
     //@ 3-2 登出
@@ -333,12 +340,21 @@ let theStore = new Vuex.Store({
         data: {
           method: Vue.Api.designBI.LoginOut
         }
-      }).then(() => {
-        state.loginUser = null;
-        sessionStorage.removeItem("loginUser");
-        Vue.$message.success("已登出，返回登录页面");
-        router.push({ name: "Login" });
-      });
+      })
+        .then(() => {
+          Vue.$message.success("已登出，返回登录页面");
+        })
+        .catch(() => {
+          Vue.$message.error("登出时服务器出现了一些问题，将返回登录页面……");
+        })
+        .finally(() => {
+          //@@ 1 循环收集消息程序关闭
+          state.loopGetMsgWorker.stop();
+
+          state.loginUser = null;
+          sessionStorage.removeItem("loginUser");
+          router.push({ name: "Login" });
+        });
     },
 
     //@ 3-3 获取
@@ -402,7 +418,38 @@ let theStore = new Vuex.Store({
             rej(r);
           });
       });
+    },
+
+    //@ 4-1 消息传递--发送消息
+    sendMessage({ state }, options) {
+      let me = this;
+
+      return new Promise((res, rej) => {
+        //【=1=】json化
+        let jsonStrs = ["targetUsers", "targetGroups", "sendParams"];
+        jsonStrs.forEach(str => {
+          if (options[str]) {
+            options[str] = JSON.stringify(options[str]);
+          }
+        });
+
+        //【=2=】传递
+        $.ajax({
+          url: Vue.Api.designBI,
+          data: tool.apply(options, {
+            method: Vue.Api.designBI.SendMessage
+          })
+        })
+          .then(result => {
+            res(result);
+          })
+          .catch(r => {
+            Vue.$message.warning(r.msg);
+            rej(r);
+          });
+      });
     }
+    //@ 4-2 获取消息接口，由外部循环调用
   }
 });
 

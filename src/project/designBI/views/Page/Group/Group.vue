@@ -53,6 +53,19 @@
           </div>
         </div>
       </transition>
+
+      <div class="oneItem user">
+        <el-popover trigger="hover">
+          <el-link slot="reference" :underline="false"
+            ><i class="el-icon-user-solid"></i
+            ><span class="text">{{ loginUserName }}</span>
+            <i class="el-icon-arrow-down"></i
+          ></el-link>
+          <el-button size="mini" type="danger" @click="loginOutFn"
+            >登出</el-button
+          >
+        </el-popover>
+      </div>
     </div>
 
     <div class="groupBody" v-loading="userGroupsLoading">

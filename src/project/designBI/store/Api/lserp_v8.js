@@ -37,7 +37,14 @@ let Api_custom = {
     CreateNewGroup: "CreateNewGroup",
     GetUserGroup: "GetUserGroup",
     GetGroupUserList: "GetGroupUserList",
-    GetInviteUserList: "GetInviteUserList"
+    GetInviteUserList: "GetInviteUserList",
+    //~ 6 消息传递有关
+    SendMessage: "SendMessage",
+    GetMessages: "GetMessages"
+  },
+  //【21 3-4】请将下列消息列表和后端类【MessageMeta】同步更新
+  Message: {
+    inviteMember: "inviteMember"
   },
 
   Module: {
