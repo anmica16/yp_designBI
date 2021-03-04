@@ -68,7 +68,7 @@
           </div>
         </div>
         <div class="groupTab">
-          <template v-for="oneGroup in userGroups">
+          <template v-for="oneGroup in pageGroups">
             <div
               :key="oneGroup.id"
               class="oneTab"
@@ -110,7 +110,6 @@ export default {
       newGroupName: "",
       newGrouping: false,
       //~~ 2 团队列表
-      userGroups: [],
       userGroupsLoading: false,
       //~~ 3 显示默认 ？
       showDefault: true,
@@ -122,7 +121,7 @@ export default {
       let me = this,
         id = me.defaultGroupId;
       if (id) {
-        return me.userGroups.find(group => {
+        return me.pageGroups.find(group => {
           return group.id === id;
         });
       } else {
@@ -175,20 +174,13 @@ export default {
         });
     },
     //@ 3 获取团队列表
-    getUserGroupFn(groupId) {
+    getUserGroupFn() {
       let me = this;
       me.userGroupsLoading = true;
-      loader
-        .ajax({
-          url: Vue.Api.designBI,
-          data: {
-            method: Vue.Api.designBI.GetUserGroup,
-            groupId: groupId
-          }
-        })
-        .then(result => {
+      me.$store
+        .dispatch("getPageGroups", me.loginUserCode)
+        .then(() => {
           me.userGroupsLoading = false;
-          me.userGroups = result.data;
         })
         .catch(r => {
           me.$message.warning("获取团队列表时服务器出现了一些问题……");
@@ -206,7 +198,7 @@ export default {
     }
   },
   watch: {
-    cNowGroup(newVal) {
+    cNowGroup(newVal, oldVal) {
       let me = this;
       if (newVal) {
         me.$nextTick(() => {
@@ -216,9 +208,10 @@ export default {
       }
     }
   },
-  created() {
+  mounted() {
     let me = this;
-    me.getUserGroupFn();
+    //=2= 数据刷新
+    me.$refs.oneGroup.getGroupUserList();
   }
 };
 </script>

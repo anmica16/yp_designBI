@@ -24,9 +24,13 @@ let LoginUser = {
       let me = this;
       return me.$store.state.pageGroupId;
     },
+    pageGroups() {
+      let me = this;
+      return me.$store.state.pageGroups;
+    },
     pageGroup() {
       let me = this;
-      return me.$store.state.pageGroup;
+      return me.$store.getters.pageGroup;
     },
     pageGroupName() {
       let me = this;

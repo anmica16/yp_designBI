@@ -10,17 +10,33 @@
         </div>
         <dir class="rightItems">
           <div class="oneItem group">
-            <el-popover trigger="hover">
-              <el-link slot="reference" :underline="false">
-                <i class="el-icon-connection"></i
-                ><span class="text">{{
-                  pageGroupName || "尚无"
-                }}</span></el-link
-              >
-              <el-button size="mini" type="success" @click="goGroupPageFn"
-                >团队设置</el-button
-              >
-            </el-popover>
+            <el-link
+              title="前往团队设置页"
+              @click="goGroupPageFn"
+              :underline="false"
+            >
+              <i class="el-icon-connection"></i
+              ><span class="text">{{ pageGroupName || "尚无" }}</span></el-link
+            >
+            <el-dropdown
+              v-show="dropDownGroups.length"
+              @menu-item-click="changeGroupFn"
+              trigger="click"
+            >
+              <el-button
+                size="mini"
+                type="primary"
+                title="切换团队"
+                icon="el-icon-caret-bottom"
+              ></el-button>
+              <el-dropdown-menu class="groupMenu" slot="dropdown">
+                <template v-for="oneGroup in dropDownGroups">
+                  <el-dropdown-item :command="oneGroup" :key="oneGroup.id">{{
+                    oneGroup.name
+                  }}</el-dropdown-item>
+                </template>
+              </el-dropdown-menu>
+            </el-dropdown>
           </div>
           <!-- <div class="oneItem star">
             <i class="el-icon-star-off"></i>
@@ -317,6 +333,16 @@ export default {
           }
         ]
       };
+    },
+    //# 3 group下拉列表剔除当前的。
+    dropDownGroups() {
+      let me = this,
+        nowGroup = me.pageGroup;
+      return nowGroup
+        ? me.pageGroups.filter(g => {
+            return g.id != nowGroup.id;
+          })
+        : me.pageGroups;
     }
   },
   methods: {
@@ -438,6 +464,18 @@ export default {
     goGroupPageFn() {
       let me = this;
       me.$router.push({ name: "Group" });
+    },
+    //+ 6 切换团队
+    changeGroupFn(group) {
+      let me = this;
+      if (group.id) {
+        me.$router.push({
+          name: "DesignCenter",
+          params: {
+            groupId: group.id
+          }
+        });
+      }
     }
   },
   watch: {

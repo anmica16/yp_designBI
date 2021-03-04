@@ -50,28 +50,29 @@ const routes = [
         meta: {
           needDefaultGroup: true
         },
-        beforeEnter: (to, from, next) => {
-          let go = tool.clone(to);
-          if (!go.params.groupId) {
-            go.params.groupId = theStore.state.loginUser.defaultGroup;
-            //还是没有groupId，那么就应该跳转到group进行选择
-            if (!go.params.groupId) {
-              Vue.$msgbox({
-                type: "warning",
-                message:
-                  "用户没有设置默认团队，将跳转至团队设置页，请于该页设置！"
-              }).catch(() => {});
-              go = { name: "Group" };
-            }
-            next(go);
-          } else {
-            next();
-          }
-          //=2= 如果最后有groupId，那么就set一下store的值
-          if (go.params.groupId) {
-            theStore.state.pageGroupId = go.params.groupId;
-          }
-        },
+        // beforeEnter: (to, from, next) => {
+        //   let go = tool.clone(to);
+        //   console.log(["user的 守卫正在发挥作用"]);
+        //   if (!go.params.groupId) {
+        //     go.params.groupId = theStore.state.loginUser.defaultGroup;
+        //     //还是没有groupId，那么就应该跳转到group进行选择
+        //     if (!go.params.groupId) {
+        //       Vue.$msgbox({
+        //         type: "warning",
+        //         message:
+        //           "用户没有设置默认团队，将跳转至团队设置页，请于该页设置！"
+        //       }).catch(() => {});
+        //       go = { name: "Group" };
+        //     }
+        //     next(go);
+        //   } else {
+        //     next();
+        //   }
+        //   //=2= 如果最后有groupId，那么就set一下store的值
+        //   if (go.params.groupId) {
+        //     theStore.state.pageGroupId = go.params.groupId;
+        //   }
+        // },
         component: UserPage,
         children: [
           {
@@ -156,7 +157,7 @@ const router = new VueRouter({
   routes
 });
 
-//检查是否登录
+//【=1=】检查是否登录
 router.beforeEach((to, from, next) => {
   //${//to and from are Route Object,next() must be called to resolve the hook}
   console.log(["to 和 from", to, from]);
@@ -262,6 +263,43 @@ router.beforeEach((to, from, next) => {
           });
       }
     });
+});
+
+//【=2=】全局守卫2，专门用于特殊路径处理
+router.beforeEach((to, from, next) => {
+  //# 1 UserPage 下需要确定groupId参数，然后赋值给 store，这样简便、统一
+
+  // ~~ (1)切换前置
+  let findUserPage = to.matched.find(m => {
+    return m.name === "UserPage";
+  });
+  //~~ (2)切换后置
+  if (findUserPage) {
+    let go = tool.clone(to);
+    //console.log(["user的 守卫正在发挥作用"]);
+    if (!go.params.groupId) {
+      go.params.groupId = theStore.state.loginUser.defaultGroup;
+      //还是没有groupId，那么就应该跳转到group进行选择
+      if (!go.params.groupId) {
+        Vue.$msgbox({
+          type: "warning",
+          message: "用户没有设置默认团队，将跳转至团队设置页，请于该页设置！"
+        }).catch(() => {});
+        go = { name: "Group" };
+      }
+      next(go);
+    } else {
+      next();
+    }
+
+    //=2= 如果最后有groupId，那么就set一下store的值
+    if (go.params.groupId) {
+      theStore.state.pageGroupId = go.params.groupId;
+    }
+  } else {
+    //~~ (3)切换最末跳转调用
+    next();
+  }
 });
 
 export default router;

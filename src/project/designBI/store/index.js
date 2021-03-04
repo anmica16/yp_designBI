@@ -26,7 +26,8 @@ let theStore = new Vuex.Store({
     //【3】登录有关
     loginUser: null,
     pageGroupId: 0, //一定大于0
-    pageGroup: null,
+    pageGroups: [],
+    //pageGroup: null,
 
     errorPageMsg: "服务器出现了一些错误……"
   },
@@ -80,6 +81,20 @@ let theStore = new Vuex.Store({
     // 二、computed变量
     loading(state) {
       return state.progress === null ? false : true;
+    },
+    loginUserCode(state) {
+      return state.loginUser ? state.loginUser.userCode : "";
+    },
+    pageGroup(state) {
+      let id =
+        state.pageGroupId || (state.loginUser && state.loginUser.defaultGroup);
+      if (id) {
+        return state.pageGroups.find(group => {
+          return group.id == id;
+        });
+      } else {
+        return null;
+      }
     }
   },
   mutations: {
@@ -330,22 +345,22 @@ let theStore = new Vuex.Store({
     pullUserGroup({ state }, payload) {
       let me = this,
         groupId = payload && payload.groupId,
-        userCode = payload && payload.userCode,
-        //globalUserGroup = false,
-        user = state.loginUser;
+        userCode = payload && payload.userCode;
+      //globalUserGroup = false,
+      //user = state.loginUser;
       return new Promise((res, rej) => {
         // if (!groupId && !userCode) {
         //   globalUserGroup = true;
         // }
-        if (!userCode || !groupId) {
-          if (!user) {
-            console.error(["还未登录！"]);
-            rej("未登录");
-            return;
-          }
-          userCode = userCode || user.userCode;
-          groupId = groupId || user.defaultGroup;
-        }
+        // if (!userCode || !groupId) {
+        //   if (!user) {
+        //     console.error(["还未登录！"]);
+        //     rej("未登录");
+        //     return;
+        //   }
+        //   userCode = userCode || user.userCode;
+        //   groupId = groupId || user.defaultGroup;
+        // }
         //console.log(["检测group获取,store"]);
         $.ajax({
           url: Vue.Api.designBI,
@@ -369,32 +384,62 @@ let theStore = new Vuex.Store({
             rej(r);
           });
       });
+    },
+    //@ 3-3-2 获取 页面用户groups
+    getPageGroups({ state }, userCode) {
+      let me = this;
+      return new Promise((res, rej) => {
+        me.dispatch("pullUserGroup", {
+          userCode: userCode
+        })
+          .then(result => {
+            if (result.data.length) {
+              me.state.pageGroups = result.data;
+            }
+            res(result);
+          })
+          .catch(r => {
+            rej(r);
+          });
+      });
     }
   }
 });
 
 //---------
 //响应式监听部分
-// =1= pageGroupId以即时改变 pageGroup
+// =1-1= 根据登录用户userCode来获取 团队列表
 theStore.watch(
   (state, getters) => {
-    return state.pageGroupId;
+    return getters.loginUserCode;
   },
   function(newVal, oldVal) {
-    if (newVal !== oldVal) {
+    if (newVal && newVal !== oldVal) {
       //console.log(["2次？", newVal, oldVal]);
-      theStore
-        .dispatch("pullUserGroup", {
-          groupId: newVal
-        })
-        .then(result => {
-          if (result.data.length) {
-            theStore.state.pageGroup = result.data[0];
-          }
-        });
+      theStore.dispatch("getPageGroups", newVal);
     }
   }
 );
+// =1-2= pageGroupId以即时改变 pageGroup
+// theStore.watch(
+//   (state, getters) => {
+//     return state.pageGroupId;
+//   },
+//   function(newVal, oldVal) {
+//     if (newVal !== oldVal) {
+//       //console.log(["2次？", newVal, oldVal]);
+//       theStore
+//         .dispatch("pullUserGroup", {
+//           groupId: newVal
+//         })
+//         .then(result => {
+//           if (result.data.length) {
+//             theStore.state.pageGroup = result.data[0];
+//           }
+//         });
+//     }
+//   }
+// );
 
 export { theStore };
 

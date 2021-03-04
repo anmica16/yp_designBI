@@ -1,6 +1,14 @@
 <template>
   <div class="OneGroup">
-    <div class="groupInfoArea"></div>
+    <div class="groupInfoArea">
+      <div class="leftArea">一些信息</div>
+      <div class="rightArea">
+        <el-button type="success" @click="goCenterPageFn"
+          >进入<span class="groupName">{{ Group.name }}</span
+          >的团队中心</el-button
+        >
+      </div>
+    </div>
     <div class="memberArea" v-loading="userListLoading">
       <div class="inviteUserArea">
         <el-button
@@ -41,6 +49,7 @@ export default {
     }
   },
   methods: {
+    // 1 获取用户列表
     getGroupUserList() {
       let me = this;
       me.userListLoading = true;
@@ -61,6 +70,16 @@ export default {
         .catch(r => {
           me.userListLoading = false;
         });
+    },
+    // 2 进入设计中心
+    goCenterPageFn() {
+      let me = this;
+      me.$router.push({
+        name: "DesignCenter",
+        params: {
+          groupId: me.Group.id
+        }
+      });
     }
   }
   // created() {
