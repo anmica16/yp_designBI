@@ -234,7 +234,9 @@ export default {
 
               needReply: true,
               sendParams: {
-                userRank: me.inviteRank
+                userRank: me.inviteRank,
+                fromUserName: me.loginUserName,
+                fromGroupName: me.Group.name
               }
             })
             .then(result => {

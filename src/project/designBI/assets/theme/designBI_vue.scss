@@ -408,20 +408,6 @@ $color5: #a83be7;
         .oneItem {
           padding: 0 10px;
           margin-right: 10px;
-          &.user {
-            .el-link--inner {
-              .el-icon-user-solid {
-                padding: 5px;
-                background: rgb(77, 215, 250);
-                border-radius: 50px;
-                margin-right: 6px;
-                color: white;
-              }
-              .text {
-                margin-right: 3px;
-              }
-            }
-          }
         }
       } //right
     }

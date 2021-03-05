@@ -54,18 +54,8 @@
         </div>
       </transition>
 
-      <div class="oneItem user">
-        <el-popover trigger="hover">
-          <el-link slot="reference" :underline="false"
-            ><i class="el-icon-user-solid"></i
-            ><span class="text">{{ loginUserName }}</span>
-            <i class="el-icon-arrow-down"></i
-          ></el-link>
-          <el-button size="mini" type="danger" @click="loginOutFn"
-            >登出</el-button
-          >
-        </el-popover>
-      </div>
+      <msgBtn></msgBtn>
+      <userBtn class="oneItem"> </userBtn>
     </div>
 
     <div class="groupBody" v-loading="userGroupsLoading">
@@ -110,10 +100,14 @@ import OneGroup from "./OneGroup";
 import Vue from "vue";
 import loader from "@/plugins/js/loader";
 import LoginUser from "@designBI/views/mixins/LoginUser";
+import userBtn from "@designBI/views/Page/PublicItem/userBtn.vue";
+import msgBtn from "@designBI/views/Page/PublicItem/msgBtn.vue";
 export default {
   name: "Group",
   mixins: [LoginUser],
   components: {
+    userBtn,
+    msgBtn,
     OneGroup
   },
   data() {

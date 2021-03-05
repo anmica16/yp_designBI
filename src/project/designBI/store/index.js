@@ -100,6 +100,13 @@ let theStore = new Vuex.Store({
       } else {
         return null;
       }
+    },
+    //## 2 消息的两个
+    userMsg(state) {
+      return state.loopGetMsgWorker ? state.loopGetMsgWorker.userMsg : [];
+    },
+    groupMsg(state) {
+      return state.loopGetMsgWorker ? state.loopGetMsgWorker.groupMsg : [];
     }
   },
   mutations: {
@@ -448,8 +455,15 @@ let theStore = new Vuex.Store({
             rej(r);
           });
       });
+    },
+    //@ 4-2 刷新消息接口
+    refreshMessages({ state }) {
+      if (!state.loopGetMsgWorker) {
+        console.error(["尚未登录不可获取消息！"]);
+        return;
+      }
+      state.loopGetMsgWorker.refresh();
     }
-    //@ 4-2 获取消息接口，由外部循环调用
   }
 });
 

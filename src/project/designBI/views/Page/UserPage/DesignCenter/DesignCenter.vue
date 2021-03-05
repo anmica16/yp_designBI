@@ -41,19 +41,8 @@
           <!-- <div class="oneItem star">
             <i class="el-icon-star-off"></i>
           </div> -->
-          <div class="oneItem user">
-            <el-popover trigger="hover">
-              <el-link slot="reference" :underline="false"
-                ><i class="el-icon-user-solid"></i
-                ><span class="text">{{ loginUserName }}</span>
-                <span class="rankText">{{ `(${loginUserRankStr})` }}</span>
-                <i class="el-icon-arrow-down"></i
-              ></el-link>
-              <el-button size="mini" type="danger" @click="loginOutFn"
-                >登出</el-button
-              >
-            </el-popover>
-          </div>
+          <msgBtn></msgBtn>
+          <userBtn class="oneItem" :userRankStr="loginUserRankStr"> </userBtn>
         </dir>
       </div>
     </div>
@@ -239,12 +228,15 @@ import $ from "jquery";
 import loader from "@/plugins/js/loader";
 import Vue from "vue";
 import LoginUser from "@designBI/views/mixins/LoginUser";
+import userBtn from "@designBI/views/Page/PublicItem/userBtn.vue";
+import msgBtn from "@designBI/views/Page/PublicItem/msgBtn.vue";
 //import AttachBoard from "./AttachBoard";
 export default {
   name: "DesignCenter",
-  // components: {
-  //   AttachBoard
-  // },
+  components: {
+    userBtn,
+    msgBtn
+  },
   mixins: [LoginUser],
   data() {
     return {
