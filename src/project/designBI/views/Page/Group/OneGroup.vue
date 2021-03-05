@@ -80,8 +80,47 @@
         </el-dialog>
       </div>
 
-      <el-table :data="userList">
-        <el-table-column prop="userCode"></el-table-column>
+      <el-table class="memberListTable" :data="userList">
+        <el-table-column width="40">
+          <template slot-scope="scope">
+            <span class="nameIcon">{{
+              scope.row.$name[scope.row.$name.length - 1]
+            }}</span>
+          </template>
+        </el-table-column>
+
+        <el-table-column label="成员" width="150">
+          <template slot-scope="scope">
+            <div class="nameRow">
+              {{ scope.row.$name }}
+            </div>
+            <div class="nameCodeRow">
+              {{ scope.row.userCode }}
+            </div>
+          </template>
+        </el-table-column>
+
+        <el-table-column width="120" label="最后操作">
+          <template slot-scope="scope">
+            <span class="lastDate">{{ scope.row.$lastOpTime }}</span>
+          </template>
+        </el-table-column>
+
+        <el-table-column width="80" label="邀请人">
+          <template slot-scope="scope">
+            <span class="fromUser">{{
+              scope.row.$fromUserName ? scope.row.$fromUserName : "创建人"
+            }}</span>
+          </template>
+        </el-table-column>
+
+        <el-table-column width="80" label="权限">
+          <template slot-scope="scope">
+            <span class="userRank">{{
+              getLoginUserRankStr(scope.row.userRank)
+            }}</span>
+          </template>
+        </el-table-column>
       </el-table>
     </div>
   </div>
@@ -137,7 +176,23 @@ export default {
         })
         .then(result => {
           //【=1=】返回的是用户详情列表
-          me.userList = result.data;
+          me.userList = result.data.map(rec => {
+            rec.$name = rec.nickName || `用户${rec.userCode}`;
+            rec.$fromUserName = rec.fromUser
+              ? rec.fromUserName || `用户${rec.fromUser}`
+              : "";
+
+            //~~ 2 时间
+            let lastT = new Date(rec.lastOpTime),
+              now = new Date(),
+              sameYear = lastT.getFullYear() == now.getFullYear();
+            rec.$lastOpTime = tool.Date.format(
+              lastT,
+              sameYear ? "MM月dd日" : "yyyy年MM月dd日"
+            );
+
+            return rec;
+          });
 
           me.userListLoading = false;
         })
