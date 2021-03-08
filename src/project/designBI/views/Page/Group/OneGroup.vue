@@ -33,6 +33,33 @@
         </div>
       </div>
 
+      <div class="operUserArea">
+        <el-dropdown trigger="click" placement="bottom-start">
+          <el-link title="用户的团队设置" :underline="false">
+            <i class="icon el-icon-s-tools"></i>
+            <span class="text">设置</span>
+          </el-link>
+          <el-dropdown-menu slot="dropdown">
+            <template v-if="Group.userRank == '1'">
+              <el-dropdown-item @click="GroupUserCgGroupNameFn"
+                >更改团队名称</el-dropdown-item
+              >
+              <el-dropdown-item @click="GroupUserCgOwnerFn"
+                >移交团队</el-dropdown-item
+              >
+              <el-dropdown-item @click="GroupUserDismissFn"
+                >解散团队</el-dropdown-item
+              >
+            </template>
+            <template v-else>
+              <el-dropdown-item @click="GroupUserLeaveFn"
+                >退出团队</el-dropdown-item
+              >
+            </template>
+          </el-dropdown-menu>
+        </el-dropdown>
+      </div>
+
       <div class="fill"></div>
 
       <div class="rightArea">
@@ -51,6 +78,7 @@
         <div class="fill"></div>
         <el-button
           class="inviteBtn"
+          v-if="canEdit"
           icon="el-icon-user-solid"
           title="邀请成员"
           type="primary"
@@ -121,22 +149,32 @@
       </div>
 
       <div class="memberListWrap">
-        <el-table class="memberListTable" :data="pUserList">
-          <el-table-column width="40">
-            <template slot-scope="scope">
-              <span class="nameIcon">{{
-                scope.row.$name[scope.row.$name.length - 1]
-              }}</span>
-            </template>
-          </el-table-column>
-
+        <el-table
+          class="memberListTable"
+          :class="{ canEdit }"
+          :data="pUserList"
+          @row-click="memberSetStartFn"
+        >
           <el-table-column label="成员">
             <template slot-scope="scope">
-              <div class="nameRow">
-                {{ scope.row.$name }}
-              </div>
-              <div class="nameCodeRow">
-                {{ scope.row.userCode }}
+              <div class="memberInfo">
+                <div
+                  class="nameIcon"
+                  :class="getTagColorClass(scope.row.userCode)"
+                >
+                  {{ scope.row.$name[scope.row.$name.length - 1] }}
+                </div>
+                <div class="nameInfo">
+                  <div class="row1">
+                    {{ scope.row.$name
+                    }}<span
+                      class="meTip"
+                      v-if="scope.row.userCode == loginUserCode"
+                      >我</span
+                    >
+                  </div>
+                  <div class="row2">{{ scope.row.userCode }}</div>
+                </div>
               </div>
             </template>
           </el-table-column>
@@ -162,7 +200,67 @@
               }}</span>
             </template>
           </el-table-column>
+
+          <el-table-column width="40">
+            <span class="setIcon el-icon-setting"></span>
+          </el-table-column>
         </el-table>
+
+        <el-dialog
+          class="userManageDialog"
+          title="成员管理"
+          :visible.sync="userManageShow"
+          :append-to-body="true"
+          @closed="userManageCloseFn"
+          :destroy-on-close="true"
+        >
+          <div class="userManageDialogInner" v-if="userManageTarget">
+            <div class="memberInfo">
+              <div
+                class="nameIcon"
+                :class="getTagColorClass(userManageTarget.userCode)"
+              >
+                {{ userManageTarget.$name[userManageTarget.$name.length - 1] }}
+              </div>
+              <div class="nameInfo">
+                <div class="row1">{{ userManageTarget.$name }}</div>
+                <div class="row2">{{ userManageTarget.userCode }}</div>
+              </div>
+            </div>
+            <div class="memberChangeArea">
+              <div class="oneOption">
+                <dir class="optionName">
+                  <span class="icon el-icon-medal"></span>
+                  <span class="text">成员权限</span>
+                </dir>
+                <div class="fill"></div>
+
+                <el-select v-model="userManageTarget.userRank">
+                  <template v-for="rank in userRankList">
+                    <el-option
+                      v-show="rank.userRank != '1'"
+                      :key="rank.userRank"
+                      :label="rank.userRankStr"
+                      :value="rank.userRank"
+                    ></el-option>
+                  </template>
+                </el-select>
+              </div>
+            </div>
+            <div class="bottomArea">
+              <el-link :underline="false" type="danger" @click="removeUserFn"
+                >删除成员</el-link
+              >
+              <div class="fill"></div>
+              <el-button
+                size="small"
+                type="primary"
+                @click="userManageConfirmFn"
+                >确定</el-button
+              >
+            </div>
+          </div>
+        </el-dialog>
 
         <Pager
           ref="pager"
@@ -206,7 +304,12 @@ export default {
       inviteMsgSending: false,
       setDefaultLoading: false,
 
-      pager: null
+      pager: null,
+
+      //~ 3 成员管理
+      userManageShow: false,
+      userManageTarget: null,
+      userManageLoading: false
     };
   },
   computed: {
@@ -217,6 +320,10 @@ export default {
       let me = this;
 
       return me.pager ? me.userList.slice(me.pager.start, me.pager.end) : [];
+    },
+    canEdit() {
+      let me = this;
+      return parseInt(me.Group.userRank) < 20;
     }
   },
   methods: {
@@ -382,14 +489,124 @@ export default {
           me.$store.dispatch("loginIn", result.data);
 
           me.setDefaultLoading = false;
-          //=3= 返回界面
-          me.backGroupPageFn();
         })
         .catch(r => {
           me.$message.warning("设置默认时服务器出现了一些问题……");
           me.setDefaultLoading = false;
         });
-    }
+    },
+    //# 6 成员改变窗口
+    memberSetStartFn(theUser) {
+      let me = this;
+      if (!me.canEdit || theUser.userCode == me.loginUserCode) {
+        return;
+      }
+      me.userManageTarget = tool.clone(theUser);
+      me.userManageShow = true;
+    },
+    userManageCloseFn() {
+      let me = this;
+      me.userManageTarget = null;
+      me.getGroupUserList();
+    },
+    removeUserFn() {
+      let me = this;
+      me.$msgbox({
+        type: "warning",
+        title: "移除团队成员",
+        showCancelButton: true,
+        message: "确认移除该团队成员吗？"
+      })
+        .then(() => {
+          me.userManageLoading = true;
+          loader
+            .ajax({
+              url: Vue.Api.designBI,
+              data: {
+                method: Vue.Api.designBI.Delete,
+                ids: JSON.stringify([me.userManageTarget.id]),
+                table: "userInGroup"
+              }
+            })
+            .then(r => {
+              me.$message.success("已成功移除该成员");
+
+              //【=2=】追加信息
+              //~~~ 1 仅用户获取
+              me.$store.dispatch("sendMessage", {
+                type: Vue.Api.Message.groupMemberManage,
+                message: `${me.loginUserName}(${me.loginUserRankStr})将你从【${me.Group.name}】团队中移出`,
+
+                targetUsers: [me.userManageTarget.userCode],
+
+                fromUser: me.loginUserCode,
+                fromGroup: me.Group.id,
+
+                needReply: false,
+                sendParams: null
+              });
+
+              me.userManageShow = false;
+              me.userManageLoading = false;
+            })
+            .catch(r => {
+              me.$message.warning(
+                "移除该成员失败，服务器出现了一些问题……" + r.msg
+              );
+              me.userManageLoading = false;
+            });
+        })
+        .catch(() => {});
+    },
+    userManageConfirmFn() {
+      let me = this;
+      me.userManageLoading = true;
+      loader
+        .ajax({
+          url: Vue.Api.designBI,
+          data: {
+            method: Vue.Api.designBI.AddOrUpd,
+            records: JSON.stringify([me.userManageTarget]),
+            table: "userInGroup"
+          }
+        })
+        .then(r => {
+          me.$message.success("已成功更新该成员团队信息！");
+
+          //【=2=】追加信息
+          //~~~ 1 仅用户获取
+          me.$store.dispatch("sendMessage", {
+            type: Vue.Api.Message.groupMemberManage,
+            message: `${me.loginUserName}(${
+              me.loginUserRankStr
+            })更新了你的团队信息，当前权限为【${me.getLoginUserRankStr(
+              me.userManageTarget.userRank
+            )}】`,
+
+            targetUsers: [me.userManageTarget.userCode],
+
+            fromUser: me.loginUserCode,
+            fromGroup: me.Group.id,
+
+            needReply: false,
+            sendParams: null
+          });
+
+          me.userManageShow = false;
+          me.userManageLoading = false;
+        })
+        .catch(r => {
+          me.$message.warning(
+            "更新该成员团队信息失败，服务器出现了一些问题……" + r.msg
+          );
+          me.userManageLoading = false;
+        });
+    },
+    //# 7 设置的 4个分支方法
+    GroupUserCgGroupNameFn() {},
+    GroupUserCgOwnerFn() {},
+    GroupUserDismissFn() {},
+    GroupUserLeaveFn() {}
   },
   mounted() {
     let me = this;

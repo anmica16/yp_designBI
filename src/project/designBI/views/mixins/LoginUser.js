@@ -43,6 +43,25 @@ let LoginUser = {
     loginUserRankStr() {
       let me = this;
       return me.getLoginUserRankStr(me.loginUserRank);
+    },
+    userRankMap() {
+      return {
+        "1": "超级管理员",
+        "10": "管理员",
+        "20": "编辑者",
+        "30": "查看者"
+      };
+    },
+    userRankList() {
+      let me = this,
+        list = [];
+      tool.each(me.userRankMap, (key, val) => {
+        list.push({
+          userRank: key,
+          userRankStr: val
+        });
+      });
+      return list;
     }
   },
   methods: {
@@ -61,13 +80,14 @@ let LoginUser = {
         .catch(() => {});
     },
     getLoginUserRankStr(userRank) {
-      let map = {
-        "1": "超级管理员",
-        "10": "管理员",
-        "20": "编辑者",
-        "30": "查看者"
-      };
+      let map = this.userRankMap;
       return userRank ? map[userRank] : "";
+    },
+    getTagColorClass(str) {
+      let me = this,
+        colorCount = 30,
+        codeSum = tool.getStrCodeSum(str);
+      return `tagColor tagColor${codeSum % colorCount}`;
     }
   }
 };

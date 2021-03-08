@@ -15,27 +15,32 @@ import DrawEntityBase from "./Entity/DrawEntityBase";
 import LoopGetMsg from "./Assist/LoopGetMsg.vue";
 const LoopGetMsgCtor = Vue.extend(LoopGetMsg);
 
-let theStore = new Vuex.Store({
-  state: {
+let newPartialStateFn = function() {
+  return {
     //【1】点开一个绘板之后，获取到的数据就在这里面，key - 数组的形式保存
     templateMap: {},
     //【2】进度条，用于显示一次加载请求的进度情况，null表示无，数字0~100表示一次开始到结束
     progress: null,
-    centerTitle: "朗速BI设计系统-主界面",
-    loginTitle: "朗速BI设计系统-登录",
     getBoardsInDBLoading: false,
 
     //【3】登录有关
     loginUser: null,
     pageGroupId: 0, //一定大于0
-    pageGroups: [],
+    pageGroups: []
     //pageGroup: null,
+  };
+};
 
+let theStore = new Vuex.Store({
+  state: tool.apply(newPartialStateFn(), {
     //【4】消息有关
     loopGetMsgWorker: null,
 
+    //【5】一些字符串
+    centerTitle: "朗速BI设计系统-主界面",
+    loginTitle: "朗速BI设计系统-登录",
     errorPageMsg: "服务器出现了一些错误……"
-  },
+  }),
   getters: {
     getBoard: state => templateCode => {
       let mapItem = state.templateMap[templateCode];
@@ -358,10 +363,18 @@ let theStore = new Vuex.Store({
           //@@ 1 循环收集消息程序关闭
           state.loopGetMsgWorker.stop();
 
-          state.loginUser = null;
+          //state.loginUser = null;
+          me.dispatch("loginOutClear");
           sessionStorage.removeItem("loginUser");
           router.push({ name: "Login" });
         });
+    },
+
+    //@ 3-2-2 重新设置state
+    loginOutClear({ state }) {
+      let me = this,
+        newPartilState = newPartialStateFn();
+      tool.apply(state, newPartilState);
     },
 
     //@ 3-3 获取
@@ -418,7 +431,7 @@ let theStore = new Vuex.Store({
           .then(result => {
             if (result.data.length) {
               me.state.pageGroups = result.data.map((g, i) => {
-                g.$order = i;
+                g.$order = i + 1;
                 return g;
               });
             }

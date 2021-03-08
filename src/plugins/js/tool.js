@@ -931,6 +931,18 @@ tool.apply(tool, {
     }
     return result;
   },
+  getStrCodeSum(str) {
+    let me = this;
+    if (!me.isString(str)) {
+      console.error(["getStrCodeSum需要字符串作为参数！", str]);
+      return;
+    }
+    let charCodeSum = 0;
+    for (let i = 0; i < str.length; ++i) {
+      charCodeSum += str.charCodeAt(i);
+    }
+    return charCodeSum;
+  },
   fmtNumber(val, dotCount = 2) {
     let me = this,
       sVal = val + "";

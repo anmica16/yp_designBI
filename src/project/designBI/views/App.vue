@@ -81,9 +81,9 @@ export default {
           me.$store.dispatch("loginOut");
 
           //=2= 跳转
-          me.$router.push({
-            name: "Login"
-          });
+          // me.$router.push({
+          //   name: "Login"
+          // });
         });
     };
   }

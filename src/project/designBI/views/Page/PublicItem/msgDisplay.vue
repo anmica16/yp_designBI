@@ -17,7 +17,7 @@
             <span
               class="oneTag"
               v-for="tag in scope.row.tag"
-              :class="getTagClass(tag)"
+              :class="getTagColorClass(tag)"
               :key="tag"
               >{{ tag }}</span
             >
@@ -96,18 +96,6 @@ export default {
     rowClassNameFn(row) {
       let me = this;
       return row.$isNew ? "isNew" : "";
-    },
-    getTagClass(tag) {
-      let me = this,
-        //准备30种颜色
-        colorCount = 30,
-        charCodeSum = 0;
-      if (tool.isString(tag)) {
-        for (let i = 0; i < tag.length; ++i) {
-          charCodeSum += tag.charCodeAt(i);
-        }
-      }
-      return `tag tag${charCodeSum % colorCount}`;
     },
     //@ 1-1 操作大分类
     getOperateBarType(typeCode) {

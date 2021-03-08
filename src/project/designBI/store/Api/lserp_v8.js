@@ -46,7 +46,8 @@ let Api_custom = {
   //【21 3-4】请将下列消息列表和后端类【MessageMeta】同步更新
   Message: {
     inviteMember: "inviteMember",
-    groupNewMemberNotice: "groupNewMemberNotice"
+    groupNewMemberNotice: "groupNewMemberNotice",
+    groupMemberManage: "groupMemberManage"
   },
 
   Module: {
