@@ -2,11 +2,14 @@
   <div class="GroupPage">
     <div class="groupTitle">
       <span class="pageIcon">
-        <i class="el-icon-s-help"></i>
+        <i class="el-icon-connection"></i>
       </span>
       <span class="pageName">团队设置</span>
 
+      <div class="fill"></div>
+
       <el-button
+        class="newGroupBtn"
         size="small"
         icon="el-icon-plus"
         type="primary"
@@ -71,18 +74,27 @@
           </div>
         </div>
         <div class="groupTab">
-          <template v-for="oneGroup in pageGroups">
+          <template v-for="oneGroup in pPageGroups">
             <div
               :key="oneGroup.id"
               class="oneTab"
               :class="{ active: !showDefault && nowGroup === oneGroup }"
               @click="changeTab(oneGroup)"
             >
-              <span></span>
+              <span class="preOrder">#{{ oneGroup.$order }}</span>
               <span>{{ oneGroup.name }}</span>
             </div>
           </template>
         </div>
+
+        <Pager
+          ref="pager"
+          small
+          :total="pageGroups.length"
+          layout="prev, pager, next"
+          :hide-on-single-page="false"
+          :page-size="10"
+        ></Pager>
       </div>
       <div class="rightPart">
         <OneGroup ref="oneGroup" v-if="cNowGroup" :Group="cNowGroup"></OneGroup>
@@ -120,7 +132,9 @@ export default {
       userGroupsLoading: false,
       //~~ 3 显示默认 ？
       showDefault: true,
-      nowGroup: null
+      nowGroup: null,
+
+      pager: null
     };
   },
   computed: {
@@ -138,6 +152,11 @@ export default {
     cNowGroup() {
       let me = this;
       return me.nowGroup || me.defaultGroup;
+    },
+    pPageGroups() {
+      let me = this;
+
+      return me.pager ? me.pageGroups.slice(me.pager.start, me.pager.end) : [];
     }
   },
   methods: {
@@ -166,7 +185,7 @@ export default {
         .then(result => {
           //=1= 返回更新了group的user
           me.$message.success("创建新团队成功！");
-          me.$store.dispatch("setLoginUser", result.data);
+          me.$store.dispatch("loginIn", result.data);
 
           //=2= 调用一次团队列表获取
           me.getUserGroupFn();
@@ -221,6 +240,7 @@ export default {
     if (me.$refs.oneGroup) {
       me.$refs.oneGroup.getGroupUserList();
     }
+    me.pager = me.$refs.pager;
   }
 };
 </script>

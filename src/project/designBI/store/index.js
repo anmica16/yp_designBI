@@ -417,7 +417,10 @@ let theStore = new Vuex.Store({
         })
           .then(result => {
             if (result.data.length) {
-              me.state.pageGroups = result.data;
+              me.state.pageGroups = result.data.map((g, i) => {
+                g.$order = i;
+                return g;
+              });
             }
             res(result);
           })

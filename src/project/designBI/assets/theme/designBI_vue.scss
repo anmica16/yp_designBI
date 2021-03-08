@@ -408,6 +408,23 @@ $color5: #a83be7;
         .oneItem {
           padding: 0 10px;
           margin-right: 10px;
+
+          .goGroupLink {
+            .el-link--inner {
+              @extend %flex-row;
+              align-items: center;
+              .icon {
+                width: 30px;
+                height: 30px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                background: $color5;
+                color: white;
+                border-radius: 50px;
+              }
+            }
+          }
         }
       } //right
     }

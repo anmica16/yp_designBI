@@ -11,11 +11,12 @@
         <dir class="rightItems">
           <div class="oneItem group">
             <el-link
+              class="goGroupLink"
               title="前往团队设置页"
               @click="goGroupPageFn"
               :underline="false"
             >
-              <i class="el-icon-connection"></i
+              <i class="icon el-icon-connection"></i
               ><span class="text">{{ pageGroupName || "尚无" }}</span></el-link
             >
             <el-dropdown

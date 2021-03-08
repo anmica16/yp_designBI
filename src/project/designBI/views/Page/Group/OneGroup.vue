@@ -1,20 +1,60 @@
 <template>
   <div class="OneGroup">
     <div class="groupInfoArea">
-      <div class="leftArea">一些信息</div>
+      <div class="iconArea">
+        <div class="theIcon">
+          <span class="icon el-icon-s-promotion"></span>
+        </div>
+        <div class="setDefault" v-loading="setDefaultLoading">
+          <el-button
+            v-if="defaultGroupId != groupId"
+            icon="el-icon-thumb"
+            size="mini"
+            type="primary"
+            @click="setDefaultFn"
+            >设为默认</el-button
+          >
+          <span v-else>已设为默认</span>
+        </div>
+      </div>
+
+      <div class="theInfo">
+        <h1>{{ Group.name }}</h1>
+        <div class="infoRow">
+          <span class="pre">创建人：</span>
+          <span class="text">{{ Group.createUser }}</span>
+        </div>
+        <div class="infoRow">
+          <span class="pre">创建时间：</span>
+          <span class="text">{{ Group.joinTime }}</span>
+        </div>
+        <div class="infoRow total">
+          <span class="text">共{{ userList.length }}人</span>
+        </div>
+      </div>
+
+      <div class="fill"></div>
+
       <div class="rightArea">
-        <el-button type="success" @click="goCenterPageFn"
-          >进入<span class="groupName">{{ Group.name }}</span
-          >的团队中心</el-button
-        >
+        <div class="infoRow">
+          <span class="pre">我的权限：</span>
+          <span class="text">{{ getLoginUserRankStr(Group.userRank) }}</span>
+        </div>
+        <el-button type="success" @click="goCenterPageFn">
+          <div class="groupName">{{ Group.name }}</div>
+          <div>进入团队中心</div>
+        </el-button>
       </div>
     </div>
     <div class="memberArea" v-loading="userListLoading">
       <div class="inviteUserArea">
+        <div class="fill"></div>
         <el-button
           class="inviteBtn"
           icon="el-icon-user-solid"
           title="邀请成员"
+          type="primary"
+          size="small"
           @click="showDialogFn"
           >添加成员</el-button
         >
@@ -80,48 +120,58 @@
         </el-dialog>
       </div>
 
-      <el-table class="memberListTable" :data="userList">
-        <el-table-column width="40">
-          <template slot-scope="scope">
-            <span class="nameIcon">{{
-              scope.row.$name[scope.row.$name.length - 1]
-            }}</span>
-          </template>
-        </el-table-column>
+      <div class="memberListWrap">
+        <el-table class="memberListTable" :data="pUserList">
+          <el-table-column width="40">
+            <template slot-scope="scope">
+              <span class="nameIcon">{{
+                scope.row.$name[scope.row.$name.length - 1]
+              }}</span>
+            </template>
+          </el-table-column>
 
-        <el-table-column label="成员" width="150">
-          <template slot-scope="scope">
-            <div class="nameRow">
-              {{ scope.row.$name }}
-            </div>
-            <div class="nameCodeRow">
-              {{ scope.row.userCode }}
-            </div>
-          </template>
-        </el-table-column>
+          <el-table-column label="成员">
+            <template slot-scope="scope">
+              <div class="nameRow">
+                {{ scope.row.$name }}
+              </div>
+              <div class="nameCodeRow">
+                {{ scope.row.userCode }}
+              </div>
+            </template>
+          </el-table-column>
 
-        <el-table-column width="120" label="最后操作">
-          <template slot-scope="scope">
-            <span class="lastDate">{{ scope.row.$lastOpTime }}</span>
-          </template>
-        </el-table-column>
+          <el-table-column label="最后操作">
+            <template slot-scope="scope">
+              <span class="lastDate">{{ scope.row.$lastOpTime }}</span>
+            </template>
+          </el-table-column>
 
-        <el-table-column width="80" label="邀请人">
-          <template slot-scope="scope">
-            <span class="fromUser">{{
-              scope.row.$fromUserName ? scope.row.$fromUserName : "创建人"
-            }}</span>
-          </template>
-        </el-table-column>
+          <el-table-column width="120" label="邀请人">
+            <template slot-scope="scope">
+              <span class="fromUser">{{
+                scope.row.$fromUserName ? scope.row.$fromUserName : "创建人"
+              }}</span>
+            </template>
+          </el-table-column>
 
-        <el-table-column width="80" label="权限">
-          <template slot-scope="scope">
-            <span class="userRank">{{
-              getLoginUserRankStr(scope.row.userRank)
-            }}</span>
-          </template>
-        </el-table-column>
-      </el-table>
+          <el-table-column width="120" label="权限">
+            <template slot-scope="scope">
+              <span class="userRank">{{
+                getLoginUserRankStr(scope.row.userRank)
+              }}</span>
+            </template>
+          </el-table-column>
+        </el-table>
+
+        <Pager
+          ref="pager"
+          :total="userList.length"
+          layout="prev, pager, next, total"
+          :hide-on-single-page="false"
+          :page-size="10"
+        ></Pager>
+      </div>
     </div>
   </div>
 </template>
@@ -153,12 +203,20 @@ export default {
       inviteUser: [],
       inviteUserFinding: false,
       //~ 2.2 消息
-      inviteMsgSending: false
+      inviteMsgSending: false,
+      setDefaultLoading: false,
+
+      pager: null
     };
   },
   computed: {
     groupId() {
       return this.Group.id;
+    },
+    pUserList() {
+      let me = this;
+
+      return me.pager ? me.userList.slice(me.pager.start, me.pager.end) : [];
     }
   },
   methods: {
@@ -304,11 +362,38 @@ export default {
             });
         })
         .catch(() => {});
+    },
+    // # 5 设为默认
+    setDefaultFn() {
+      let me = this;
+
+      me.setDefaultLoading = true;
+      loader
+        .ajax({
+          url: Vue.Api.designBI,
+          data: {
+            method: Vue.Api.designBI.UpdateUserDefaultGroup,
+            groupId: me.groupId
+          }
+        })
+        .then(result => {
+          //=1= 返回更新了group的user
+          me.$message.success("设置默认成功！");
+          me.$store.dispatch("loginIn", result.data);
+
+          me.setDefaultLoading = false;
+          //=3= 返回界面
+          me.backGroupPageFn();
+        })
+        .catch(r => {
+          me.$message.warning("设置默认时服务器出现了一些问题……");
+          me.setDefaultLoading = false;
+        });
     }
+  },
+  mounted() {
+    let me = this;
+    me.pager = me.$refs.pager;
   }
-  // created() {
-  //   let me = this;
-  //   me.getGroupUserList();
-  // }
 };
 </script>
