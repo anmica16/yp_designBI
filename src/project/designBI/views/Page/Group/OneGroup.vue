@@ -308,6 +308,7 @@ export default {
 
       //~ 3 成员管理
       userManageShow: false,
+      userManageOrigin: null,
       userManageTarget: null,
       userManageLoading: false
     };
@@ -501,12 +502,14 @@ export default {
       if (!me.canEdit || theUser.userCode == me.loginUserCode) {
         return;
       }
+      me.userManageOrigin = theUser;
       me.userManageTarget = tool.clone(theUser);
       me.userManageShow = true;
     },
     userManageCloseFn() {
       let me = this;
       me.userManageTarget = null;
+      me.userManageOrigin = null;
       me.getGroupUserList();
     },
     removeUserFn() {
@@ -532,12 +535,26 @@ export default {
               me.$message.success("已成功移除该成员");
 
               //【=2=】追加信息
-              //~~~ 1 仅用户获取
+              //~~~ 1 用户获取
               me.$store.dispatch("sendMessage", {
                 type: Vue.Api.Message.groupMemberManage,
                 message: `${me.loginUserName}(${me.loginUserRankStr})将你从【${me.Group.name}】团队中移出`,
 
                 targetUsers: [me.userManageTarget.userCode],
+
+                fromUser: me.loginUserCode,
+                fromGroup: me.Group.id,
+
+                needReply: false,
+                sendParams: null
+              });
+
+              //~~~ 2 团队获取信息
+              me.$store.dispatch("sendMessage", {
+                type: Vue.Api.Message.groupMemberManage,
+                message: `${me.loginUserName}(${me.loginUserRankStr})将 ${me.userManageTarget.$name} 从【${me.Group.name}】团队中移出`,
+
+                targetGroups: [me.Group.id],
 
                 fromUser: me.loginUserCode,
                 fromGroup: me.Group.id,
@@ -591,6 +608,28 @@ export default {
             needReply: false,
             sendParams: null
           });
+
+          //~~~ 2 权限改变信息
+          if (me.userManageTarget.userRank != me.userManageOrigin.userRank) {
+            me.$store.dispatch("sendMessage", {
+              type: Vue.Api.Message.groupMemberManage,
+              message: `${me.loginUserName}(${me.loginUserRankStr})将 ${
+                me.userManageTarget.$name
+              } 权限由【${me.getLoginUserRankStr(
+                me.userManageOrigin.userRank
+              )}】更改为【${me.getLoginUserRankStr(
+                me.userManageTarget.userRank
+              )}】`,
+
+              targetGroups: [me.Group.id],
+
+              fromUser: me.loginUserCode,
+              fromGroup: me.Group.id,
+
+              needReply: false,
+              sendParams: null
+            });
+          }
 
           me.userManageShow = false;
           me.userManageLoading = false;

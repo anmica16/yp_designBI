@@ -509,14 +509,34 @@ $hover_deep: rgba(51, 135, 204, 0.05);
   }
 }
 .BoardInsPropSelector {
-  $h: 26px;
+  @extend %flex-col;
   > .TipArea {
-    height: $h;
+    @extend %flex-row;
   }
   > .selectArea {
-    height: calc(100% - #{$h});
+    flex-grow: 1;
+    flex-shrink: 1;
+    height: 100%;
     > * {
       height: 100%;
+    }
+    .boardChoose {
+      height: 100%;
+
+      $h_folder: 24px;
+      > .boardTip {
+        height: $h_folder;
+      }
+      > .selectArea {
+        height: calc(100% - #{$h_folder});
+        $h_pager: 32px;
+        > .el-table {
+          height: calc(100% - #{$h_pager});
+        }
+        > .el-pagination {
+          height: $h_pager;
+        }
+      }
     }
   }
 }

@@ -22,7 +22,6 @@
     <div class="selectArea">
       <el-table
         v-loading="boardsLoading"
-        height="100%"
         :data="boardDatasPager"
         @row-click="rowClickFn"
       >

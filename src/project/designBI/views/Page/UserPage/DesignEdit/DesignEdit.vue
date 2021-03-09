@@ -918,18 +918,45 @@ export default {
         me.$msgbox({
           title: "通过复用添加控件",
           message: h(BoardInsPropSelector, {
-            key: tool.uniqueStr()
-            // props: {
-            //   prePIndex: readyIns
-            // }
+            key: tool.uniqueStr(),
+            props: {
+              stepRange: [1, 2],
+              prePIndex: me.nowBoard.recordData.pIndex
+            }
           }),
           closeOnClickModal: false,
           showCancelButton: true,
           customClass: "newDetail newCopyItem",
           beforeClose(action, ins, done) {
             if (action === "confirm") {
-              done();
-              res(true);
+              let selector = ins.down("BoardInsPropSelector"),
+                insData = selector.selItem;
+              if (!insData) {
+                me.$message.warning("请选择需要复制的子控件！");
+                res(false);
+                return;
+              }
+              selector.loading = true;
+              let theIns = new DesignItemInstance(tool.apply({}, insData));
+
+              let newIns = theIns.newCopy();
+              newIns.setData({
+                templateCode: me.nowBoard.templateCode
+              });
+              me.nowBoardRoot
+                .add(newIns)
+                .then(() => {
+                  me.$message.success("复制成功");
+                  newIns.$bubble.mousedownFn();
+                  done();
+                  res(newIns);
+                  selector.loading = false;
+                })
+                .catch(() => {
+                  me.$message.warning("复制失败");
+                  res(false);
+                  selector.loading = false;
+                });
             } else {
               done();
               res(false);

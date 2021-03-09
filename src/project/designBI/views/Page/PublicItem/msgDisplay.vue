@@ -10,7 +10,7 @@
       :row-class-name="rowClassNameFn"
       @row-click="msgClickFn"
     >
-      <el-table-column label="消息" width="260" :show-overflow-tooltip="true">
+      <el-table-column label="消息" width="300" :show-overflow-tooltip="true">
         <template slot-scope="scope">
           <div class="infoRow">
             <i class="newTag" v-if="scope.row.$isNew">new</i>
@@ -30,7 +30,7 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="操作" width="140">
+      <el-table-column label="操作" width="120">
         <template slot-scope="scope">
           <div
             v-if="getOperateBarType(scope.row.typeCode) == 0"
@@ -249,5 +249,13 @@ export default {
 <style lang="scss">
 .pub-msgDisplay {
   height: 400px;
+  > .el-table {
+    .cell {
+      padding: 0 3px;
+    }
+    td div {
+      white-space: normal;
+    }
+  }
 }
 </style>
