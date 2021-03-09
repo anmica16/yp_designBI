@@ -59,9 +59,12 @@ $hover_deep: rgba(51, 135, 204, 0.05);
 .DimTypeTag {
   &.edit {
     cursor: pointer;
-    border-top-left-radius: 6px;
-    border-bottom-right-radius: 6px;
+    border-top-left-radius: 16px;
+    border-bottom-right-radius: 16px;
     padding: 4px 6px;
+    display: inline-block;
+    overflow: hidden;
+    border: 1px solid #e8eaed;
     > .icon {
       font-size: 18px;
       margin-right: 12px;
@@ -508,7 +511,9 @@ $hover_deep: rgba(51, 135, 204, 0.05);
     font-size: 14px;
   }
 }
+// 绘板--子控件--维度选择器
 .BoardInsPropSelector {
+  height: 100%;
   @extend %flex-col;
   > .TipArea {
     @extend %flex-row;
@@ -537,6 +542,43 @@ $hover_deep: rgba(51, 135, 204, 0.05);
           height: $h_pager;
         }
       }
+    }
+  }
+}
+// 过滤组件维度选择器
+.propertySelector {
+  @extend %flex-row;
+  $w_select: 450px;
+
+  > .selectPart {
+    width: $w_select;
+    padding: 0 10px;
+    box-sizing: border-box;
+
+    .el-tabs__content {
+      height: 400px;
+      > * {
+        height: 100%;
+      }
+    }
+  }
+
+  > .showPart {
+    width: calc(100% - #{$w_select});
+    padding: 0 10px;
+    box-sizing: border-box;
+
+    .theCoat {
+      padding-bottom: 10px;
+      .CoatingDim {
+        min-height: 55px;
+      }
+    }
+    .conditionCmp {
+      padding: 8px;
+      background: #ffffff;
+      border: 1px solid #dcdfe6;
+      box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.12), 0 0 6px 0 rgba(0, 0, 0, 0.04);
     }
   }
 }
@@ -792,10 +834,6 @@ $hover_deep: rgba(51, 135, 204, 0.05);
           .CoatingDim {
             width: 100%;
             @extend %flex-row;
-            &.active {
-              border: 1px solid rgb(53, 129, 228);
-              box-shadow: 0 0 0 2px rgba(69, 144, 236, 0.15);
-            }
           }
         }
 

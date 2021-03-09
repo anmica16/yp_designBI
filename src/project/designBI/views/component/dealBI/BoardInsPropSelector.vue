@@ -44,7 +44,7 @@
     <div
       class="selectArea"
       :style="{
-        height: `calc(100% - ${rowCount * 21}px)`
+        height: `calc(100% - ${rowCount * 21 + 34}px)`
       }"
     >
       <!-- =1= 选择绘板的区域 -->
@@ -85,7 +85,7 @@
           ref="dimTB"
           border
           @row-click="dimSelectFn"
-          @selection-change="dimSelectCgFn"
+          @select="dimSelectByHandFn"
           height="100%"
           :data="dimList"
         >
@@ -120,6 +120,9 @@ export default {
     prePIndex: String,
     preBoard: Object,
     preItem: Object,
+
+    start: Number,
+
     //# 1 必为连续步骤
     stepRange: {
       type: Array,
@@ -213,9 +216,10 @@ export default {
         me.nowStep -= 1;
       }
     },
-    boardSelFn(row) {
+    boardSelFn(row, _1, _2, _3, ifSilent) {
       let me = this;
       me.selBoard = row;
+      //console.log(["boardSelFn多少个参数？", arguments]);
 
       //【=3=】重置
       tool.apply(me, {
@@ -225,22 +229,34 @@ export default {
         selDims: []
       });
 
-      theStore.dispatch("getInstancesFn", row.templateCode).then(items => {
-        me.itemList = items.filter(a => {
-          return a.useType != 2;
-        });
-      });
-      //console.log(["点击row board", arguments]);
+      me.loading = true;
 
-      //【=2=】看是否下一步
-      me.goNextStepFn();
+      theStore
+        .dispatch("getInstancesFn", row.templateCode)
+        .then(items => {
+          me.loading = false;
+          me.itemList = items.filter(a => {
+            return a.useType != 2;
+          });
+
+          if (!ifSilent) {
+            me.$emit("board-select", row);
+            //【=2=】看是否下一步
+            me.goNextStepFn();
+          }
+        })
+        .catch(r => {
+          me.loading = false;
+          me.$message.warning("绘板选择失败……");
+        });
     },
     getSelectType(type) {
       return getSelectType(type);
     },
-    itemSelectFn(row) {
+    itemSelectFn(row, _1, _2, _3, ifSilent) {
       let me = this;
       me.selItem = row;
+      //console.log(["itemSelectFn多少个参数？", arguments]);
 
       //【=3=】重置
       tool.apply(me, {
@@ -248,37 +264,122 @@ export default {
         selDims: []
       });
 
+      let endFn = function() {
+        if (!ifSilent) {
+          me.$emit("item-select", row);
+          //【=2=】看是否下一步
+          me.goNextStepFn();
+        }
+      };
+
       //维度信息
       //=1= 检查 source有无，无则数据库
       let sourceDim = JSON.parse(row.source);
       if (sourceDim && sourceDim.Dims) {
         me.dimList = sourceDim.Dims;
+        endFn();
       } else {
+        me.loading = true;
         $.ajax({
           url: Vue.Api.designBI,
           data: {
             method: Vue.Api.designBI.GetLinkData,
             id: row.linkDataId
           }
-        }).then(result => {
-          let data = result.data;
-          if (data && data.length) {
-            me.dimList = data[0].dimension;
-            tool.isString(me.dimList) && (me.dimList = JSON.parse(me.dimList));
-          }
-        });
+        })
+          .then(result => {
+            me.loading = false;
+            let data = result.data;
+            if (data && data.length) {
+              me.dimList = data[0].dimension;
+              tool.isString(me.dimList) &&
+                (me.dimList = JSON.parse(me.dimList));
+            }
+            endFn();
+          })
+          .catch(r => {
+            me.loading = false;
+            me.$message.warning("选择子控件失败……");
+          });
       }
+    },
+    //@ 3 再一次进入时的状态预设
+    dimPreSelect(_sels) {
+      let me = this,
+        sels = [];
+      //console.log(["外部调用 dimPreSelect", arguments]);
+      //【=0=】外部调用时，可能存在把其他的传进来了。
+      _sels.forEach(sel => {
+        let exist = me.dimList.find(d => {
+          return sel.$id === d.$id;
+        });
+        if (exist) {
+          sels.push(exist);
+        }
+      });
 
-      //【=2=】看是否下一步
-      me.goNextStepFn();
+      //【=2=】这个还没更新，要在出现之后调用
+      me.$refs.dimTB.$nextTick(() => {
+        sels.forEach(sel => {
+          me.$refs.dimTB.toggleRowSelection(sel);
+        });
+      });
+
+      //【=1=】再整体调用
+      me.dimSelectCgFn(sels, true);
     },
     dimSelectFn(row) {
       let me = this;
       me.$refs.dimTB.toggleRowSelection(row);
+      me.dimSelectCgFn(me.$refs.dimTB.selection);
     },
-    dimSelectCgFn(sels) {
+    dimSelectByHandFn(sels, _1, _2, ifSilent) {
       let me = this;
-      me.selDims = sels;
+
+      console.log(["dimSelectByHandFn 多少个参数？", arguments]);
+      me.dimSelectCgFn(sels, ifSilent);
+    },
+    dimSelectCgFn(sels, ifSilent) {
+      let me = this,
+        plusA = [],
+        minusA = [];
+      //console.log(["dimSelectCgFn多少个参数？", arguments]);
+
+      //me.$refs.dimTB.toggleRowSelection(sels);
+
+      //【=1=】新选择的 如果在 旧的没有，就是新增
+      sels.forEach(dim => {
+        let already = me.selDims.find(d => {
+          return dim.$id === d.$id;
+        });
+        if (!already) {
+          plusA.push(dim);
+        }
+      });
+      //【=2=】旧的 如果在 新选择的没有，就是删减
+      me.selDims.forEach(dim => {
+        let already = sels.find(d => {
+          return dim.$id === d.$id;
+        });
+        if (!already) {
+          minusA.push(dim);
+        }
+      });
+
+      //【=3=】更换，事件提示 这里别跟着变了
+      me.selDims = sels.slice();
+
+      if (!ifSilent) {
+        me.$emit("dimension-select", sels, plusA, minusA);
+      }
+    }
+  },
+  watch: {
+    nowStep(newVal, oldVal) {
+      let me = this;
+      if (newVal !== oldVal) {
+        me.$emit("step-change", newVal);
+      }
     }
   },
   created() {
@@ -286,10 +387,14 @@ export default {
       range = me.stepRange;
 
     //【=4=】检查开始的要求
-    let begin = range[0];
+    let begin = me.start || range[0];
+    if (range.indexOf(begin) < 0) {
+      console.error(["BoardInsPropSelector 给定的起始步骤必须在步骤范围内！"]);
+      return;
+    }
     if (begin === 2) {
       if (me.preBoard) {
-        me.selBoard = me.preBoard;
+        me.boardSelFn(me.preBoard, null, null, null, true);
       } else {
         console.error([
           "BoardInsPropSelector 步骤起始为2（子控件）时，必须传递绘板参数！"
@@ -298,7 +403,7 @@ export default {
       }
     } else if (begin === 3) {
       if (me.preItem) {
-        me.selItem = me.preItem;
+        me.itemSelectFn(me.preItem, null, null, null, true);
       } else {
         console.error([
           "BoardInsPropSelector 步骤起始为3（维度）时，必须传递子控件参数！"
@@ -307,7 +412,7 @@ export default {
       }
     }
     //【=5=】然后将起始值赋予当前值
-    me.nowStep = me.beginStep;
+    me.nowStep = begin;
   }
 };
 </script>

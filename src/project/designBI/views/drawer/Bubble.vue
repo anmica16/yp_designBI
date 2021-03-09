@@ -46,6 +46,7 @@
     >
       <div class="toolLayer">
         <el-button
+          v-if="xtype == 'BIBase'"
           type="primary"
           icon="el-icon-edit"
           size="mini"
@@ -62,7 +63,7 @@
           @click="configDetail"
         ></el-button>
         <el-button
-          v-else
+          v-else-if="xtype == 'BIBase'"
           type="primary"
           icon="el-icon-s-data"
           size="mini"

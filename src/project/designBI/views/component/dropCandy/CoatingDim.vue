@@ -35,3 +35,15 @@ export default {
   }
 };
 </script>
+
+<style lang="scss">
+.CoatingDim {
+  border: 1px solid #e8eaed;
+  min-height: 36px;
+  cursor: text;
+  &.active {
+    border: 1px solid rgb(53, 129, 228);
+    box-shadow: 0 0 0 2px rgba(69, 144, 236, 0.15);
+  }
+}
+</style>

@@ -91,6 +91,9 @@
               <span class="text">预览绘板</span>
             </div>
           </dir>
+
+          <msgBtn></msgBtn>
+          <userBtn class="oneItem" :userRankStr="loginUserRankStr"> </userBtn>
         </div>
 
         <!-- 【2】左侧工具栏 -->
@@ -244,6 +247,8 @@ import "@designBI/edit.js";
 import ItemEdit from "./edit/ItemEdit";
 import { Xbase } from "@designBI/views/mixins/X";
 import LoginUser from "@designBI/views/mixins/LoginUser";
+import userBtn from "@designBI/views/Page/PublicItem/userBtn.vue";
+import msgBtn from "@designBI/views/Page/PublicItem/msgBtn.vue";
 
 //~ ++ 2 过滤组件
 const conditionCmps = [
@@ -359,7 +364,9 @@ export default {
   name: "DesignEdit",
   mixins: [Xbase, LoginUser],
   components: {
-    ItemEdit
+    ItemEdit,
+    userBtn,
+    msgBtn
   },
   data() {
     return {
@@ -754,7 +761,8 @@ export default {
             props: {
               xtype: condition.xtype,
               newCondition: true,
-              Entity: readyIns
+              Entity: readyIns,
+              EditNode: me
             }
           }),
           closeOnClickModal: true,
@@ -924,7 +932,7 @@ export default {
               prePIndex: me.nowBoard.recordData.pIndex
             }
           }),
-          closeOnClickModal: false,
+          closeOnClickModal: true,
           showCancelButton: true,
           customClass: "newDetail newCopyItem",
           beforeClose(action, ins, done) {

@@ -138,28 +138,28 @@ export default {
         });
       }
       //# 2 同时改变ins的 值
-      me.Instance.setData({
-        propsData: {
-          numberOptions: {
-            leftType: me.leftType,
-            rightType: me.rightType,
-            leftValue: me.leftValue,
-            rightValue: me.rightValue
-          }
-        }
-      });
-      if (!me.newCondition) {
-        me.Instance.save();
-      }
+      // me.Instance.setData({
+      //   propsData: {
+      //     numberOptions: {
+      //       leftType: me.leftType,
+      //       rightType: me.rightType,
+      //       leftValue: me.leftValue,
+      //       rightValue: me.rightValue
+      //     }
+      //   }
+      // });
+      // if (!me.newCondition) {
+      //   me.Instance.save();
+      // }
     }
   },
-  created() {
-    let me = this,
-      ops = me.numberOptions || {};
-    me.leftType = ops.leftType || less[0].type;
-    me.rightType = ops.rightType || greater[0].type;
-    me.leftValue = ops.leftValue || null;
-    me.rightValue = ops.rightValue || null;
-  }
+  // created() {
+  //   let me = this,
+  //     ops = me.numberOptions || {};
+  //   me.leftType = ops.leftType || less[0].type;
+  //   me.rightType = ops.rightType || greater[0].type;
+  //   me.leftValue = ops.leftValue || null;
+  //   me.rightValue = ops.rightValue || null;
+  // }
 };
 </script>

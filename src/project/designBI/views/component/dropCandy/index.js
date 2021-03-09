@@ -241,6 +241,13 @@ let Coating = {
     candyAddSimple(candy, insertAt) {
       let me = this,
         cDim = candy.Dim;
+      if (
+        me.candies.find(c => {
+          return c.$id === cDim.$id;
+        })
+      ) {
+        return;
+      }
       cDim.parentCoating = me;
 
       if (tool.isNumber(insertAt)) {
