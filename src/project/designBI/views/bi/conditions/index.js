@@ -9,14 +9,42 @@ import itemManager from "@designBI/views/drawer/itemManager";
 
 // import d1 from "./date-calendar.vue";
 // Vue.component("cond-date-calendar", d1);
+
 // import d2 from "./date-day-range.vue";
 // Vue.component("cond-date-day-range", d2);
-// import d3 from "./date-day.vue";
-// Vue.component("cond-date-day", d3);
-// import d4 from "./date-month.vue";
-// Vue.component("cond-date-month", d4);
-// import d5 from "./date-year.vue";
-// Vue.component("cond-date-year", d5);
+import d3 from "./date-day.vue";
+Vue.component("cond-date-day", d3);
+itemManager.add(
+  new DesignItem({
+    xtype: "cond-date-day",
+    typeCode: "0313",
+    name: "日期",
+    desp: "条件控件",
+    props: d3.props
+  })
+);
+import d4 from "./date-month.vue";
+Vue.component("cond-date-month", d4);
+itemManager.add(
+  new DesignItem({
+    xtype: "cond-date-month",
+    typeCode: "0314",
+    name: "年月",
+    desp: "条件控件",
+    props: d4.props
+  })
+);
+import d5 from "./date-year.vue";
+Vue.component("cond-date-year", d5);
+itemManager.add(
+  new DesignItem({
+    xtype: "cond-date-year",
+    typeCode: "0315",
+    name: "年份",
+    desp: "条件控件",
+    props: d5.props
+  })
+);
 // import d6 from "./date-year90.vue";
 // Vue.component("cond-date-year90", d6);
 // import d7 from "./date-yearday-range.vue";

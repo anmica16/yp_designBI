@@ -21,10 +21,12 @@
     :class="{ ...recordData.class, isRoot, isHover, isSelect }"
     @mouseover.native.stop="mouseoverFn"
     @mouseleave.native="mouseleaveFn"
-    :mouseDownStop="false"
     @mousedown.native.stop="mousedownFn"
+    :mouseDownStop="false"
     @transitionend.native.self="transitionEndFn"
   >
+    <!-- 
+   -->
     <!-- <div
       class="hostWrap-withLineDot"
     > -->

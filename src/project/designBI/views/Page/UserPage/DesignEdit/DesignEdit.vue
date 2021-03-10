@@ -320,12 +320,12 @@ const conditionCmps = [
     name: "时间过滤组件",
     items: [
       {
-        xtype: "",
+        xtype: "cond-date-year",
         text: "年份",
         icon: "bi-year"
       },
       {
-        xtype: "",
+        xtype: "cond-date-month",
         text: "年月",
         icon: "bi-month"
       },
@@ -335,7 +335,7 @@ const conditionCmps = [
         icon: "bi-year90"
       },
       {
-        xtype: "",
+        xtype: "cond-date-day",
         text: "日期",
         icon: "bi-day"
       },

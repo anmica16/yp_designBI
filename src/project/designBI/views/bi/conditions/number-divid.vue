@@ -65,9 +65,9 @@ const greater = [
 export default {
   name: "cond-number-divid",
   mixins: [mixin],
-  props: {
-    numberOptions: Object
-  },
+  // props: {
+  //   numberOptions: Object
+  // },
   data() {
     return {
       leftType: null,
@@ -99,60 +99,11 @@ export default {
       return conds;
     }
   },
-  watch: {
-    conditionResult(conds) {
-      let me = this,
-        props = me.properties,
-        edit = me.EditNode;
-      if (conds && conds.length && props.length && edit) {
-        props.forEach(prop => {
-          let dataId = prop.dataId,
-            propName = prop.key;
-          if (!tool.isArray(edit.conditionMap[dataId])) {
-            Vue.set(edit.conditionMap, dataId, []);
-          }
-          //# 1 找准对应dataid的范畴
-          let mapA = edit.conditionMap[dataId];
-          //# 2 合适的cond形状
-          let theConds = conds.map(cond => {
-            return {
-              ...cond,
-              property: propName,
-              dataId
-            };
-          });
-          //# 3 再比较、合并、插入
-          theConds.forEach(cond => {
-            let findAt = mapA.findIndex(a => {
-              return a.$id === cond.$id && a.property === cond.property;
-            });
-            if (findAt > -1) {
-              mapA.splice(findAt, 1);
-            }
-            if (tool.isNumber(parseFloat(cond.value))) {
-              mapA.push(cond);
-            }
-          });
-          //# 4 触发一次
-          //Vue.set(edit.conditionMap, dataId, mapA);
-        });
-      }
-      //# 2 同时改变ins的 值
-      // me.Instance.setData({
-      //   propsData: {
-      //     numberOptions: {
-      //       leftType: me.leftType,
-      //       rightType: me.rightType,
-      //       leftValue: me.leftValue,
-      //       rightValue: me.rightValue
-      //     }
-      //   }
-      // });
-      // if (!me.newCondition) {
-      //   me.Instance.save();
-      // }
+  methods: {
+    conditionResultValueTest(val, cond) {
+      return tool.isNumber(parseFloat(val));
     }
-  },
+  }
   // created() {
   //   let me = this,
   //     ops = me.numberOptions || {};
