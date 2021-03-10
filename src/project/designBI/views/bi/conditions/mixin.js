@@ -22,7 +22,7 @@ export default {
     },
     conditionResult() {
       let me = this;
-      return {};
+      return [];
     }
   },
   methods: {

@@ -11,6 +11,8 @@
             :start="2"
             :prePIndex="EditNode.nowBoard.recordData.pIndex"
             :preBoard="EditNode.nowBoard.recordData"
+            :itemListFilter="itemListFilter"
+            :dimListFilter="dimListFilter"
             @dimension-select="dimSelFn"
             @step-change="stepChangeFn"
           ></BoardInsPropSelector>
@@ -18,7 +20,10 @@
 
         <el-tab-pane label="按表选择" name="dataTree">
           <!-- ~ 2 表选择靠后dataId选择 -->
-          <dataPropCoat :candyMaster="candyMaster"></dataPropCoat>
+          <dataPropCoat
+            :candyMaster="candyMaster"
+            :dimListFilter="dimListFilter"
+          ></dataPropCoat>
         </el-tab-pane>
       </el-tabs>
     </div>
@@ -113,6 +118,35 @@ export default {
       }
 
       return props;
+    },
+    dimType() {
+      let me = this,
+        matchR = /^cond-([\w]*)-/,
+        m = matchR.exec(me.xtype),
+        mType = (m && m[1]) || "",
+        inStr = ["number", "string", "date"],
+        type = "";
+      switch (mType) {
+        case "number":
+          type = "number";
+          break;
+        case "text":
+          type = "string";
+          break;
+        case "date":
+          type = "date";
+          break;
+        default:
+          type = mType;
+          break;
+      }
+      return type;
+    },
+    canSelDim() {
+      let me = this,
+        inStr = ["number", "string", "date"],
+        type = me.dimType;
+      return inStr.indexOf(type) > -1;
     }
   },
   methods: {
@@ -135,6 +169,27 @@ export default {
             return tc;
           })
         );
+      }
+    },
+    //# 1 条件通用，排除条件控件本身
+    itemListFilter(itemList) {
+      let me = this,
+        condR = /^cond-/;
+      return itemList.filter(item => {
+        return !condR.test(item.xtype);
+      });
+    },
+    //# 2 维度 根据xtype 第二段 来给
+    dimListFilter(dimList) {
+      let me = this,
+        type = me.dimType;
+
+      if (me.canSelDim) {
+        return dimList.filter(d => {
+          return d.type == type;
+        });
+      } else {
+        return dimList;
       }
     }
   },

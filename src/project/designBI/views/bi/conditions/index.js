@@ -10,8 +10,18 @@ import itemManager from "@designBI/views/drawer/itemManager";
 // import d1 from "./date-calendar.vue";
 // Vue.component("cond-date-calendar", d1);
 
-// import d2 from "./date-day-range.vue";
-// Vue.component("cond-date-day-range", d2);
+import d2 from "./date-day-range.vue";
+Vue.component("cond-date-day-range", d2);
+itemManager.add(
+  new DesignItem({
+    xtype: "cond-date-day-range",
+    typeCode: "0312",
+    name: "日期区间",
+    desp: "条件控件",
+    props: d2.props
+  })
+);
+
 import d3 from "./date-day.vue";
 Vue.component("cond-date-day", d3);
 itemManager.add(
@@ -47,8 +57,17 @@ itemManager.add(
 );
 // import d6 from "./date-year90.vue";
 // Vue.component("cond-date-year90", d6);
-// import d7 from "./date-yearday-range.vue";
-// Vue.component("cond-date-yearday-range", d7);
+import d7 from "./date-yearday-range.vue";
+Vue.component("cond-date-yearday-range", d7);
+itemManager.add(
+  new DesignItem({
+    xtype: "cond-date-yearday-range",
+    typeCode: "0317",
+    name: "年月区间",
+    desp: "条件控件",
+    props: d7.props
+  })
+);
 
 import n1 from "./number-divid.vue";
 Vue.component("cond-number-divid", n1);

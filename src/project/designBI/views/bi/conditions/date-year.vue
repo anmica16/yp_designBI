@@ -12,6 +12,14 @@
         @created="assisBlurFn"
         @blur="blurBase"
       ></el-date-picker>
+      <el-select v-model="compare">
+        <el-option
+          v-for="c in compares"
+          :key="c.value"
+          :value="c.value"
+          :label="c.label"
+        ></el-option>
+      </el-select>
     </div>
   </div>
 </template>
@@ -26,19 +34,50 @@ export default {
   mixins: [mixin],
   data() {
     return {
-      selDate: ""
+      selDate: "",
+      compare: "now"
     };
   },
   computed: {
+    compares() {
+      return [
+        {
+          value: "before",
+          label: "截止"
+        },
+        {
+          value: "now",
+          label: "当期"
+        },
+        {
+          value: "after",
+          label: "起始"
+        }
+      ];
+    },
     conditionResult() {
       let me = this,
         conds = [];
       if (me.selDate) {
-        conds.push({
-          $id: me.condId,
-          type: "like-date",
-          value: `'${me.selDate}%'`
-        });
+        if (me.compare === "now") {
+          conds.push({
+            $id: me.condId,
+            type: "like-date",
+            value: `'${me.selDate}%'`
+          });
+        } else if (me.compare === "before") {
+          conds.push({
+            $id: me.condId,
+            type: "lt",
+            value: `'${me.selDate}'`
+          });
+        } else if (me.compare === "after") {
+          conds.push({
+            $id: me.condId,
+            type: "gteq",
+            value: `'${me.selDate}'`
+          });
+        }
       }
       return conds;
     }

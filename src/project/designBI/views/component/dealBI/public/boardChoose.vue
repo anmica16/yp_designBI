@@ -46,17 +46,20 @@
         <el-table-column prop="desp" label="备注"></el-table-column>
         <el-table-column prop="editTime" label="创建时间"></el-table-column>
       </el-table>
-      <Pager ref="pager" :total="boardDatas.length" :page-size="15"></Pager>
+      <Pager ref="pager" :total="fBoardDatas.length" :page-size="15"></Pager>
     </div>
   </div>
 </template>
 
 <script>
 import { theStore } from "@designBI/store";
+import tool from "@/plugins/js/tool";
 export default {
   name: "boardChoose",
   props: {
-    prePIndex: String
+    prePIndex: String,
+    //# 2 数据过滤器
+    boardDataFilter: Function
   },
   data() {
     return {
@@ -70,9 +73,17 @@ export default {
       let me = this;
       return me.nowFolder ? me.nowFolder.index : "";
     },
+    fBoardDatas() {
+      let me = this;
+      if (tool.isFunction(me.boardDataFilter)) {
+        return me.boardDataFilter(me.boardDatas);
+      } else {
+        return me.boardDatas;
+      }
+    },
     boardDatasPager() {
       let me = this,
-        datas = me.boardDatas,
+        datas = me.fBoardDatas,
         pager = me.$refs.pager;
       if (pager) {
         return datas.slice(pager.start, pager.end);

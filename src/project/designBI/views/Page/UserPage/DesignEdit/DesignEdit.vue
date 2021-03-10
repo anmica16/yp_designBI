@@ -345,12 +345,12 @@ const conditionCmps = [
         icon: "bi-calendar"
       },
       {
-        xtype: "",
+        xtype: "cond-date-day-range",
         text: "日期区间",
         icon: "bi-day-range"
       },
       {
-        xtype: "",
+        xtype: "cond-date-yearday-range",
         text: "年月区间",
         icon: "bi-yearday-range"
       }

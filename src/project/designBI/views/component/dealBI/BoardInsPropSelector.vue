@@ -50,6 +50,7 @@
       <!-- =1= 选择绘板的区域 -->
       <div class="boardSelectArea" v-show="nowStep === 1">
         <boardChoose
+          :boardDataFilter="boardDataFilter"
           :prePIndex="prePIndex"
           @board-select="boardSelFn"
         ></boardChoose>
@@ -58,7 +59,7 @@
       <div class="itemSelectArea" v-show="nowStep === 2">
         <el-table
           border
-          :data="itemList"
+          :data="fItemList"
           @row-click="itemSelectFn"
           height="100%"
         >
@@ -87,7 +88,7 @@
           @row-click="dimSelectFn"
           @select="dimSelectByHandFn"
           height="100%"
-          :data="dimList"
+          :data="fDimList"
         >
           <el-table-column type="selection"></el-table-column>
           <el-table-column label="维度名">
@@ -155,7 +156,12 @@ export default {
 
         return valid;
       }
-    }
+    },
+
+    //# 2 数据过滤器
+    boardDataFilter: Function,
+    itemListFilter: Function,
+    dimListFilter: Function
   },
   data() {
     return {
@@ -200,6 +206,24 @@ export default {
         tot += 2;
       }
       return tot;
+    },
+    //++ 3 过滤数据
+    fItemList() {
+      let me = this;
+      if (tool.isFunction(me.itemListFilter)) {
+        return me.itemListFilter(me.itemList);
+      } else {
+        return me.itemList;
+      }
+    },
+    //++ 3 过滤数据
+    fDimList() {
+      let me = this;
+      if (tool.isFunction(me.dimListFilter)) {
+        return me.dimListFilter(me.dimList);
+      } else {
+        return me.dimList;
+      }
     }
   },
   methods: {
@@ -310,7 +334,7 @@ export default {
       //console.log(["外部调用 dimPreSelect", arguments]);
       //【=0=】外部调用时，可能存在把其他的传进来了。
       _sels.forEach(sel => {
-        let exist = me.dimList.find(d => {
+        let exist = me.fDimList.find(d => {
           return sel.$id === d.$id;
         });
         if (exist) {

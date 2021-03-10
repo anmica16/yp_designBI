@@ -45,7 +45,7 @@
               <!-- 【update】拖拽 -->
               <CandyDimTag
                 class="edit"
-                v-for="dim in dataIdDims"
+                v-for="dim in fDataIdDims"
                 :key="dim.key"
                 :Dim="dim"
                 :candyMaster="candyMaster"
@@ -89,7 +89,9 @@ export default {
     },
     preText: {
       type: String
-    }
+    },
+    //%% 2 过滤器
+    dimListFilter: Function
   },
   data() {
     return {
@@ -113,6 +115,14 @@ export default {
         });
       }
       return result;
+    },
+    fDataIdDims() {
+      let me = this;
+      if (tool.isFunction(me.dimListFilter)) {
+        return me.dimListFilter(me.dataIdDims);
+      } else {
+        return me.dataIdDims;
+      }
     },
     //+ 1 类型提示
     sourceType() {
