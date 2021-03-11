@@ -282,12 +282,12 @@ const conditionCmps = [
         icon: "bi-num-divid"
       },
       {
-        xtype: "",
+        xtype: "cond-number-down",
         text: "数值下拉",
         icon: "bi-num-down"
       },
       {
-        xtype: "",
+        xtype: "cond-number-range",
         text: "区间滑块",
         icon: "bi-num-range"
       }

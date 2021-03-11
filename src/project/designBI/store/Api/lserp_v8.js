@@ -20,6 +20,7 @@ let Api_custom = {
     GetLinkData: "GetLinkData",
     CreateOrUpdTable: "CreateOrUpdTable",
     GetLinkDetailData: "GetLinkDetailData",
+    GetDimensionsInfo: "GetDimensionsInfo",
     //~ 3 数据库查询
     GetSqlSourceList: "GetSqlSourceList",
     AddSqlSource: "AddSqlSource",

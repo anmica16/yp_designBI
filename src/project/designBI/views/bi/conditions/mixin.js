@@ -2,6 +2,7 @@ import { Instance } from "@designBI/views/mixins/Entity";
 import tool from "@/plugins/js/tool";
 import Vue from "vue";
 import $ from "jquery";
+import loader from "@/plugins/js/loader";
 export default {
   mixins: [Instance],
   props: {
@@ -16,6 +17,12 @@ export default {
       default: false
     }
   },
+  data() {
+    return {
+      infoProps: [],
+      infoPropsLoading: false
+    };
+  },
   computed: {
     condId() {
       return tool.uniqueStr();
@@ -23,6 +30,17 @@ export default {
     conditionResult() {
       let me = this;
       return [];
+    },
+    conditionResultV2() {
+      let me = this,
+        conds = me.conditionResult;
+      return conds.map(c => {
+        c.$from = me;
+        return c;
+      });
+    },
+    itype() {
+      return "";
     }
   },
   methods: {
@@ -30,7 +48,7 @@ export default {
       let me = this;
       inEls = tool.isArray(inEls) ? inEls : [inEls];
       $("body").on(`click.${me.condId}`, function(e) {
-        //console.log(["assisBlurFn 在工作", e]);
+        console.log(["assisBlurFn 在工作", e]);
         let t = $(e.target),
           isIn = false;
         tool.each(inEls, el => {
@@ -51,14 +69,39 @@ export default {
     },
     conditionResultValueTest(val) {
       return true;
+    },
+    getInfoProps() {
+      let me = this;
+      return new Promise((res, rej) => {
+        me.infoPropsLoading = true;
+        loader
+          .ajax({
+            url: Vue.Api.designBI,
+            data: {
+              method: Vue.Api.designBI.GetDimensionsInfo,
+              dimensions: JSON.stringify(me.properties),
+              itype: me.itype
+            }
+          })
+          .then(result => {
+            me.infoProps = result.data;
+            me.infoPropsLoading = false;
+            res(result);
+          })
+          .catch(r => {
+            me.$message.warning("获取条件维度信息失败……");
+            me.infoPropsLoading = false;
+            rej(r);
+          });
+      });
     }
   },
   watch: {
-    conditionResult(conds) {
+    conditionResultV2(conds) {
       let me = this,
         props = me.properties,
         edit = me.EditNode;
-      console.log(["conditionResult watch 在工作", conds]);
+      //console.log(["conditionResult watch 在工作", conds]);
       if (edit) {
         props.forEach(prop => {
           let dataId = prop.dataId,
@@ -73,7 +116,7 @@ export default {
 
           //~~~~ 1 新增的
           // conds.forEach(c => {
-          //   let already = mapA.forEach(m => {
+          //   let already = mapA.find(m => {
           //     return c.$id == m.$id;
           //   });
           //   if (!already) {
@@ -82,10 +125,11 @@ export default {
           // });
           //~~~~ 2 减少的
           mapA.forEach(c => {
-            let already = conds.forEach(m => {
+            let already = conds.find(m => {
               return c.$id == m.$id;
             });
-            if (!already) {
+            //++ 1 仅对于 自身的 控件而言
+            if (!already && c.$from == me) {
               minusA.push(c);
             }
           });
@@ -124,6 +168,7 @@ export default {
       }
     }
   },
+  //【update】可进一步分离 的细分类
   beforeDestroy() {
     let me = this;
     $("body").off(`click.${me.condId}`);

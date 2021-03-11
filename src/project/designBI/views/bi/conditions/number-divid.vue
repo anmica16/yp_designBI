@@ -70,8 +70,8 @@ export default {
   // },
   data() {
     return {
-      leftType: null,
-      rightType: null,
+      leftType: "gteq",
+      rightType: "lteq",
       leftValue: null,
       rightValue: null
     };
@@ -86,16 +86,20 @@ export default {
     conditionResult() {
       let me = this,
         conds = [];
-      conds.push({
-        $id: me.condId + "_1",
-        type: me.leftType,
-        value: me.leftValue
-      });
-      conds.push({
-        $id: me.condId + "_2",
-        type: me.rightType,
-        value: me.rightValue
-      });
+      if (me.leftValue) {
+        conds.push({
+          $id: me.condId + "_1",
+          type: me.leftType,
+          value: me.leftValue
+        });
+      }
+      if (me.rightValue) {
+        conds.push({
+          $id: me.condId + "_2",
+          type: me.rightType,
+          value: me.rightValue
+        });
+      }
       return conds;
     }
   },

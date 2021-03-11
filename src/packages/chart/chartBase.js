@@ -200,8 +200,18 @@ export default {
 
       //# 3 条件查询 property type parameters
       if (conditions) {
+        options.data.conditions = tool.isArray(conditions)
+          ? conditions
+          : [conditions];
+        let props = ["$id", "dataId", "property", "type", "value"];
         options.data.conditions = JSON.stringify(
-          tool.isArray(conditions) ? conditions : [conditions]
+          options.data.conditions.map(op => {
+            let theOp = {};
+            props.forEach(p => {
+              theOp[p] = op[p];
+            });
+            return theOp;
+          })
         );
       }
 

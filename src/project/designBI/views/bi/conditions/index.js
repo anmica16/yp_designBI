@@ -80,10 +80,28 @@ itemManager.add(
     props: n1.props
   })
 );
-// import n2 from "./number-down.vue";
-// Vue.component("cond-number-down", n2);
-// import n3 from "./number-range.vue";
-// Vue.component("cond-number-range", n3);
+import n2 from "./number-down.vue";
+Vue.component("cond-number-down", n2);
+itemManager.add(
+  new DesignItem({
+    xtype: "cond-number-down",
+    typeCode: "0302",
+    name: "数值下拉",
+    desp: "条件控件",
+    props: n2.props
+  })
+);
+import n3 from "./number-range.vue";
+Vue.component("cond-number-range", n3);
+itemManager.add(
+  new DesignItem({
+    xtype: "cond-number-range",
+    typeCode: "0303",
+    name: "区间滑块",
+    desp: "条件控件",
+    props: n3.props
+  })
+);
 
 // import t1 from "./text-down.vue";
 // Vue.component("cond-text-down", t1);
