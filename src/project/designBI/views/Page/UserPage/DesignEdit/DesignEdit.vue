@@ -301,7 +301,7 @@ const conditionCmps = [
     name: "文本过滤组件",
     items: [
       {
-        xtype: "",
+        xtype: "cond-text-down",
         text: "文本下拉",
         icon: "bi-text-down"
       },
@@ -309,6 +309,11 @@ const conditionCmps = [
         xtype: "",
         text: "文本列表",
         icon: "bi-text-list"
+      },
+      {
+        xtype: "cond-text-search",
+        text: "文本搜索",
+        icon: "el-icon-zoom-in"
       }
     ].filter(a => {
       return a.xtype;

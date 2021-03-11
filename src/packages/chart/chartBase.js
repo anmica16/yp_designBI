@@ -17,7 +17,7 @@ export default {
       //## 2 获取数据方式
       type: "chart", // "treeTable"
       requestData: null,
-      ajaxData: null,
+      ajaxData: [],
       ajaxLoading: false
     };
   },
@@ -227,13 +227,19 @@ export default {
       }
 
       return new Promise((res, rej) => {
-        if (me.ajaxData) {
-          me.ajaxData.abort();
+        if (me.ajaxData.length) {
+          me.ajaxData = me.ajaxData.filter(pro => {
+            return !pro.$end;
+          });
+          me.ajaxData.forEach(pro => {
+            !pro.$end && pro.abort();
+          });
+          //console.log(["执行了一次abort操作 ajaxData"]);
         }
-        me.ajaxData = loader.ajax(options);
-        me.ajaxData
+        let tempAjax = loader.ajax(options);
+        tempAjax
           .then(result => {
-            me.ajaxData = null;
+            tempAjax.$end = true;
             let oData = result.data;
             //console.log(["查看堆积sum数据", oData, result]);
             if (oData) {
@@ -261,13 +267,15 @@ export default {
             me.ajaxLoading = false;
           })
           .catch(r => {
+            tempAjax.$end = true;
             if (r && r.statusText === "abort") {
-              me.ajaxData = null;
+              //
             } else {
               res(false);
               me.ajaxLoading = false;
             }
           });
+        me.ajaxData.push(tempAjax);
       });
     },
     getDataSummary(data) {

@@ -197,7 +197,7 @@
             <AttachBoard :key="board.templateMap" :Entity="board"></AttachBoard>
           </template> -->
         </el-tab-pane>
-        <!-- <el-tab-pane name="DesignCenter-menu">
+        <el-tab-pane name="DesignCenter-menu">
           <div slot="label" class="item">
             <div class="menu">
               <div class="icon"><i class="el-icon-s-unfold"></i></div>
@@ -205,7 +205,7 @@
             </div>
           </div>
           <router-view name="menu"></router-view>
-        </el-tab-pane> -->
+        </el-tab-pane>
         <el-tab-pane name="DesignCenter-data">
           <div slot="label" class="item">
             <div class="data">
@@ -311,7 +311,7 @@ export default {
     editLocBase() {
       let me = this,
         loc = window.location,
-        editLoc = loc.pathname + "#/user/" + me.$route.params.id + "/edit/";
+        editLoc = loc.pathname + "#/user/" + me.pageGroupId + "/edit/";
       return editLoc;
     },
     //# 2 文件夹模式提示
@@ -410,12 +410,16 @@ export default {
           board
             .save()
             .then(function() {
-              me.$message.success("成功新建绘板");
+              me.$message.success(
+                `成功新建${me.folderMode ? "绘板文件夹" : "绘板"}`
+              );
               me.dialogBoard = false;
               me.dialogBoardLoading = false;
             })
             .catch(r => {
-              me.$message.success("新建绘板失败");
+              me.$message.success(
+                `新建${me.folderMode ? "绘板文件夹" : "绘板"}失败`
+              );
               me.dialogBoardLoading = false;
             });
         }

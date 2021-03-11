@@ -103,7 +103,27 @@ itemManager.add(
   })
 );
 
-// import t1 from "./text-down.vue";
-// Vue.component("cond-text-down", t1);
+import t1 from "./text-down.vue";
+Vue.component("cond-text-down", t1);
+itemManager.add(
+  new DesignItem({
+    xtype: "cond-text-down",
+    typeCode: "0321",
+    name: "文本下拉",
+    desp: "条件控件",
+    props: t1.props
+  })
+);
 // import t2 from "./text-list.vue";
 // Vue.component("cond-text-list", t2);
+import t3 from "./text-search.vue";
+Vue.component("cond-text-search", t3);
+itemManager.add(
+  new DesignItem({
+    xtype: "cond-text-search",
+    typeCode: "0323",
+    name: "文本搜索",
+    desp: "条件控件",
+    props: t3.props
+  })
+);

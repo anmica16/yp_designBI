@@ -25,8 +25,6 @@
     :mouseDownStop="false"
     @transitionend.native.self="transitionEndFn"
   >
-    <!-- 
-   -->
     <!-- <div
       class="hostWrap-withLineDot"
     > -->

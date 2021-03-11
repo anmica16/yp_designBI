@@ -51,7 +51,7 @@ export default {
   },
   methods: {
     conditionResultValueTest(val, cond) {
-      return tool.isNumber(parseFloat(val));
+      return true;
     },
     assisBlurFn() {
       let me = this,

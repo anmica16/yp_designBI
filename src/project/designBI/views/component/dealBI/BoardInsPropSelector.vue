@@ -245,6 +245,12 @@ export default {
       me.selBoard = row;
       //console.log(["boardSelFn多少个参数？", arguments]);
 
+      //++ 1 单独一个的 就直接emit
+      if (me.stepRange.length === 1 && me.stepRange[0] === 1 && !ifSilent) {
+        me.$emit("board-select", row);
+        return;
+      }
+
       //【=3=】重置
       tool.apply(me, {
         itemList: [],
@@ -281,6 +287,12 @@ export default {
       let me = this;
       me.selItem = row;
       //console.log(["itemSelectFn多少个参数？", arguments]);
+
+      //++ 1 单独一个的 就直接emit
+      if (me.stepRange.length === 1 && me.stepRange[0] === 2 && !ifSilent) {
+        me.$emit("item-select", row);
+        return;
+      }
 
       //【=3=】重置
       tool.apply(me, {

@@ -107,7 +107,7 @@
 </template>
 
 <script>
-import "@designBI/assets/theme/group.scss";
+//import "@designBI/assets/theme/group.scss";
 import OneGroup from "./OneGroup";
 import Vue from "vue";
 import loader from "@/plugins/js/loader";
