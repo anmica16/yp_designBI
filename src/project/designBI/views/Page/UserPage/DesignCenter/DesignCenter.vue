@@ -54,6 +54,16 @@
         tab-position="left"
         @tab-click="tabChangeFn"
       >
+        <el-tab-pane name="DesignCenter-menu">
+          <div slot="label" class="item">
+            <div class="menu">
+              <div class="icon"><i class="el-icon-s-unfold"></i></div>
+              <div class="text">目录</div>
+            </div>
+          </div>
+          <router-view name="menu"></router-view>
+        </el-tab-pane>
+
         <el-tab-pane name="DesignCenter">
           <div slot="label" class="item">
             <div class="boardsList">
@@ -197,15 +207,7 @@
             <AttachBoard :key="board.templateMap" :Entity="board"></AttachBoard>
           </template> -->
         </el-tab-pane>
-        <el-tab-pane name="DesignCenter-menu">
-          <div slot="label" class="item">
-            <div class="menu">
-              <div class="icon"><i class="el-icon-s-unfold"></i></div>
-              <div class="text">目录</div>
-            </div>
-          </div>
-          <router-view name="menu"></router-view>
-        </el-tab-pane>
+
         <el-tab-pane name="DesignCenter-data">
           <div slot="label" class="item">
             <div class="data">

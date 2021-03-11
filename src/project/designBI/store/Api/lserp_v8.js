@@ -42,7 +42,9 @@ let Api_custom = {
     UpdateUserDefaultGroup: "UpdateUserDefaultGroup",
     //~ 6 消息传递有关
     SendMessage: "SendMessage",
-    GetMessages: "GetMessages"
+    GetMessages: "GetMessages",
+    //~ 7 图表部分
+    GetMenuItems: "GetMenuItems"
   },
   //【21 3-4】请将下列消息列表和后端类【MessageMeta】同步更新
   Message: {

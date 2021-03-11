@@ -44,10 +44,11 @@
             <template v-if="!folderMode">
               <el-form-item label="目标绘板" prop="boardId">
                 <el-input
-                  v-model="dialogMenuForm.boardId"
+                  v-model="dialogMenuSelBoardName"
                   :readonly="true"
                   placeholder="请选择目标绘板"
                   autocomplete="off"
+                  @focus="selectTargetBoardShow = true"
                 ></el-input>
                 <el-button
                   size="mini"
@@ -105,7 +106,16 @@
         </el-dialog>
       </div>
       <el-tabs :value="leftAt">
-        <el-tab-pane label="目录" name="list"></el-tab-pane>
+        <el-tab-pane label="目录" name="list" v-loading="menuItemListLoading">
+          <!-- ~ 3 树结构 -->
+          <IndexTree
+            ref="tree"
+            class="dataTree"
+            :records="menuItemList"
+            @node-click="nodeClickFn"
+          >
+          </IndexTree>
+        </el-tab-pane>
         <el-tab-pane label="收藏" name="likeList"></el-tab-pane>
       </el-tabs>
     </div>
@@ -118,9 +128,15 @@ import Vue from "vue";
 import loader from "@/plugins/js/loader";
 import tool from "@/plugins/js/tool";
 import LoginUser from "@designBI/views/mixins/LoginUser";
+
+import BoardInsPropSelector from "@designBI/views/component/dealBI/BoardInsPropSelector.vue";
+
 export default {
   name: "CenterMenu",
   mixins: [LoginUser],
+  components: {
+    BoardInsPropSelector
+  },
   data() {
     return {
       leftAt: "list",
@@ -133,26 +149,45 @@ export default {
         boardId: "",
         rank: "20"
       },
+      dialogMenuSelBoard: null,
+      dialogMenuSelBoardName: "",
+
       folderMode: false,
       nowFolder: null,
 
       //~ 2 选择绘板
-      selectTargetBoardShow: false
+      selectTargetBoardShow: false,
+
+      //~ 3 列表
+      menuItemList: [],
+      menuItemListLoading: false
     };
   },
   computed: {
     //# 2 文件夹模式提示
     dialogMenuRules() {
-      let me = this;
-      return {
-        name: [
-          {
-            required: true,
-            message: `请输入绘板${me.folderMode ? "文件夹" : ""}名称`,
-            trigger: "blur"
-          }
-        ]
-      };
+      let me = this,
+        rules = {
+          name: [
+            {
+              required: true,
+              message: `请输入绘板${me.folderMode ? "文件夹" : ""}名称`,
+              trigger: "blur"
+            }
+          ]
+        };
+      if (!me.folderMode) {
+        tool.apply(rules, {
+          boardId: [
+            {
+              required: true,
+              message: "请选择作为图表内容的目标绘板！",
+              trigger: "blur"
+            }
+          ]
+        });
+      }
+      return rules;
     },
     nowPIndex() {
       let me = this;
@@ -181,12 +216,17 @@ export default {
         boardId: "",
         rank: "20"
       });
+      me.dialogMenuSelBoard = null;
+      me.dialogMenuSelBoardName = "";
 
       done();
     },
     boardSelFn(boardData) {
       let me = this;
       me.dialogMenuForm.boardId = boardData.id;
+      me.dialogMenuSelBoard = boardData;
+      me.dialogMenuSelBoardName = boardData.name;
+
       me.selectTargetBoardShow = false;
     },
     //# 2 新建
@@ -235,7 +275,62 @@ export default {
             });
         }
       });
+    },
+    //# 3 获取列表
+    refreshMenuItemList() {
+      let me = this;
+
+      return new Promise((res, rej) => {
+        me.menuItemListLoading = true;
+        loader
+          .ajax({
+            url: Vue.Api.designBI,
+            method: Vue.Api.designBI.GetMenuItems
+          })
+          .then(result => {
+            me.menuItemListLoading = false;
+            let recs = result.data;
+            me.menuItemList = recs;
+            res(result);
+          })
+          .catch(r => {
+            me.menuItemListLoading = false;
+            Vue.$message.error("获取图表列表失败……");
+            rej(r);
+          });
+      });
+    },
+    //# 4 选择了一个node
+    nodeClickFn(rec, nodeData, node) {
+      let me = this;
+      //return new Promise((res, rej) => {
+      //~ 1 有子集
+      if (rec.isFolder) {
+        me.nowFolder = rec;
+        //res(false);
+      } else {
+        me.nowFileRec = rec;
+        if (rec.$parent) {
+          me.nowFolder = rec.$parent;
+        } else {
+          //~ 2 可能是根的 file选中，那么就无选中父节点了。
+          me.nowFolder = null;
+        }
+        //~ 3 选中的 fileRec要进行DetailData获取
+        // me.getDetailData(rec)
+        //   .then(r => {
+        //     res(r);
+        //   })
+        //   .catch(r => {
+        //     rej(r);
+        //   });
+      }
+      //});
     }
+  },
+  created() {
+    let me = this;
+    me.refreshMenuItemList();
   }
 };
 </script>

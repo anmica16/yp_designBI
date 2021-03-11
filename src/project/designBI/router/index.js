@@ -183,7 +183,7 @@ router.beforeEach((to, from, next) => {
     if (to.name === "Login" || to.name === "App") {
       if (loginUser.defaultGroup) {
         next({
-          name: "DesignCenter"
+          name: "DesignCenter-menu"
           //params: { groupId: loginUser.defaultGroup }
         });
       } else {
