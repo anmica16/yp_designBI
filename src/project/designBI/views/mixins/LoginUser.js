@@ -63,7 +63,7 @@ let LoginUser = {
       });
       return list;
     },
-    userMainPageCode() {
+    loginUserMainPageCode() {
       let me = this;
       return me.loginUser ? me.loginUser.mainPageCode : "";
     }

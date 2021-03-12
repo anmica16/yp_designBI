@@ -71,7 +71,6 @@
                   <BoardInsPropSelector
                     ref="insSelector"
                     :stepRange="[1]"
-                    :prePIndex="nowPIndex"
                     @board-select="boardSelFn"
                   ></BoardInsPropSelector>
                 </el-dialog>
@@ -120,24 +119,48 @@
           >
           </IndexTree>
         </el-tab-pane>
-        <el-tab-pane label="收藏" name="likeList"></el-tab-pane>
+
+        <!-- <el-tab-pane label="收藏" name="likeList"></el-tab-pane> -->
       </el-tabs>
     </div>
 
     <!-- 【2】右侧图表展示 tabs -->
-    <div class="rightPart">
+    <div class="rightPart" :class="{ isFull }">
       <el-tabs
-        v-model="openMainCode"
+        v-model="nowOpenCode"
         type="card"
-        editable
         @tab-remove="openRemoveFn"
         @tab-click="openTabClickFn"
       >
         <el-tab-pane :closable="false" key="main" name="main">
-          <span slot="label" class="el-icon-s-home" title="主页"> </span>
+          <span slot="label" class="tabName">
+            <el-dropdown trigger="click" placement="bottom">
+              <el-button
+                size="mini"
+                class="clickIcon"
+                icon="el-icon-arrow-down"
+              ></el-button>
+              <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item
+                  icon="el-icon-refresh-right"
+                  @click.native="openRefreshFn({ linkCode: 'main' })"
+                  >刷新</el-dropdown-item
+                >
+                <el-dropdown-item
+                  icon="el-icon-share"
+                  command="share"
+                  @click.native="openShareFn({ linkCode: 'main' })"
+                  >分享</el-dropdown-item
+                >
+              </el-dropdown-menu>
+            </el-dropdown>
+
+            <span class="el-icon-s-home" title="主页"> </span>
+          </span>
           <BoardView
-            v-if="userMainPageCode"
-            :theLinkCode="userMainPageCode"
+            ref="mainView"
+            v-if="loginUserMainPageCode"
+            :theLinkCode="loginUserMainPageCode"
           ></BoardView>
 
           <div v-else class="notSetMainTip">尚未设置主页</div>
@@ -150,10 +173,58 @@
           :label="oneItem.name"
           :closable="true"
         >
-          <span slot="label" class="hoverTab">{{ oneItem.name }}</span>
-          <BoardView :theLinkCode="oneItem.linkCode"></BoardView>
+          <span slot="label" class="tabName">
+            <el-dropdown trigger="click" placement="bottom">
+              <el-button
+                size="mini"
+                class="clickIcon"
+                icon="el-icon-arrow-down"
+              ></el-button>
+              <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item
+                  icon="el-icon-refresh-right"
+                  @click.native="openRefreshFn(oneItem)"
+                  >刷新</el-dropdown-item
+                >
+                <el-dropdown-item
+                  icon="el-icon-share"
+                  command="share"
+                  @click.native="openShareFn(oneItem)"
+                  >分享</el-dropdown-item
+                >
+                <el-dropdown-item
+                  v-if="loginUserMainPageCode == oneItem.linkCode"
+                  icon="el-icon-circle-check"
+                  >已设为主页</el-dropdown-item
+                >
+                <el-dropdown-item
+                  v-else
+                  icon="el-icon-s-flag"
+                  command="setMain"
+                  @click.native="openSetMainFn(oneItem)"
+                  >设为主页</el-dropdown-item
+                >
+              </el-dropdown-menu>
+            </el-dropdown>
+
+            <span class="hoverTab">{{ oneItem.name }}</span>
+          </span>
+
+          <BoardView
+            :ref="`b_${oneItem.linkCode}`"
+            :theLinkCode="oneItem.linkCode"
+          ></BoardView>
         </el-tab-pane>
       </el-tabs>
+
+      <!-- 2-2 全屏按钮 -->
+      <el-button
+        class="toolArea"
+        :class="isFull ? 'el-icon-crop' : 'el-icon-full-screen'"
+        :title="isFull ? '退出全屏' : '进入全屏'"
+        size="mini"
+        @click="fullFn"
+      ></el-button>
     </div>
   </div>
 </template>
@@ -166,6 +237,7 @@ import LoginUser from "@designBI/views/mixins/LoginUser";
 
 import BoardInsPropSelector from "@designBI/views/component/dealBI/BoardInsPropSelector.vue";
 import BoardView from "@designBI/views/Page/PubPage/BoardView.vue";
+import FullScreen from "@/plugins/js/FullScreen";
 
 export default {
   name: "CenterMenu",
@@ -191,7 +263,7 @@ export default {
 
       folderMode: false,
       nowFolder: null,
-      nowItem: null,
+      //nowItem: null,
 
       //~ 2 选择绘板
       selectTargetBoardShow: false,
@@ -202,7 +274,8 @@ export default {
 
       //~ 4 展示图表
       openList: [],
-      openMainCode: "main"
+      nowOpenCode: "main",
+      isFull: false
     };
   },
   computed: {
@@ -246,9 +319,19 @@ export default {
           label: "所有人(包含游客)"
         }
       ];
+    },
+    FullScreen() {
+      return FullScreen;
     }
   },
   methods: {
+    getRankStr(rank) {
+      let me = this,
+        theRank = me.ranks.find(r => {
+          return r.value == rank;
+        });
+      return theRank ? theRank.label : "";
+    },
     //# 1 文件夹式绘板模式
     menuLogClear(done) {
       let me = this;
@@ -310,7 +393,16 @@ export default {
               me.dialogMenuLoading = false;
 
               //【=2=】 然后刷新一下列表
-              me.refreshMenuItemList();
+              me.refreshMenuItemList().then(r => {
+                if (!menuItem.isFolder) {
+                  let rec = me.menuItemList.find(i => {
+                    return i.linkCode == menuItem.linkCode;
+                  });
+                  if (rec) {
+                    me.nodeClickFn(rec);
+                  }
+                }
+              });
             })
             .catch(r => {
               me.$message.success(
@@ -354,7 +446,14 @@ export default {
         me.nowFolder = rec;
         //res(false);
       } else {
-        me.nowItem = rec;
+        let at = me.openList.find(op => {
+          return op.linkCode == rec.linkCode;
+        });
+        if (!at) {
+          me.openList.push(rec);
+          me.nowOpenCode = rec.linkCode;
+        }
+
         if (rec.$parent) {
           me.nowFolder = rec.$parent;
         } else {
@@ -374,10 +473,124 @@ export default {
     },
     //# 5 关闭一个时
     openRemoveFn(removeCode) {
-      let me = this;
+      let me = this,
+        at = me.openList.findIndex(op => {
+          return op.linkCode == removeCode;
+        });
+      if (at > -1) {
+        me.openList.splice(at, 1);
+        me.nowOpenCode = me.openList.length
+          ? me.openList[me.openList.length - 1].linkCode
+          : "main";
+      }
+    },
+    getViewNode(linkCode) {
+      let me = this,
+        ref = null;
+      if (linkCode == "main") {
+        ref = me.$refs.mainView;
+      } else {
+        let bRefStr = `b_${linkCode}`;
+        ref = me.$refs[bRefStr];
+        ref = tool.isArray(ref) ? ref[0] : ref;
+      }
+      return ref;
+    },
+    resizeView(linkCode) {
+      let me = this,
+        ref = me.getViewNode(linkCode);
+      if (ref) {
+        me.$nextTick(() => {
+          ref.checkParentSize();
+        });
+      }
     },
     openTabClickFn(theTab) {
+      // let me = this,
+      //   linkCode = theTab.name;
+    },
+    //# 6 全屏
+    fullFn() {
       let me = this;
+      if (me.FullScreen.isFullScreen()) {
+        me.FullScreen.exitScreen();
+        me.isFull = false;
+      } else {
+        me.FullScreen.fullScreen();
+        me.isFull = true;
+      }
+    },
+    //# 7 打开的操作
+    //~~~ 1 刷新
+    openRefreshFn(menuItem) {
+      let me = this,
+        ref = me.getViewNode(menuItem.linkCode);
+      ref.refreshData();
+    },
+    //~~~ 2 链接
+    openShareFn(menuItem) {
+      let me = this,
+        h = me.$createElement,
+        ref = me.getViewNode(menuItem.linkCode),
+        url = ref.linkUrl,
+        tempMsg = Vue.extend({
+          template: `
+          <div class="urlTip">
+            <div class="rank">
+              <span class="pre">权限：</span>
+              <span class="text">{{ rankStr }}</span>
+            </div>
+            <div class="urlRow">
+              <span class="pre">链接：</span>
+              <el-input class="urlText" readonly v-model="theUrl"></el-input>
+            </div>
+          </div>`,
+          props: {
+            rankStr: String,
+            theUrl: String
+          }
+        });
+      me.$msgbox({
+        type: "info",
+        title: "图表分享链接",
+        customClass: "urlTipMsg",
+        message: h(tempMsg, {
+          key: tool.uniqueStr(),
+          props: {
+            rankStr: me.getRankStr(ref.nowMenuItem.rank),
+            theUrl: url
+          }
+        })
+      }).catch(r => {});
+    },
+    //~~~ 3 设为主页
+    openSetMainFn(menuItem) {
+      let me = this,
+        linkCode = menuItem.linkCode;
+      loader
+        .ajax({
+          url: Vue.Api.designBI,
+          data: {
+            method: Vue.Api.designBI.UpdateUserMainPageCode,
+            mainPageCode: linkCode
+          }
+        })
+        .then(result => {
+          me.$message.success("设置主页成功！");
+          let user = result.data;
+          me.$store.dispatch("loginIn", user);
+        })
+        .catch(r => {
+          me.$message.success("设置主页时服务器出现了一些问题……");
+        });
+    }
+  },
+  watch: {
+    nowOpenCode(newVal, oldVal) {
+      let me = this;
+      if (newVal != oldVal && newVal) {
+        me.resizeView(newVal);
+      }
     }
   },
   created() {

@@ -63,7 +63,8 @@ export default {
       cellItems: [],
       //~ 3 布局
       layout: null,
-      updating: null
+      updating: null,
+      queryFlag: "CellBubble"
     };
   },
   computed: {
@@ -231,6 +232,26 @@ export default {
         me.items.forEach(item => {
           item.$bubble && item.$bubble.checkParentSize();
         });
+    },
+    mCheckResize() {
+      let me = this;
+      setTimeout(() => {
+        //console.log(["开始check！"]);
+        me.checkResize();
+        setTimeout(() => {
+          me.checkResize();
+          setTimeout(() => {
+            me.checkResize();
+          }, 150);
+        }, 150);
+      }, 300);
+    },
+    refreshData() {
+      let me = this;
+      me.items &&
+        me.items.forEach(item => {
+          item.$bubble && item.$bubble.refreshData();
+        });
     }
   },
   mounted() {
@@ -238,16 +259,7 @@ export default {
     //~ 2 布局
     me.layout = me.$refs.layout;
 
-    setTimeout(() => {
-      //console.log(["开始check！"]);
-      me.checkResize();
-      setTimeout(() => {
-        me.checkResize();
-        setTimeout(() => {
-          me.checkResize();
-        }, 150);
-      }, 150);
-    }, 300);
+    me.mCheckResize();
   }
 };
 </script>

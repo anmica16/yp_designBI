@@ -44,7 +44,8 @@ let Api_custom = {
     SendMessage: "SendMessage",
     GetMessages: "GetMessages",
     //~ 7 图表部分
-    GetMenuItems: "GetMenuItems"
+    GetMenuItems: "GetMenuItems",
+    UpdateUserMainPageCode: "UpdateUserMainPageCode"
   },
   //【21 3-4】请将下列消息列表和后端类【MessageMeta】同步更新
   Message: {

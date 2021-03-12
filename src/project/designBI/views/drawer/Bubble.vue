@@ -376,6 +376,16 @@ export default {
           })
           .catch(() => {});
       }
+    },
+
+    //# 6 刷新数据
+    refreshData() {
+      let me = this;
+      if (me.xtype == "CellBubble") {
+        me.host && me.host.refreshData();
+      } else if (me.xtype == "BIBase") {
+        me.host && me.host.refreshSource();
+      }
     }
   },
   watch: {

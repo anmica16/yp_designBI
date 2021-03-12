@@ -7,6 +7,7 @@
 
       <div class="boardArea">
         <BubbleReadOnly
+          ref="bubble"
           v-if="nowBoardRoot"
           :Entity="nowBoardRoot"
           :isRoot="true"
@@ -82,6 +83,13 @@ export default {
       let me = this,
         menuItem = me.nowMenuItem;
       return menuItem ? menuItem.boardId : "";
+    },
+    //# 2 链接
+    linkUrl() {
+      let me = this,
+        loc = window.location,
+        finalLoc = loc.origin + loc.pathname + "#/bv/" + me.nowLinkCode;
+      return me.nowLinkCode ? finalLoc : "";
     }
   },
   methods: {
@@ -122,7 +130,21 @@ export default {
     getMenuItem() {
       let me = this;
       me.getMenuItemBase();
-    }
+    },
+    //# 2 大小适配
+    checkParentSize() {
+      let me = this;
+      me.$refs.bubble.checkParentSize();
+      let cellBubble = me.down("CellBubble");
+      if (cellBubble) {
+        cellBubble.mCheckResize();
+      }
+    },
+    //# 3 数据刷新
+    refreshData() {
+      let me = this;
+      me.$refs.bubble.refreshData();
+    },
   },
   watch: {
     nowLinkCode(newVal, oldVal) {

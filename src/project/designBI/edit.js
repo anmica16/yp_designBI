@@ -19,3 +19,6 @@ Vue.$itemManager = itemManager;
 import "./views/component/edit";
 
 import "./views/bi/edit";
+
+// import BoardPreview from "@designBI/views/Page/UserPage/DesignEdit/BoardPreview.vue";
+// Vue.component("BoardPreview", BoardPreview);

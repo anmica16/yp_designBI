@@ -86,6 +86,28 @@ $hover_deep: rgba(51, 135, 204, 0.05);
   flex-direction: column;
   flex-wrap: nowrap;
 }
+
+%item_normal {
+  @extend %flex-wh;
+  flex-direction: row;
+  color: $font2;
+  padding: 6px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  > i {
+    margin-right: 6px;
+    font-size: 16px;
+  }
+  > .text {
+    font-size: 12px;
+  }
+
+  &:hover {
+    color: $font2_deep;
+    background: rgba(54, 157, 242, 0.05);
+  }
+}
+
 //--------------
 // 一、 预先
 //--------------
@@ -1528,7 +1550,7 @@ $color29: #c02e4e;
 .CenterMenu {
   height: 100%;
   @extend %flex-row;
-  $w_left: 280px;
+  $w_left: 260px;
 
   > .leftPart {
     width: $w_left;
@@ -1546,7 +1568,69 @@ $color29: #c02e4e;
 
   > .rightPart {
     width: calc(100% - #{$w_left});
-    //background: #f2f4f7;
+    position: relative;
+    > .el-tabs {
+      height: 100%;
+
+      $h_tab: 40px;
+      $w_btn: 60px;
+
+      > .el-tabs__header {
+        height: $h_tab;
+        margin: 0;
+        > .el-tabs__nav-wrap {
+          width: calc(100% - #{$w_btn});
+        }
+      }
+
+      > .el-tabs__content {
+        height: calc(100% - #{$h_tab});
+      }
+
+      //~ 1 对标签设定
+      .el-tabs__item {
+        .tabName {
+          .el-dropdown {
+            margin-right: 5px;
+            display: none;
+            .clickIcon {
+              padding: 2px;
+            }
+          }
+        }
+        &.is-active {
+          .tabName {
+            .el-dropdown {
+              display: inline-block;
+            }
+          }
+        }
+      }
+    }
+
+    > .toolArea {
+      position: absolute;
+      top: 6px;
+      right: 12px;
+    }
+
+    &.isFull {
+      > .el-tabs {
+        > .el-tabs__content {
+          height: 100%;
+          position: fixed;
+          z-index: 999;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+        }
+      }
+      > .toolArea {
+        position: fixed;
+        z-index: 9999;
+      }
+    }
 
     .BoardView {
       height: 100%;
@@ -1555,7 +1639,9 @@ $color29: #c02e4e;
 }
 .BoardView {
   height: 100%;
+  width: 100%;
   background: #eff1f4;
+
   .BoardView-inner {
     height: 100%;
 
@@ -1570,5 +1656,49 @@ $color29: #c02e4e;
       height: calc(100% - #{$h_title});
       overflow: auto;
     }
+  }
+
+  &.BoardPreview {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    z-index: 11;
+    color: #3d4d66;
+
+    .BoardView-inner {
+      $h_title: 39px;
+      > .titleArea {
+        background: white;
+        @extend %flex-row;
+        height: $h_title;
+        box-sizing: border-box;
+        border-bottom: 1px solid #e8eaed;
+        align-items: center;
+        justify-content: flex-end;
+
+        .item {
+          @extend %item_normal;
+          // font-size: 12px;
+          // color: $font2;
+          margin-right: 12px;
+          .bi {
+            font-size: 18px;
+          }
+        }
+      }
+
+      > .boardArea {
+        position: relative;
+        height: calc(100% - #{$h_title});
+        overflow: auto;
+      }
+    }
+  }
+}
+.urlTipMsg {
+  .el-message-box {
+    width: 560px;
   }
 }
