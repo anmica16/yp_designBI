@@ -73,6 +73,11 @@ import "./views/drawer";
 import "./views/component";
 
 //=========--------
+// Section 4-1 BI界面
+//=========--------
+//import "./views/Page";
+
+//=========--------
 // Section 4-2 Ali式 BI界面
 //=========--------
 //import "./assets/theme/view3.scss";

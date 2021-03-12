@@ -62,6 +62,10 @@ let LoginUser = {
         });
       });
       return list;
+    },
+    userMainPageCode() {
+      let me = this;
+      return me.loginUser ? me.loginUser.mainPageCode : "";
     }
   },
   methods: {

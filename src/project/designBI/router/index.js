@@ -50,29 +50,6 @@ const routes = [
         meta: {
           needDefaultGroup: true
         },
-        // beforeEnter: (to, from, next) => {
-        //   let go = tool.clone(to);
-        //   console.log(["user的 守卫正在发挥作用"]);
-        //   if (!go.params.groupId) {
-        //     go.params.groupId = theStore.state.loginUser.defaultGroup;
-        //     //还是没有groupId，那么就应该跳转到group进行选择
-        //     if (!go.params.groupId) {
-        //       Vue.$msgbox({
-        //         type: "warning",
-        //         message:
-        //           "用户没有设置默认团队，将跳转至团队设置页，请于该页设置！"
-        //       }).catch(() => {});
-        //       go = { name: "Group" };
-        //     }
-        //     next(go);
-        //   } else {
-        //     next();
-        //   }
-        //   //=2= 如果最后有groupId，那么就set一下store的值
-        //   if (go.params.groupId) {
-        //     theStore.state.pageGroupId = go.params.groupId;
-        //   }
-        // },
         component: UserPage,
         children: [
           {
@@ -121,7 +98,16 @@ const routes = [
         path: "error",
         name: "Error",
         component: Error
+      },
+      {
+        path: "bv/:linkCode",
+        name: "BoardView",
+        component: () =>
+          import(
+            /* webpackChunkName: "bi-edit" */ "../views/Page/PubPage/BoardView.vue"
+          )
       }
+
       // {
       //   path: "ali/login",
       //   name: "aliLogin",

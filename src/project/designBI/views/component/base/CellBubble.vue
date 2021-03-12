@@ -2,6 +2,7 @@
   <div class="CellBubble" :style="mapStyle">
     <Bubble
       v-for="item in items"
+      :is="bubbleXtype"
       :percentMode="percentMode"
       :key="item.recordData.instanceCode"
       :Entity="item"
@@ -66,6 +67,12 @@ export default {
     };
   },
   computed: {
+    isReadonly() {
+      return this.EditNode && this.EditNode.isReadonly;
+    },
+    bubbleXtype() {
+      return this.isReadonly ? "BubbleReadOnly" : "Bubble";
+    },
     //~ 1 原子watch 化多个为1个
     itemsWatchAtomicFn() {
       let me = this,

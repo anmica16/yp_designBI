@@ -156,7 +156,7 @@ export default {
               let user = result.data;
               me.$store.dispatch("loginIn", user);
               if (user.defaultGroup) {
-                me.$router.push({ name: "DesignCenter" });
+                me.$router.push({ name: "DesignCenter-menu" });
               } else {
                 me.$msgbox({
                   type: "warning",

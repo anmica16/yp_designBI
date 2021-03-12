@@ -2,20 +2,23 @@
   <div class="CenterMenu">
     <div class="leftPart">
       <div class="newItemArea">
-        <el-link
-          :underline="false"
+        <el-button
+          size="small"
+          type="success"
           class="addTip"
           @click="(dialogMenu = true), (folderMode = false)"
-          ><i class="icon el-icon-brush"></i><span class="text">新增图表</span>
-        </el-link>
+          icon="icon el-icon-brush"
+          >新增图表</el-button
+        >
 
-        <el-link
-          :underline="false"
+        <el-button
+          size="small"
+          type="warning"
           class="addTip"
           @click="(dialogMenu = true), (folderMode = true)"
-          ><i class="icon el-icon-s-cooperation"></i
-          ><span class="text">新增文件夹</span>
-        </el-link>
+          icon="icon el-icon-s-cooperation"
+          >新增文件夹</el-button
+        >
 
         <el-dialog
           :append-to-body="true"
@@ -60,6 +63,7 @@
 
                 <el-dialog
                   :append-to-body="true"
+                  :destroy-on-close="true"
                   class="selectTargetBoard"
                   title="选择目标绘板"
                   :visible.sync="selectTargetBoardShow"
@@ -119,7 +123,38 @@
         <el-tab-pane label="收藏" name="likeList"></el-tab-pane>
       </el-tabs>
     </div>
-    <div class="rightPart"></div>
+
+    <!-- 【2】右侧图表展示 tabs -->
+    <div class="rightPart">
+      <el-tabs
+        v-model="openMainCode"
+        type="card"
+        editable
+        @tab-remove="openRemoveFn"
+        @tab-click="openTabClickFn"
+      >
+        <el-tab-pane :closable="false" key="main" name="main">
+          <span slot="label" class="el-icon-s-home" title="主页"> </span>
+          <BoardView
+            v-if="userMainPageCode"
+            :theLinkCode="userMainPageCode"
+          ></BoardView>
+
+          <div v-else class="notSetMainTip">尚未设置主页</div>
+        </el-tab-pane>
+
+        <el-tab-pane
+          v-for="oneItem in openList"
+          :key="oneItem.linkCode"
+          :name="oneItem.linkCode"
+          :label="oneItem.name"
+          :closable="true"
+        >
+          <span slot="label" class="hoverTab">{{ oneItem.name }}</span>
+          <BoardView :theLinkCode="oneItem.linkCode"></BoardView>
+        </el-tab-pane>
+      </el-tabs>
+    </div>
   </div>
 </template>
 
@@ -130,12 +165,14 @@ import tool from "@/plugins/js/tool";
 import LoginUser from "@designBI/views/mixins/LoginUser";
 
 import BoardInsPropSelector from "@designBI/views/component/dealBI/BoardInsPropSelector.vue";
+import BoardView from "@designBI/views/Page/PubPage/BoardView.vue";
 
 export default {
   name: "CenterMenu",
   mixins: [LoginUser],
   components: {
-    BoardInsPropSelector
+    BoardInsPropSelector,
+    BoardView
   },
   data() {
     return {
@@ -154,13 +191,18 @@ export default {
 
       folderMode: false,
       nowFolder: null,
+      nowItem: null,
 
       //~ 2 选择绘板
       selectTargetBoardShow: false,
 
       //~ 3 列表
       menuItemList: [],
-      menuItemListLoading: false
+      menuItemListLoading: false,
+
+      //~ 4 展示图表
+      openList: [],
+      openMainCode: "main"
     };
   },
   computed: {
@@ -223,7 +265,7 @@ export default {
     },
     boardSelFn(boardData) {
       let me = this;
-      me.dialogMenuForm.boardId = boardData.id;
+      me.dialogMenuForm.boardId = boardData.templateCode;
       me.dialogMenuSelBoard = boardData;
       me.dialogMenuSelBoardName = boardData.name;
 
@@ -266,6 +308,9 @@ export default {
               );
               me.dialogMenu = false;
               me.dialogMenuLoading = false;
+
+              //【=2=】 然后刷新一下列表
+              me.refreshMenuItemList();
             })
             .catch(r => {
               me.$message.success(
@@ -309,7 +354,7 @@ export default {
         me.nowFolder = rec;
         //res(false);
       } else {
-        me.nowFileRec = rec;
+        me.nowItem = rec;
         if (rec.$parent) {
           me.nowFolder = rec.$parent;
         } else {
@@ -326,6 +371,13 @@ export default {
         //   });
       }
       //});
+    },
+    //# 5 关闭一个时
+    openRemoveFn(removeCode) {
+      let me = this;
+    },
+    openTabClickFn(theTab) {
+      let me = this;
     }
   },
   created() {

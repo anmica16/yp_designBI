@@ -1140,7 +1140,6 @@ $color5: #a83be7;
   }
 }
 
-
 $color: #00aeff;
 $color0: #3b94e7;
 $color1: #fad075;
@@ -1522,6 +1521,54 @@ $color29: #c02e4e;
     .bottomArea {
       @extend %flex-row;
       margin-top: 20px;
+    }
+  }
+}
+
+.CenterMenu {
+  height: 100%;
+  @extend %flex-row;
+  $w_left: 280px;
+
+  > .leftPart {
+    width: $w_left;
+    padding: 10px;
+    padding-right: 0;
+    border-right: 1px solid $border;
+
+    .newItemArea {
+      padding-bottom: 10px;
+      .addTip {
+        margin-right: 20px;
+      }
+    }
+  }
+
+  > .rightPart {
+    width: calc(100% - #{$w_left});
+    //background: #f2f4f7;
+
+    .BoardView {
+      height: 100%;
+    }
+  }
+}
+.BoardView {
+  height: 100%;
+  background: #eff1f4;
+  .BoardView-inner {
+    height: 100%;
+
+    $h_title: 0px;
+
+    // > .titleArea {
+    //   height: $h_title;
+    // }
+
+    > .boardArea {
+      position: relative;
+      height: calc(100% - #{$h_title});
+      overflow: auto;
     }
   }
 }

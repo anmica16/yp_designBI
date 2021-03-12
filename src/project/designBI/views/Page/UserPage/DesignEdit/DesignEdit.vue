@@ -403,6 +403,9 @@ export default {
     me() {
       return this;
     },
+    isReadonly() {
+      return false;
+    },
     conditionCmps() {
       return conditionCmps;
     },

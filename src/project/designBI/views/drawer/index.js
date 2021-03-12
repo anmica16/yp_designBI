@@ -15,3 +15,6 @@ Vue.component("Bubble", Bubble);
 //     source_influence: null
 //   })
 // );
+
+import BubbleReadOnly from "./Bubble-ReadOnly.vue";
+Vue.component("BubbleReadOnly", BubbleReadOnly);
