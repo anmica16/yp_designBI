@@ -147,11 +147,6 @@ export default {
       }
     },
 
-    getRealKey(dim) {
-      let me = this;
-      return me._joinTables && me._joinTables.length ? dim.tName : dim.key;
-    },
-
     //## 2 item 全页数据中心
     //~ 1 刷新某id数据
     refreshSource(addOptions) {

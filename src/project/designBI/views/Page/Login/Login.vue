@@ -5,69 +5,14 @@
     </div>
     <div class="formSpace">
       <transition name="PageMove2">
-        <div class="loginWrap" v-if="!isRegister">
-          <div class="title">登录</div>
-          <el-form
-            ref="loginForm"
-            :model="loginInfo"
-            label-position="top"
-            v-loading="logining"
-          >
-            <el-form-item
-              label="用户名"
-              prop="userCode"
-              :rules="{
-                required: true,
-                message: '用户名不能为空',
-                trigger: 'blur'
-              }"
-            >
-              <el-input
-                v-model="loginInfo.userCode"
-                placeholder="请输入用户名"
-              ></el-input>
-            </el-form-item>
-
-            <el-form-item label="密码" prop="password">
-              <el-input
-                type="password"
-                v-model="loginInfo.password"
-                placeholder="请输入密码"
-              ></el-input>
-            </el-form-item>
-
-            <el-form-item class="loginBtn">
-              <el-button type="primary" @click="login">登录</el-button>
-            </el-form-item>
-
-            <el-form-item class="loginTip">
-              <el-link
-                type="primary"
-                :underline="false"
-                @click="isRegister = true"
-                >免费注册👨‍🔧</el-link
-              >
-              <div class="fill"></div>
-              <el-link :underline="false">忘记密码？</el-link>
-            </el-form-item>
-          </el-form>
-        </div>
-      </transition>
-
-      <transition name="PageMove2">
-        <div class="registerWrap" v-if="isRegister">
-          <div class="leftPart">
-            <div class="imageArea"></div>
-            <div class="textArea">欢迎注册体验朗速BI数据可视化平台！🧙‍♂️</div>
-            <dir class="bottomLogo"></dir>
-          </div>
-          <div class="rightPart">
-            <div class="title">免费注册</div>
+        <div class="loginWrap-tran" v-if="!isRegister">
+          <div class="loginWrap">
+            <div class="title">登录</div>
             <el-form
-              ref="registerForm"
-              :model="registerInfo"
+              ref="loginForm"
+              :model="loginInfo"
               label-position="top"
-              v-loading="registering"
+              v-loading="logining"
             >
               <el-form-item
                 label="用户名"
@@ -79,35 +24,96 @@
                 }"
               >
                 <el-input
-                  v-model="registerInfo.userCode"
+                  v-model="loginInfo.userCode"
                   placeholder="请输入用户名"
                 ></el-input>
               </el-form-item>
 
               <el-form-item label="密码" prop="password">
                 <el-input
-                  v-model="registerInfo.password"
                   type="password"
+                  v-model="loginInfo.password"
                   placeholder="请输入密码"
                 ></el-input>
               </el-form-item>
 
               <el-form-item class="loginBtn">
-                <el-button type="primary" @click="register">立即使用</el-button>
+                <el-button type="primary" @click="login">登录</el-button>
               </el-form-item>
 
-              <el-form-item class="registerTip">
-                <span class="tipText"
-                  >已有账号
-                  <el-link
-                    type="primary"
-                    :underline="false"
-                    @click="isRegister = false"
-                    >去登录</el-link
-                  ></span
+              <el-form-item class="loginTip">
+                <el-link
+                  type="primary"
+                  :underline="false"
+                  @click="isRegister = true"
+                  >免费注册👨‍🔧</el-link
                 >
+                <div class="fill"></div>
+                <el-link :underline="false">忘记密码？</el-link>
               </el-form-item>
             </el-form>
+          </div>
+        </div>
+      </transition>
+
+      <transition name="PageMove2">
+        <div v-if="isRegister" class="registerWrap-tran">
+          <div class="registerWrap">
+            <div class="leftPart">
+              <div class="imageArea"></div>
+              <div class="textArea">欢迎注册体验朗速BI数据可视化平台！🧙‍♂️</div>
+              <dir class="bottomLogo"></dir>
+            </div>
+            <div class="rightPart">
+              <div class="title">免费注册</div>
+              <el-form
+                ref="registerForm"
+                :model="registerInfo"
+                label-position="top"
+                v-loading="registering"
+              >
+                <el-form-item
+                  label="用户名"
+                  prop="userCode"
+                  :rules="{
+                    required: true,
+                    message: '用户名不能为空',
+                    trigger: 'blur'
+                  }"
+                >
+                  <el-input
+                    v-model="registerInfo.userCode"
+                    placeholder="请输入用户名"
+                  ></el-input>
+                </el-form-item>
+
+                <el-form-item label="密码" prop="password">
+                  <el-input
+                    v-model="registerInfo.password"
+                    type="password"
+                    placeholder="请输入密码"
+                  ></el-input>
+                </el-form-item>
+
+                <el-form-item class="loginBtn">
+                  <el-button type="primary" @click="register"
+                    >立即使用</el-button
+                  >
+                </el-form-item>
+
+                <el-form-item class="registerTip">
+                  <span class="tipText"
+                    >已有账号
+                    <el-link
+                      type="primary"
+                      :underline="false"
+                      @click="isRegister = false"
+                      >去登录</el-link
+                    ></span
+                  >
+                </el-form-item>
+              </el-form>
+            </div>
           </div>
         </div>
       </transition>

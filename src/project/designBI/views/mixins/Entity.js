@@ -334,7 +334,11 @@ let Instance = tool.mergeClone({}, Base, {
           }
         }).catch(() => {});
       });
-    }
+    },
+    getRealKey(dim) {
+      let me = this;
+      return me._joinTables && me._joinTables.length ? dim.tName : dim.key;
+    },
   }
 });
 

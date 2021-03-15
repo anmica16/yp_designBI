@@ -79,6 +79,7 @@
                 <!-- <AttachBoard :isAdd="true"></AttachBoard> -->
 
                 <el-link
+                  v-if="rankAdmin"
                   :underline="false"
                   class="addTip"
                   @click="(dialogBoard = true), (folderMode = false)"
@@ -87,6 +88,7 @@
                 </el-link>
 
                 <el-link
+                  v-if="rankAdmin"
                   :underline="false"
                   class="addTip"
                   @click="(dialogBoard = true), (folderMode = true)"
@@ -117,10 +119,18 @@
                 <el-dialog
                   :append-to-body="true"
                   class="newBoardDialog"
-                  :title="`新增${folderMode ? '绘板文件夹' : '绘板'}`"
                   :before-close="boardLogClear"
                   :visible.sync="dialogBoard"
                 >
+                  <span class="theTitle" slot="title">
+                    <span class="main">{{
+                      `新增${folderMode ? "绘板文件夹" : "绘板"}`
+                    }}</span>
+                    <span v-if="!folderMode" class="sub"
+                      >(可添加各种图表控件、辅助控件的容器)</span
+                    >
+                  </span>
+
                   <el-form
                     ref="newBoardForm"
                     :model="dialogBoardForm"
@@ -188,7 +198,11 @@
                 <el-table-column prop="desp" label="备注"></el-table-column>
                 <el-table-column>
                   <template #default="scope">
-                    <el-link @click.stop="deleteBoard(scope)">删除</el-link>
+                    <el-link
+                      v-if="rankAdmin && scope.row.ownerGroup == pageGroupId"
+                      @click.stop="deleteBoard(scope)"
+                      >删除</el-link
+                    >
                   </template>
                 </el-table-column>
                 <el-table-column
@@ -410,7 +424,7 @@ export default {
           board.setData(formCfg);
           me.dialogBoardLoading = true;
           board
-            .save()
+            .newSave()
             .then(function() {
               me.$message.success(
                 `成功新建${me.folderMode ? "绘板文件夹" : "绘板"}`

@@ -106,6 +106,9 @@ let theStore = new Vuex.Store({
         return null;
       }
     },
+    pageGroupRank(state, getters) {
+      return getters.pageGroup ? getters.pageGroup.userRank : "";
+    },
     //## 2 消息的两个
     userMsg(state) {
       return state.loopGetMsgWorker ? state.loopGetMsgWorker.userMsg : [];
@@ -366,6 +369,11 @@ let theStore = new Vuex.Store({
           //state.loginUser = null;
           me.dispatch("loginOutClear");
           sessionStorage.removeItem("loginUser");
+
+          //当前为Login时，不重复跳转
+          if (router.app.$route.name == "Login") {
+            return;
+          }
           router.push({ name: "Login" });
         });
     },

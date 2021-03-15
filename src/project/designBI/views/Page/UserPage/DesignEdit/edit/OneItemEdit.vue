@@ -282,6 +282,7 @@ export default {
           //+ 6 自定义名
           if (cusNames && cusNames[dim.$id]) {
             dim.chineseName = cusNames[dim.$id];
+            dim.realKey = me.getRealKey(dim);
           }
           r.push(dim);
         });

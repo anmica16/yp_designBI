@@ -23,10 +23,17 @@
         <el-dialog
           :append-to-body="true"
           class="newBoardDialog menu"
-          :title="`新增${folderMode ? '图表文件夹' : '图表'}`"
           :before-close="menuLogClear"
           :visible.sync="dialogMenu"
         >
+          <span class="theTitle" slot="title">
+            <span class="main">{{
+              `新增${folderMode ? "图表文件夹" : "图表"}`
+            }}</span>
+            <span v-if="!folderMode" class="sub"
+              >(用于查看、分享的绘板，不可编辑)</span
+            >
+          </span>
           <el-form
             ref="newMenuForm"
             :model="dialogMenuForm"
@@ -45,11 +52,11 @@
             </el-form-item>
 
             <template v-if="!folderMode">
-              <el-form-item label="目标绘板" prop="boardId">
+              <el-form-item label="目标图表" prop="boardId">
                 <el-input
                   v-model="dialogMenuSelBoardName"
                   :readonly="true"
-                  placeholder="请选择目标绘板"
+                  placeholder="请选择目标图表"
                   autocomplete="off"
                   @focus="selectTargetBoardShow = true"
                 ></el-input>
@@ -65,7 +72,7 @@
                   :append-to-body="true"
                   :destroy-on-close="true"
                   class="selectTargetBoard"
-                  title="选择目标绘板"
+                  title="选择目标图表"
                   :visible.sync="selectTargetBoardShow"
                 >
                   <BoardInsPropSelector
@@ -265,7 +272,7 @@ export default {
       nowFolder: null,
       //nowItem: null,
 
-      //~ 2 选择绘板
+      //~ 2 选择图表
       selectTargetBoardShow: false,
 
       //~ 3 列表
@@ -286,7 +293,7 @@ export default {
           name: [
             {
               required: true,
-              message: `请输入绘板${me.folderMode ? "文件夹" : ""}名称`,
+              message: `请输入图表${me.folderMode ? "文件夹" : ""}名称`,
               trigger: "blur"
             }
           ]
@@ -296,7 +303,7 @@ export default {
           boardId: [
             {
               required: true,
-              message: "请选择作为图表内容的目标绘板！",
+              message: "请选择作为图表内容的目标图表！",
               trigger: "blur"
             }
           ]
@@ -332,7 +339,7 @@ export default {
         });
       return theRank ? theRank.label : "";
     },
-    //# 1 文件夹式绘板模式
+    //# 1 文件夹式图表模式
     menuLogClear(done) {
       let me = this;
       tool.apply(me.dialogMenuForm, {

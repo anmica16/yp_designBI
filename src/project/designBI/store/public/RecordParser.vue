@@ -267,7 +267,9 @@ export default {
             {
               method: Vue.Api.designBI.AddOrUpd,
               records: JSON.stringify([me.recordData]),
-              table: Entity.table
+              table: Entity.table,
+
+              groupId: theStore.state.pageGroupId
             },
             options
           )
@@ -315,7 +317,8 @@ export default {
             {
               method: Vue.Api.designBI.Delete,
               ids: JSON.stringify([me.recordData.id]),
-              table: Entity.table
+              table: Entity.table,
+              groupId: theStore.state.pageGroupId
             },
             options
           )

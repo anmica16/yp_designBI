@@ -124,7 +124,7 @@ export default class DrawingBoard extends DrawEntityBase {
     Vue.set(me, "templateCode", me.recordData.templateCode);
   }
 
-  save(options) {
+  newSave(options) {
     options = options || {};
     tool.apply(options, {
       method: Vue.Api.designBI.AddNewTreeItem

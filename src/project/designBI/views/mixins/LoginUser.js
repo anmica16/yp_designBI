@@ -63,6 +63,23 @@ let LoginUser = {
       });
       return list;
     },
+    //# 2 4个权限！
+    rankSuper() {
+      let me = this;
+      return me.loginUserRank && me.loginUserRank == 1;
+    },
+    rankAdmin() {
+      let me = this;
+      return me.loginUserRank && me.loginUserRank <= 10;
+    },
+    rankNormal() {
+      let me = this;
+      return me.loginUserRank && me.loginUserRank <= 20;
+    },
+    rankVisit() {
+      let me = this;
+      return me.loginUserRank && me.loginUserRank <= 30;
+    },
     loginUserMainPageCode() {
       let me = this;
       return me.loginUser ? me.loginUser.mainPageCode : "";
