@@ -1,8 +1,10 @@
 <template>
   <div class="LoginPage" @keydown.enter="enterFn">
-    <div class="topSpace"></div>
+    <div class="topSpace">
+      <div class="logo"></div>
+    </div>
     <div class="formSpace">
-      <transition>
+      <transition name="PageMove2">
         <div class="loginWrap" v-if="!isRegister">
           <div class="title">登录</div>
           <el-form
@@ -34,7 +36,7 @@
               ></el-input>
             </el-form-item>
 
-            <el-form-item>
+            <el-form-item class="loginBtn">
               <el-button type="primary" @click="login">登录</el-button>
             </el-form-item>
 
@@ -52,9 +54,13 @@
         </div>
       </transition>
 
-      <transition>
+      <transition name="PageMove2">
         <div class="registerWrap" v-if="isRegister">
-          <div class="leftPart"></div>
+          <div class="leftPart">
+            <div class="imageArea"></div>
+            <div class="textArea">欢迎注册体验朗速BI数据可视化平台！🧙‍♂️</div>
+            <dir class="bottomLogo"></dir>
+          </div>
           <div class="rightPart">
             <div class="title">免费注册</div>
             <el-form
@@ -86,7 +92,7 @@
                 ></el-input>
               </el-form-item>
 
-              <el-form-item>
+              <el-form-item class="loginBtn">
                 <el-button type="primary" @click="register">立即使用</el-button>
               </el-form-item>
 
@@ -106,7 +112,13 @@
         </div>
       </transition>
     </div>
-    <div class="bottomSpace"></div>
+    <div class="bottomSpace">
+      <a href="javascript:;">
+        <span class="leftLine"></span>
+        <span class="text">朗速BI<span class="dot">·</span>数据可视化平台</span>
+        <span class="rightLine"></span>
+      </a>
+    </div>
   </div>
 </template>
 

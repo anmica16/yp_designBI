@@ -173,6 +173,19 @@ body {
 .PageMove-leave-to {
   transform: translateX(100%);
 }
+//~ 2 fixed全页 动画右进 左出
+.PageMove2-enter-active {
+  transition: all 0.6s;
+}
+.PageMove2-leave-active {
+  transition: all 0.3s;
+}
+.PageMove2-enter {
+  transform: translateX(100%);
+}
+.PageMove2-leave-to {
+  transform: translateX(-100%);
+}
 //~ 3 从0宽度到100%宽度
 .Expand-enter-active {
   transition: all 0.6s;
@@ -294,6 +307,7 @@ body {
 }
 
 $color: #3b94e7;
+$color_l: #57a7f1;
 $color1: #fad075;
 $color2: #f8423c;
 $color3: #3ac02e;
@@ -1698,7 +1712,179 @@ $color29: #c02e4e;
   }
 }
 .urlTipMsg {
-  .el-message-box {
-    width: 560px;
+  width: 600px;
+}
+
+//=6= 登录页
+.LoginPage {
+  height: 100%;
+  background: url(./images/view3/back.png) repeat top left;
+  width: 100%;
+  overflow: hidden;
+
+  > .topSpace {
+    position: absolute;
+    top: 0;
+    left: 0;
+    .logo {
+      background: url(./images/view3/nav-logo.png) no-repeat;
+      background-size: 100% auto;
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      width: 200px;
+      height: 50px;
+    }
+  }
+  > .bottomSpace {
+    position: absolute;
+    bottom: 20px;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    * {
+      display: inline-block;
+    }
+    .leftLine {
+      width: 80px;
+      height: 20px;
+      background: url(./images/view3/leftLine.png) no-repeat center;
+    }
+    .rightLine {
+      width: 80px;
+      height: 20px;
+      background: url(./images/view3/rightLine.png) no-repeat center;
+    }
+    .text {
+      font-size: 14px;
+      color: #307afa;
+      text-decoration: none;
+      position: relative;
+      top: -5px;
+      margin: 0 6px;
+      .dot {
+        font-size: 18px;
+        margin: 0 3px;
+      }
+    }
+  }
+  > .formSpace {
+    height: 100%;
+    z-index: 11;
+    @extend %flex-wh;
+    .loginWrap {
+      width: 500px;
+      background: white;
+      border-radius: 8px;
+      height: 560px;
+      overflow: hidden;
+      box-shadow: 0 6px 20px 5px rgba(40, 120, 255, 0.1), 0 16px 24px 2px rgba(0, 0, 0, 0.05);
+      padding: 20px;
+      box-sizing: border-box;
+      @extend %flex-wh;
+      flex-direction: column;
+
+      > .el-form {
+        width: 320px;
+      }
+
+      .title {
+        font-size: 36px;
+        font-weight: bold;
+        line-height: 34px;
+        color: #3466fd;
+        text-align: center;
+        margin-bottom: 30px;
+      }
+      .loginBtn {
+        margin-top: 36px;
+        .el-button {
+          width: 100%;
+        }
+      }
+      .loginTip {
+        .el-form-item__content {
+          @extend %flex-row;
+          justify-content: space-around;
+        }
+      }
+    }
+
+    > .registerWrap {
+      background: white;
+      width: 1000px;
+      height: 560px;
+      border-radius: 8px;
+      @extend %flex-row;
+      box-shadow: 0 6px 20px 5px rgba(40, 120, 255, 0.1), 0 16px 24px 2px rgba(0, 0, 0, 0.05);
+
+      $w_left: 440px;
+
+      > .leftPart {
+        width: $w_left;
+        height: 100%;
+        box-shadow: 2px 0 10px 0px rgba(20, 110, 255, 0.7);
+        background: #2775fc;
+        background: linear-gradient(180deg, #53b0fc, #2775fc);
+        position: relative;
+        box-sizing: border-box;
+        padding: 40px;
+
+        .imageArea {
+          background: url(./images/view3/rTip.png) no-repeat center;
+          background-size: auto 100%;
+          height: 125px;
+          width: 100%;
+          margin: 50px 0;
+        }
+
+        .textArea {
+          color: white;
+          font-size: 16px;
+          text-indent: 20px;
+          margin-top: 70px;
+        }
+
+        .bottomLogo {
+          position: absolute;
+          bottom: 30px;
+          right: 30px;
+          background: url(./images/view3/logo_langsu.png) no-repeat;
+          background-size: 100% auto;
+          width: 150px;
+          height: 50px;
+        }
+      }
+      > .rightPart {
+        width: calc(100% - #{$w_left});
+        height: 100%;
+        @extend %flex-wh;
+        flex-direction: column;
+
+        > .el-form {
+          width: 320px;
+        }
+
+        .title {
+          font-size: 36px;
+          font-weight: bold;
+          line-height: 34px;
+          color: #3466fd;
+          text-align: center;
+          margin-bottom: 30px;
+        }
+        .loginBtn {
+          margin-top: 36px;
+          .el-button {
+            width: 100%;
+          }
+        }
+        .registerTip {
+          .el-form-item__content {
+            text-align: center;
+          }
+        }
+      }
+    }
   }
 }

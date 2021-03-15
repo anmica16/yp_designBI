@@ -17,45 +17,43 @@
         >创建新团队</el-button
       >
 
-      <transition>
-        <div class="newGroupPage" v-if="atNewGroupPage">
-          <div class="topTip">
-            <div class="back" @click="backGroupPageFn">
-              <span class="el-icon-back"></span>
-              <span class="text">创建团队</span>
-            </div>
-
-            <div class="centerTip">
-              <div class="text">给你的团队取个名字</div>
-              <div class="icon">👩‍🏫</div>
-            </div>
-          </div>
-          <div class="bodyArea">
-            <div class="formArea">
-              <el-form>
-                <el-form-item
-                  :rules="{
-                    required: true,
-                    message: '团队名称不能为空',
-                    trigger: 'blur'
-                  }"
-                >
-                  <el-input
-                    v-model="newGroupName"
-                    placeholder="团队名称"
-                  ></el-input>
-                </el-form-item>
-
-                <el-form-item>
-                  <el-button type="primary" @click="createNewGroupFn"
-                    >创建</el-button
-                  >
-                </el-form-item>
-              </el-form>
-            </div>
+      <el-dialog
+        class="newGroupPage"
+        :append-to-body="true"
+        :visible.sync="atNewGroupPage"
+        :before-close="backGroupPageFn"
+        title="创建团队"
+      >
+        <div class="topTip">
+          <div class="centerTip">
+            <div class="text">给你的团队取个名字👩‍🏫</div>
           </div>
         </div>
-      </transition>
+        <div class="bodyArea">
+          <div class="formArea">
+            <el-form>
+              <el-form-item
+                :rules="{
+                  required: true,
+                  message: '团队名称不能为空',
+                  trigger: 'blur'
+                }"
+              >
+                <el-input
+                  v-model="newGroupName"
+                  placeholder="团队名称"
+                ></el-input>
+              </el-form-item>
+
+              <el-form-item>
+                <el-button type="primary" @click="createNewGroupFn"
+                  >创建</el-button
+                >
+              </el-form-item>
+            </el-form>
+          </div>
+        </div>
+      </el-dialog>
 
       <msgBtn></msgBtn>
       <userBtn class="oneItem"> </userBtn>
