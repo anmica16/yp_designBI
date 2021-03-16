@@ -763,6 +763,14 @@ $color5: #a83be7;
       border-bottom: 1px solid $border;
       width: 100%;
     }
+
+    &.isReadonly {
+      .barItem {
+        color: $font2_light;
+        background: white;
+        cursor: not-allowed;
+      }
+    }
   }
 
   //~ 3 中间编辑区域

@@ -149,7 +149,7 @@ router.beforeEach((to, from, next) => {
   console.log(["to 和 from", to, from]);
 
   //【=4=】不需要守卫的页面：
-  let purePages = ["Error"];
+  let purePages = ["Error", "BoardView"];
   if (purePages.indexOf(to.name) > -1) {
     next();
     return;

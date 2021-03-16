@@ -263,7 +263,7 @@ export default {
         name: "",
         desp: "",
         boardId: "",
-        rank: "20"
+        rank: "40"
       },
       dialogMenuSelBoard: null,
       dialogMenuSelBoardName: "",
@@ -318,11 +318,11 @@ export default {
     ranks() {
       return [
         {
-          value: "10",
+          value: "30",
           label: "仅限团队"
         },
         {
-          value: "20",
+          value: "40",
           label: "所有人(包含游客)"
         }
       ];
@@ -346,7 +346,7 @@ export default {
         name: "",
         desp: "",
         boardId: "",
-        rank: "20"
+        rank: "40"
       });
       me.dialogMenuSelBoard = null;
       me.dialogMenuSelBoardName = "";
@@ -429,7 +429,10 @@ export default {
         loader
           .ajax({
             url: Vue.Api.designBI,
-            method: Vue.Api.designBI.GetMenuItems
+            method: Vue.Api.designBI.GetMenuItems,
+            data: {
+              groupId: me.pageGroupId
+            }
           })
           .then(result => {
             me.menuItemListLoading = false;

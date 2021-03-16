@@ -97,7 +97,12 @@
         </div>
 
         <!-- 【2】左侧工具栏 -->
-        <div class="EditLeftBar" slot="w">
+        <div
+          class="EditLeftBar"
+          :class="{ isReadonly }"
+          :title="isReadonly ? '权限不足' : ''"
+          slot="w"
+        >
           <div class="barItem core" @click="createBIItem">
             <dir class="icon">
               <i class="el-icon-circle-plus-outline"></i>
@@ -140,6 +145,7 @@
             @show="leftBarPopShow"
             ref="popover"
             placement="right-start"
+            :disabled="isReadonly"
           >
             <div class="barItem" slot="reference">
               <dir class="icon">
@@ -204,6 +210,7 @@
                 :isRoot="true"
                 :nowBoard="nowBoard"
                 :EditNode="me"
+                :is="rankNormal ? 'Bubble' : 'BubbleReadOnly'"
               ></Bubble>
             </div>
           </Scrollbar>
@@ -214,7 +221,7 @@
       <transition name="PageMove">
         <ItemEdit
           ref="itemEdit"
-          v-show="itemEditPage"
+          v-show="itemEditPage && rankNormal"
           :addInstances="addInstances"
           :EditNode="me"
           :nowBoard="nowBoard"
@@ -244,6 +251,14 @@ export default {
   mixins: [DesignEditMixin],
   components: {
     BoardPreview
+  },
+  computed: {
+    isReadonly() {
+      let me = this,
+        boardGid = me.nowBoard && me.nowBoard.recordData.ownerGroup;
+
+      return !me.rankNormal && boardGid == me.pageGroupId;
+    }
   }
 };
 </script>

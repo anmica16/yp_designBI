@@ -1,11 +1,13 @@
 <template>
   <div class="chart-table">
     <DimTable
-      v-if="hasDimension"
+      v-if="Dims.length || Indices.length"
       ref="table"
       :data="requestData || []"
       :dimension="totDims"
       :rowClickFn="rowClickFn"
+      :pagerSmall="true"
+      :pagerCount="5"
     ></DimTable>
     <div v-else class="noDimensionTip">
       <div class="back"></div>

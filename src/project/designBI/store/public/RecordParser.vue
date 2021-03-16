@@ -241,6 +241,8 @@ export default {
         return Promise.resolve("已删除，保存或更新失败");
       }
 
+      //console.log(["保存的groupId确认", theStore.state.pageGroupId]);
+
       //# 4 save触发
       me.triggerSave(me.recordData);
 

@@ -49,7 +49,8 @@ let LoginUser = {
         "1": "超级管理员",
         "10": "管理员",
         "20": "编辑者",
-        "30": "查看者"
+        "30": "查看者",
+        "40": "游客"
       };
     },
     userRankList() {
@@ -109,6 +110,15 @@ let LoginUser = {
         colorCount = 30,
         codeSum = tool.getStrCodeSum(str);
       return `tagColor tagColor${codeSum % colorCount}`;
+    },
+    //+ 5 获得目标gid的 用户group
+    getPageGroup(gid) {
+      let me = this;
+      return gid
+        ? me.pageGroups.find(g => {
+            return g.id == gid;
+          })
+        : null;
     }
   }
 };

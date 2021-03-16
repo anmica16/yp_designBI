@@ -26,8 +26,8 @@ let newPartialStateFn = function() {
     //【3】登录有关
     loginUser: null,
     pageGroupId: 0, //一定大于0
-    pageGroups: []
-    //pageGroup: null,
+    pageGroups: [],
+    loginBackPage: null
   };
 };
 
@@ -328,23 +328,34 @@ let theStore = new Vuex.Store({
     //@ 3-1 登录的设置登录用户
     loginIn({ state }, user) {
       let me = this;
-      if (!user) {
-        console.error(["没有给出user！登录失败！"]);
-        return;
-      }
+      return new Promise((res, rej) => {
+        if (!user) {
+          Vue.$message.error(["没有给出user！登录失败！"]);
+          res(false);
+          return;
+        }
 
-      state.loginUser = user;
-      sessionStorage.setItem("loginUser", JSON.stringify(user));
+        state.loginUser = user;
+        sessionStorage.setItem("loginUser", JSON.stringify(user));
 
-      //@@ 1 循环收集消息程序启动
-      if (!state.loopGetMsgWorker) {
-        state.loopGetMsgWorker = new LoopGetMsgCtor({
-          propsData: {
-            theStore: me
-          }
-        });
-      }
-      state.loopGetMsgWorker.start();
+        //@@ 1 循环收集消息程序启动
+        if (!state.loopGetMsgWorker) {
+          state.loopGetMsgWorker = new LoopGetMsgCtor({
+            propsData: {
+              theStore: me
+            }
+          });
+        }
+        state.loopGetMsgWorker.start();
+
+        if (state.loginBackPage) {
+          router.push(state.loginBackPage);
+          state.loginBackPage = null;
+          res(false);
+        } else {
+          res(true);
+        }
+      });
     },
 
     //@ 3-2 登出

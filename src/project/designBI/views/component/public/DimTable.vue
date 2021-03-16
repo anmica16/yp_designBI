@@ -31,7 +31,14 @@
         </el-table-column>
       </template>
     </el-table>
-    <Pager ref="pager" :total="data.length" :page-size="pageSize"></Pager>
+    <Pager
+      ref="pager"
+      :total="data.length"
+      :page-size="pageSize"
+      :pager-count="pagerCount"
+      :layout="pagerLayout"
+      :small="pagerSmall"
+    ></Pager>
   </div>
 </template>
 
@@ -51,6 +58,18 @@ export default {
     pageSize: {
       type: Number,
       default: 10
+    },
+    pagerCount: {
+      type: Number,
+      default: 7
+    },
+    pagerLayout: {
+      type: String,
+      default: "prev, pager, next, jumper, ->, total"
+    },
+    pagerSmall: {
+      type: Boolean,
+      default: false
     },
     //# 2 表配置
     rowClickFn: {

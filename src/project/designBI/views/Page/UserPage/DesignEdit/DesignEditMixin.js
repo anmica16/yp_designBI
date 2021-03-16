@@ -392,6 +392,10 @@ export default {
         h = me.$createElement;
 
       return new Promise(res => {
+        if (me.isReadonly) {
+          res(false);
+          return;
+        }
         me.$msgbox({
           title: "添加BI组件--选择数据源",
           message: h(dataSelector, {
@@ -432,7 +436,9 @@ export default {
                     res(newIns);
                   })
                   .catch(r => {
-                    me.$message.error("添加失败！请检查服务器运行状态");
+                    me.$message.error(
+                      r.msg || "添加失败！请检查服务器运行状态"
+                    );
                     res(false);
                   })
                   .finally(() => {
@@ -537,6 +543,10 @@ export default {
       });
 
       return new Promise(res => {
+        if (me.isReadonly) {
+          res(false);
+          return;
+        }
         me.$msgbox({
           title: "添加过滤组件",
           message: h(propertySelector, {
@@ -580,7 +590,9 @@ export default {
                     res(readyIns);
                   })
                   .catch(r => {
-                    me.$message.error("添加失败！请检查服务器运行状态");
+                    me.$message.error(
+                      r.msg || "添加失败！请检查服务器运行状态"
+                    );
                     res(false);
                   });
               } else {
@@ -600,20 +612,24 @@ export default {
     createDetail() {
       let me = this,
         h = me.$createElement;
-      console.log(["关联控件增加"]);
-      //@@ 1 可能加入的 ins
-      let readyIns = new DesignItemInstance({
-        xtype: "BIBase",
-        templateCode: me.nowTemplateCode,
-        useType: 11, //30表示关联控件
-        chartType: "table-mingxi",
-        name: "未命名关联控件" + (me.addInstances.length + 1),
-        createTime: tool.now(),
-        createOperId: me.loginUser.userCode,
-        ownerGroup: me.pageGroupId
-      });
+      //console.log(["关联控件增加"]);
 
       return new Promise(res => {
+        if (me.isReadonly) {
+          res(false);
+          return;
+        }
+        //@@ 1 可能加入的 ins
+        let readyIns = new DesignItemInstance({
+          xtype: "BIBase",
+          templateCode: me.nowTemplateCode,
+          useType: 11, //30表示关联控件
+          chartType: "table-mingxi",
+          name: "未命名关联控件" + (me.addInstances.length + 1),
+          createTime: tool.now(),
+          createOperId: me.loginUser.userCode,
+          ownerGroup: me.pageGroupId
+        });
         me.$msgbox({
           title: "添加关联控件",
           message: h(detailSelector, {
@@ -682,7 +698,7 @@ export default {
                   res(readyIns);
                 })
                 .catch(r => {
-                  me.$message.error("添加失败！请检查服务器运行状态");
+                  me.$message.error(r.msg || "添加失败！请检查服务器运行状态");
                   res(false);
                 })
                 .finally(() => {
@@ -706,6 +722,10 @@ export default {
         h = me.$createElement;
 
       return new Promise(res => {
+        if (me.isReadonly) {
+          res(false);
+          return;
+        }
         me.$msgbox({
           title: "通过复用添加控件",
           message: h(BoardInsPropSelector, {
@@ -743,8 +763,8 @@ export default {
                   res(newIns);
                   selector.loading = false;
                 })
-                .catch(() => {
-                  me.$message.warning("复制失败");
+                .catch(r => {
+                  me.$message.warning(r.msg || "复制失败");
                   res(false);
                   selector.loading = false;
                 });

@@ -209,20 +209,22 @@ export default {
           method: Vue.Api.designBI.AddOrUpd,
           records: JSON.stringify(updItems),
           table: "item",
-          isAdd: "-1"
+          isAdd: "-1",
+          groupId: me.$store.state.pageGroupId
         }
       });
       me.updating
         .then(result => {
-          console.log(["成功的upd CellBubble", result]);
+          //console.log(["成功的upd CellBubble", result]);
           me.updating = null;
           me.$store.state.progress = 100;
           me.$emit("save-success");
         })
         .catch(result => {
-          console.log(["CellBubble 中断upd", arguments]);
           if (result && result.statusText === "abort") {
             me.$store.state.progress = 33;
+          } else {
+            console.log(["CellBubble 失败 upd", arguments]);
           }
         });
     },
