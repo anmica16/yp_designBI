@@ -71,19 +71,16 @@ export default {
 
     //=2= 均为后台触发，前端一般不主动调用
     Vue.$goLogin = function() {
+      //【=3=】登出后，一些活动应中止：
+      me.$store.dispatch("loginOutClear");
+
       me.$msgbox({
         type: "warning",
         message: "当前登录信息已过期，请重新登录！"
       })
         .catch(() => {})
         .finally(() => {
-          //=1= 抹去session
-          me.$store.dispatch("loginOut");
-
-          //=2= 跳转
-          // me.$router.push({
-          //   name: "Login"
-          // });
+          me.$store.dispatch("goLogin");
         });
     };
   }

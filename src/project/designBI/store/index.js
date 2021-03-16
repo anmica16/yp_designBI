@@ -374,18 +374,8 @@ let theStore = new Vuex.Store({
           Vue.$message.error("登出时服务器出现了一些问题，将返回登录页面……");
         })
         .finally(() => {
-          //@@ 1 循环收集消息程序关闭
-          state.loopGetMsgWorker.stop();
-
-          //state.loginUser = null;
           me.dispatch("loginOutClear");
-          sessionStorage.removeItem("loginUser");
-
-          //当前为Login时，不重复跳转
-          if (router.app.$route.name == "Login") {
-            return;
-          }
-          router.push({ name: "Login" });
+          me.dispatch("goLogin");
         });
     },
 
@@ -393,7 +383,24 @@ let theStore = new Vuex.Store({
     loginOutClear({ state }) {
       let me = this,
         newPartilState = newPartialStateFn();
+      //@@ 1 循环收集消息程序关闭
+      state.loopGetMsgWorker.stop();
+      sessionStorage.removeItem("loginUser");
+
+      //@@ 2 重设
       tool.apply(state, newPartilState);
+    },
+
+    goLogin({ state }, backPage) {
+      let me = this;
+      if (backPage) {
+        state.loginBackPage = backPage;
+      }
+      //当前为Login时，不重复跳转
+      if (router.app.$route.name == "Login") {
+        return;
+      }
+      router.push({ name: "Login" });
     },
 
     //@ 3-3 获取

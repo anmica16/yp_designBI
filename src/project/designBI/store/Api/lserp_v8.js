@@ -8,6 +8,7 @@ let Api_custom = {
     AddOrUpd: "AddOrUpdTable",
     Delete: "DeleteRecords",
     AddNewTreeItem: "AddNewTreeItem",
+    DeleteTreeItem: "DeleteTreeItem",
     //~ 1 绘板
     BoardList: "GetBoardList",
     BoardListFolder: "GetBoardListFolderMode",
@@ -31,6 +32,7 @@ let Api_custom = {
     GetLinkSourceDBTableData: "GetLinkSourceDBTableData",
     //~ 4 登录页有关
     Login: "Login",
+    LoginTest: "LoginTest",
     LoginOut: "LoginOut",
     Register: "Register",
     CheckLogin: "CheckLogin",

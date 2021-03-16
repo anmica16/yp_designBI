@@ -224,14 +224,87 @@
         </el-tab-pane>
       </el-tabs>
 
-      <!-- 2-2 全屏按钮 -->
-      <el-button
-        class="toolArea"
-        :class="isFull ? 'el-icon-crop' : 'el-icon-full-screen'"
-        :title="isFull ? '退出全屏' : '进入全屏'"
-        size="mini"
-        @click="fullFn"
-      ></el-button>
+      <el-dropdown trigger="click" class="toolArea" szie="small">
+        <el-link type="info" icon="el-icon-setting">设置</el-link>
+        <el-dropdown-menu slot="dropdown">
+          <!-- 2-2 全屏按钮 -->
+          <el-dropdown-item
+            @click.native="fullFn"
+            :icon="isFull ? 'el-icon-crop' : 'el-icon-full-screen'"
+          >
+            {{ isFull ? "退出全屏" : "进入全屏" }}
+          </el-dropdown-item>
+
+          <!-- 2-3 删除 -->
+          <el-dropdown-item
+            @click.native="deleteMenuItemFn"
+            icon="el-icon-delete"
+          >
+            {{ nowOpenCode == "main" ? "撤销主页" : "删除图表" }}
+          </el-dropdown-item>
+
+          <!-- 2-4 删除文件夹 -->
+          <el-dropdown-item
+            v-if="nowFolder"
+            @click.native="deleteMenuFolderStart"
+            icon="el-icon-delete-solid"
+          >
+            删除文件夹
+          </el-dropdown-item>
+        </el-dropdown-menu>
+      </el-dropdown>
+
+      <el-dialog
+        :append-to-body="true"
+        :destroy-on-close="true"
+        class="deleteMenuFolder"
+        title="确认删除文件夹"
+        :visible.sync="deleteMenuFolderShow"
+      >
+        <span class="theTitle" slot="title">
+          <span class="main">
+            确认删除文件夹
+          </span>
+          <span class="sub">(删除后文件夹下所有图表也都将被删除！)</span>
+        </span>
+
+        <el-link type="warning" :underline="false">
+          重复输入所选的文件夹名，以及用户密码来确认删除！
+        </el-link>
+        <el-form
+          ref="deleteMenuFolderForm"
+          :model="deleteMenuFolderForm"
+          :rules="deleteMenuFolderRules"
+          label-width="120px"
+        >
+          <el-form-item label="文件夹名" prop="folderName">
+            <el-input
+              v-model="deleteMenuFolderForm.folderName"
+              placeholder="请输入所选文件夹名称"
+              autocomplete="off"
+            ></el-input>
+          </el-form-item>
+
+          <el-form-item label="用户密码" prop="password">
+            <el-input
+              v-model="deleteMenuFolderForm.password"
+              type="password"
+              placeholder="请输入用户密码"
+              autocomplete="off"
+            ></el-input>
+          </el-form-item>
+        </el-form>
+
+        <div slot="footer" class="dialog-footer">
+          <el-button @click="deleteMenuFolderShow = false">取 消</el-button>
+          <el-button
+            v-loading="deleteMenuFolderLoading"
+            type="primary"
+            @click="deleteMenuFolderConfirm"
+            >确 定</el-button
+          >
+        </div>
+      </el-dialog>
     </div>
   </div>
 </template>
@@ -245,6 +318,13 @@ import LoginUser from "@designBI/views/mixins/LoginUser";
 import BoardInsPropSelector from "@designBI/views/component/dealBI/BoardInsPropSelector.vue";
 import BoardView from "@designBI/views/Page/PubPage/BoardView.vue";
 import FullScreen from "@/plugins/js/FullScreen";
+
+const deleteMenuFolderForm = function() {
+  return {
+    folderName: "",
+    password: ""
+  };
+};
 
 export default {
   name: "CenterMenu",
@@ -282,7 +362,12 @@ export default {
       //~ 4 展示图表
       openList: [],
       nowOpenCode: "main",
-      isFull: false
+      isFull: false,
+
+      //~ 5 删除文件夹
+      deleteMenuFolderShow: false,
+      deleteMenuFolderLoading: false,
+      deleteMenuFolderForm: deleteMenuFolderForm()
     };
   },
   computed: {
@@ -309,6 +394,29 @@ export default {
           ]
         });
       }
+      return rules;
+    },
+    deleteMenuFolderRules() {
+      let me = this,
+        rules = {
+          folderName: [
+            {
+              required: true,
+              message: `请输入文件夹名称`,
+              trigger: "blur"
+            },
+            {
+              trigger: "blur",
+              validator(rule, value, callback) {
+                if (value != me.nowFolder.name) {
+                  callback(new Error("输入的文件夹名与所选不相同！"));
+                } else {
+                  callback();
+                }
+              }
+            }
+          ]
+        };
       return rules;
     },
     nowPIndex() {
@@ -389,7 +497,8 @@ export default {
               data: {
                 method: Vue.Api.designBI.AddNewTreeItem,
                 table: "menu",
-                records: JSON.stringify([menuItem])
+                records: JSON.stringify([menuItem]),
+                groupId: me.pageGroupId
               }
             })
             .then(function() {
@@ -412,7 +521,7 @@ export default {
               });
             })
             .catch(r => {
-              me.$message.success(
+              me.$message.error(
                 `新建${me.folderMode ? "图表文件夹" : "图表"}失败`
               );
               me.dialogMenuLoading = false;
@@ -494,6 +603,32 @@ export default {
           : "main";
       }
     },
+    openRemoveFolderFn(theFolder) {
+      let me = this;
+      if (!theFolder) {
+        return;
+      }
+      let reg = new RegExp(`^${theFolder.index}-`),
+        //restRecs = [],
+        removeRecs = [];
+      me.menuItemList.forEach(rec => {
+        if (reg.test(rec.index)) {
+          removeRecs.push(rec);
+        }
+        // else {
+        //   if (rec.index != theFolder.index) {
+        //     restRecs.push(rec);
+        //   }
+        // }
+      });
+      //【=2=】筛选后，对要删除的挨个进行 remove
+      removeRecs.forEach(rec => {
+        rec.linkCode && me.openRemoveFn(rec.linkCode);
+      });
+      //【=3=】替换
+      //me.menuItemList = restRecs;
+      me.refreshMenuItemList();
+    },
     getViewNode(linkCode) {
       let me = this,
         ref = null;
@@ -522,6 +657,10 @@ export default {
     //# 6 全屏
     fullFn() {
       let me = this;
+      if (me.nowOpenCode == "main" && !me.loginUserMainPageCode) {
+        me.$message.warning("当前未设置主页，不可全屏主页");
+        return;
+      }
       if (me.FullScreen.isFullScreen()) {
         me.FullScreen.exitScreen();
         me.isFull = false;
@@ -529,6 +668,144 @@ export default {
         me.FullScreen.fullScreen();
         me.isFull = true;
       }
+    },
+    //# 6-2 删除
+    deleteMenuItemFn() {
+      let me = this,
+        nowCode = me.nowOpenCode;
+      if (nowCode == "main") {
+        if (!me.loginUserMainPageCode) {
+          me.$message.warning("当前未设置主页");
+          return;
+        }
+        me.$msgbox({
+          type: "warning",
+          title: "确认",
+          message: "确认撤销当前主页吗？",
+          showCancelButton: true
+        })
+          .then(() => {
+            loader
+              .ajax({
+                url: Vue.Api.designBI,
+                data: {
+                  method: Vue.Api.designBI.UpdateUserMainPageCode,
+                  mainPageCode: ""
+                }
+              })
+              .then(result => {
+                me.$message.success("撤销主页成功！");
+                let user = result.data;
+                me.$store.dispatch("loginIn", user);
+              })
+              .catch(r => {
+                me.$message.success(
+                  r.msg || "撤销主页时服务器出现了一些问题……"
+                );
+              });
+          })
+          .catch(() => {});
+        return;
+      }
+      //【=2=】其他的删除
+      let theItem = me.openList.find(i => {
+        return i.linkCode == nowCode;
+      });
+      if (!theItem) {
+        me.$message.error("未找到当前打开图表信息，删除失败！");
+        return;
+      }
+      me.$msgbox({
+        type: "warning",
+        title: "确认",
+        message: `确认删除当前图表【${theItem.name}】吗？`,
+        showCancelButton: true
+      }).then(() => {
+        loader
+          .ajax({
+            url: Vue.Api.designBI,
+            data: {
+              method: Vue.Api.designBI.Delete,
+              ids: JSON.stringify([theItem.id]),
+              table: "menu",
+              groupId: me.pageGroupId
+            }
+          })
+          .then(result => {
+            me.$message.success("删除图表成功！");
+            me.openRemoveFn(nowCode);
+            me.refreshMenuItemList();
+          })
+          .catch(r => {
+            me.$message.success(r.msg || "删除图表时服务器出现了一些问题……");
+          });
+      });
+    },
+    deleteMenuFolderStart() {
+      let me = this,
+        nowFolder = me.nowFolder;
+      if (!nowFolder) {
+        me.$message.warning("尚未选中图表文件夹");
+        return;
+      }
+      me.deleteMenuFolderShow = true;
+      //=1= 然后交给 dialog的 确认再触发二阶段
+    },
+    deleteMenuFolderConfirm() {
+      let me = this,
+        nowFolder = me.nowFolder,
+        dForm = me.$refs.deleteMenuFolderForm;
+      dForm.validate(ifPass => {
+        if (ifPass) {
+          me.deleteMenuFolderLoading = true;
+          me.$store.state.progress = 5;
+          loader
+            .ajax({
+              url: Vue.Api.designBI,
+              data: {
+                method: Vue.Api.designBI.LoginTest,
+                userCode: me.loginUserCode,
+                password: me.deleteMenuFolderForm.password
+              }
+            })
+            .then(function() {
+              me.$store.state.progress = 40;
+              //=2= 在用户名通过的基础上 再删除
+              loader
+                .ajax({
+                  url: Vue.Api.designBI,
+                  data: {
+                    method: Vue.Api.designBI.DeleteTreeItem,
+                    table: "menu",
+                    index: nowFolder.index
+                  }
+                })
+                .then(result => {
+                  me.deleteMenuFolderLoading = false;
+                  me.$message.success("成功删除文件夹！");
+
+                  me.$store.state.progress = 80;
+                  //=3= 然后对整体tabs 和左侧 recs进行 刷新
+                  me.openRemoveFolderFn(nowFolder);
+                  me.$store.state.progress = 100;
+
+                  //=4= 最后关闭，以及刷新对话框数据
+                  me.deleteMenuFolderShow = false;
+                  me.deleteMenuFolderForm = deleteMenuFolderForm();
+                })
+                .catch(result => {
+                  me.$message.error(result.msg || "删除文件夹失败！");
+                  me.$store.state.progress = 100;
+                  me.deleteMenuFolderLoading = false;
+                });
+            })
+            .catch(r => {
+              me.$message.error(r.msg || "用户密码错误！");
+              me.$store.state.progress = 100;
+              me.deleteMenuFolderLoading = false;
+            });
+        }
+      });
     },
     //# 7 打开的操作
     //~~~ 1 刷新

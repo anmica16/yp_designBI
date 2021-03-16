@@ -5,6 +5,10 @@
 
       <div v-if="pageStatus == 'groupNeedLogin'">
         <el-link @click="goLoginFn" type="primary">去登陆</el-link>
+
+        <router-link :to="{ name: 'DesignCenter-menu' }">
+          <el-link type="success">返回主页</el-link>
+        </router-link>
       </div>
     </div>
 
@@ -98,6 +102,9 @@ export default {
     nowTemplateCode() {
       let me = this,
         menuItem = me.nowMenuItem;
+
+      //=1= 重置
+      me.pageStatus = "ok";
       if (!menuItem) {
         return "";
       }
@@ -191,8 +198,8 @@ export default {
     //# 4 去登录页，然后会返回
     goLoginFn() {
       let me = this;
-      me.$store.state.loginBackPage = me.$route;
-      me.$router.push({ name: "Login" });
+
+      me.$store.dispatch("goLogin", me.$route);
     }
   },
   watch: {
