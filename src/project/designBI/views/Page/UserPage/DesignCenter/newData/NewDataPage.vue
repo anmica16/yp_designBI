@@ -165,20 +165,17 @@ import $ from "@/plugins/js/loader";
 import Vue from "vue";
 import tool from "@/plugins/js/tool";
 import X from "@designBI/views/mixins/X";
+import LoginUser from "@designBI/views/mixins/LoginUser";
 export default {
   name: "NewDataPage",
-  mixins: [X],
+  mixins: [X, LoginUser],
   props: {
     //@ 1 基本
     id: {
       type: String,
-      required: true
+      //required: true
     },
     pIndex: {
-      type: String,
-      required: true
-    },
-    index: {
       type: String,
       required: true
     },
@@ -246,114 +243,102 @@ export default {
       this.$router.push({});
       this.$emit("back", detailData);
     },
-    //~ 2 保存后就取消该 id的 readyAdd状态
-    submitFn_v1() {
+    submitFn() {
       let me = this,
         editTime = tool.now(true),
         record = {
-          id: me.id,
-          name: me.name,
-          dataSource: me.getStrDateAoa(me.sheet, true),
-          editTime
-        };
-      if (me.isEdit) {
-        // tool.apply(record, {
-        //   exist: true,
-        // });
-      } else {
-        tool.apply(record, {
-          fileName: me.fileName,
-          fileType: me.fileType,
-          dataType: me.dataType,
-          //~~ 1 暂时不改
-          dimension: me.dimension,
-          exist: true
-        });
-      }
+          pIndex: me.pIndex,
+          isFolder: false,
+          exist: true,
+          ownerGroup: me.pageGroupId,
 
-      //# 1 保存上传！
+          name: me.name,
+          //## 1 name！
+          tableName: me.tableName,
+          //dataSource: me.getStrDateAoa(me.sheet, true),
+          editTime,
+          editOperId: me.loginUser.userCode
+        };
+      me.$store.state.progress = 10;
+      //【=1=】首先创建，获取id，然后再执行
       $.ajax({
         url: Vue.Api.designBI,
-        method: Vue.Api.designBI.AddOrUpd,
+        method: Vue.Api.designBI.AddNewTreeItem,
         data: {
           table: "data",
           records: JSON.stringify([record])
         }
       })
         .then(result => {
-          me.$message.success("保存成功！");
-          //# 2 返回
-          me.backPage(record);
-        })
-        .catch(r => {
-          me.$message.success("保存失败！" + r);
-        });
-      console.log(["尝试提交", me, record]);
-    },
-    submitFn() {
-      let me = this,
-        editTime = tool.now(true),
-        record = {
-          id: me.id,
-          name: me.name,
-          //## 1 name！
-          tableName: me.tableName,
-          //dataSource: me.getStrDateAoa(me.sheet, true),
-          editTime
-        };
-      if (me.isEdit) {
-        // tool.apply(record, {
-        //   exist: true,
-        // });
-      } else {
-        tool.apply(record, {
-          fileName: me.fileName,
-          fileType: me.fileType,
-          dataType: me.dataType,
-          //~~ 1 暂时不改
-          //## 2 维度！
-          dimension: me.dimension.map(d => {
-            d.dataId = me.id;
-            d.tTable = `t${d.dataId}`;
-            d.tName = `${d.key}_t${d.dataId}`;
-            return d;
-          }),
-          exist: true
-        });
-      }
+          me.$store.state.progress = 50;
+          let theId = result.other;
+          tool.apply(record, {
+            id: theId
+          });
 
-      //# 1 保存上传！
-      $.ajax({
-        url: Vue.Api.designBI,
-        method: Vue.Api.designBI.CreateOrUpdTable,
-        data: {
-          DetailData: JSON.stringify(record),
-          //## 3 数据！
-          keySheet: JSON.stringify(me.getStrDateAoa(me.keySheet, true))
-        }
-      })
-        .then(result => {
-          me.$message.success("保存成功！");
-          //# 2 返回
-          me.backPage(record);
+          //【=2=】两种模式处理
+          //【update】待处理
+          if (me.isEdit) {
+            //tool.apply(record, {});
+          } else {
+            //固定了 的 第一次数据 不可轻易变动
+            tool.apply(record, {
+              createTime: editTime,
+              createOperId: me.loginUser.userCode,
+
+              fileName: me.fileName,
+              fileType: me.fileType,
+              dataType: me.dataType,
+              //~~ 1 暂时不改
+              //## 2 维度！
+              dimension: me.dimension.map(d => {
+                d.dataId = theId;
+                d.tTable = `t${d.dataId}`;
+                d.tName = `${d.key}_t${d.dataId}`;
+                return d;
+              })
+            });
+          }
+
+          //【=3=】 保存上传！
+          $.ajax({
+            url: Vue.Api.designBI,
+            method: Vue.Api.designBI.CreateOrUpdTable,
+            data: {
+              DetailData: JSON.stringify(record),
+              //## 3 数据！
+              keySheet: JSON.stringify(me.getStrDateAoa(me.keySheet, true))
+            }
+          })
+            .then(result => {
+              me.$message.success("保存成功！");
+              //# 2 返回
+              me.backPage(record);
+              me.$store.state.progress = 100;
+            })
+            .catch(r => {
+              me.$message.error("保存失败！" + r);
+              me.$store.state.progress = 100;
+            });
+          console.log(["尝试提交", me, record]);
         })
         .catch(r => {
-          me.$message.error("保存失败！" + r);
+          me.$message.error(r.msg || "提交保存时服务器出了一些问题……");
+          me.$store.state.progress = 100;
         });
-      console.log(["尝试提交", me, record]);
     },
     //~ 3 取消则直接删除该record
     cancelFn() {
       let me = this;
       //# 1 删除
-      $.ajax({
-        url: Vue.Api.designBI,
-        method: Vue.Api.designBI.Delete,
-        data: {
-          table: "data",
-          ids: JSON.stringify([me.id])
-        }
-      }).catch(r => {});
+      // $.ajax({
+      //   url: Vue.Api.designBI,
+      //   method: Vue.Api.designBI.Delete,
+      //   data: {
+      //     table: "data",
+      //     ids: JSON.stringify([me.id])
+      //   }
+      // }).catch(r => {});
       //# 2 返回
       me.backPage();
     },

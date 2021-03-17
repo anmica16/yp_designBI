@@ -105,6 +105,7 @@ export default {
     },
     setOption(cfg) {
       let me = this;
+      me.chart.clear();
       me.chart.setOption(tool.apply({}, me.option, cfg));
       me.$emit("setOption");
     },

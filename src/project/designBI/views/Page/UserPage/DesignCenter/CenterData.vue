@@ -144,7 +144,7 @@ export default {
       let query = this.$route.query,
         q = tool.apply({}, query);
 
-      ["id", "pIndex", "index"].forEach(check => {
+      ["pIndex", "isSql"].forEach(check => {
         if (!Object.hasOwnProperty.call(query, check)) {
           q = null;
         }
@@ -193,7 +193,7 @@ export default {
             c,
             form: {
               pIndex,
-              index,
+              //index, //不需要前端算了
               isFolder: true,
               name: "未命名文件夹" + index,
               exist: true
@@ -216,7 +216,7 @@ export default {
                 let now = tool.now(true);
                 $.ajax({
                   url: Vue.Api.designBI,
-                  method: Vue.Api.designBI.AddOrUpd,
+                  method: Vue.Api.designBI.AddNewTreeItem,
                   data: {
                     table: "data",
                     records: JSON.stringify([
@@ -257,42 +257,47 @@ export default {
       console.log(["打开newData"]);
 
       me.$store.state.progress = 10;
+
+      //【update】目前没必要刷新，回来时刷新即可
       me.refreshRecords()
         .then(r => {
           me.$store.state.progress = 30;
           let folder = folderRec || me.nowFolderRec,
-            pIndex = folder ? folder.index : "",
-            index = me.getNewIndex(folder);
+            pIndex = folder ? folder.index : "";
+          //index = me.getNewIndex(folder);
 
-          let now = tool.now(true);
-          $.ajax({
-            url: Vue.Api.designBI,
-            method: Vue.Api.designBI.AddOrUpd,
-            data: {
-              table: "data",
-              records: JSON.stringify([
-                {
-                  pIndex,
-                  index,
-                  isFolder: false,
-                  createTime: now,
-                  editTime: now,
-                  name: index,
-                  //# 1 表示预备加入
-                  exist: false,
+          //let now = tool.now(true);
+          // $.ajax({
+          //   url: Vue.Api.designBI,
+          //   method: Vue.Api.designBI.AddOrUpd,
+          //   data: {
+          //     table: "data",
+          //     records: JSON.stringify([
+          //       {
+          //         pIndex,
+          //         index,
+          //         isFolder: false,
+          //         createTime: now,
+          //         editTime: now,
+          //         name: index,
+          //         //# 1 表示预备加入
+          //         exist: false,
 
-                  createOperId: me.loginUser.userCode,
-                  ownerGroup: me.pageGroupId
-                }
-              ])
+          //         createOperId: me.loginUser.userCode,
+          //         ownerGroup: me.pageGroupId
+          //       }
+          //     ])
+          //   }
+          // }).then(result => {
+          me.$store.state.progress = 60;
+          me.likeEdit_newData = false;
+          me.$router.push({
+            query: {
+              pIndex,
+              isSql: isSql ? 1 : 0
             }
-          }).then(result => {
-            me.$store.state.progress = 60;
-            me.likeEdit_newData = false;
-            me.$router.push({
-              query: { index, pIndex, id: result.other, isSql: isSql ? 1 : 0 }
-            });
           });
+          //});
         })
         .catch(result => {
           me.$store.state.progress = 100;

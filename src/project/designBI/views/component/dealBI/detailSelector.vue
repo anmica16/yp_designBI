@@ -195,17 +195,25 @@
       <div class="detailTableArea oneArea">
         <div class="areaTitle">四、关联结果表</div>
         <div class="areaBody" v-loading="resultDataLoading">
-          <DimTable
-            v-show="resultData.length"
-            ref="resultTable"
-            :data="resultData"
-            :dimension="sourceDimsReal"
-          ></DimTable>
+          <template v-if="resultDataBadMsg && !resultDataLoading">
+            <div class="errorJoinMsg">
+              {{ resultDataBadMsg }}
+            </div>
+          </template>
 
-          <div v-show="!resultData.length" class="notDataTip">
-            <div class="back"></div>
-            <div class="text">需要选择至少一个维度【于左侧维度栏】</div>
-          </div>
+          <template v-else>
+            <DimTable
+              v-show="resultData.length"
+              ref="resultTable"
+              :data="resultData"
+              :dimension="sourceDimsReal"
+            ></DimTable>
+
+            <div v-show="!resultData.length" class="notDataTip">
+              <div class="back"></div>
+              <div class="text">需要选择至少一个维度【于左侧维度栏】</div>
+            </div>
+          </template>
         </div>
       </div>
     </div>
@@ -260,6 +268,7 @@ export default {
       resultData: [],
       resultDataAjax: null,
       resultDataLoading: false,
+      resultDataBadMsg: "",
 
       //# 7 配置界面加载
       loadStep1: false,
@@ -346,6 +355,10 @@ export default {
       let me = this,
         ins = me.Instance;
       return ins.instanceVue.dataId;
+    },
+    badJoin() {
+      let me = this;
+      return !!me.resultDataBadMsg;
     }
   },
   methods: {
@@ -568,12 +581,14 @@ export default {
           let ls = r.data;
           me.resultData = ls;
           me.resultDataLoading = false;
+          me.resultDataBadMsg = "";
         })
         .catch(r => {
           if (r && r.statusText === "abort") {
             //
           } else {
-            me.$message.error("获取关联结果表列数据失败！" + r.msg);
+            me.resultDataBadMsg = "获取关联结果表列数据失败！" + r.msg;
+            me.$message.error(me.resultDataBadMsg);
             me.resultDataLoading = false;
           }
         });
@@ -650,7 +665,7 @@ export default {
             }
           });
         });
-        Promise.all(pros).then(r => {
+        Promise.all(pros).finally(r => {
           me.loadStep2 = false;
         });
 

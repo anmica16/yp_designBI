@@ -81,10 +81,10 @@
           </div>
 
           <dir class="rightPart">
-            <div class="item return" @click="returnToCenter">
+            <!-- <div class="item return" @click="returnToCenter">
               <i class="el-icon-s-promotion"></i>
               <span class="text">返回主界面</span>
-            </div>
+            </div> -->
 
             <div class="item view" @click="previewShow = true">
               <i class="el-icon-data-analysis"></i>

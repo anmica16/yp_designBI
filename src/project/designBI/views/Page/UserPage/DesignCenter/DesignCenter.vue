@@ -362,13 +362,14 @@ export default {
       if (row.isFolder) {
         me.nowFolder = row;
       } else {
+        let toLoc = me.editLocBase + tempCode;
+
         //【update】以后注意 session
         if (!map[tempCode] || !map[tempCode].window.location.pathname) {
-          let toLoc = me.editLocBase + tempCode,
-            newWin = window.open(toLoc);
-          map[tempCode] = newWin;
+          map[tempCode] = window.open(toLoc);
         } else {
-          map[tempCode].window.location.reload();
+          map[tempCode].close();
+          map[tempCode] = window.open(toLoc);
         }
       }
     },

@@ -542,7 +542,10 @@ export default {
             dataId: me.id,
             type: n.type,
             tTable: t,
-            tName: `${n.name}_${t}`
+            tName: `${n.name}_${t}`,
+
+            //++ 1 转换类型，某些特殊类型
+            originType: n.originType
           };
         result.push(dim);
       });
@@ -588,7 +591,7 @@ export default {
         });
     },
     //^^ 5 终于，提交新建/补充该 record了！
-    submitFn() {
+    submitFn_v1() {
       let me = this;
       if (!me.name) {
         me.$message.warning("请命名所需提交的数据！（界面左上角）");
@@ -611,6 +614,97 @@ export default {
           me.$message.error("保存失败！" + r);
         });
       console.log(["尝试提交", me, me.dataRecord]);
+    },
+    //^^ 5-2 v2的 新建，后端处理index，然后变为一次性
+    submitFn() {
+      let me = this;
+
+      if (!me.name) {
+        me.$message.warning("请命名所需提交的数据！（界面左上角）");
+        return;
+      }
+
+      let editTime = tool.now(true),
+        record = {
+          pIndex: me.pIndex,
+          isFolder: false,
+          exist: true,
+          ownerGroup: me.pageGroupId,
+
+          name: me.name,
+          //## 1 name！
+          tableName: me.selTableName,
+          //dataSource: me.getStrDateAoa(me.sheet, true),
+          sourceName: me.sqlSource && me.sqlSource.name,
+          dataBaseName: me.dataBaseName,
+
+          editTime,
+          editOperId: me.loginUser.userCode
+        };
+      me.$store.state.progress = 10;
+      //【=1=】首先创建，获取id，然后再执行
+      $.ajax({
+        url: Vue.Api.designBI,
+        method: Vue.Api.designBI.AddNewTreeItem,
+        data: {
+          table: "data",
+          records: JSON.stringify([record])
+        }
+      })
+        .then(result => {
+          me.$store.state.progress = 50;
+          let theId = result.other;
+          tool.apply(record, {
+            id: theId
+          });
+
+          //【=2=】两种模式处理
+          //【update】待处理
+          if (me.isEdit) {
+            //tool.apply(record, {});
+          } else {
+            //固定了 的 第一次数据 不可轻易变动
+            tool.apply(record, {
+              createTime: editTime,
+              createOperId: me.loginUser.userCode,
+
+              dataType: me.dataType,
+              //~~ 1 暂时不改
+              //## 2 维度！
+              dimension: me.dimension.map(d => {
+                d.dataId = theId;
+                d.tTable = `t${d.dataId}`;
+                d.tName = `${d.key}_t${d.dataId}`;
+                return d;
+              })
+            });
+          }
+
+          //【=3=】 保存上传！
+          $.ajax({
+            url: Vue.Api.designBI,
+            method: Vue.Api.designBI.AddOrUpd,
+            data: {
+              table: "data",
+              records: JSON.stringify([record])
+            }
+          })
+            .then(result => {
+              me.$message.success("保存成功！");
+              //# 2 返回
+              me.backPage(record);
+              me.$store.state.progress = 100;
+            })
+            .catch(r => {
+              me.$message.error("保存失败！" + r);
+              me.$store.state.progress = 100;
+            });
+          console.log(["尝试提交", me, record]);
+        })
+        .catch(r => {
+          me.$message.error(r.msg || "提交保存时服务器出了一些问题……");
+          me.$store.state.progress = 100;
+        });
     }
   },
   watch: {

@@ -189,7 +189,6 @@ let Instance = tool.mergeClone({}, Base, {
       });
       return isLimited;
     }
-
   },
   methods: {
     //++ 5 关联控件配置改变
@@ -217,6 +216,12 @@ let Instance = tool.mergeClone({}, Base, {
             if (action === "confirm") {
               let selector = ins.down("detailSelector"),
                 detailDims = selector.$refs.detailDims;
+
+              if (selector.badJoin) {
+                me.$message.warning("关联表还有错误未处理完毕！");
+                res(false);
+                return;
+              }
 
               //# 1 如果是空
               if (tool.isNull(readyIns.recordData.linkDataId)) {
@@ -338,7 +343,7 @@ let Instance = tool.mergeClone({}, Base, {
     getRealKey(dim) {
       let me = this;
       return me._joinTables && me._joinTables.length ? dim.tName : dim.key;
-    },
+    }
   }
 });
 

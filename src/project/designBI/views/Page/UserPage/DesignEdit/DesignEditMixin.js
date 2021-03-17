@@ -646,6 +646,12 @@ export default {
               let selector = ins.down("detailSelector"),
                 detailDims = selector.$refs.detailDims;
 
+              if (selector.badJoin) {
+                me.$message.warning("关联表还有错误未处理完毕！");
+                res(false);
+                return;
+              }
+
               //# 1 如果是空
               if (tool.isNull(readyIns.recordData.linkDataId)) {
                 me.$message.warning("请选择主表！");
