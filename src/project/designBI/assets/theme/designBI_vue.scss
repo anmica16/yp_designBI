@@ -838,8 +838,15 @@ $color5: #a83be7;
     height: 100%;
     width: calc(100% - #{$w_select});
 
-    .topArea {
-      height: $h_top;
+    .toolArea {
+      position: absolute;
+      top: 5px;
+      right: 10px;
+
+      > * {
+        margin-right: 10px;
+      }
+
     }
     .innerStage {
       height: calc(100% - #{$h_top});

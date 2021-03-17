@@ -151,12 +151,10 @@ let Xbase = {
           //# 4 可能存在维度不确定数据
           me.dataHealthyReport({ analyse, keySheet, wb })
             .then(r1 => {
-              if (analyse.perfect) {
-                return;
-              }
-              if (analyse.healthy) {
-                //# 4-2 针对不确定数据进行类型强转
+              //# 5 确定完美的，就敲定
+              if (analyse.perfect || analyse.healthy) {
                 res({ wb, fileName, fileType, analyse, keySheet });
+                //# 4-2 针对不确定数据进行类型强转
               } else {
                 //@@ 4 不健康数据 强制取消本次上传
                 rej();
@@ -164,16 +162,16 @@ let Xbase = {
             })
             .catch(r1 => {
               if (analyse.perfect) {
+                res({ wb, fileName, fileType, analyse, keySheet });
                 return;
               }
               //@@ 5 不完美数据 用户主动取消
               me.$message.info("用户取消本次数据上传");
               rej(r1);
             });
-          //# 5 确定完美的，就直接敲定
+          //# 5 确定完美的，先提示，然后统一在关闭窗口时触发 第二步
           if (analyse.perfect) {
-            me.$message.success("上传表格数据成功！");
-            res({ wb, fileName, fileType, analyse, keySheet });
+            me.$message.success("表格文件数据读取成功！");
           }
         };
         if (rABS) reader.readAsBinaryString(f);
@@ -274,7 +272,7 @@ let Xbase = {
       return aoa;
     },
     getSheetFromAoa(_aoa, dim) {
-      if (!_aoa) return false;
+      if (!_aoa || !_aoa.length) return false;
       let me = this,
         X = me.X,
         aoa = tool.clone(_aoa),

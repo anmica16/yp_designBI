@@ -79,7 +79,39 @@
       </div>
     </div>
     <div class="dataStage">
-      <div class="topArea"></div>
+      <div class="toolArea">
+        <el-button
+          v-if="nowFileRec"
+          type="primary"
+          size="mini"
+          icon="el-icon-edit"
+          @click="EditDataFn"
+          >编辑</el-button
+        >
+
+        <el-dropdown trigger="click" class="setting" szie="small">
+          <el-link type="info" icon="el-icon-setting">设置</el-link>
+          <el-dropdown-menu slot="dropdown">
+            <!-- 2-3 删除 -->
+            <el-dropdown-item
+              v-if="nowFileRec"
+              @click.native="DeleteDataFn"
+              icon="el-icon-delete"
+            >
+              删除数据
+            </el-dropdown-item>
+
+            <!-- 2-4 删除文件夹 -->
+            <el-dropdown-item
+              v-if="nowFolderRec"
+              @click.native="DeleteFolderFn"
+              icon="el-icon-delete-solid"
+            >
+              删除文件夹
+            </el-dropdown-item>
+          </el-dropdown-menu>
+        </el-dropdown>
+      </div>
       <div class="innerStage">
         <template v-if="!nowFileRec">
           <div class="fileNotSelectTip">
@@ -101,12 +133,10 @@
     <transition name="PageMove">
       <NewDataPage
         v-if="query"
-        :is="query.isSql == 1 ? 'NewSqlDataPage' : 'NewDataPage'"
+        :is="query.isSql ? 'NewSqlDataPage' : 'NewDataPage'"
+        :dataType="query.isSql ? 'sql' : 'local'"
         :id="query.id"
-        :dataType="query.isSql == 1 ? 'sql' : 'local'"
         :pIndex="query.pIndex"
-        :index="query.index"
-        :likeEdit="likeEdit_newData"
         @back="newDataBackFn"
       ></NewDataPage>
     </transition>
@@ -134,23 +164,10 @@ export default {
     return {
       count: 0,
       tree: null,
-
-      //~ 2 新建
-      likeEdit_newData: true
+      query: null
     };
   },
   computed: {
-    query() {
-      let query = this.$route.query,
-        q = tool.apply({}, query);
-
-      ["pIndex", "isSql"].forEach(check => {
-        if (!Object.hasOwnProperty.call(query, check)) {
-          q = null;
-        }
-      });
-      return q;
-    },
     passDetailData() {
       return this.DetailData
         ? tool.apply({}, this.nowFileRec, this.DetailData)
@@ -290,13 +307,10 @@ export default {
           //   }
           // }).then(result => {
           me.$store.state.progress = 60;
-          me.likeEdit_newData = false;
-          me.$router.push({
-            query: {
-              pIndex,
-              isSql: isSql ? 1 : 0
-            }
-          });
+          me.query = {
+            pIndex,
+            isSql
+          };
           //});
         })
         .catch(result => {
@@ -306,12 +320,31 @@ export default {
     },
     newDataBackFn(detailData) {
       let me = this;
+      me.query = null;
       //~ 1 回到初始值
-      me.likeEdit_newData = true;
       me.refreshRecords();
       if (detailData) {
         me.nodeClickFn(detailData);
       }
+    },
+    //# 4 几个补充的数据操作
+    //# 4-1 再次进入编辑页
+    EditDataFn() {
+      let me = this,
+        dataRec = me.nowFileRec;
+      me.$store.state.progress = 10;
+      me.query = {
+        isSql: dataRec.dataType == "sql",
+        id: dataRec.id + ""
+      };
+    },
+    //# 4-2 删除当前数据
+    DeleteDataFn() {
+      let me = this;
+    },
+    //# 4-3 删除文件夹
+    DeleteFolderFn() {
+      let me = this;
     }
   },
   mounted() {
