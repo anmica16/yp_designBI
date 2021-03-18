@@ -27,7 +27,10 @@ export default {
       return new Promise((res, rej) => {
         $.ajax({
           url: Vue.Api.designBI,
-          method: Vue.Api.designBI.GetDataMenus
+          method: Vue.Api.designBI.GetDataMenus,
+          data: {
+            groupId: me.pageGroupId
+          }
         })
           .then(result => {
             let recs = result.data;

@@ -63,3 +63,66 @@ let pureLoader = {
 };
 
 export default pureLoader;
+
+class lastLoader {
+  quere = [];
+  then = null;
+  catch = null;
+  finally = null;
+  ajax = null;
+  nowAjax = null;
+
+  constructor(cfg) {
+    let me = this;
+    me.ajax = cfg.ajax;
+    me.then = cfg.then || function() {};
+    me.catch = cfg.catch || function() {};
+    me.finally = cfg.finally || function() {};
+  }
+  load() {
+    let me = this;
+
+    //【=1=】执行abort
+    if (me.quere.length) {
+      me.quere = me.quere.filter(pro => {
+        return !pro.$end;
+      });
+      me.quere.forEach(pro => {
+        try {
+          !pro.$end && pro.abort();
+        } catch (e) {
+          console.log(["进行了一次abort", e]);
+        }
+      });
+      //console.log(["执行了一次abort操作 quere"]);
+    }
+
+    //【=2=】再一次执行
+    let tempAjax = pureLoader.ajax(me.ajax);
+    tempAjax
+      .then(result => {
+        me.then(result);
+        me.finally(result);
+      })
+      .catch(r => {
+        if (r && r.statusText === "abort") {
+          //
+        } else {
+          me.catch(r);
+          me.finally(r);
+        }
+      })
+      .finally(result => {
+        tempAjax.$end = true;
+      });
+
+    //【=3=】加入queue
+    me.quere.push(tempAjax);
+    me.nowAjax = tempAjax;
+
+    //【=4=】给全面的ajax操作提供入口
+    return tempAjax;
+  }
+}
+
+export { lastLoader };
