@@ -338,8 +338,9 @@ export default {
       me.tbDTAjax.load();
     },
     //^^ 5-2 v2的 新建，后端处理index，然后变为一次性
-    submitFn() {
+    submitFnBase(recordCfg) {
       let me = this;
+      recordCfg = recordCfg || {};
 
       if (!me.name) {
         me.$message.warning("请命名所需提交的数据！（界面左上角）");
@@ -347,22 +348,25 @@ export default {
       }
 
       let editTime = tool.now(true),
-        record = {
-          pIndex: me.PageNode.pIndex,
-          isFolder: false,
-          exist: true,
-          ownerGroup: me.pageGroupId,
+        record = tool.apply(
+          {
+            pIndex: me.PageNode.pIndex,
+            isFolder: false,
+            exist: true,
+            ownerGroup: me.pageGroupId,
 
-          name: me.name,
-          //## 1 name！
-          tableName: me.selTableName,
-          //dataSource: me.getStrDateAoa(me.sheet, true),
-          sourceName: me.sqlSource && me.sqlSource.name,
-          dataBaseName: me.dataBaseName,
+            name: me.name,
+            //## 1 name！
+            tableName: me.selTableName,
+            //dataSource: me.getStrDateAoa(me.sheet, true),
+            sourceName: me.sqlSource && me.sqlSource.name,
+            dataBaseName: me.dataBaseName,
 
-          editTime,
-          editOperId: me.loginUser.userCode
-        };
+            editTime,
+            editOperId: me.loginUser.userCode
+          },
+          recordCfg
+        );
       me.$store.state.progress = 10;
       //【=1=】首先创建，获取id，然后再执行
       $.ajax({
@@ -427,6 +431,10 @@ export default {
           me.$message.error(r.msg || "提交保存时服务器出了一些问题……");
           me.$store.state.progress = 100;
         });
+    },
+    submitFn() {
+      let me = this;
+      me.submitFnBase();
     }
   },
   watch: {

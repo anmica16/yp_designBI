@@ -20,10 +20,6 @@ let LoginUser = {
       let me = this;
       return me.loginUser ? me.loginUser.defaultGroup : "";
     },
-    pageGroupId() {
-      let me = this;
-      return me.$store.state.pageGroupId;
-    },
     pageGroups() {
       let me = this;
       return me.$store.state.pageGroups;
@@ -31,6 +27,10 @@ let LoginUser = {
     pageGroup() {
       let me = this;
       return me.$store.getters.pageGroup;
+    },
+    pageGroupId() {
+      let me = this;
+      return me.pageGroup && me.$store.state.pageGroupId;
     },
     pageGroupName() {
       let me = this;

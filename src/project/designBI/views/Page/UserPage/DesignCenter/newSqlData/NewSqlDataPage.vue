@@ -3,7 +3,10 @@
     <div class="headBar">
       <div class="dataName">
         <span class="pre">表名</span>
-        <el-input v-model="name" placeholder="请输入表名"></el-input>
+        <el-input
+          v-model="subName[dataSubType]"
+          placeholder="请输入表名"
+        ></el-input>
       </div>
       <div class="fill"></div>
       <div class="yesno">
@@ -99,14 +102,34 @@
         </div>
 
         <el-tabs v-else v-model="dataSubType">
-          <el-tab-pane name="U">
+          <el-tab-pane label="用户表" name="U">
             <UserTable
               ref="U"
               :PageNode="me"
-              :name.sync="name"
+              :name.sync="subName['U']"
               :sqlSource="sqlSource"
               :canSubmit.sync="canSubmit['U']"
             ></UserTable>
+          </el-tab-pane>
+
+          <el-tab-pane label="视图" name="V">
+            <ViewTable
+              ref="V"
+              :PageNode="me"
+              :name.sync="subName['V']"
+              :sqlSource="sqlSource"
+              :canSubmit.sync="canSubmit['V']"
+            ></ViewTable>
+          </el-tab-pane>
+
+          <el-tab-pane label="存储过程" name="P">
+            <Procedure
+              ref="P"
+              :PageNode="me"
+              :name.sync="subName['P']"
+              :sqlSource="sqlSource"
+              :canSubmit.sync="canSubmit['P']"
+            ></Procedure>
           </el-tab-pane>
         </el-tabs>
       </div>
@@ -124,13 +147,17 @@ import NewDataPage from "../newData/NewDataPage";
 import AddSqlSource from "./AddSqlSource";
 
 import UserTable from "./subType/UserTable";
+import ViewTable from "./subType/View";
+import Procedure from './subType/Procedure';
 
 export default {
   name: "NewSqlDataPage",
   extends: NewDataPage,
   components: {
     AddSqlSource,
-    UserTable
+    UserTable,
+    ViewTable,
+    Procedure
   },
   data() {
     return {
@@ -155,7 +182,14 @@ export default {
       //## 二 分开的subDataType
       dataSubType: "U",
       canSubmit: {
-        U: false
+        U: false,
+        V: false,
+        P: false
+      },
+      subName: {
+        U: "",
+        V: "",
+        P: ""
       }
     };
   },
@@ -275,9 +309,14 @@ export default {
     //^^ 5-2 v2的 新建，后端处理index，然后变为一次性
     submitFn() {
       let me = this,
-        uTable = me.$refs.U;
+        uTable = me.$refs.U,
+        vTable = me.$refs.V;
       if (me.dataSubType == "U") {
         uTable.submitFn();
+      } else if (me.dataSubType == "V") {
+        vTable.submitFn();
+      } else if (me.dataSubType == "P") {
+        vTable.submitFn();
       }
     }
   },

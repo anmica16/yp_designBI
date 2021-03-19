@@ -1,5 +1,6 @@
 import $ from "@/plugins/js/loader";
 import Vue from "vue";
+import { theStore } from "@designBI/store";
 export default {
   props: {
     isLoadByHand: {
@@ -124,8 +125,23 @@ export default {
   },
   created() {
     let me = this;
+    if (!me.$store) {
+      me.$store = theStore;
+    }
+    //console.log(["奇怪，加载呢？"]);
     if (!me.isLoadByHand) {
-      me.refreshRecords();
+      let n = 0;
+      let t = setInterval(() => {
+        if (me.pageGroupId) {
+          me.refreshRecords();
+          clearInterval(t);
+        } else {
+          ++n;
+          if (n >= 10) {
+            clearInterval(t);
+          }
+        }
+      }, 200);
     }
   }
 };

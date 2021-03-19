@@ -41,13 +41,14 @@
 <script>
 import tool from "@/plugins/js/tool";
 import dataSelectorMixin from "./dataSelectorMixin";
+import LoginUser from "@designBI/views/mixins/LoginUser";
 //import SimpleCheckData from "../../Page/UserPage/DesignCenter/newData/SimpleCheckData";
 export default {
   name: "dataSelector",
   // components: {
   //   SimpleCheckData
   // },
-  mixins: [dataSelectorMixin],
+  mixins: [dataSelectorMixin, LoginUser],
   props: {
     Instance: Object
   },

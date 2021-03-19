@@ -1201,6 +1201,51 @@ $color5: #a83be7;
           }
         }
       }
+
+      //# 1 tab类型的
+      > .el-tabs {
+        height: 100%;
+        $h_top: 40px;
+        > .el-tabs__header {
+          margin: 0;
+          height: $h_top;
+        }
+        > .el-tabs__content {
+          height: calc(100% - #{$h_top});
+          > .el-tab-pane {
+            height: 100%;
+            box-sizing: border-box;
+            padding-top: 10px;
+            > * {
+              height: 100%;
+            }
+          }
+        }
+      }
+
+      //# 2 页面newProcedure
+      .newProcedure {
+        $h_sel: 200px;
+        .dbTableSelectArea {
+          height: $h_sel;
+          @extend %flex-row;
+
+          $w_left: 400px;
+          > .leftPart {
+            width: $w_left;
+          }
+          > .rightPart {
+            width: calc(100% - #{$w_left});
+            .paramListArea {
+              height: 100%;
+            }
+          }
+        }
+
+        .tableDataArea {
+          height: calc(100% - #{$h_sel});
+        }
+      }
     }
   }
 }

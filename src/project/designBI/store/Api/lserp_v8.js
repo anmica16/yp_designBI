@@ -28,6 +28,8 @@ let Api_custom = {
     DeleteSqlSource: "DeleteSqlSource",
     GetLinkSourceDBList: "GetLinkSourceDBList",
     GetLinkSourceDBTableList: "GetLinkSourceDBTableList",
+    GetLinkSourceDBViewList: "GetLinkSourceDBViewList",
+    GetLinkSourceDBProcedureList: "GetLinkSourceDBProcedureList",
     GetLinkSourceDBTableDimList: "GetLinkSourceDBTableDimList",
     GetLinkSourceDBTableData: "GetLinkSourceDBTableData",
     //~ 4 登录页有关
