@@ -119,6 +119,22 @@ let LoginUser = {
             return g.id == gid;
           })
         : null;
+    },
+    // # 6 等待pageGroupId的循环
+    waitPageGroupId(fn) {
+      let me = this;
+      let n = 0;
+      let t = setInterval(() => {
+        if (me.pageGroupId) {
+          fn();
+          clearInterval(t);
+        } else {
+          ++n;
+          if (n >= 10) {
+            clearInterval(t);
+          }
+        }
+      }, 200);
     }
   }
 };

@@ -119,7 +119,8 @@ export default {
         data: {
           serverName: me.sqlSource.name,
           dbName: me.dataBaseName,
-          query: queryStr
+          query: queryStr,
+          groupId: me.pageGroupId
         }
       };
       me.tbListAjax.load();

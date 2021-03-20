@@ -178,7 +178,8 @@ export default {
         data: {
           serverName: me.sqlSource.name,
           dbName: me.dataBaseName,
-          query: queryStr
+          query: queryStr,
+          groupId: me.pageGroupId
         }
       };
       me.tbListAjax.load();
@@ -223,10 +224,43 @@ export default {
           serverName: me.sqlSource.name,
           dbName: me.dataBaseName,
           tableName: me.selTableName,
-          dataSubType: me.dataSubType
+          dataSubType: me.dataSubType,
+          groupId: me.pageGroupId
         }
       };
       me.dimAjax.load();
+    },
+    //@#@ 3 选择了一个
+    dimCheckFn(cNode, checkInfo) {
+      let me = this,
+        result = [],
+        checkNodes = checkInfo.checkedNodes;
+      checkNodes.forEach(n => {
+        let t = `t${me.dataId}`,
+          dim = {
+            $id: n.$id,
+            key: n.name,
+            chineseName: n.chineseName,
+            dataId: me.id,
+            type: n.type,
+            tTable: t,
+            tName: `${n.name}_${t}`,
+
+            //++ 1 转换类型，某些特殊类型
+            originType: n.originType
+          };
+        result.push(dim);
+      });
+      me.dimension = result;
+      me.$nextTick(() => {
+        me.$refs.table.doLayout();
+      });
+      //# 2 维度选择后，进行数据刷新
+      // if (!result.length) {
+      //   me.tableData = [];
+      // } else {
+      //   me.getResultTableData();
+      // }
     },
     submitFn() {
       let me = this;

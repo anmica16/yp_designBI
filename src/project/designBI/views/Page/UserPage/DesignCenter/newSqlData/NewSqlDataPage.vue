@@ -48,15 +48,18 @@
           </el-dialog>
         </div>
         <div class="listBody">
+          <div class="emptyTip" v-if="!sqlSourceList.length">
+            尚未添加数据源
+          </div>
           <Scrollbar>
-            <template v-for="server in sqlSourceLS">
+            <template v-for="(server, i) in sqlSourceLS">
               <div
                 class="oneServer"
                 :class="{ selected: sqlSource == server }"
                 :key="server.name"
                 @click="oneServerClickFn(server)"
               >
-                <div class="id">#{{ server.id }}</div>
+                <div class="id">#{{ i + 1 }}</div>
                 <div class="name">
                   <span>数据源：</span>
                   <span>{{ server.name }}</span>
@@ -148,7 +151,7 @@ import AddSqlSource from "./AddSqlSource";
 
 import UserTable from "./subType/UserTable";
 import ViewTable from "./subType/View";
-import Procedure from './subType/Procedure';
+import Procedure from "./subType/Procedure";
 
 export default {
   name: "NewSqlDataPage",
@@ -220,7 +223,10 @@ export default {
         me.refreshSqlListAjax = new lastLoader({
           ajax: {
             url: Vue.Api.designBI,
-            method: Vue.Api.designBI.GetSqlSourceList
+            method: Vue.Api.designBI.GetSqlSourceList,
+            data: {
+              groupId: me.pageGroupId
+            }
           },
           then(result) {
             let ls = result.data;
@@ -262,7 +268,8 @@ export default {
         url: Vue.Api.designBI,
         method: Vue.Api.designBI.DeleteSqlSource,
         data: {
-          name: server.name
+          name: server.name,
+          groupId: me.pageGroupId
         }
       })
         .then(r => {
@@ -286,7 +293,7 @@ export default {
         data: {
           ...formData,
           createOperId: me.loginUser.userCode,
-          ownerGroup: me.pageGroupId
+          groupId: me.pageGroupId
         }
       })
         .then(result => {
@@ -310,13 +317,14 @@ export default {
     submitFn() {
       let me = this,
         uTable = me.$refs.U,
-        vTable = me.$refs.V;
+        vTable = me.$refs.V,
+        pTable = me.$refs.P;
       if (me.dataSubType == "U") {
         uTable.submitFn();
       } else if (me.dataSubType == "V") {
         vTable.submitFn();
       } else if (me.dataSubType == "P") {
-        vTable.submitFn();
+        pTable.submitFn();
       }
     }
   },

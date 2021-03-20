@@ -222,7 +222,8 @@ export default {
         data: {
           serverName: me.sqlSource.name,
           dbName: me.dataBaseName,
-          query: queryStr
+          query: queryStr,
+          groupId: me.pageGroupId
         }
       };
       me.tbListAjax.load();
@@ -260,7 +261,8 @@ export default {
         data: {
           serverName: me.sqlSource.name,
           dbName: me.dataBaseName,
-          tableName: me.selTableName
+          tableName: me.selTableName,
+          groupId: me.pageGroupId
         }
       };
       me.dimAjax.load();
@@ -332,7 +334,8 @@ export default {
           serverName: me.sqlSource.name,
           dbName: me.dataBaseName,
           tableName: me.selTableName,
-          dimension: JSON.stringify(me.dimension)
+          dimension: JSON.stringify(me.dimension),
+          groupId: me.pageGroupId
         }
       };
       me.tbDTAjax.load();
@@ -374,7 +377,8 @@ export default {
         method: Vue.Api.designBI.AddNewTreeItem,
         data: {
           table: "data",
-          records: JSON.stringify([record])
+          records: JSON.stringify([record]),
+          groupId: me.pageGroupId
         }
       })
         .then(result => {
@@ -412,7 +416,8 @@ export default {
             method: Vue.Api.designBI.AddOrUpd,
             data: {
               table: "data",
-              records: JSON.stringify([record])
+              records: JSON.stringify([record]),
+              groupId: me.pageGroupId
             }
           })
             .then(result => {

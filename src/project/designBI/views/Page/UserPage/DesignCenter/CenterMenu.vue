@@ -262,9 +262,7 @@
         :visible.sync="deleteMenuFolderShow"
       >
         <span class="theTitle" slot="title">
-          <span class="main">
-            确认删除文件夹
-          </span>
+          <span class="main"> 确认删除文件夹 </span>
           <span class="sub">(删除后文件夹下所有图表也都将被删除！)</span>
         </span>
 
@@ -319,7 +317,7 @@ import BoardInsPropSelector from "@designBI/views/component/dealBI/BoardInsPropS
 import BoardView from "@designBI/views/Page/PubPage/BoardView.vue";
 import FullScreen from "@/plugins/js/FullScreen";
 
-const deleteMenuFolderForm = function() {
+const deleteMenuFolderForm = function () {
   return {
     folderName: "",
     password: ""
@@ -501,7 +499,7 @@ export default {
                 groupId: me.pageGroupId
               }
             })
-            .then(function() {
+            .then(function () {
               me.$message.success(
                 `成功新建${me.folderMode ? "图表文件夹" : "图表"}`
               );
@@ -768,7 +766,7 @@ export default {
                 password: me.deleteMenuFolderForm.password
               }
             })
-            .then(function() {
+            .then(function () {
               me.$store.state.progress = 40;
               //=2= 在用户名通过的基础上 再删除
               loader
@@ -882,7 +880,10 @@ export default {
   },
   created() {
     let me = this;
-    me.refreshMenuItemList();
+
+    me.waitPageGroupId(() => {
+      me.refreshMenuItemList();
+    });
   }
 };
 </script>

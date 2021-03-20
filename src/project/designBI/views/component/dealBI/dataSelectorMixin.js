@@ -130,18 +130,9 @@ export default {
     }
     //console.log(["奇怪，加载呢？"]);
     if (!me.isLoadByHand) {
-      let n = 0;
-      let t = setInterval(() => {
-        if (me.pageGroupId) {
-          me.refreshRecords();
-          clearInterval(t);
-        } else {
-          ++n;
-          if (n >= 10) {
-            clearInterval(t);
-          }
-        }
-      }, 200);
+      me.waitPageGroupId(() => {
+        me.refreshRecords();
+      });
     }
   }
 };
