@@ -173,14 +173,14 @@
                       <DimTypeTag
                         :class="jt.mainDim.dimClass"
                         :type="jt.mainDim.type"
-                        :name="jt.mainDim.key"
+                        :name="jt.joinDim.chineseName || jt.mainDim.key"
                         :preText="jt.mainDim.preText"
                       ></DimTypeTag>
                       <span> = </span>
                       <DimTypeTag
                         :class="jt.joinDim.dimClass"
                         :type="jt.joinDim.type"
-                        :name="jt.joinDim.key"
+                        :name="jt.joinDim.chineseName || jt.joinDim.key"
                         :preText="jt.joinDim.preText"
                       ></DimTypeTag>
                     </div>

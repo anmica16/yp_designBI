@@ -623,7 +623,7 @@ export default {
         let readyIns = new DesignItemInstance({
           xtype: "BIBase",
           templateCode: me.nowTemplateCode,
-          useType: 11, //30表示关联控件
+          useType: 11, //11表示关联控件
           chartType: "table-mingxi",
           name: "未命名关联控件" + (me.addInstances.length + 1),
           createTime: tool.now(),
@@ -780,6 +780,117 @@ export default {
             }
           }
         });
+      });
+    },
+    //~ 7 带参数控件添加
+    createParamItem() {
+      let me = this,
+        h = me.$createElement;
+      //console.log(["带参数控件增加"]);
+
+      return new Promise(res => {
+        if (me.isReadonly) {
+          res(false);
+          return;
+        }
+        //@@ 1 可能加入的 ins
+        let readyIns = new DesignItemInstance({
+          xtype: "BIBase",
+          templateCode: me.nowTemplateCode,
+          useType: 12, //12 表示带参数控件
+          chartType: "table-mingxi",
+          name: "未命名带参数控件" + (me.addInstances.length + 1),
+          createTime: tool.now(),
+          createOperId: me.loginUser.userCode,
+          ownerGroup: me.pageGroupId
+        });
+        
+        me.$msgbox({
+          title: "添加带参数控件",
+          message: h(detailSelector, {
+            key: tool.uniqueStr(),
+            props: {
+              Instance: readyIns
+            }
+          }),
+          closeOnClickModal: false,
+          showCancelButton: true,
+          customClass: "newDetail",
+          beforeClose(action, ins, done) {
+            if (action === "confirm") {
+              let selector = ins.down("detailSelector"),
+                detailDims = selector.$refs.detailDims;
+
+              if (selector.badJoin) {
+                me.$message.warning("带参数表还有错误未处理完毕！");
+                res(false);
+                return;
+              }
+
+              //# 1 如果是空
+              if (tool.isNull(readyIns.recordData.linkDataId)) {
+                me.$message.warning("请选择主表！");
+                res(false);
+                return;
+              }
+              let JTs = readyIns.recordData.config_more.JoinTables,
+                notHealthy = [];
+              //# 2 检测每个 join的配置是否完整
+              if (JTs && JTs.length) {
+                JTs.forEach(jt => {
+                  if (
+                    tool.isNull(jt.joinTableProperty) ||
+                    tool.isNull(jt.joinThisProperty)
+                  ) {
+                    //# 2-2 响应的反应出来
+                    me.$set(jt, "$notHealthy", true);
+                    notHealthy.push(jt);
+                  }
+                });
+              } else {
+                me.$message.warning("带参数控件至少配置一个带参数表！");
+                res(false);
+                return;
+              }
+              if (notHealthy.length) {
+                me.$message.warning(
+                  `存在${notHealthy.length}个带参数配置不完整，请完善后再试！`
+                );
+                res(false);
+                return;
+              }
+
+              //# 2-2 检测所选维度数量
+              console.log(["//# 2-2 检测所选维度数量", selector, detailDims]);
+              if (!detailDims.candies.length) {
+                me.$message.warning("请至少选择1个维度指标！");
+                res(false);
+                return;
+              }
+              selector.confirmLoading = true;
+              //# 3 进行保存
+              me.nowBoardRoot
+                .add(readyIns)
+                .then(r => {
+                  me.$message.success("新增成功！");
+                  done();
+                  readyIns.$bubble.goEditPage();
+                  readyIns.$bubble.mousedownFn();
+                  res(readyIns);
+                })
+                .catch(r => {
+                  me.$message.error(r.msg || "添加失败！请检查服务器运行状态");
+                  res(false);
+                })
+                .finally(() => {
+                  selector.confirmLoading = false;
+                });
+            } else {
+              done();
+              res(false);
+            }
+          }
+        }).catch(() => {});
       });
     }
   },

@@ -139,6 +139,13 @@
             </dir>
             <dir class="text">关联控件</dir>
           </div>
+          <!-- ~ 3-2 带参数控件 -->
+          <div class="barItem" @click="createParamItem">
+            <dir class="icon">
+              <i class="el-icon-share"></i>
+            </dir>
+            <dir class="text">带参数控件</dir>
+          </div>
           <!-- ~ 2 过滤控件 -->
           <el-popover
             class="popover conditionAddBar"

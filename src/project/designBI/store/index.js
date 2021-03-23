@@ -220,11 +220,16 @@ let theStore = new Vuex.Store({
     //@ 1-2 外部调用获取 boards
     getBoardList({ state, getters }, nowPIndex) {
       return new Promise((res, rej) => {
+        if (!getters.pageGroup) {
+          rej(false);
+          return;
+        }
         $.ajax({
           url: Vue.Api.designBI,
           data: {
             method: Vue.Api.designBI.BoardListFolder,
-            pIndex: nowPIndex
+            pIndex: nowPIndex,
+            groupId: state.pageGroupId
           }
         })
           .then(result => {
