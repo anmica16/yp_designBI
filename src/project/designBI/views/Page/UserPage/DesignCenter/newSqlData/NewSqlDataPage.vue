@@ -134,6 +134,16 @@
               :canSubmit.sync="canSubmit['P']"
             ></Procedure>
           </el-tab-pane>
+
+          <el-tab-pane label="自定义SQL" name="C">
+            <CusTable
+              ref="C"
+              :PageNode="me"
+              :name.sync="subName['C']"
+              :sqlSource="sqlSource"
+              :canSubmit.sync="canSubmit['C']"
+            ></CusTable>
+          </el-tab-pane>
         </el-tabs>
       </div>
     </div>
@@ -152,6 +162,7 @@ import AddSqlSource from "./AddSqlSource";
 import UserTable from "./subType/UserTable";
 import ViewTable from "./subType/View";
 import Procedure from "./subType/Procedure";
+import CusTable from "./subType/Custom";
 
 export default {
   name: "NewSqlDataPage",
@@ -160,7 +171,8 @@ export default {
     AddSqlSource,
     UserTable,
     ViewTable,
-    Procedure
+    Procedure,
+    CusTable
   },
   data() {
     return {
@@ -187,12 +199,14 @@ export default {
       canSubmit: {
         U: false,
         V: false,
-        P: false
+        P: false,
+        C: false
       },
       subName: {
         U: "",
         V: "",
-        P: ""
+        P: "",
+        C: ""
       }
     };
   },
@@ -318,6 +332,7 @@ export default {
       let me = this,
         uTable = me.$refs.U,
         vTable = me.$refs.V,
+        cTable = me.$refs.C,
         pTable = me.$refs.P;
       if (me.dataSubType == "U") {
         uTable.submitFn();
@@ -325,6 +340,8 @@ export default {
         vTable.submitFn();
       } else if (me.dataSubType == "P") {
         pTable.submitFn();
+      } else if (me.dataSubType == "C") {
+        cTable.submitFn();
       }
     }
   },
