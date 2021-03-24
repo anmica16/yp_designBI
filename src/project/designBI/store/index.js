@@ -683,7 +683,7 @@ const useTypes = {
     name: "关联控件"
   },
   12: {
-    name: "带参数控件"
+    name: "参数控件"
   },
   20: {
     name: "过滤控件"
@@ -825,6 +825,8 @@ let singleConds = {
     desp: "返回所选日期"
   }
 };
+
+export { conditionCmps, singleConds };
 
 import "./Factory";
 import loader from "sass-loader";

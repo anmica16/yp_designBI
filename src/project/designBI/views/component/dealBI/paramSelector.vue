@@ -1,5 +1,5 @@
 <template>
-  <div class="paramSelector">
+  <div class="paramSelector" v-loading="confirmLoading">
     <div class="TipArea">
       <div class="leftPart">
         <div class="boardTip">
@@ -82,13 +82,32 @@
                       @click="addRelatedListFn(scope.row)"
                       >选择关联</el-button
                     >
-                    <DimTypeTag
+                    <span
                       v-else
-                      v-for="dim in scope.row.relatedList"
-                      :key="dim.$id"
-                      :type="dim.type"
-                      :name="dim.chineseName || dim.key"
-                    ></DimTypeTag>
+                      v-for="oneRe in scope.row.relatedList"
+                      :key="oneRe.$id"
+                      :class="oneRe.type"
+                    >
+                      <span class="type">{{
+                        oneRe == "condition" ? "条件" : "维度"
+                      }}</span>
+
+                      <span class="item">{{ oneRe.insName }}</span>
+
+                      <DimTypeTag
+                        v-if="oneRe.dim"
+                        :name="oneRe.dim.chineseName || oneRe.dim.key"
+                        :type="oneRe.dim.type"
+                      ></DimTypeTag>
+
+                      <el-button
+                        size="mini"
+                        icon="el-icon-delete"
+                        circle
+                        type="danger"
+                        @click="removeOneRe(scope.row, oneRe)"
+                      ></el-button>
+                    </span>
                   </template>
                 </el-table-column>
               </el-table>
@@ -105,18 +124,21 @@
             :key="dimDialogKey"
             :destroy-on-close="true"
             :before-close="dimDialogClose"
-            title="添加带参数控件"
+            title="参数关联选择"
           >
             <BoardInsPropSelector
               ref="dimSelector"
               :stepRange="[2, 3]"
               :start="2"
               :preBoard="EditNode.nowBoard.recordData"
+              :itemListFilter="itemListFilter"
               @item-select="dimDialogItemSel"
             ></BoardInsPropSelector>
 
             <span class="foot">
-              <el-button type="primary" size="small">确定</el-button>
+              <el-button type="primary" size="small" @click="dimDialogConfirm"
+                >确定</el-button
+              >
             </span>
           </el-dialog>
         </div>
@@ -131,6 +153,8 @@ import dataSelectorMixin from "./dataSelectorMixin";
 import LoginUser from "@designBI/views/mixins/LoginUser";
 import BoardInsPropSelector from "@designBI/views/component/dealBI/BoardInsPropSelector.vue";
 
+import { singleConds } from "@designBI/store";
+
 export default {
   name: "paramSelector",
   mixins: [dataSelectorMixin, LoginUser],
@@ -143,6 +167,9 @@ export default {
   },
   data() {
     return {
+      queryFlag: "paramSelector",
+      confirmLoading: false,
+
       dimDialogNowParam: null,
       dimDialogShow: false,
       dimDialogKey: tool.uniqueStr(),
@@ -150,6 +177,9 @@ export default {
     };
   },
   computed: {
+    singleConds() {
+      return singleConds;
+    },
     //# 1 过滤后的 文件夹+ 参数数据
     filterRecs() {
       let me = this;
@@ -161,7 +191,10 @@ export default {
       let me = this,
         rec = null;
       if (me.nowFileRec) {
-        rec = tool.parseObject(me.nowFileRec);
+        rec = tool.apply({}, me.nowFileRec);
+        rec.paramList = tool.isString(rec.paramList)
+          ? JSON.parse(rec.paramList)
+          : rec.paramList;
         rec.paramList = rec.paramList.map(param => {
           //【update】目前只关联一个，但作为数组处理
           param.relatedList = [];
@@ -171,11 +204,39 @@ export default {
 
       return rec;
     },
+    dataId() {
+      return this.nowDataRec.id;
+    },
     //# 2 参数列表
     paramList() {
       let me = this,
         rec = me.nowDataRec;
       return rec ? rec.paramList : [];
+    },
+    //# 3 是否ok
+    selectResult() {
+      let me = this,
+        listOK = true,
+        result = null;
+      if (!me.paramList.length) {
+        return result;
+      }
+
+      tool.each(me.paramList, param => {
+        if (!param.relatedList.length) {
+          listOK = false;
+          return false;
+        }
+      });
+
+      if (listOK) {
+        result = {
+          linkDataId: me.dataId,
+          paramList: me.paramList
+        };
+      }
+
+      return result;
     },
     rowCount() {
       let me = this,
@@ -219,30 +280,61 @@ export default {
       let me = this;
       me.nowFileRec = null;
     },
+    itemListFilter(itemList) {
+      let me = this;
+      return itemList.filter(item => {
+        return (
+          [10, 11, 12].indexOf(item.useType) > -1 || me.singleConds[item.xtype]
+        );
+      });
+    },
     //# 4-1 特殊item选择
     dimDialogItemSel(itemData) {
       let me = this;
       me.dimDialogItem = itemData;
     },
-    //# 4-2 普通item 维度选择
-    dimSelFn(theParam, selDims) {
-      let me = this;
-      console.log(["dimSelFn 工作", arguments]);
-      // plusA.forEach(dim => {
-      //   me.propCoat.candyAddSimple({ Dim: dim });
-      // });
-      // minusA.forEach(dim => {
-      //   me.propCoat.candyLeave({ Dim: dim });
-      // });
-    },
-    dimDialogClose(done) {
+    //# 4-3 确认选择
+    dimDialogConfirm() {
       let me = this,
+        isOK = false,
+        nowParam = me.dimDialogNowParam,
         dimSelector = me.$refs.dimSelector,
-        selDims = dimSelector.selDims;
+        selDims = dimSelector.selDims,
+        selItem = me.dimDialogItem;
 
-      me.dimSelFn(me.dimDialogNowParam, selDims);
+      if (!selDims.length) {
+        if (selItem && selItem.useType == 20) {
+          isOK = true;
+          nowParam.relatedList.push({
+            $id: tool.uniqueStr(),
+            type: "condition",
+            insCode: selItem.instanceCode,
+            insName: selItem.name
+          });
+        } else {
+          me.$message.warning("选择非过滤控件时，需要继续选择控件下维度！");
+        }
+      } else {
+        isOK = true;
+        nowParam.relatedList.push({
+          $id: tool.uniqueStr(),
+          type: "dim",
+          insCode: selItem.instanceCode,
+          insName: selItem.name,
+          dim: selDims[0]
+        });
+      }
+
+      if (isOK) {
+        me.dimDialogShow = false;
+      }
+    },
+    //# 4-4 关闭初始，仅清除
+    dimDialogClose(done) {
+      let me = this;
 
       me.dimDialogNowParam = null;
+      me.dimDialogItem = null;
       //me.dimDialogShow = false;
       done();
     },
@@ -252,6 +344,14 @@ export default {
       me.dimDialogNowParam = theParam;
       me.dimDialogKey = tool.uniqueStr();
       me.dimDialogShow = true;
+    },
+    //# 5 移除一个关联
+    removeOneRe(theParam, oneRe) {
+      let me = this,
+        at = theParam.relatedList.indexOf(oneRe);
+      if (at > -1) {
+        theParam.relatedList.splice(at, 1);
+      }
     }
   }
 };

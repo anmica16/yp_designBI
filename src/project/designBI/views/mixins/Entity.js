@@ -188,6 +188,65 @@ let Instance = tool.mergeClone({}, Base, {
         }
       });
       return isLimited;
+    },
+    // ++ 7 参数列表
+    paramList() {
+      let me = this,
+        pl = me.recordData.paramList;
+      return pl && pl.length ? pl : null;
+    },
+    //++ 7-2 参数结果表
+    paramValueList() {
+      let me = this,
+        edit = me.EditNode,
+        selMap = edit.selectMap,
+        pl = me.paramList,
+        result = [];
+
+      if (!pl || !edit) {
+        return null;
+      }
+
+      pl.forEach(param => {
+        let reLS = param.relatedList,
+          vals = [];
+
+        //【update】目前仅一个
+        reLS.forEach(re => {
+          //【=1=】dim维度类型
+          if (re.type == "dim") {
+            let selMapKey = `${re.dim.dataId}.${re.insCode}`,
+              selRec = selMap[selMapKey];
+            if (selRec && Object.hasOwnProperty.call(selRec, re.dim.key)) {
+              vals.push({
+                type: "dim",
+                matchStr: param.matchStr,
+                value: selRec[re.dim.key]
+              });
+            }
+          } else if (re.type == "condition") {
+            //【=2=】过滤控件类型
+            let ins = edit.addInstances.find(i => {
+              return i.instanceCode == re.insCode;
+            });
+            if (ins && ins.$bubble) {
+              let host = ins.$bubble.host,
+                result = host.singleValue;
+              vals.push({
+                type: "condition",
+                matchStr: param.matchStr,
+                value: result
+              });
+            }
+          }
+        });
+
+        if (vals.length) {
+          result.push(vals[0]);
+        }
+      });
+
+      return result;
     }
   },
   methods: {

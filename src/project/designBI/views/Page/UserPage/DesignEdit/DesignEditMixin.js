@@ -306,7 +306,7 @@ export default {
                   linkDataId: theRec.id,
                   useType: 10,
                   chartType: "table-mingxi",
-                  name: "未命名子控件" + (me.addInstances.length + 1),
+                  name: "子控件" + (me.addInstances.length + 1),
                   createTime: tool.now(),
                   createOperId: me.loginUser.userCode,
                   ownerGroup: me.pageGroupId
@@ -428,7 +428,7 @@ export default {
         xtype: condition.xtype,
         templateCode: me.nowTemplateCode,
         useType: 20, //20表示过滤控件
-        name: "未命名过滤控件" + (me.addInstances.length + 1)
+        name: "过滤控件" + (me.addInstances.length + 1)
       });
 
       return new Promise(res => {
@@ -514,7 +514,7 @@ export default {
           templateCode: me.nowTemplateCode,
           useType: 11, //11表示关联控件
           chartType: "table-mingxi",
-          name: "未命名关联控件" + (me.addInstances.length + 1),
+          name: "关联控件" + (me.addInstances.length + 1),
           createTime: tool.now(),
           createOperId: me.loginUser.userCode,
           ownerGroup: me.pageGroupId
@@ -671,11 +671,11 @@ export default {
         });
       });
     },
-    //~ 7 带参数控件添加
+    //~ 7 参数控件添加
     createParamItem() {
       let me = this,
         h = me.$createElement;
-      //console.log(["带参数控件增加"]);
+      //console.log(["参数控件增加"]);
 
       return new Promise(res => {
         if (me.isReadonly) {
@@ -686,16 +686,16 @@ export default {
         let readyIns = new DesignItemInstance({
           xtype: "BIBase",
           templateCode: me.nowTemplateCode,
-          useType: 12, //12 表示带参数控件
+          useType: 12, //12 表示参数控件
           chartType: "table-mingxi",
-          name: "未命名带参数控件" + (me.addInstances.length + 1),
+          name: "参数控件" + (me.addInstances.length + 1),
           createTime: tool.now(),
           createOperId: me.loginUser.userCode,
           ownerGroup: me.pageGroupId
         });
 
         me.$msgbox({
-          title: "添加带参数控件",
+          title: "添加参数控件",
           message: h(paramSelector, {
             key: tool.uniqueStr(),
             props: {
@@ -705,58 +705,20 @@ export default {
           }),
           closeOnClickModal: false,
           showCancelButton: true,
-          customClass: "newDetail",
+          customClass: "createParamItem",
           beforeClose(action, ins, done) {
             if (action === "confirm") {
-              let selector = ins.down("detailSelector"),
-                detailDims = selector.$refs.detailDims;
+              let selector = ins.down("paramSelector"),
+                selectResult = selector.selectResult;
 
-              if (selector.badJoin) {
-                me.$message.warning("带参数表还有错误未处理完毕！");
-                res(false);
-                return;
-              }
-
-              //# 1 如果是空
-              if (tool.isNull(readyIns.recordData.linkDataId)) {
-                me.$message.warning("请选择主表！");
-                res(false);
-                return;
-              }
-              let JTs = readyIns.recordData.config_more.JoinTables,
-                notHealthy = [];
-              //# 2 检测每个 join的配置是否完整
-              if (JTs && JTs.length) {
-                JTs.forEach(jt => {
-                  if (
-                    tool.isNull(jt.joinTableProperty) ||
-                    tool.isNull(jt.joinThisProperty)
-                  ) {
-                    //# 2-2 响应的反应出来
-                    me.$set(jt, "$notHealthy", true);
-                    notHealthy.push(jt);
-                  }
-                });
-              } else {
-                me.$message.warning("带参数控件至少配置一个带参数表！");
-                res(false);
-                return;
-              }
-              if (notHealthy.length) {
-                me.$message.warning(
-                  `存在${notHealthy.length}个带参数配置不完整，请完善后再试！`
-                );
+              if (!selectResult) {
+                me.$message.warning("参数列表尚未添加完毕，请添加完后再试！");
                 res(false);
                 return;
               }
 
-              //# 2-2 检测所选维度数量
-              console.log(["//# 2-2 检测所选维度数量", selector, detailDims]);
-              if (!detailDims.candies.length) {
-                me.$message.warning("请至少选择1个维度指标！");
-                res(false);
-                return;
-              }
+              readyIns.setData(selectResult);
+
               selector.confirmLoading = true;
               //# 3 进行保存
               me.nowBoardRoot

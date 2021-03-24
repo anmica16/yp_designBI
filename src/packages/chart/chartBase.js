@@ -4,12 +4,14 @@ import loader from "@/plugins/js/loader";
 import { Instance } from "@designBI/views/mixins/Entity";
 import { Xbase } from "@designBI/views/mixins/X";
 
+import LoginUser from "@designBI/views/mixins/LoginUser";
+
 const base = {};
 
 const chartBase = tool.apply({}, base, {});
 
 export default {
-  mixins: [Instance, Xbase],
+  mixins: [Instance, Xbase, LoginUser],
   data() {
     return {
       //## 1 可变，外部筛选导致的数据变化
@@ -158,16 +160,20 @@ export default {
       }
       me.ajaxLoading = true;
       let dataId = me.dataId,
+        linkData = me.LinkData,
         conditions = me.conditions,
         options = {
           url: Vue.Api.designBI,
           method: Vue.Api.designBI.GetDataDetail,
           data: {
             id: dataId,
-            tableName:
-              me.LinkData.dataType == "sql"
-                ? `${me.LinkData.sourceName}.${me.LinkData.dataBaseName}.dbo.${tableName}`
-                : tableName,
+            groupId: linkData.ownerGroup,
+            serverName: linkData.sourceName,
+            dbName: linkData.dataBaseName,
+
+            dataSubType: linkData.dataSubType,
+
+            tableName,
             //@ 3 这两个产生个性
             Dims: JSON.stringify(
               me.Dims.map(d => {
@@ -314,6 +320,15 @@ export default {
           me.$set(edit.selectMap, dataId, record);
           records[dataId] = record;
         }
+
+        //~~ 4 不同ins的记录
+        let insDataId = `${d.dataId}.${me.instanceCode}`,
+          insRecord = records[insDataId] || {};
+        delete edit.selectMap[insDataId];
+
+        me.$set(insRecord, d.key, val);
+        me.$set(edit.selectMap, insDataId, insRecord);
+        records[insDataId] = insRecord;
       });
     }
   }, //methods

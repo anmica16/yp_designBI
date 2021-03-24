@@ -272,7 +272,8 @@ const BaseCfg = tool.apply(
       disabled: true,
       hidden: true
     },
-    ownerGroup: "所属团队ID"
+    ownerGroup: "所属团队ID",
+    paramList: "参数列表"
   }
 );
 
