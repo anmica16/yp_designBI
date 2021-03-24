@@ -7,6 +7,7 @@ import DrawingBoard from "@designBI/store/Entity/DrawingBoard";
 //@@ 1 多个新增器
 import dataSelector from "@designBI/views/component/dealBI/dataSelector.vue";
 import propertySelector from "@designBI/views/component/dealBI/propertySelector.vue";
+import paramSelector from "@designBI/views/component/dealBI/paramSelector.vue";
 import detailSelector from "@designBI/views/component/dealBI/detailSelector.vue";
 import BoardInsPropSelector from "@designBI/views/component/dealBI/BoardInsPropSelector.vue";
 
@@ -21,120 +22,7 @@ import LoginUser from "@designBI/views/mixins/LoginUser";
 import userBtn from "@designBI/views/Page/PublicItem/userBtn.vue";
 import msgBtn from "@designBI/views/Page/PublicItem/msgBtn.vue";
 
-//~ ++ 2 过滤组件
-const conditionCmps = [
-  //# 0 总按钮
-  {
-    key: "btn",
-    name: "全局按钮",
-    items: [
-      {
-        xtype: "",
-        text: "查询按钮",
-        icon: "bi-search-btn"
-      },
-      {
-        xtype: "",
-        text: "重置按钮",
-        icon: "bi-re-btn"
-      }
-    ].filter(a => {
-      return a.xtype;
-    })
-  },
-  //# 1 数值
-  {
-    key: "number",
-    name: "数值过滤组件",
-    items: [
-      {
-        xtype: "cond-number-divid",
-        text: "数值区间",
-        icon: "bi-num-divid"
-      },
-      {
-        xtype: "cond-number-down",
-        text: "数值下拉",
-        icon: "bi-num-down"
-      },
-      {
-        xtype: "cond-number-range",
-        text: "区间滑块",
-        icon: "bi-num-range"
-      }
-    ].filter(a => {
-      return a.xtype;
-    })
-  },
-  //# 2 文本
-  {
-    key: "text",
-    name: "文本过滤组件",
-    items: [
-      {
-        xtype: "cond-text-down",
-        text: "文本下拉",
-        icon: "bi-text-down"
-      },
-      {
-        xtype: "",
-        text: "文本列表",
-        icon: "bi-text-list"
-      },
-      {
-        xtype: "cond-text-search",
-        text: "文本搜索",
-        icon: "el-icon-zoom-in"
-      }
-    ].filter(a => {
-      return a.xtype;
-    })
-  },
-  //# 3 时间
-  {
-    key: "date",
-    name: "时间过滤组件",
-    items: [
-      {
-        xtype: "cond-date-year",
-        text: "年份",
-        icon: "bi-year"
-      },
-      {
-        xtype: "cond-date-month",
-        text: "年月",
-        icon: "bi-month"
-      },
-      {
-        xtype: "",
-        text: "年季度",
-        icon: "bi-year90"
-      },
-      {
-        xtype: "cond-date-day",
-        text: "日期",
-        icon: "bi-day"
-      },
-      {
-        xtype: "",
-        text: "日期面板",
-        icon: "bi-calendar"
-      },
-      {
-        xtype: "cond-date-day-range",
-        text: "日期区间",
-        icon: "bi-day-range"
-      },
-      {
-        xtype: "cond-date-yearday-range",
-        text: "年月区间",
-        icon: "bi-yearday-range"
-      }
-    ].filter(a => {
-      return a.xtype;
-    })
-  }
-];
+import { conditionCmps } from "@designBI/store";
 
 export default {
   name: "DesignEdit2",
@@ -162,6 +50,7 @@ export default {
       ajaxLinkDatas: [],
       //# 3 条件汇总 联动
       conditionMap: {},
+      singleCondMap: {},
       //# 4 所选record，
       //【update】目前只涉及到关联变化
       selectMap: {},
@@ -804,13 +693,14 @@ export default {
           createOperId: me.loginUser.userCode,
           ownerGroup: me.pageGroupId
         });
-        
+
         me.$msgbox({
           title: "添加带参数控件",
-          message: h(detailSelector, {
+          message: h(paramSelector, {
             key: tool.uniqueStr(),
             props: {
-              Instance: readyIns
+              Instance: readyIns,
+              EditNode: me
             }
           }),
           closeOnClickModal: false,

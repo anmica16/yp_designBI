@@ -47,6 +47,13 @@ export default {
         });
       }
       return conds;
+    },
+    singleValue() {
+      return this.conditionResult
+        .map(cond => {
+          return cond.value;
+        })
+        .join("");
     }
   },
   methods: {

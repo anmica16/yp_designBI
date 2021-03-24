@@ -72,7 +72,7 @@
               <span
                 class="chartType"
                 :class="{ join: scope.row.joinDataIds }"
-                >{{ scope.row.joinDataIds ? "关联图表" : "图表" }}</span
+                >{{ useTypes[scope.row.useType].name || "未登记类型" }}</span
               >
               <span class="chartName">{{ scope.row.name }}</span>
             </span>
@@ -106,7 +106,12 @@
 </template>
 
 <script>
-import { theStore, selectTypes, getSelectType } from "@designBI/store";
+import {
+  theStore,
+  selectTypes,
+  getSelectType,
+  useTypes
+} from "@designBI/store";
 import $ from "@/plugins/js/loader";
 import boardChoose from "./public/boardChoose";
 import Vue from "vue";
@@ -181,6 +186,9 @@ export default {
   computed: {
     selectTypes() {
       return selectTypes;
+    },
+    useTypes() {
+      return useTypes;
     },
     //++ 2 起始末尾值
     beginStep() {
@@ -290,6 +298,13 @@ export default {
 
       //++ 1 单独一个的 就直接emit
       if (me.stepRange.length === 1 && me.stepRange[0] === 2 && !ifSilent) {
+        me.$emit("item-select", row);
+        return;
+      }
+
+      //++ 2 如果是过滤组件
+      if (row.useType == 20) {
+        me.$message.info("选择了一个过滤控件！");
         me.$emit("item-select", row);
         return;
       }

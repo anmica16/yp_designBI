@@ -3,6 +3,7 @@ import tool from "@/plugins/js/tool";
 import Vue from "vue";
 import $ from "jquery";
 import loader from "@/plugins/js/loader";
+import { singleConds } from "@designBI/store";
 export default {
   mixins: [Instance],
   props: {
@@ -24,6 +25,9 @@ export default {
     };
   },
   computed: {
+    singleConds() {
+      return singleConds;
+    },
     condId() {
       return tool.uniqueStr();
     },
@@ -165,6 +169,11 @@ export default {
           //# 4 触发一次
           //Vue.set(edit.conditionMap, dataId, mapA);
         });
+
+        //++ 2 对单个值的处理
+        if (singleConds[me.xtype]) {
+          me.$set(edit.singleCondMap, me.instanceCode, me.singleValue);
+        }
       }
     }
   },

@@ -672,5 +672,159 @@ let getSelectType = type => {
 
 export { selectTypes, getSelectType };
 
+const useTypes = {
+  2: {
+    name: "根控件"
+  },
+  10: {
+    name: "普通控件"
+  },
+  11: {
+    name: "关联控件"
+  },
+  12: {
+    name: "带参数控件"
+  },
+  20: {
+    name: "过滤控件"
+  }
+};
+export { useTypes };
+
+//~ ++ 2 过滤组件
+const conditionCmps = [
+  //# 0 总按钮
+  {
+    key: "btn",
+    name: "全局按钮",
+    items: [
+      {
+        xtype: "",
+        text: "查询按钮",
+        icon: "bi-search-btn"
+      },
+      {
+        xtype: "",
+        text: "重置按钮",
+        icon: "bi-re-btn"
+      }
+    ].filter(a => {
+      return a.xtype;
+    })
+  },
+  //# 1 数值
+  {
+    key: "number",
+    name: "数值过滤组件",
+    items: [
+      {
+        xtype: "cond-number-divid",
+        text: "数值区间",
+        icon: "bi-num-divid"
+      },
+      {
+        xtype: "cond-number-down",
+        text: "数值下拉",
+        icon: "bi-num-down"
+      },
+      {
+        xtype: "cond-number-range",
+        text: "区间滑块",
+        icon: "bi-num-range"
+      }
+    ].filter(a => {
+      return a.xtype;
+    })
+  },
+  //# 2 文本
+  {
+    key: "text",
+    name: "文本过滤组件",
+    items: [
+      {
+        xtype: "cond-text-down",
+        text: "文本下拉",
+        icon: "bi-text-down"
+      },
+      {
+        xtype: "",
+        text: "文本列表",
+        icon: "bi-text-list"
+      },
+      {
+        xtype: "cond-text-search",
+        text: "文本搜索",
+        icon: "el-icon-zoom-in"
+      }
+    ].filter(a => {
+      return a.xtype;
+    })
+  },
+  //# 3 时间
+  {
+    key: "date",
+    name: "时间过滤组件",
+    items: [
+      {
+        xtype: "cond-date-year",
+        text: "年份",
+        icon: "bi-year"
+      },
+      {
+        xtype: "cond-date-month",
+        text: "年月",
+        icon: "bi-month"
+      },
+      {
+        xtype: "",
+        text: "年季度",
+        icon: "bi-year90"
+      },
+      {
+        xtype: "cond-date-day",
+        text: "日期",
+        icon: "bi-day"
+      },
+      {
+        xtype: "",
+        text: "日期面板",
+        icon: "bi-calendar"
+      },
+      {
+        xtype: "cond-date-day-range",
+        text: "日期区间",
+        icon: "bi-day-range"
+      },
+      {
+        xtype: "cond-date-yearday-range",
+        text: "年月区间",
+        icon: "bi-yearday-range"
+      }
+    ].filter(a => {
+      return a.xtype;
+    })
+  }
+];
+let singleConds = {
+  "cond-number-down": {
+    desp: "返回以逗号“,”分割的多选数据，推荐用于SQL的【in】条件"
+  },
+  "cond-text-down": {
+    desp: "返回以逗号“,”分割的多选数据，推荐用于SQL的【in】条件"
+  },
+  "cond-text-search": {
+    desp: "返回输入框的字符串"
+  },
+  "cond-date-year": {
+    desp: "返回所选年份"
+  },
+  "cond-date-month": {
+    desp: "返回所选年月"
+  },
+  "cond-date-day": {
+    desp: "返回所选日期"
+  }
+};
+
 import "./Factory";
 import loader from "sass-loader";

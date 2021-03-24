@@ -38,6 +38,9 @@ export default {
         });
       }
       return conds;
+    },
+    singleValue() {
+      return this.queryStr;
     }
   },
   methods: {

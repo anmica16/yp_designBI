@@ -80,6 +80,9 @@ export default {
         }
       }
       return conds;
+    },
+    singleValue() {
+      return this.selDate;
     }
   },
   methods: {

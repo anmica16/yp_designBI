@@ -56,6 +56,9 @@ export default {
         }
       }
       return conds;
+    },
+    singleValue() {
+      return this.selDate ? tool.Date.format(this.selDate, "yyyy-MM-dd") : "";
     }
   }
 };

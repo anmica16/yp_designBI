@@ -130,8 +130,9 @@ let LoginUser = {
           clearInterval(t);
         } else {
           ++n;
-          if (n >= 10) {
+          if (n >= 50) {
             clearInterval(t);
+            me.$message.error("获取团队ID超时，请检查服务器运行状况");
           }
         }
       }, 200);

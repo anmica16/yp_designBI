@@ -27,7 +27,7 @@
       }"
     >
       <!-- =1= 选择有参数的表 -->
-      <div v-if="!nowDataRec" class="selParamRec">
+      <div v-show="!nowDataRec" class="selParamRec">
         <IndexTree
           ref="tree"
           class="dataTree"
@@ -38,10 +38,10 @@
         </IndexTree>
       </div>
 
-      <div v-else class="paramLinkArea">
+      <div v-show="nowDataRec" class="paramLinkArea">
         <div class="areaTitle">
           {{
-            nowDataRec.dataSubType == "procedure"
+            nowDataRec && nowDataRec.dataSubType == "procedure"
               ? "存储过程选参"
               : "自定义SQL选参"
           }}
@@ -98,6 +98,27 @@
               <div></div>
             </template>
           </div>
+
+          <el-dialog
+            :append-to-body="true"
+            :visible.sync="dimDialogShow"
+            :key="dimDialogKey"
+            :destroy-on-close="true"
+            :before-close="dimDialogClose"
+            title="添加带参数控件"
+          >
+            <BoardInsPropSelector
+              ref="dimSelector"
+              :stepRange="[2, 3]"
+              :start="2"
+              :preBoard="EditNode.nowBoard.recordData"
+              @item-select="dimDialogItemSel"
+            ></BoardInsPropSelector>
+
+            <span class="foot">
+              <el-button type="primary" size="small">确定</el-button>
+            </span>
+          </el-dialog>
         </div>
       </div>
     </div>
@@ -107,11 +128,26 @@
 <script>
 import tool from "@/plugins/js/tool";
 import dataSelectorMixin from "./dataSelectorMixin";
+import LoginUser from "@designBI/views/mixins/LoginUser";
+import BoardInsPropSelector from "@designBI/views/component/dealBI/BoardInsPropSelector.vue";
+
 export default {
   name: "paramSelector",
-  mixins: [dataSelectorMixin],
+  mixins: [dataSelectorMixin, LoginUser],
+  components: {
+    BoardInsPropSelector
+  },
+  props: {
+    Instance: Object,
+    EditNode: Object
+  },
   data() {
-    return {};
+    return {
+      dimDialogNowParam: null,
+      dimDialogShow: false,
+      dimDialogKey: tool.uniqueStr(),
+      dimDialogItem: null
+    };
   },
   computed: {
     //# 1 过滤后的 文件夹+ 参数数据
@@ -181,10 +217,41 @@ export default {
     //# 3 重选
     reSelectRecFn() {
       let me = this;
+      me.nowFileRec = null;
+    },
+    //# 4-1 特殊item选择
+    dimDialogItemSel(itemData) {
+      let me = this;
+      me.dimDialogItem = itemData;
+    },
+    //# 4-2 普通item 维度选择
+    dimSelFn(theParam, selDims) {
+      let me = this;
+      console.log(["dimSelFn 工作", arguments]);
+      // plusA.forEach(dim => {
+      //   me.propCoat.candyAddSimple({ Dim: dim });
+      // });
+      // minusA.forEach(dim => {
+      //   me.propCoat.candyLeave({ Dim: dim });
+      // });
+    },
+    dimDialogClose(done) {
+      let me = this,
+        dimSelector = me.$refs.dimSelector,
+        selDims = dimSelector.selDims;
+
+      me.dimSelFn(me.dimDialogNowParam, selDims);
+
+      me.dimDialogNowParam = null;
+      //me.dimDialogShow = false;
+      done();
     },
     //# 4 添加一个关联
-    addRelatedListFn(theRec) {
+    addRelatedListFn(theParam) {
       let me = this;
+      me.dimDialogNowParam = theParam;
+      me.dimDialogKey = tool.uniqueStr();
+      me.dimDialogShow = true;
     }
   }
 };
