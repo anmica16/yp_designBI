@@ -455,40 +455,38 @@ export default {
               let selector = ins.down("propertySelector");
 
               //console.log(["这个ins 的 form？", ins, selector]);
-              if (selector.selProps.length) {
-                readyIns.setData({
-                  propsData: {
-                    properties: selector.selProps.map(a => {
-                      let b = tool.apply({}, a);
-                      delete b.parentCoating;
-                      return b;
-                    })
-                  },
-                  createTime: tool.now(),
-                  createOperId: me.loginUser.userCode,
-                  ownerGroup: me.pageGroupId
-                });
-
-                //# 3 add到主cell
-                //newIns.$$newIns = true;
-                me.nowBoardRoot
-                  .add(readyIns)
-                  .then(r => {
-                    me.$message.success("新增成功！");
-                    done();
-                    res(readyIns);
+              //if (selector.selProps.length) {
+              readyIns.setData({
+                propsData: {
+                  properties: selector.selProps.map(a => {
+                    let b = tool.apply({}, a);
+                    delete b.parentCoating;
+                    return b;
                   })
-                  .catch(r => {
-                    me.$message.error(
-                      r.msg || "添加失败！请检查服务器运行状态"
-                    );
-                    res(false);
-                  });
-              } else {
-                //# 2 提示未选中
-                me.$message.warning("请选择至少一个字段！");
-                res(false);
-              }
+                },
+                createTime: tool.now(),
+                createOperId: me.loginUser.userCode,
+                ownerGroup: me.pageGroupId
+              });
+
+              //# 3 add到主cell
+              //newIns.$$newIns = true;
+              me.nowBoardRoot
+                .add(readyIns)
+                .then(r => {
+                  me.$message.success("新增成功！");
+                  done();
+                  res(readyIns);
+                })
+                .catch(r => {
+                  me.$message.error(r.msg || "添加失败！请检查服务器运行状态");
+                  res(false);
+                });
+              // } else {
+              //   //# 2 提示未选中
+              //   me.$message.warning("请选择至少一个字段！");
+              //   res(false);
+              // }
             } else {
               done();
               res(false);

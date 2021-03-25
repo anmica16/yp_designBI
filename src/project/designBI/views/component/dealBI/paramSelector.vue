@@ -89,7 +89,6 @@
                   <el-input
                     v-if="scope.row.type == 'condition'"
                     class="condKey"
-                    @change="condKeySet(scope.row)"
                     v-model="scope.row.condKey"
                   ></el-input>
                 </template>
@@ -318,8 +317,6 @@ export default {
       done();
     },
 
-    //@ 1 来源的 key值，如条件控件
-    condKeySet(theItem) {},
     //@ 2 新增一个新来源
     addNewParamSourceFn() {
       let me = this;
@@ -375,6 +372,24 @@ export default {
       if (at > -1) {
         me.paramSources.splice(at, 1);
       }
+    }
+  },
+  created() {
+    let me = this,
+      ins = me.Instance;
+    if (me.isLoadByHand) {
+      me.refreshRecords().then(result => {
+        me.$nextTick(() => {
+          let rec = me.filterRecs.find(r => {
+            return r.id == ins.instanceVue.dataId;
+          });
+          me.nodeClickFn(rec);
+
+          //=2= 值加入
+          me.sourceEffect = ins.recordData.sourceEffect;
+          me.paramSources = tool.clone(ins.recordData.paramSources || []);
+        });
+      });
     }
   }
 };

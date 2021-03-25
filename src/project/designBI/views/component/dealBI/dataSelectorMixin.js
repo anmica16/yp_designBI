@@ -25,7 +25,7 @@ export default {
   },
   methods: {
     //~ 1 树数据 获取 简单替换
-    refreshRecords() {
+    refreshRecordsBase() {
       let me = this;
       return new Promise((res, rej) => {
         $.ajax({
@@ -44,6 +44,20 @@ export default {
             Vue.$message.error("获取数据集菜单失败");
             rej(r);
           });
+      });
+    },
+    refreshRecords() {
+      let me = this;
+      return new Promise((res, rej) => {
+        me.waitPageGroupId(() => {
+          me.refreshRecordsBase()
+            .then(r => {
+              res(r);
+            })
+            .catch(r => {
+              rej(r);
+            });
+        });
       });
     },
     //~ 2 点击演算
@@ -132,9 +146,7 @@ export default {
     }
     //console.log(["奇怪，加载呢？"]);
     if (!me.isLoadByHand) {
-      me.waitPageGroupId(() => {
-        me.refreshRecords();
-      });
+      me.refreshRecords();
     }
   }
 };

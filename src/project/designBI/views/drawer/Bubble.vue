@@ -18,7 +18,10 @@
     :resizable="!isRoot && recordData.drag_resize_cfg.can_resize"
     :resizeMask="true"
     class="BubbleDragResize"
-    :class="{ ...recordData.class, isRoot, isHover, isSelect }"
+    :class="[
+      `type${useType}`,
+      { ...recordData.class, isRoot, isHover, isSelect }
+    ]"
     @mouseover.native.stop="mouseoverFn"
     @mouseleave.native="mouseleaveFn"
     @mousedown.native.stop="mousedownFn"
@@ -55,7 +58,7 @@
         ></el-button>
 
         <el-button
-          v-if="_joinTables && _joinTables.length"
+          v-if="useType == 11"
           type="primary"
           icon="el-icon-office-building"
           size="mini"
@@ -63,12 +66,20 @@
           @click="configDetail"
         ></el-button>
         <el-button
-          v-else-if="xtype == 'BIBase'"
+          v-else-if="useType == 10"
           type="primary"
           icon="el-icon-s-data"
           size="mini"
           title="修改数据源"
           @click="configData"
+        ></el-button>
+        <el-button
+          v-else-if="useType == 12"
+          type="primary"
+          icon="el-icon-share"
+          size="mini"
+          title="修改参数配置"
+          @click="configParamItem"
         ></el-button>
 
         <!-- <el-button

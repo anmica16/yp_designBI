@@ -40,6 +40,9 @@ module.exports = {
 
   filenameHashing: false,
 
+  //=============
+  // 一、设计器项目 请解除下列注释，并注释【二】中内容
+  //=============
   //设计器
   chainWebpack: config => {
     //设计器
@@ -49,17 +52,12 @@ module.exports = {
       return options;
     });
   },
-
-  //--------- v2 分开的项目
   publicPath: "/dist",
   outputDir: "../dist"
 
-  //--------- v1
-  // publicPath: "/pages/designBI/",
-  // outputDir: "../pages/designBI"
-
+  //=============
+  // 二、lserp项目 请解除下列注释，并注释【一】中内容
+  //=============
   //-------------------
-  // v8文件夹
-  //-----------
   //outputDir: "../../Lskj.WebErp.View_7.0/Lserp_v8/dist"
 };

@@ -3,8 +3,8 @@
     <div class="chartTitle">
       <span
         class="chartType"
-        :class="{ join: _joinTables && _joinTables.length }"
-        >{{ _joinTables && _joinTables.length ? "关联图表" : "图表" }}</span
+        :class="[`type${useType}`, { join: useType == 11 }]"
+        >{{ useTypes[useType].name || "未注册控件" }}</span
       >
       <span class="chartName">{{ name }}</span>
     </div>
@@ -27,6 +27,7 @@
 import tool from "@/plugins/js/tool";
 import { Instance } from "../mixins/Entity";
 import $ from "jquery";
+import { useTypes } from "@designBI/store";
 
 //【1】要求必有 数据
 export default {
@@ -42,6 +43,9 @@ export default {
     chartTypeStr() {
       //console.log(["chartType被吃了？"]);
       return "chart-" + this.chartType;
+    },
+    useTypes() {
+      return useTypes;
     }
   },
   methods: {

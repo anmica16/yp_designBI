@@ -18,7 +18,10 @@
     :dropFlag="recordData.drag_resize_cfg.can_drop"
     :resizeMask="true"
     class="BubbleDragResize"
-    :class="{ ...recordData.class, isRoot, isHover, isSelect }"
+    :class="[
+      `type${useType}`,
+      { ...recordData.class, isRoot, isHover, isSelect }
+    ]"
     @mouseover.native.stop="mouseoverFn"
     @mouseleave.native="mouseleaveFn"
     @mousedown.native.stop="mousedownFn"

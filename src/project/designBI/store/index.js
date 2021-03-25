@@ -677,7 +677,7 @@ const useTypes = {
     name: "根控件"
   },
   10: {
-    name: "普通控件"
+    name: "BI控件"
   },
   11: {
     name: "关联控件"
@@ -686,7 +686,7 @@ const useTypes = {
     name: "参数控件"
   },
   20: {
-    name: "过滤控件"
+    name: "过滤组件"
   }
 };
 export { useTypes };

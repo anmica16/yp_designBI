@@ -2,6 +2,7 @@ import DrawEntityBase from "@designBI/store/Entity/DrawEntityBase.js";
 import tool from "@/plugins/js/tool";
 import detailSelector from "@designBI/views/component/dealBI/detailSelector.vue";
 import dataSelector from "@designBI/views/component/dealBI/dataSelector.vue";
+import paramSelector from "@designBI/views/component/dealBI/paramSelector.vue";
 let Base = {
   props: {
     //是否不必须 交给使用者覆盖
@@ -91,6 +92,9 @@ let Instance = tool.mergeClone({}, Base, {
         dims = source.Dims;
       }
       return dims;
+    },
+    useType() {
+      return this.recordData.useType;
     },
     //希望快速反应
     parent() {
@@ -305,7 +309,6 @@ let Instance = tool.mergeClone({}, Base, {
       }
 
       //【=3=】根据影响类型来组合
-      console.log(["有点不对"]);
       resultA.sort((a, b) => {
         return a.$$time > b.$$time;
       });
@@ -471,6 +474,65 @@ let Instance = tool.mergeClone({}, Base, {
         }).catch(() => {});
       });
     },
+
+    configParamItem() {
+      let me = this,
+        h = me.$createElement;
+      //console.log(["参数控件增加"]);
+
+      return new Promise(res => {
+        me.$msgbox({
+          title: "参数控件配置更改",
+          message: h(paramSelector, {
+            key: tool.uniqueStr(),
+            props: {
+              Instance: me.Instance,
+              EditNode: me.EditNode,
+              isLoadByHand: true
+            }
+          }),
+          closeOnClickModal: true,
+          showCancelButton: true,
+          customClass: "createParamItem",
+          beforeClose(action, ins, done) {
+            if (action === "confirm") {
+              let selector = ins.down("paramSelector"),
+                selectResult = selector.selectResult;
+
+              if (!selectResult) {
+                me.$message.warning("参数列表尚未添加完毕，请添加完后再试！");
+                res(false);
+                return;
+              }
+
+              me.Instance.setData(selectResult);
+
+              selector.confirmLoading = true;
+              //# 3 进行保存
+              me.Instance.save()
+                .then(r => {
+                  me.$message.success("参数控件配置更改成功！");
+                  done();
+                  res(me.Instance);
+                })
+                .catch(r => {
+                  me.$message.error(
+                    "参数控件配置更改失败！请检查服务器运行状态"
+                  );
+                  res(false);
+                })
+                .finally(() => {
+                  selector.confirmLoading = false;
+                });
+            } else {
+              done();
+              res(false);
+            }
+          }
+        }).catch(() => {});
+      });
+    },
+
     getRealKey(dim) {
       let me = this;
       return me._joinTables && me._joinTables.length ? dim.tName : dim.key;
