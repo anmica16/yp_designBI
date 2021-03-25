@@ -273,7 +273,9 @@ const BaseCfg = tool.apply(
       hidden: true
     },
     ownerGroup: "所属团队ID",
-    paramList: "参数列表"
+    paramList: "参数列表",
+    paramSources: "参数数据来源列表",
+    sourceEffect: "来源相互影响类型"
   }
 );
 

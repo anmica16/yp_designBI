@@ -15,7 +15,7 @@
       <div class="fill"></div>
 
       <div class="rightPart">
-        <el-button v-if="nowDataRec" @click="reSelectRecFn" type="info"
+        <el-button v-if="nowDataRec" @click="reSelectRecFn" type="primary"
           >重选参数数据</el-button
         >
       </div>
@@ -47,63 +47,66 @@
           }}
         </div>
 
-        <div class="sourceEffectType">
-          <span class="pre">参数来源相互作用类型：</span>
-
-          <el-radio-group v-model="sourceEffect">
-            <el-radio label="comprise">共同作用</el-radio>
-            <el-radio label="divid">单独作用</el-radio>
-          </el-radio-group>
-        </div>
-
-        <div class="sourceSel">
-          <div class="titleArea">
-            <span class="text">选择参数数据来源：</span>
-            <el-button
-              size="mini"
-              type="primary"
-              icon="el-icon-circle-plus"
-              @click="addNewParamSourceFn"
-              >添加来源</el-button
-            >
-          </div>
-
+        <div class="paramSel">
+          <div class="title">参数列表</div>
           <div class="body">
-            <el-table :data="paramSources">
-              <el-table-column label="来源类型">
+            <el-table :data="paramList">
+              <el-table-column>
                 <template slot-scope="scope">
+                  <el-tag
+                    effect="dark"
+                    :type="scope.row.relatedList.length ? 'success' : 'warning'"
+                    ><i
+                      :class="
+                        scope.row.relatedList.length
+                          ? 'el-icon-circle-check'
+                          : 'el-icon-circle-close'
+                      "
+                    ></i
+                  ></el-tag>
+
                   <span class="order">{{ scope.$index + 1 }}、</span>
 
-                  <span class="type">{{ scope.row.type }}</span>
-                </template>
-              </el-table-column>
-
-              <el-table-column label="来源控件名">
-                <template slot-scope="scope">
-                  <span class="name">{{ scope.row.insName }}</span>
-                </template>
-              </el-table-column>
-
-              <el-table-column label="条件匹配值">
-                <template slot-scope="scope">
-                  <el-input
-                    v-if="scope.row.type == 'condition'"
-                    class="condKey"
-                    @change="condKeySet(scope.row)"
-                    v-model="scope.row.condKey"
-                  ></el-input>
+                  <span class="matchText">{{
+                    scope.row.matchStr || scope.row.matchKey
+                  }}</span>
                 </template>
               </el-table-column>
 
               <el-table-column>
                 <template slot-scope="scope">
                   <el-button
-                    size="mini"
-                    icon="el-icon-delete"
-                    circle
-                    type="danger"
-                    @click="removeOneSource(scope.row)"
-                  ></el-button>
+                    v-if="!scope.row.relatedList.length"
+                    type="success"
+                    @click="addRelatedListFn(scope.row)"
+                    >选择关联</el-button
+                  >
+                  <span
+                    v-else
+                    v-for="oneRe in scope.row.relatedList"
+                    :key="oneRe.$id"
+                    :class="oneRe.type"
+                  >
+                    <span class="type">{{
+                      oneRe == "condition" ? "条件" : "维度"
+                    }}</span>
+
+                    <span class="item">{{ oneRe.insName }}</span>
+
+                    <DimTypeTag
+                      v-if="oneRe.dim"
+                      :name="oneRe.dim.chineseName || oneRe.dim.key"
+                      :type="oneRe.dim.type"
+                    ></DimTypeTag>
+
+                    <el-button
+                      size="mini"
+                      icon="el-icon-delete"
+                      circle
+                      type="danger"
+                      @click="removeOneRe(scope.row, oneRe)"
+                    ></el-button>
+                  </span>
                 </template>
               </el-table-column>
             </el-table>
@@ -119,7 +122,7 @@
           >
             <BoardInsPropSelector
               ref="dimSelector"
-              :stepRange="[2]"
+              :stepRange="[2, 3]"
               :start="2"
               :preBoard="EditNode.nowBoard.recordData"
               :itemListFilter="itemListFilter"
@@ -132,32 +135,6 @@
               >
             </span>
           </el-dialog>
-        </div>
-
-        <div class="paramSel">
-          <div class="title">参数列表</div>
-          <div class="body">
-            <el-table :data="paramList">
-              <el-table-column label="匹配字符串">
-                <template slot-scope="scope">
-                  <span class="order">{{ scope.$index + 1 }}、</span>
-
-                  <span class="matchText">{{
-                    scope.row.matchStr || `\{ ${scope.row.matchKey} \}`
-                  }}</span>
-                </template>
-              </el-table-column>
-
-              <el-table-column label="匹配关键字">
-                <template slot-scope="scope">
-                  <span class="matchKey">{{
-                    (scope.row.matchStr && scope.row.matchStr.substr(1)) ||
-                      scope.row.matchKey
-                  }}</span>
-                </template>
-              </el-table-column>
-            </el-table>
-          </div>
         </div>
       </div>
     </div>
@@ -187,10 +164,7 @@ export default {
       queryFlag: "paramSelector",
       confirmLoading: false,
 
-      paramSources: [],
-
-      sourceEffect: "comprise",
-
+      dimDialogNowParam: null,
       dimDialogShow: false,
       dimDialogKey: tool.uniqueStr(),
       dimDialogItem: null
@@ -215,6 +189,11 @@ export default {
         rec.paramList = tool.isString(rec.paramList)
           ? JSON.parse(rec.paramList)
           : rec.paramList;
+        rec.paramList = rec.paramList.map(param => {
+          //【update】目前只关联一个，但作为数组处理
+          param.relatedList = [];
+          return param;
+        });
       }
 
       return rec;
@@ -233,12 +212,12 @@ export default {
       let me = this,
         listOK = true,
         result = null;
-      if (!me.paramSources.length) {
+      if (!me.paramList.length) {
         return result;
       }
 
-      tool.each(me.paramSources, param => {
-        if (param.type == "condition" && !param.condKey) {
+      tool.each(me.paramList, param => {
+        if (!param.relatedList.length) {
           listOK = false;
           return false;
         }
@@ -247,8 +226,7 @@ export default {
       if (listOK) {
         result = {
           linkDataId: me.dataId,
-          paramSources: me.paramSources,
-          sourceEffect: me.sourceEffect
+          paramList: me.paramList
         };
       }
 
@@ -309,71 +287,64 @@ export default {
       let me = this;
       me.dimDialogItem = itemData;
     },
+    //# 4-3 确认选择
+    dimDialogConfirm() {
+      let me = this,
+        isOK = false,
+        nowParam = me.dimDialogNowParam,
+        dimSelector = me.$refs.dimSelector,
+        selDims = dimSelector.selDims,
+        selItem = me.dimDialogItem;
+
+      if (!selDims.length) {
+        if (selItem && selItem.useType == 20) {
+          isOK = true;
+          nowParam.relatedList.push({
+            $id: tool.uniqueStr(),
+            type: "condition",
+            insCode: selItem.instanceCode,
+            insName: selItem.name
+          });
+        } else {
+          me.$message.warning("选择非过滤控件时，需要继续选择控件下维度！");
+        }
+      } else {
+        isOK = true;
+        nowParam.relatedList.push({
+          $id: tool.uniqueStr(),
+          type: "dim",
+          insCode: selItem.instanceCode,
+          insName: selItem.name,
+          dim: selDims[0]
+        });
+      }
+
+      if (isOK) {
+        me.dimDialogShow = false;
+      }
+    },
     //# 4-4 关闭初始，仅清除
     dimDialogClose(done) {
       let me = this;
 
+      me.dimDialogNowParam = null;
       me.dimDialogItem = null;
       //me.dimDialogShow = false;
       done();
     },
-
-    //@ 1 来源的 key值，如条件控件
-    condKeySet(theItem) {},
-    //@ 2 新增一个新来源
-    addNewParamSourceFn() {
+    //# 4 添加一个关联
+    addRelatedListFn(theParam) {
       let me = this;
+      me.dimDialogNowParam = theParam;
       me.dimDialogKey = tool.uniqueStr();
       me.dimDialogShow = true;
     },
-    //@ 3 来源版本
-    dimDialogConfirm() {
+    //# 5 移除一个关联
+    removeOneRe(theParam, oneRe) {
       let me = this,
-        addSource = null,
-        selItem = me.dimDialogItem;
-
-      if (!selItem) {
-        me.$message.warning("尚未选择来源子控件");
-        return;
-      }
-
-      //=1= 第一种 过滤组件
-      if (selItem.useType == 20) {
-        addSource = {
-          $id: tool.uniqueStr(),
-          type: "condition",
-          insCode: selItem.instanceCode,
-          insName: selItem.name,
-          condKey: ""
-        };
-      } else {
-        //=2= 第二种 图表控件
-        addSource = {
-          $id: tool.uniqueStr(),
-          type: "item",
-          insCode: selItem.instanceCode,
-          insName: selItem.name,
-          dataId: me.dataId
-        };
-      }
-      let already = me.paramSources.find(p => {
-        return p.insCode == addSource.insCode;
-      });
-      if (already) {
-        me.$message.warning("已经添加该子控件作为来源，请不要重复添加！");
-        return;
-      }
-
-      me.paramSources.push(addSource);
-
-      me.dimDialogShow = false;
-    },
-    //@ 4 移除一个来源
-    removeOneSource(theSource) {
-      let me = this,
-        at = me.paramSources.indexOf(theSource);
+        at = theParam.relatedList.indexOf(oneRe);
       if (at > -1) {
-        me.paramSources.splice(at, 1);
+        theParam.relatedList.splice(at, 1);
       }
     }
   }

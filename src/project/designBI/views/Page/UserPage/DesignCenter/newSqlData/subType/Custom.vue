@@ -193,6 +193,9 @@ export default {
       let me = this;
       me.dimLoading = true;
 
+      let map = me.findResult(me.cusSql);
+      me.paramMap = map;
+
       if (!me.dimAjax) {
         me.dimAjax = new lastLoader({
           then(r) {
@@ -278,18 +281,18 @@ export default {
   },
 
   watch: {
-    cusSql(newVal, oldVal) {
-      let me = this;
-      if (newVal != oldVal) {
-        me.needExec = true;
-      }
-      if (newVal) {
-        let map = me.findResult(newVal);
-        me.paramMap = map;
-      } else {
-        me.paramMap = {};
-      }
-    },
+    // cusSql(newVal, oldVal) {
+    //   let me = this;
+    //   if (newVal != oldVal) {
+    //     me.needExec = true;
+    //   }
+    //   if (newVal) {
+    //     let map = me.findResult(newVal);
+    //     me.paramMap = map;
+    //   } else {
+    //     me.paramMap = {};
+    //   }
+    // },
     needExec(newVal) {
       let me = this;
       me.$emit("update:canSubmit", !newVal);

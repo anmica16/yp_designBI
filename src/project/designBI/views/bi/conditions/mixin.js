@@ -21,7 +21,8 @@ export default {
   data() {
     return {
       infoProps: [],
-      infoPropsLoading: false
+      infoPropsLoading: false,
+      singleValueDate: new Date(),
     };
   },
   computed: {
@@ -45,7 +46,10 @@ export default {
     },
     itype() {
       return "";
-    }
+    },
+    singleValue() {
+      return null;
+    },
   },
   methods: {
     assisBlurBase(inEls, blurFn) {
@@ -174,6 +178,12 @@ export default {
         if (singleConds[me.xtype]) {
           me.$set(edit.singleCondMap, me.instanceCode, me.singleValue);
         }
+      }
+    },
+    singleValue(newVal, oldVal) {
+      let me = this;
+      if (newVal != oldVal) {
+        me.singleValueDate = new Date();
       }
     }
   },

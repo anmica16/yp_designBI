@@ -190,63 +190,135 @@ let Instance = tool.mergeClone({}, Base, {
       return isLimited;
     },
     // ++ 7 参数列表
-    paramList() {
-      let me = this,
-        pl = me.recordData.paramList;
-      return pl && pl.length ? pl : null;
-    },
+    // paramList() {
+    //   let me = this,
+    //     pl = me.recordData.paramList;
+    //   return pl && pl.length ? pl : null;
+    // },
     //++ 7-2 参数结果表
+    // paramValueList_v1() {
+    //   let me = this,
+    //     edit = me.EditNode,
+    //     selMap = edit.selectMap,
+    //     pl = me.paramList,
+    //     result = [];
+
+    //   if (!pl || !edit) {
+    //     return null;
+    //   }
+
+    //   pl.forEach(param => {
+    //     let reLS = param.relatedList,
+    //       vals = [];
+
+    //     //【update】目前仅一个
+    //     reLS.forEach(re => {
+    //       //【=1=】dim维度类型
+    //       if (re.type == "dim") {
+    //         let selMapKey = `${re.dim.dataId}.${re.insCode}`,
+    //           selRec = selMap[selMapKey];
+    //         if (selRec && Object.hasOwnProperty.call(selRec, re.dim.key)) {
+    //           vals.push({
+    //             type: "dim",
+    //             matchStr: param.matchStr || param.matchKey,
+    //             value: selRec[re.dim.key]
+    //           });
+    //         }
+    //       } else if (re.type == "condition") {
+    //         //【=2=】过滤控件类型
+    //         let ins = edit.addInstances.find(i => {
+    //           return i.instanceCode == re.insCode;
+    //         });
+    //         if (ins && ins.$bubble) {
+    //           let host = ins.$bubble.host,
+    //             result = host.singleValue;
+    //           vals.push({
+    //             type: "condition",
+    //             matchStr: param.matchStr || param.matchKey,
+    //             value: result
+    //           });
+    //         }
+    //       }
+    //     });
+
+    //     if (vals.length) {
+    //       result.push(vals[0]);
+    //     }
+    //   });
+
+    //   return result;
+    // },
+
+    //++ 8-1 参数来源
+    paramSources() {
+      let me = this,
+        ps = me.recordData.paramSources;
+      return ps && ps.length ? ps : null;
+    },
+    sourceEffect() {
+      let me = this,
+        sourceEffect = me.recordData.sourceEffect;
+      return sourceEffect;
+    },
+
+    //++ 8-2 参数来源结果表
     paramValueList() {
       let me = this,
         edit = me.EditNode,
         selMap = edit.selectMap,
-        pl = me.paramList,
-        result = [];
+        ps = me.paramSources,
+        effect = me.sourceEffect,
+        resultA = [],
+        resultRec = {};
 
-      if (!pl || !edit) {
+      if (!ps || !ps.length || !edit) {
         return null;
       }
 
-      pl.forEach(param => {
-        let reLS = param.relatedList,
-          vals = [];
-
-        //【update】目前仅一个
-        reLS.forEach(re => {
-          //【=1=】dim维度类型
-          if (re.type == "dim") {
-            let selMapKey = `${re.dim.dataId}.${re.insCode}`,
-              selRec = selMap[selMapKey];
-            if (selRec && Object.hasOwnProperty.call(selRec, re.dim.key)) {
-              vals.push({
-                type: "dim",
-                matchStr: param.matchStr || param.matchKey,
-                value: selRec[re.dim.key]
-              });
-            }
-          } else if (re.type == "condition") {
-            //【=2=】过滤控件类型
-            let ins = edit.addInstances.find(i => {
-              return i.instanceCode == re.insCode;
-            });
-            if (ins && ins.$bubble) {
-              let host = ins.$bubble.host,
-                result = host.singleValue;
-              vals.push({
-                type: "condition",
-                matchStr: param.matchStr || param.matchKey,
-                value: result
-              });
-            }
+      //【=0=】形成 表数据 + 条件单字段数据的 集合
+      ps.forEach(param => {
+        //【=1=】dim维度类型
+        if (param.type == "item") {
+          let selMapKey = `${param.dataId}.${param.insCode}`,
+            selRec = selMap[selMapKey];
+          if (selRec) {
+            resultA.push(selRec);
           }
-        });
-
-        if (vals.length) {
-          result.push(vals[0]);
+        } else if (param.type == "condition") {
+          //【=2=】过滤控件类型
+          let ins = edit.addInstances.find(i => {
+            return i.instanceCode == param.insCode;
+          });
+          if (ins && ins.$bubble) {
+            let host = ins.$bubble.host,
+              result = host.singleValue;
+            resultA.push({
+              [param.condKey]: result,
+              $$time: host.singleValueDate
+            });
+          }
         }
       });
 
-      return result;
+      if (!resultA.length) {
+        return null;
+      }
+
+      //【=3=】根据影响类型来组合
+      console.log(["有点不对"]);
+      resultA.sort((a, b) => {
+        return a.$$time > b.$$time;
+      });
+      if (effect == "comprise") {
+        resultA.forEach(rec => {
+          tool.apply(resultRec, rec);
+        });
+      } else {
+        let lated = resultA[resultA.length - 1];
+        tool.apply(resultRec, lated);
+      }
+
+      return resultRec;
     }
   },
   methods: {

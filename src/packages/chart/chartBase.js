@@ -225,7 +225,7 @@ export default {
       // }
 
       //# 5 参数结果列表
-      if (paramValueList && paramValueList.length) {
+      if (paramValueList) {
         options.data.paramValueList = JSON.stringify(paramValueList);
       }
 
@@ -332,6 +332,7 @@ export default {
           insRecord = records[insDataId] || {};
         delete edit.selectMap[insDataId];
 
+        insRecord.$$time = new Date();
         me.$set(insRecord, d.key, val);
         me.$set(edit.selectMap, insDataId, insRecord);
         records[insDataId] = insRecord;
@@ -394,25 +395,19 @@ export default {
       if ((newVal && !oldVal) || (!newVal && oldVal)) {
         isSame = false;
       } else if (newVal && oldVal) {
-        if (newVal.length != oldVal.length) {
-          isSame = false;
-        } else {
-          for (let i = 0; i < newVal.length; ++i) {
-            let _new = newVal[i],
-              find = oldVal.find(old => {
-                return (
-                  old.matchStr == _new.matchStr &&
-                  old.type == _new.type &&
-                  old.value == _new.value
-                );
-              });
-
-            if (!find) {
-              isSame = false;
-              break;
-            }
+        tool.each(newVal, (key, val) => {
+          if (val !== oldVal[key]) {
+            isSame = false;
+            return false;
           }
-        }
+        });
+
+        tool.each(oldVal, (key, val) => {
+          if (val !== newVal[key]) {
+            isSame = false;
+            return false;
+          }
+        });
       }
       if (!isSame) {
         //console.log(["【 paramValueList 】尝试刷新,查看触发缘故"]);
