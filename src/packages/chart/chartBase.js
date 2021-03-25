@@ -155,13 +155,14 @@ export default {
       let me = this,
         tableName = me.tableName;
       //console.log(["尝试刷新,查看触发缘故"]);
-      if (!tableName || !me.Instance || !me.LinkData) {
+      if (!me.Instance || !me.LinkData) {
         return;
       }
       me.ajaxLoading = true;
       let dataId = me.dataId,
         linkData = me.LinkData,
         conditions = me.conditions,
+        paramValueList = me.paramValueList,
         options = {
           url: Vue.Api.designBI,
           method: Vue.Api.designBI.GetDataDetail,
@@ -222,6 +223,11 @@ export default {
       //     tool.isArray(options.data.sourceDims)
       //   );
       // }
+
+      //# 5 参数结果列表
+      if (paramValueList && paramValueList.length) {
+        options.data.paramValueList = JSON.stringify(paramValueList);
+      }
 
       if (addOptions) {
         tool.merge(options, addOptions);
@@ -379,6 +385,37 @@ export default {
       }
       if (!isSame) {
         //console.log(["【JoinTables】尝试刷新,查看触发缘故"]);
+        me.refreshSource();
+      }
+    },
+    paramValueList(newVal, oldVal) {
+      let me = this,
+        isSame = true;
+      if ((newVal && !oldVal) || (!newVal && oldVal)) {
+        isSame = false;
+      } else if (newVal && oldVal) {
+        if (newVal.length != oldVal.length) {
+          isSame = false;
+        } else {
+          for (let i = 0; i < newVal.length; ++i) {
+            let _new = newVal[i],
+              find = oldVal.find(old => {
+                return (
+                  old.matchStr == _new.matchStr &&
+                  old.type == _new.type &&
+                  old.value == _new.value
+                );
+              });
+
+            if (!find) {
+              isSame = false;
+              break;
+            }
+          }
+        }
+      }
+      if (!isSame) {
+        //console.log(["【 paramValueList 】尝试刷新,查看触发缘故"]);
         me.refreshSource();
       }
     },

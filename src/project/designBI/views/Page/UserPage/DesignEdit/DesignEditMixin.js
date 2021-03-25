@@ -780,9 +780,9 @@ export default {
     });
     //@ 2 文件夹模式
     me.getNowBoard();
+  },
+  mounted() {
+    let me = this;
+    me.getNowInstances();
   }
-  // mounted() {
-  //   let me = this;
-  //   me.getNowInstances();
-  // }
 };

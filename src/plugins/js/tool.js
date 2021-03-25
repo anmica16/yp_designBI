@@ -398,12 +398,16 @@ let tool = {
     if (me.isString(target)) {
       //#1 只有 json字符串才进行 深入
       if (reg.test(target)) {
-        let cTarget = JSON.parse(target);
-        //#1.2 只有parse后的json字符串，才会形成obj和array的情况，再进行深入
-        if (ifDeep) {
-          return me.parseObject(cTarget, ifDeep);
-        } else {
-          return cTarget;
+        try {
+          let cTarget = JSON.parse(target);
+          //#1.2 只有parse后的json字符串，才会形成obj和array的情况，再进行深入
+          if (ifDeep) {
+            return me.parseObject(cTarget, ifDeep);
+          } else {
+            return cTarget;
+          }
+        } catch (e) {
+          return target;
         }
       } else {
         //#2 普通字符串

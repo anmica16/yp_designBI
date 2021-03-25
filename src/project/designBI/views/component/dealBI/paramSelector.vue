@@ -50,72 +50,66 @@
         <div class="paramSel">
           <div class="title">参数列表</div>
           <div class="body">
-            <template v-if="isProcedure">
-              <el-table :data="paramList">
-                <el-table-column>
-                  <template slot-scope="scope">
-                    <el-tag
-                      effect="dark"
-                      :type="
-                        scope.row.relatedList.length ? 'success' : 'warning'
+            <el-table :data="paramList">
+              <el-table-column>
+                <template slot-scope="scope">
+                  <el-tag
+                    effect="dark"
+                    :type="scope.row.relatedList.length ? 'success' : 'warning'"
+                    ><i
+                      :class="
+                        scope.row.relatedList.length
+                          ? 'el-icon-circle-check'
+                          : 'el-icon-circle-close'
                       "
-                      ><i
-                        :class="
-                          scope.row.relatedList.length
-                            ? 'el-icon-circle-check'
-                            : 'el-icon-circle-close'
-                        "
-                      ></i
-                    ></el-tag>
+                    ></i
+                  ></el-tag>
 
-                    <span class="order">{{ scope.$index + 1 }}、</span>
+                  <span class="order">{{ scope.$index + 1 }}、</span>
 
-                    <span class="matchText">{{ scope.row.matchStr }}</span>
-                  </template>
-                </el-table-column>
+                  <span class="matchText">{{
+                    scope.row.matchStr || scope.row.matchKey
+                  }}</span>
+                </template>
+              </el-table-column>
 
-                <el-table-column>
-                  <template slot-scope="scope">
+              <el-table-column>
+                <template slot-scope="scope">
+                  <el-button
+                    v-if="!scope.row.relatedList.length"
+                    type="success"
+                    @click="addRelatedListFn(scope.row)"
+                    >选择关联</el-button
+                  >
+                  <span
+                    v-else
+                    v-for="oneRe in scope.row.relatedList"
+                    :key="oneRe.$id"
+                    :class="oneRe.type"
+                  >
+                    <span class="type">{{
+                      oneRe == "condition" ? "条件" : "维度"
+                    }}</span>
+
+                    <span class="item">{{ oneRe.insName }}</span>
+
+                    <DimTypeTag
+                      v-if="oneRe.dim"
+                      :name="oneRe.dim.chineseName || oneRe.dim.key"
+                      :type="oneRe.dim.type"
+                    ></DimTypeTag>
+
                     <el-button
-                      v-if="!scope.row.relatedList.length"
-                      type="success"
-                      @click="addRelatedListFn(scope.row)"
-                      >选择关联</el-button
-                    >
-                    <span
-                      v-else
-                      v-for="oneRe in scope.row.relatedList"
-                      :key="oneRe.$id"
-                      :class="oneRe.type"
-                    >
-                      <span class="type">{{
-                        oneRe == "condition" ? "条件" : "维度"
-                      }}</span>
-
-                      <span class="item">{{ oneRe.insName }}</span>
-
-                      <DimTypeTag
-                        v-if="oneRe.dim"
-                        :name="oneRe.dim.chineseName || oneRe.dim.key"
-                        :type="oneRe.dim.type"
-                      ></DimTypeTag>
-
-                      <el-button
-                        size="mini"
-                        icon="el-icon-delete"
-                        circle
-                        type="danger"
-                        @click="removeOneRe(scope.row, oneRe)"
-                      ></el-button>
-                    </span>
-                  </template>
-                </el-table-column>
-              </el-table>
-            </template>
-
-            <template v-else-if="isCustom">
-              <div></div>
-            </template>
+                      size="mini"
+                      icon="el-icon-delete"
+                      circle
+                      type="danger"
+                      @click="removeOneRe(scope.row, oneRe)"
+                    ></el-button>
+                  </span>
+                </template>
+              </el-table-column>
+            </el-table>
           </div>
 
           <el-dialog

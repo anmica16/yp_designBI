@@ -1,7 +1,9 @@
 import $ from "@/plugins/js/loader";
 import Vue from "vue";
 import { theStore } from "@designBI/store";
+import LoginUser from "@designBI/views/mixins/LoginUser";
 export default {
+  mixins: [LoginUser],
   props: {
     isLoadByHand: {
       type: Boolean,

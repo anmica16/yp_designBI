@@ -220,7 +220,7 @@ let Instance = tool.mergeClone({}, Base, {
             if (selRec && Object.hasOwnProperty.call(selRec, re.dim.key)) {
               vals.push({
                 type: "dim",
-                matchStr: param.matchStr,
+                matchStr: param.matchStr || param.matchKey,
                 value: selRec[re.dim.key]
               });
             }
@@ -234,7 +234,7 @@ let Instance = tool.mergeClone({}, Base, {
                 result = host.singleValue;
               vals.push({
                 type: "condition",
-                matchStr: param.matchStr,
+                matchStr: param.matchStr || param.matchKey,
                 value: result
               });
             }
