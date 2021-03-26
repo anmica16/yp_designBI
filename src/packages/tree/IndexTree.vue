@@ -250,8 +250,10 @@ export default {
   watch: {
     records(newVal, oldVal) {
       if (
-        (newVal && !oldVal) ||
-        (newVal && oldVal && newVal.length !== oldVal.length)
+        newVal &&
+        newVal.length
+        // (newVal && !oldVal) ||
+        // (newVal && oldVal && newVal.length !== oldVal.length)
       ) {
         this.refresh();
       }

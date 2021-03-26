@@ -48,6 +48,7 @@
         <div>步骤3：选择表维度</div>
         <Scrollbar v-loading="dimLoading">
           <el-tree
+            ref="dimTree"
             class="dimTree"
             :data="tableDims"
             :check-on-click-node="true"
@@ -95,6 +96,12 @@ export default {
     return {};
   },
 
+  computed: {
+    isNowPage() {
+      return this.PageNode.dataSubType == "V";
+    }
+  },
+
   methods: {
     //^^ 2-2 获取数据源数据库下的表列表，前100个
     getDBTableList(queryStr) {
@@ -126,10 +133,18 @@ export default {
       me.tbListAjax.load();
     },
     submitFn() {
-      let me = this;
-      me.submitFnBase({
-        dataSubType: "view"
-      });
+      let me = this,
+        cfg = {
+          dataSubType: "view",
+          paramList: "",
+          dataSource: ""
+        };
+
+      if (me.PageNode.isEdit) {
+        me.submitEdit(cfg);
+      } else {
+        me.submitFnBase(cfg);
+      }
     }
   }
 };

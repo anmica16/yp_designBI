@@ -651,6 +651,22 @@ export default {
           });
       });
     },
+    tryGetDetailData() {
+      let me = this;
+      return new Promise(res => {
+        if (me.DetailData) {
+          res(me.DetailData);
+        } else {
+          me.getDetailData()
+            .then(r => {
+              res(me.DetailData);
+            })
+            .catch(r => {
+              res(null);
+            });
+        }
+      });
+    },
     //~ 2 linkData获取后，处理，并再获取详细数据
     editDealDetailData(data) {
       let me = this;
@@ -682,7 +698,7 @@ export default {
         me.editDealDetailData(me.DetailData);
         me.$store.state.progress = 100;
       } else {
-        me.getDetailData().then(success => {
+        me.tryGetDetailData().then(success => {
           me.$store.state.progress = 100;
           if (!success) {
             me.backPage();

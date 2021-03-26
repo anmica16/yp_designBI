@@ -95,7 +95,7 @@
             <!-- 2-3 删除 -->
             <el-dropdown-item
               v-if="nowFileRec"
-              @click.native="DeleteDataFn"
+              @click.native="DeleteDataFn(nowFileRec)"
               icon="el-icon-delete"
             >
               删除数据
@@ -104,7 +104,7 @@
             <!-- 2-4 删除文件夹 -->
             <el-dropdown-item
               v-if="nowFolderRec"
-              @click.native="DeleteFolderFn"
+              @click.native="DeleteDataFn(nowFolderRec)"
               icon="el-icon-delete-solid"
             >
               删除文件夹
@@ -136,6 +136,7 @@
         :is="query.isSql ? 'NewSqlDataPage' : 'NewDataPage'"
         :dataType="query.isSql ? 'sql' : 'local'"
         :id="query.id"
+        :detail="query.detail"
         :pIndex="query.pIndex"
         @back="newDataBackFn"
       ></NewDataPage>
@@ -236,6 +237,7 @@ export default {
                   method: Vue.Api.designBI.AddNewTreeItem,
                   data: {
                     table: "data",
+                    groupId: me.pageGroupId,
                     records: JSON.stringify([
                       {
                         ...refForm.form,
@@ -339,13 +341,36 @@ export default {
       };
     },
     //# 4-2 删除当前数据
-    DeleteDataFn() {
-      let me = this;
+    DeleteDataFn(theFile) {
+      let me = this,
+        isFolder = theFile.isFolder;
+
+      me.$msgbox({
+        type: "warning",
+        title: "确认",
+        message: isFolder
+          ? `确认删除当前数据文件夹【${theFile.name}】吗？注意，删除后文件夹中数据均将被删除！`
+          : `确认删除当前数据【${theFile.name}】吗？`,
+        showCancelButton: true
+      }).then(() => {
+        $.ajax({
+          url: Vue.Api.designBI,
+          data: {
+            method: Vue.Api.designBI.DeleteTreeItem,
+            index: theFile.index,
+            table: "data",
+            groupId: me.pageGroupId
+          }
+        })
+          .then(result => {
+            me.$message.success("删除成功！");
+            me.refreshRecords();
+          })
+          .catch(r => {
+            me.$message.success(r.msg || "删除时服务器出现了一些问题……");
+          });
+      });
     },
-    //# 4-3 删除文件夹
-    DeleteFolderFn() {
-      let me = this;
-    }
   },
   mounted() {
     let me = this;

@@ -253,7 +253,7 @@ export default {
           }
         });
       }
-      me.refreshSqlListAjax.load();
+      return me.refreshSqlListAjax.load();
     },
     //^^ 1-1 新数据源
     addSqlSource() {
@@ -343,13 +343,48 @@ export default {
       } else if (me.dataSubType == "C") {
         cTable.submitFn();
       }
+    },
+    //@@ 6 linkData获取后，处理，并再获取详细数据
+    editDealDetailData(data) {
+      let me = this;
+      if (data) {
+        let dimension = tool.isString(data.dimension)
+          ? JSON.parse(data.dimension)
+          : data.dimension;
+        tool.apply(me, {
+          dimension,
+          dataSubType: data.dataSubType
+            ? data.dataSubType[0].toUpperCase()
+            : "U"
+        });
+      }
+    }
+  },
+  watch: {
+    dataSubType(newVal, oldVal) {
+      let me = this;
+      if (newVal != oldVal && newVal) {
+        let t = me.$refs[newVal];
+        t && t.lazyMounted();
+      }
     }
   },
   mounted() {
     let me = this;
     me.sourcePager = me.$refs.sourcePager;
     //# 1 刷新数据源列表
-    me.getSqlSourceList();
+    me.getSqlSourceList().then(r => {
+      if (me.isEdit) {
+        me.tryGetDetailData().then(data => {
+          if (data) {
+            //那么是 编辑进入
+            me.sqlSource = me.sqlSourceList.find(s => {
+              return s.name == me.DetailData.sourceName;
+            });
+          }
+        });
+      }
+    });
   }
 };
 </script>

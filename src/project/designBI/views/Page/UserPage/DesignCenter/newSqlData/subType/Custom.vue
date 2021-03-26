@@ -83,6 +83,7 @@
           <div>步骤3：选择表维度</div>
           <Scrollbar v-loading="dimLoading">
             <el-tree
+              ref="dimTree"
               class="dimTree"
               :data="tableDims"
               :check-on-click-node="true"
@@ -145,6 +146,9 @@ export default {
   computed: {
     dataSubType() {
       return "custom";
+    },
+    isNowPage() {
+      return this.PageNode.dataSubType == "C";
     },
     regBrace() {
       return new RegExp("{\\s*([^{}]*)}");
@@ -236,7 +240,7 @@ export default {
           })
         }
       };
-      me.dimAjax.load();
+      return me.dimAjax.load();
     },
     //@#@ 3 选择了一个
     dimCheckFn(cNode, checkInfo) {
@@ -271,12 +275,26 @@ export default {
       // }
     },
     submitFn() {
-      let me = this;
-      me.submitFnBase({
-        dataSubType: me.dataSubType,
-        paramList: me.paramList.length ? JSON.stringify(me.paramList) : "",
-        dataSource: me.cusSql
-      });
+      let me = this,
+        cfg = {
+          dataSubType: me.dataSubType,
+          paramList: me.paramList.length ? JSON.stringify(me.paramList) : "",
+          dataSource: me.cusSql
+        };
+
+      if (me.PageNode.isEdit) {
+        me.submitEdit(cfg);
+      } else {
+        me.submitFnBase(cfg);
+      }
+    },
+    //@@ 10 再次进入 编辑
+    editMounted() {
+      let me = this,
+        page = me.PageNode,
+        detailData = page.DetailData;
+      me.cusSql = detailData.dataSource;
+      me.editMountedBase();
     }
   },
 

@@ -48,6 +48,7 @@
         <div>步骤3：选择表维度</div>
         <Scrollbar v-loading="dimLoading">
           <el-tree
+            ref="dimTree"
             class="dimTree"
             :data="tableDims"
             :check-on-click-node="true"
@@ -134,11 +135,23 @@ export default {
       dimAjax: null,
       //~~ 4 table 读取
       tbDTLoading: false,
-      tbDTAjax: null
+      tbDTAjax: null,
+
+      //@@ 10 再次进入编辑 静默
+      editSilent: false
     };
   },
 
   computed: {
+    id() {
+      return (
+        (this.PageNode.DetailData && this.PageNode.DetailData.id) ||
+        this.PageNode.id
+      );
+    },
+    isNowPage() {
+      return this.PageNode.dataSubType == "U";
+    },
     orderProps() {
       return [
         "sqlSource",
@@ -265,7 +278,7 @@ export default {
           groupId: me.pageGroupId
         }
       };
-      me.dimAjax.load();
+      return me.dimAjax.load();
     },
     dimChangeName(data) {
       let me = this,
@@ -371,6 +384,7 @@ export default {
           recordCfg
         );
       me.$store.state.progress = 10;
+
       //【=1=】首先创建，获取id，然后再执行
       $.ajax({
         url: Vue.Api.designBI,
@@ -389,26 +403,21 @@ export default {
           });
 
           //【=2=】两种模式处理
-          //【update】待处理
-          if (me.isEdit) {
-            //tool.apply(record, {});
-          } else {
-            //固定了 的 第一次数据 不可轻易变动
-            tool.apply(record, {
-              createTime: editTime,
-              createOperId: me.loginUser.userCode,
+          //固定了 的 第一次数据 不可轻易变动
+          tool.apply(record, {
+            createTime: editTime,
+            createOperId: me.loginUser.userCode,
 
-              dataType: me.PageNode.dataType,
-              //~~ 1 暂时不改
-              //## 2 维度！
-              dimension: me.dimension.map(d => {
-                d.dataId = theId;
-                d.tTable = `t${d.dataId}`;
-                d.tName = `${d.key}_t${d.dataId}`;
-                return d;
-              })
-            });
-          }
+            dataType: me.PageNode.dataType,
+            //~~ 1 暂时不改
+            //## 2 维度！
+            dimension: me.dimension.map(d => {
+              d.dataId = theId;
+              d.tTable = `t${d.dataId}`;
+              d.tName = `${d.key}_t${d.dataId}`;
+              return d;
+            })
+          });
 
           //【=3=】 保存上传！
           $.ajax({
@@ -437,14 +446,137 @@ export default {
           me.$store.state.progress = 100;
         });
     },
-    submitFn() {
+    submitEdit(recordCfg) {
       let me = this;
-      me.submitFnBase();
+      recordCfg = recordCfg || {};
+
+      me.$store.state.progress = 10;
+      let theId = me.id,
+        editTime = tool.now(true),
+        record = tool.apply(
+          {
+            id: theId,
+
+            name: me.name,
+            //## 1 name！
+            tableName: me.selTableName,
+            sourceName: me.sqlSource && me.sqlSource.name,
+            dataBaseName: me.dataBaseName,
+
+            editTime,
+            editOperId: me.loginUser.userCode,
+
+            dataType: me.PageNode.dataType,
+            //## 2 维度！
+            dimension: me.dimension.map(d => {
+              d.dataId = theId;
+              d.tTable = `t${d.dataId}`;
+              d.tName = `${d.key}_t${d.dataId}`;
+              return d;
+            })
+          },
+          recordCfg
+        );
+
+      //【=3=】 保存上传！
+      $.ajax({
+        url: Vue.Api.designBI,
+        method: Vue.Api.designBI.AddOrUpd,
+        data: {
+          table: "data",
+          records: JSON.stringify([record]),
+          groupId: me.pageGroupId
+        }
+      })
+        .then(result => {
+          me.$message.success("保存成功！");
+          //# 2 返回
+          me.PageNode.backPage(record);
+          me.$store.state.progress = 100;
+        })
+        .catch(r => {
+          me.$message.error("保存失败！" + r);
+          me.$store.state.progress = 100;
+        });
+      //console.log(["尝试提交", me, record]);
+    },
+    submitFn() {
+      let me = this,
+        cfg = {
+          dataSubType: "",
+          paramList: "",
+          dataSource: ""
+        };
+
+      if (me.PageNode.isEdit) {
+        me.submitEdit(cfg);
+      } else {
+        me.submitFnBase(cfg);
+      }
+    },
+    //@@ 10 再次进入 编辑
+    editMountedBase() {
+      let me = this,
+        page = me.PageNode;
+      me.editSilent = true;
+
+      let detailData = page.DetailData;
+      //~~ 1 数据库名
+      me.dataBaseName = detailData.dataBaseName;
+      //~~ 2 表
+      me.selTableName = detailData.tableName;
+      //~~ 3 名字
+      me.$emit("update:name", detailData.name);
+
+      return new Promise(res => {
+        me.getTBDimList().then(r => {
+          //~~ 4 维度确定与 旧的不新
+          let alreadyDims = page.dimension.slice();
+          me.tableDims.forEach(dim => {
+            let al = alreadyDims.find(ad => {
+              return ad.key == dim.key;
+            });
+            if (al) {
+              tool.apply(dim, al);
+              dim.name = al.key;
+            }
+          });
+          me.dimension = alreadyDims;
+
+          me.editSilent = false;
+
+          me.$nextTick(() => {
+            //~~ 4-2 维度check
+            let tree = me.$refs.dimTree;
+            me.dimension.forEach(dim => {
+              let node = tree.getNode(dim.key);
+              node && (node.checked = true);
+            });
+
+            res(true);
+          });
+        });
+      });
+    },
+    editMounted() {
+      let me = this;
+      me.editMountedBase().then(r => {
+        me.getResultTableData();
+      });
+    },
+    //@@ 11 懒加载，配合page
+    lazyMounted() {
+      let me = this,
+        page = me.PageNode;
+      me.getDBList();
     }
   },
   watch: {
     sqlSource(newVal, oldVal) {
       let me = this;
+      if (me.editSilent) {
+        return;
+      }
       if (newVal !== oldVal) {
         this.emptyClear("sqlSource");
         newVal && me.getDBList();
@@ -452,6 +584,9 @@ export default {
     },
     dataBaseName(newVal, oldVal) {
       let me = this;
+      if (me.editSilent) {
+        return;
+      }
       if (newVal !== oldVal) {
         this.emptyClear("dataBaseName");
         newVal && me.getDBTableList();
@@ -459,6 +594,9 @@ export default {
     },
     selTableName(newVal, oldVal) {
       let me = this;
+      if (me.editSilent) {
+        return;
+      }
       if (newVal !== oldVal) {
         this.emptyClear("selTableName");
         newVal && me.getTBDimList();
@@ -482,8 +620,17 @@ export default {
     }
   },
   mounted() {
-    let me = this;
-    me.getDBList();
+    let me = this,
+      page = me.PageNode;
+
+    if (me.isNowPage) {
+      me.lazyMounted();
+    }
+
+    //=1= 如果是编辑进入，仅一次
+    if (page.isEdit && me.isNowPage) {
+      me.editMounted();
+    }
   }
 };
 </script>
