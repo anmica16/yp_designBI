@@ -749,6 +749,26 @@ export default {
           }
         }).catch(() => { });
       });
+    },
+    //## 8 更新一个ins，这里为了使维度信息更新ok
+    reInitOneIns(ins) {
+      let me = this;
+      //   at = me.addInstances.findIndex(i => {
+      //     return i.instanceCode == ins.instanceCode;
+      //   });
+      // if (at > -1) {
+      //   me.addInstances[at] = ins;
+      // }
+      me.getLinkData(ins.recordData.linkDataId).then(r => {
+        let theOne = me.down(item => {
+          return item.queryFlag == "OneItemEdit" && item.instanceCode == ins.instanceCode;
+        });
+        if (theOne) {
+          theOne.reInitOneIns();
+        }
+      });
+
+
     }
   },
   watch: {

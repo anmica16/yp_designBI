@@ -177,7 +177,7 @@
           <div class="dimType">行维度</div>
           <div class="dimsHere">
             <CoatingDim
-              style="height: 30px;"
+              style="height: 30px"
               :candyMaster="candyMaster"
               ref="Dims"
               :receiveCheck="receiveCheckDims"
@@ -191,7 +191,7 @@
           <div class="dimType">列指标</div>
           <div class="dimsHere">
             <CoatingDim
-              style="height: 30px;"
+              style="height: 30px"
               :candyMaster="candyMaster"
               ref="Indices"
               :receiveCheck="receiveCheckIndices"
@@ -251,6 +251,8 @@ export default {
   },
   data() {
     return {
+      queryFlag: "OneItemEdit",
+
       //# 1 小字段
       queryDim: "",
       checkName: true,
@@ -486,6 +488,29 @@ export default {
       });
       me.Instance.save();
       me.$refs.chart.refreshSource();
+    },
+    reInitOneIns() {
+      let me = this,
+        dimR = me.$refs.Dims,
+        idxR = me.$refs.Indices;
+      dimR.candyClear();
+      idxR.candyClear();
+
+      me.reInitCusDims();
+    },
+    reInitCusDims() {
+      let me = this;
+
+      me.initDims();
+
+      //+ 4 自定义名 初始
+      let cusDimNames = {},
+        _cusNames = me._cusDimNames;
+      me.sumData.dimension.forEach(dim => {
+        cusDimNames[dim.$id] =
+          (_cusNames && _cusNames[dim.$id]) || dim.chineseName || dim.key;
+      });
+      me.itemCusDimNames = cusDimNames;
     }
   },
   created() {
@@ -503,20 +528,11 @@ export default {
     me.controlName = me.name;
   },
   watch: {
-    "sumData.dimension": function(newVal) {
+    "sumData.dimension": function (newVal) {
       let me = this;
       if (newVal && !me.$initDims) {
         me.$initDims = true;
-        me.initDims();
-
-        //+ 4 自定义名 初始
-        let cusDimNames = {},
-          _cusNames = me._cusDimNames;
-        newVal.forEach(dim => {
-          cusDimNames[dim.$id] =
-            (_cusNames && _cusNames[dim.$id]) || dim.chineseName || dim.key;
-        });
-        me.itemCusDimNames = cusDimNames;
+        me.reInitCusDims();
       }
     },
     // "sumData.name": function(newVal) {
@@ -528,7 +544,7 @@ export default {
     // name(newVal, oldVal) {
     //   if (newVal != oldVal) this.controlName = newVal;
     // },
-    "Instance.recordData.chartType": function(val) {
+    "Instance.recordData.chartType": function (val) {
       if (
         !this.selectType ||
         (this.selectType && val !== this.selectType.type)

@@ -458,6 +458,8 @@ let Instance = tool.mergeClone({}, Base, {
                     Indices: []
                   }
                 });
+                //## 2-2 更新维度信息
+                me.EditNode.reInitOneIns(me.Instance);
                 me.Instance.save()
                   .then(r => {
                     me.$message.success("BI控件数据源更改成功！");

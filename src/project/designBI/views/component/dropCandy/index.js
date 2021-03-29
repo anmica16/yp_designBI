@@ -137,7 +137,7 @@ let CandyMaster = {
         stopY = pos.top;
       //~ 1 该区域有哪些可选 能drop进的组件
       let fitOwners = [];
-      me.coatings.forEach(function(coat) {
+      me.coatings.forEach(function (coat) {
         let dom = $(coat.$el);
         //# 1 要可见
         if (!dom.is(":visible")) {
@@ -216,7 +216,7 @@ let Coating = {
     receiveCheck: {
       type: Function,
       default() {
-        return function(candy) {
+        return function (candy) {
           return true;
         };
       }
@@ -336,6 +336,13 @@ let Coating = {
       // } else {
       //   //# 2 结束drag
       // }
+    },
+    candyClear() {
+      let me = this,
+        candies = me.candies.slice();
+      candies.forEach(c => {
+        me.candyLeave({ Dim: c });
+      });
     }
   },
   watch: {
