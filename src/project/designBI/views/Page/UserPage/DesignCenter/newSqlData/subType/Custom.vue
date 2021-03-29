@@ -218,6 +218,8 @@ export default {
           catch(r) {
             let msg = "获取存储过程返回表列配置失败！" + r.msg;
             me.$message.error(msg);
+            me.needExec = true;
+
             me.dimLoading = false;
             me.badProcedure = true;
             me.badProcedureInfo = msg;

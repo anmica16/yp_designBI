@@ -8,7 +8,7 @@ let pureLoader = {
   },
   defaultData: {},
 
-  ajax: function(options) {
+  ajax: function (options) {
     let me = this,
       theAjax = null,
       pro = new Promise((res, rej) => {
@@ -28,7 +28,7 @@ let pureLoader = {
         //console.log(["ajax检测", $, options]);
         theAjax = $.ajax(options);
         // 先always 再 done 再 then
-        theAjax.then(function(_result) {
+        theAjax.then(function (_result) {
           //console.log(["then ## 4", arguments]);
           let result = JSON.parse(_result),
             suc = result.success;
@@ -44,17 +44,17 @@ let pureLoader = {
           }
         });
         //先fail 再 always
-        theAjax.fail(function(_1) {
+        theAjax.fail(function (_1) {
           //console.log(["fail ## 2", arguments]);
           rej(_1);
         });
 
-        theAjax.always(function() {
+        theAjax.always(function () {
           //console.log(["always ## 3", arguments]);
           theAjax = null;
         });
       });
-    pro.abort = function() {
+    pro.abort = function () {
       theAjax && theAjax.abort();
     };
 
@@ -75,9 +75,9 @@ class lastLoader {
   constructor(cfg) {
     let me = this;
     me.ajax = cfg.ajax;
-    me.then = cfg.then || function() {};
-    me.catch = cfg.catch || function() {};
-    me.finally = cfg.finally || function() {};
+    me.then = cfg.then || function () { };
+    me.catch = cfg.catch || function () { };
+    me.finally = cfg.finally || function () { };
   }
   load() {
     let me = this;
@@ -98,8 +98,7 @@ class lastLoader {
     }
 
     //【=2=】再一次执行
-    let tempAjax = pureLoader.ajax(me.ajax);
-    tempAjax
+    let tempAjax = pureLoader.ajax(me.ajax)
       .then(result => {
         me.then(result);
         me.finally(result);

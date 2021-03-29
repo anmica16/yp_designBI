@@ -288,7 +288,14 @@ export default {
         me.$msgbox({
           title: "添加BI组件--选择数据源",
           message: h(dataSelector, {
-            key: tool.uniqueStr()
+            key: tool.uniqueStr(),
+            props: {
+              recordsFilter(recs) {
+                return recs.filter(r => {
+                  return ["procedure", "custom"].indexOf(r.dataSubType) < 0;
+                });
+              }
+            }
           }),
           closeOnClickModal: true,
           showCancelButton: true,
@@ -343,7 +350,7 @@ export default {
               res(false);
             }
           }
-        }).catch(() => {});
+        }).catch(() => { });
       });
     },
     //## 1 切换
@@ -492,7 +499,7 @@ export default {
               res(false);
             }
           }
-        }).catch(() => {});
+        }).catch(() => { });
       });
     },
     //~ 4 关联控件增加
@@ -602,7 +609,7 @@ export default {
               res(false);
             }
           }
-        }).catch(() => {});
+        }).catch(() => { });
       });
     },
     returnToCenter() {
@@ -740,7 +747,7 @@ export default {
               res(false);
             }
           }
-        }).catch(() => {});
+        }).catch(() => { });
       });
     }
   },

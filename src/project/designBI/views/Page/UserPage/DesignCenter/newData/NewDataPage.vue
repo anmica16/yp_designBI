@@ -15,7 +15,7 @@
         <el-button
           ref="submit"
           :type="workSheet ? 'primary' : ''"
-          :disabled="!canSubmit"
+          :disabled="!canSubmit_local"
           @click="submitFn"
           >{{ addNewData ? "保存" : "确定" }}</el-button
         >
@@ -239,7 +239,7 @@ export default {
       let me = this;
       return me.fileName;
     },
-    canSubmit() {
+    canSubmit_local() {
       let me = this;
       return me.isEdit ? me.reUploadCfg || me.nameChanged : me.workSheet;
     }
@@ -334,65 +334,88 @@ export default {
       let me = this,
         theId = me.id;
 
-      //@@ 1 只是维度改变
-      if (me.nameChanged && !me.reUploadCfg) {
+      return new Promise((res, rej) => {
         let record = {
           id: theId,
-          //## 2 维度！
-          dimension: JSON.stringify(me.dimension)
+          name: me.name
         };
+
+        //@@ 1 只是维度改变
+        if (!me.reUploadCfg) {
+          (record.dimension = JSON.stringify(me.dimension)),
+            $.ajax({
+              url: Vue.Api.designBI,
+              method: Vue.Api.designBI.AddOrUpd,
+              data: {
+                records: JSON.stringify([record]),
+                table: "data",
+                groupId: me.pageGroupId
+              }
+            })
+              .then(r => {
+                me.$message.success("本地数据更新成功！");
+                res();
+              })
+              .catch(r => {
+                me.$message.error("本地数据更新失败！");
+                rej();
+              });
+          return;
+        }
+
+        //@@ 2 重新上传了数据
+        let { newDims, ifReUpload, ifNewDim } = me.reUploadCfg;
+        record.dimension = JSON.stringify(
+          me.dimension.filter(d => {
+            if (ifNewDim) {
+              return true;
+            }
+            let findD = newDims.find(nd => {
+              return nd.key == d.key;
+            });
+            return !findD;
+          })
+        );
+        //【=3=】 保存上传！
         $.ajax({
           url: Vue.Api.designBI,
-          method: Vue.Api.designBI.AddOrUpd,
+          method: Vue.Api.designBI.UpdateLocalTable,
           data: {
-            records: JSON.stringify([record]),
-            table: "data",
-            groupId: me.pageGroupId
+            record: JSON.stringify(record),
+            //## 2 维度！
+            newDims: ifNewDim && newDims.length ? JSON.stringify(newDims) : "",
+            ifReUpload,
+            ifNewDim,
+            //## 3 数据！
+            keySheet: JSON.stringify(me.getStrDateAoa(me.keySheet, true)),
+            groupId: me.pageGroupId,
+            //## 4 用这个来找linkData
+            dataId: theId
           }
-        });
-        return;
-      }
-
-      //@@ 2 重新上传了数据
-      if (!me.reUploadCfg) {
-        me.$message.warning("未找到再上传信息，请确保上传步骤正确！");
-        return;
-      }
-      let { newDims, ifReUpload, ifNewDim } = me.reUploadCfg;
-      //【=3=】 保存上传！
-      $.ajax({
-        url: Vue.Api.designBI,
-        method: Vue.Api.designBI.UpdateLocalTable,
-        data: {
-          //## 2 维度！
-          newDims: ifNewDim && newDims.length ? JSON.stringify(newDims) : "",
-          ifReUpload,
-          ifNewDim,
-          //## 3 数据！
-          keySheet: JSON.stringify(me.getStrDateAoa(me.keySheet, true)),
-          groupId: me.pageGroupId,
-          //## 4 用这个来找linkData
-          dataId: theId
-        }
-      })
-        .then(result => {
-          me.$message.success("再次上传保存成功！");
-          //# 2 返回
-          //me.backPage(record);
-          me.$store.state.progress = 100;
         })
-        .catch(r => {
-          me.$message.error("再次上传保存失败！" + r);
-          me.$store.state.progress = 100;
-        });
+          .then(result => {
+            me.$message.success("再次上传保存成功！");
+            res();
+          })
+          .catch(r => {
+            me.$message.error("再次上传保存失败！" + r);
+            rej();
+          });
+      });
     },
     submitFn() {
       let me = this;
-      console.log(["确实开始上传了！"]);
+      //console.log(["确实开始上传了！"]);
       if (!me.isEdit) {
         me.submitFn_new();
       } else {
-        me.submitFn_reUpload();
+        me.submitFn_reUpload().then(r => {
+          //~~ 6 重置
+          me.nameChanged = false;
+          me.reUploadCfg = null;
+          //# 2 返回
+          me.backPage(me.DetailData);
+        });
       }
     },
     //~ 3 取消则直接删除该record
@@ -452,24 +475,27 @@ export default {
                       if (v.type === "string") {
                         rec[k] = rec[k] + "";
                         if (!tool.isString(rec[k])) {
-                          throw `转换为字符串类型失败，第【${i +
-                            1}】行，关键字【${k}】，值【${oldVal}】->【${
+                          throw `转换为字符串类型失败，第【${
+                            i + 1
+                          }】行，关键字【${k}】，值【${oldVal}】->【${
                             rec[k]
                           }】`;
                         }
                       } else if (v.type === "number") {
                         rec[k] = parseFloat(rec[k]);
                         if (!tool.isNumber(rec[k])) {
-                          throw `转换为数值类型失败，第【${i +
-                            1}】行，关键字【${k}】，值【${oldVal}】->【${
+                          throw `转换为数值类型失败，第【${
+                            i + 1
+                          }】行，关键字【${k}】，值【${oldVal}】->【${
                             rec[k]
                           }】`;
                         }
                       } else if (v.type === "date") {
                         rec[k] = tool.Date.toDateTime(rec[k]);
                         if (!tool.isDate(rec[k])) {
-                          throw `转换为日期类型失败，第【${i +
-                            1}】行，关键字【${k}】，值【${oldVal}】->【${
+                          throw `转换为日期类型失败，第【${
+                            i + 1
+                          }】行，关键字【${k}】，值【${oldVal}】->【${
                             rec[k]
                           }】`;
                         }
@@ -531,7 +557,7 @@ export default {
       me.newUpdFnBase(files).then(
         ({ analyseResult, name, theWorkSheet, dimension }) => {
           //console.log(["上传后，赋值前检查", analyseResult, dimension]);
-          let setFn = function() {
+          let setFn = function () {
             // # 4 成功 则赋值！
             me.workBook = analyseResult.wb; //不是很重要了
 
@@ -546,6 +572,7 @@ export default {
 
             //~~ 6 重置
             me.nameChanged = false;
+            me.reUploadCfg = null;
           };
           //【=1=】 如果是新增
           if (!me.isEdit) {

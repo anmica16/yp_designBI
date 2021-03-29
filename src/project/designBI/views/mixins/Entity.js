@@ -416,7 +416,7 @@ let Instance = tool.mergeClone({}, Base, {
               res(false);
             }
           }
-        }).catch(() => {});
+        }).catch(() => { });
       });
     },
 
@@ -430,7 +430,12 @@ let Instance = tool.mergeClone({}, Base, {
           key: tool.uniqueStr(),
           props: {
             Instance: me.Instance,
-            isLoadByHand: true
+            isLoadByHand: true,
+            recordsFilter(recs) {
+              return recs.filter(r => {
+                return ["procedure", "custom"].indexOf(r.dataSubType) < 0;
+              });
+            }
           }
         });
         me.$msgbox({
@@ -447,7 +452,11 @@ let Instance = tool.mergeClone({}, Base, {
               if (theRec) {
                 //# 2 ins建立关联，然后获取关联数据
                 me.Instance.setData({
-                  linkDataId: theRec.id
+                  linkDataId: theRec.id,
+                  config_more: {
+                    Dims: [],
+                    Indices: []
+                  }
                 });
                 me.Instance.save()
                   .then(r => {
@@ -471,7 +480,7 @@ let Instance = tool.mergeClone({}, Base, {
               res(false);
             }
           }
-        }).catch(() => {});
+        }).catch(() => { });
       });
     },
 
@@ -529,7 +538,7 @@ let Instance = tool.mergeClone({}, Base, {
               res(false);
             }
           }
-        }).catch(() => {});
+        }).catch(() => { });
       });
     },
 

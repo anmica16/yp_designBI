@@ -542,7 +542,11 @@ export default {
     //# 6 成员改变窗口
     memberSetStartFn(theUser) {
       let me = this;
-      if (!me.canEdit || theUser.userCode == me.loginUserCode) {
+      if (
+        !me.canEdit ||
+        theUser.userCode == me.loginUserCode ||
+        me.Group.userRank >= theUser.userRank
+      ) {
         return;
       }
       me.userManageOrigin = theUser;

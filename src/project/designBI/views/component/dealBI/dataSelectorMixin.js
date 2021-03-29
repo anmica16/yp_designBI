@@ -8,11 +8,12 @@ export default {
     isLoadByHand: {
       type: Boolean,
       default: false
-    }
+    },
+    recordsFilter: Function
   },
   data() {
     return {
-      records: [],
+      recordsBase: [],
       //【update】文件夹选择提示
       nowFolderRec: null,
       nowFileRec: null,
@@ -22,6 +23,17 @@ export default {
 
       confirmLoading: false
     };
+  },
+  computed: {
+    records() {
+      let me = this,
+        recs = me.recordsBase,
+        f = me.recordsFilter;
+      if (f) {
+        return f(recs);
+      }
+      return recs;
+    }
   },
   methods: {
     //~ 1 树数据 获取 简单替换
@@ -37,7 +49,7 @@ export default {
         })
           .then(result => {
             let recs = result.data;
-            me.records = recs;
+            me.recordsBase = recs;
             res(result);
           })
           .catch(r => {
@@ -100,7 +112,8 @@ export default {
           url: Vue.Api.designBI,
           method: Vue.Api.designBI.GetLinkDetailData,
           data: {
-            id: theId
+            id: theId,
+            groupId: me.pageGroupId
           }
         });
         me.DetailDataAjax.then(result => {

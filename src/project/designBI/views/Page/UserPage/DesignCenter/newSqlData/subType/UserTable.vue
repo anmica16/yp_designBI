@@ -201,7 +201,8 @@ export default {
         method: Vue.Api.designBI.GetLinkSourceDBList,
         data: {
           serverName: me.sqlSource.name,
-          query: queryStr
+          query: queryStr,
+          groupId: me.pageGroupId
         }
       };
       me.dbListAjax.load();
