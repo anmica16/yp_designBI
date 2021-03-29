@@ -20,6 +20,7 @@ let Api_custom = {
     //~ 2.2 dataV2
     GetLinkData: "GetLinkData",
     CreateOrUpdTable: "CreateOrUpdTable",
+    UpdateLocalTable: "UpdateLocalTable",
     GetLinkDetailData: "GetLinkDetailData",
     GetDimensionsInfo: "GetDimensionsInfo",
     //~ 3 数据库查询

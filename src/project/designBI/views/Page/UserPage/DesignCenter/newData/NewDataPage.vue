@@ -15,7 +15,7 @@
         <el-button
           ref="submit"
           :type="workSheet ? 'primary' : ''"
-          :disabled="!workSheet"
+          :disabled="!canSubmit"
           @click="submitFn"
           >{{ addNewData ? "保存" : "确定" }}</el-button
         >
@@ -112,6 +112,7 @@
                     <template slot-scope="scope">
                       <el-input
                         size="small"
+                        @change="nameChanged = true"
                         v-model="scope.row.chineseName"
                       ></el-input>
                     </template>
@@ -209,7 +210,8 @@ export default {
       exist: true, //默认存在，在获取数据后敲定
 
       //@ 6 再次上传参数
-      reUploadCfg: null
+      reUploadCfg: null,
+      nameChanged: false
     };
   },
   computed: {
@@ -236,6 +238,10 @@ export default {
     sourceTableName() {
       let me = this;
       return me.fileName;
+    },
+    canSubmit() {
+      let me = this;
+      return me.isEdit ? me.reUploadCfg || me.nameChanged : me.workSheet;
     }
   },
   methods: {
@@ -267,7 +273,8 @@ export default {
         method: Vue.Api.designBI.AddNewTreeItem,
         data: {
           table: "data",
-          records: JSON.stringify([record])
+          records: JSON.stringify([record]),
+          groupId: me.pageGroupId
         }
       })
         .then(result => {
@@ -277,29 +284,23 @@ export default {
             id: theId
           });
 
-          //【=2=】两种模式处理
-          //【update】待处理
-          if (me.isEdit) {
-            //tool.apply(record, {});
-          } else {
-            //固定了 的 第一次数据 不可轻易变动
-            tool.apply(record, {
-              createTime: editTime,
-              createOperId: me.loginUser.userCode,
+          //固定了 的 第一次数据 不可轻易变动
+          tool.apply(record, {
+            createTime: editTime,
+            createOperId: me.loginUser.userCode,
 
-              fileName: me.fileName,
-              fileType: me.fileType,
-              dataType: me.dataType,
-              //~~ 1 暂时不改
-              //## 2 维度！
-              dimension: me.dimension.map(d => {
-                d.dataId = theId;
-                d.tTable = `t${d.dataId}`;
-                d.tName = `${d.key}_t${d.dataId}`;
-                return d;
-              })
-            });
-          }
+            fileName: me.fileName,
+            fileType: me.fileType,
+            dataType: me.dataType,
+            //~~ 1 暂时不改
+            //## 2 维度！
+            dimension: me.dimension.map(d => {
+              d.dataId = theId;
+              d.tTable = `t${d.dataId}`;
+              d.tName = `${d.key}_t${d.dataId}`;
+              return d;
+            })
+          });
 
           //【=3=】 保存上传！
           $.ajax({
@@ -308,7 +309,8 @@ export default {
             data: {
               DetailData: JSON.stringify(record),
               //## 3 数据！
-              keySheet: JSON.stringify(me.getStrDateAoa(me.keySheet, true))
+              keySheet: JSON.stringify(me.getStrDateAoa(me.keySheet, true)),
+              groupId: me.pageGroupId
             }
           })
             .then(result => {
@@ -328,10 +330,69 @@ export default {
           me.$store.state.progress = 100;
         });
     },
+    submitFn_reUpload() {
+      let me = this,
+        theId = me.id;
+
+      //@@ 1 只是维度改变
+      if (me.nameChanged && !me.reUploadCfg) {
+        let record = {
+          id: theId,
+          //## 2 维度！
+          dimension: JSON.stringify(me.dimension)
+        };
+        $.ajax({
+          url: Vue.Api.designBI,
+          method: Vue.Api.designBI.AddOrUpd,
+          data: {
+            records: JSON.stringify([record]),
+            table: "data",
+            groupId: me.pageGroupId
+          }
+        });
+        return;
+      }
+
+      //@@ 2 重新上传了数据
+      if (!me.reUploadCfg) {
+        me.$message.warning("未找到再上传信息，请确保上传步骤正确！");
+        return;
+      }
+      let { newDims, ifReUpload, ifNewDim } = me.reUploadCfg;
+      //【=3=】 保存上传！
+      $.ajax({
+        url: Vue.Api.designBI,
+        method: Vue.Api.designBI.UpdateLocalTable,
+        data: {
+          //## 2 维度！
+          newDims: ifNewDim && newDims.length ? JSON.stringify(newDims) : "",
+          ifReUpload,
+          ifNewDim,
+          //## 3 数据！
+          keySheet: JSON.stringify(me.getStrDateAoa(me.keySheet, true)),
+          groupId: me.pageGroupId,
+          //## 4 用这个来找linkData
+          dataId: theId
+        }
+      })
+        .then(result => {
+          me.$message.success("再次上传保存成功！");
+          //# 2 返回
+          //me.backPage(record);
+          me.$store.state.progress = 100;
+        })
+        .catch(r => {
+          me.$message.error("再次上传保存失败！" + r);
+          me.$store.state.progress = 100;
+        });
+    },
     submitFn() {
       let me = this;
+      console.log(["确实开始上传了！"]);
       if (!me.isEdit) {
         me.submitFn_new();
+      } else {
+        me.submitFn_reUpload();
       }
     },
     //~ 3 取消则直接删除该record
@@ -482,6 +543,9 @@ export default {
 
             //# 5 维度：
             me.dimension = dimension;
+
+            //~~ 6 重置
+            me.nameChanged = false;
           };
           //【=1=】 如果是新增
           if (!me.isEdit) {
@@ -612,7 +676,8 @@ export default {
           url: Vue.Api.designBI,
           method: Vue.Api.designBI.GetLinkDetailData,
           data: {
-            id: me.id
+            id: me.id,
+            groupId: me.pageGroupId
           }
         })
           .then(result => {

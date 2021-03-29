@@ -136,7 +136,8 @@ export default {
       } else {
         return {
           ifNewDim: me.ifNewDim,
-          ifReUpload: me.ifReUpload
+          ifReUpload: me.ifReUpload,
+          newDims: me.plusA
         };
       }
     }

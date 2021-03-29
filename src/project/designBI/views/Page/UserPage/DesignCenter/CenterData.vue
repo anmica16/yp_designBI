@@ -359,18 +359,24 @@ export default {
             method: Vue.Api.designBI.DeleteTreeItem,
             index: theFile.index,
             table: "data",
+            dataType: isFolder ? "local" : theFile.dataType,
+            tableName: theFile.tableName,
             groupId: me.pageGroupId
           }
         })
           .then(result => {
             me.$message.success("删除成功！");
+            me.nowFileRec = null;
+            if (isFolder) {
+              me.nowFolderRec = null;
+            }
             me.refreshRecords();
           })
           .catch(r => {
             me.$message.success(r.msg || "删除时服务器出现了一些问题……");
           });
       });
-    },
+    }
   },
   mounted() {
     let me = this;

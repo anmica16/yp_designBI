@@ -378,13 +378,17 @@ export default {
       me.$msgbox({
         type: "warning",
         title: "确认",
-        message: "真的要删除该绘板吗？",
+        message: scope.isFolder
+          ? "真的要删除该绘板文件夹吗？"
+          : "真的要删除该绘板吗？",
         showCancelButton: true
       })
         .then(() => {
           console.log(["删除时的确认", scope, scope.row]);
           let board = me.$store.getters.getBoard(scope.row.templateCode);
-          board.delete();
+          board.delete().then(r => {
+            me.$message.success("删除成功！");
+          });
         })
         .catch(() => {});
     },
@@ -401,10 +405,10 @@ export default {
     boardLogClear(done) {
       let me = this;
 
-      tool.apply(me.dialogBoardForm, {
+      me.dialogBoardForm = {
         name: "",
         desp: ""
-      });
+      };
 
       done();
     },
@@ -432,6 +436,8 @@ export default {
               );
               me.dialogBoard = false;
               me.dialogBoardLoading = false;
+              me.getBoardList();
+              me.boardLogClear(() => {});
             })
             .catch(r => {
               me.$message.success(

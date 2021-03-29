@@ -543,6 +543,40 @@ let theStore = new Vuex.Store({
         return;
       }
       state.loopGetMsgWorker.refresh();
+    },
+
+    // # 5 等待pageGroupId的Promise途径
+    waitPageGroupId({ state, getters }, groupId) {
+      let me = this;
+      state.progress = 20;
+      return new Promise((res, rej) => {
+        let theGroup = state.pageGroups.find(g => {
+          return g.id == groupId;
+        });
+        if (theGroup) {
+          state.progress = 100;
+          res(theGroup);
+        } else {
+          state.progress = 40;
+          me.dispatch("getPageGroups", getters.loginUserCode)
+            .then(r => {
+              theGroup = state.pageGroups.find(g => {
+                return g.id == groupId;
+              });
+
+              state.progress = 100;
+              if (theGroup) {
+                res(theGroup);
+              } else {
+                rej(false);
+              }
+            })
+            .catch(r => {
+              state.progress = 100;
+              rej(r);
+            });
+        }
+      });
     }
   }
 });

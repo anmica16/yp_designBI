@@ -240,6 +240,7 @@ router.beforeEach((to, from, next) => {
   }
   //console.log(["router的 导航首位", store]);
   //【=3=】session未有，检测服务端是否有登录信息
+  theStore.state.progress = 10;
   loader
     .ajax({
       url: Vue.Api.designBI,
@@ -249,6 +250,7 @@ router.beforeEach((to, from, next) => {
     })
     .then(function(result) {
       let user = result.data;
+      theStore.state.progress = 100;
       if (user) {
         hasLoginFn(user);
       } else {
@@ -258,6 +260,7 @@ router.beforeEach((to, from, next) => {
     })
     .catch(function(result) {
       //console.error(["错误信息页", error, arguments]);
+      theStore.state.progress = 100;
       if (result.other) {
         noLoginFn();
       } else {
@@ -291,22 +294,39 @@ router.beforeEach((to, from, next) => {
     let go = tool.clone(to);
 
     let goTestFn = function(theGO) {
-      let theGroup = theStore.state.pageGroups.find(g => {
-        return g.id == go.params.groupId;
-      });
-      if (!theGroup) {
-        Vue.$msgbox({
-          type: "warning",
-          message: "用户访问的团队未查询到，请返回团队设置页重试！"
-        }).catch(() => {});
-        next({ name: "Group" });
-      } else {
-        if (theGO) {
-          next(go);
-        } else {
-          next();
-        }
-      }
+      theStore
+        .dispatch("waitPageGroupId", go.params.groupId)
+        .then(r => {
+          if (theGO) {
+            next(go);
+          } else {
+            next();
+          }
+        })
+        .catch(r => {
+          Vue.$msgbox({
+            type: "warning",
+            message: "用户访问的团队未查询到，请返回团队设置页重试！"
+          }).catch(() => {});
+          next({ name: "Group" });
+        });
+
+      // let theGroup = theStore.state.pageGroups.find(g => {
+      //   return g.id == go.params.groupId;
+      // });
+      // if (!theGroup) {
+      //   Vue.$msgbox({
+      //     type: "warning",
+      //     message: "用户访问的团队未查询到，请返回团队设置页重试！"
+      //   }).catch(() => {});
+      //   next({ name: "Group" });
+      // } else {
+      //   if (theGO) {
+      //     next(go);
+      //   } else {
+      //     next();
+      //   }
+      // }
     };
     //console.log(["user的 守卫正在发挥作用"]);
     if (!go.params.groupId) {

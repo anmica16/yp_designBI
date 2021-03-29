@@ -149,7 +149,8 @@ export default class DrawingBoard extends DrawEntityBase {
 
     tool.apply(options, {
       method: Vue.Api.designBI.DeleteBoard,
-      templateCode: me.recordData.templateCode
+      templateCode: me.recordData.templateCode,
+      index: me.recordData.index
     });
     return new Promise((res, rej) => {
       super.delete
