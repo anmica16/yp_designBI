@@ -150,7 +150,7 @@ import BoardInsPropSelector from "@designBI/views/component/dealBI/BoardInsPropS
 import { singleConds } from "@designBI/store";
 
 export default {
-  name: "paramSelector",
+  name: "paramSelector_single",
   mixins: [dataSelectorMixin, LoginUser],
   components: {
     BoardInsPropSelector

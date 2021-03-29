@@ -330,6 +330,39 @@ let theStore = new Vuex.Store({
       });
     },
 
+    //@ 3-0 不带跳转的 登录请求
+    loginRequest({ state }, config) {
+      let me = this,
+        userCode = config.userCode,
+        password = config.password;
+
+      return new Promise((res, rej) => {
+        if (!userCode) {
+          Vue.$message.warning("登录请求时未传递用户登录名！");
+          rej();
+          return;
+        }
+        $.ajax({
+          url: Vue.Api.designBI,
+          data: {
+            method: Vue.Api.designBI.Login,
+            userCode,
+            password
+          }
+        })
+          .then(result => {
+            let user = result.data;
+
+            me.dispatch("loginIn", user).then(goon => {
+              res({ result, goon });
+            });
+          })
+          .catch(r => {
+            rej(r);
+          });
+      });
+    },
+
     //@ 3-1 登录的设置登录用户
     loginIn({ state }, user) {
       let me = this;

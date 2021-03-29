@@ -41,18 +41,53 @@
           </el-link>
           <el-dropdown-menu slot="dropdown">
             <template v-if="Group.userRank == '1'">
-              <el-dropdown-item @click="GroupUserCgGroupNameFn"
+              <el-dropdown-item
+                @click.native="
+                  (GroupUserCgGroupNameFnShow = true),
+                    (GroupUserCgGroupNameFnName = '')
+                "
                 >更改团队名称</el-dropdown-item
               >
-              <el-dropdown-item @click="GroupUserCgOwnerFn"
-                >移交团队</el-dropdown-item
+
+              <el-dialog
+                title="更改团队名称"
+                :visible.sync="GroupUserCgGroupNameFnShow"
+                :append-to-body="true"
+                :destroy-on-close="true"
               >
-              <el-dropdown-item @click="GroupUserDismissFn"
+                <div class="pre">新的团队名称</div>
+                <el-input
+                  size="small"
+                  v-model="GroupUserCgGroupNameFnName"
+                  placeholder="请输入新的团队名称"
+                ></el-input>
+
+                <div class="bottomArea">
+                  <div class="fill"></div>
+                  <el-button
+                    size="small"
+                    type="primary"
+                    @click="GroupUserCgGroupNameFnConfirm"
+                    >确定</el-button
+                  >
+                  <el-button
+                    size="small"
+                    type="primary"
+                    @click="GroupUserCgGroupNameFnShow = false"
+                    >取消</el-button
+                  >
+                </div>
+              </el-dialog>
+
+              <!-- <el-dropdown-item @click="GroupUserCgOwnerFn"
+                >移交团队</el-dropdown-item
+              > -->
+              <el-dropdown-item @click.native="GroupUserDismissFn"
                 >解散团队</el-dropdown-item
               >
             </template>
             <template v-else>
-              <el-dropdown-item @click="GroupUserLeaveFn"
+              <el-dropdown-item @click.native="GroupUserLeaveFn"
                 >退出团队</el-dropdown-item
               >
             </template>
@@ -286,6 +321,10 @@ export default {
     Group: {
       type: Object,
       required: true
+    },
+    ParentNode: {
+      type: Object,
+      required: true
     }
   },
   data() {
@@ -310,7 +349,11 @@ export default {
       userManageShow: false,
       userManageOrigin: null,
       userManageTarget: null,
-      userManageLoading: false
+      userManageLoading: false,
+
+      //~ 4 设置分支
+      GroupUserCgGroupNameFnShow: false,
+      GroupUserCgGroupNameFnName: ""
     };
   },
   computed: {
@@ -642,10 +685,110 @@ export default {
         });
     },
     //# 7 设置的 4个分支方法
-    GroupUserCgGroupNameFn() {},
+    GroupUserCgGroupNameFnConfirm() {
+      let me = this,
+        group = me.Group;
+      if (!me.GroupUserCgGroupNameFnName) {
+        me.$message.warning("新的团队名称不能为空!");
+        return;
+      }
+      me.$msgbox({
+        type: "warning",
+        message: `真的要把团队名称从【${group.name}】改为【${me.GroupUserCgGroupNameFnName}】吗？`,
+        showCancelButton: true
+      })
+        .then(r => {
+          loader
+            .ajax({
+              url: Vue.Api.designBI,
+              data: {
+                method: Vue.Api.designBI.AddOrUpd,
+                records: JSON.stringify([
+                  {
+                    id: group.id,
+                    name: me.GroupUserCgGroupNameFnName
+                  }
+                ]),
+                table: "group"
+              }
+            })
+            .then(r => {
+              me.$message.success("已成功更改团队名");
+              me.ParentNode.refreshNowGroup();
+              me.GroupUserCgGroupNameFnShow = false;
+            });
+        })
+        .catch(r => {});
+    },
     GroupUserCgOwnerFn() {},
-    GroupUserDismissFn() {},
-    GroupUserLeaveFn() {}
+    GroupUserDismissFn() {
+      let me = this,
+        group = me.Group;
+      me.$msgbox({
+        type: "warning",
+        message: `真的要解散【${group.name}】团队吗？一旦解散，所有该团队的数据将被删除，请慎重考虑！`,
+        showCancelButton: true
+      })
+        .then(r => {
+          me.$msgbox({
+            type: "warning",
+            message: `再次点击确认以解散【${group.name}】团队`,
+            showCancelButton: true
+          })
+            .then(r => {
+              if (me.loginUser.defaultGroup == group.id) {
+                loader.ajax({
+                  url: Vue.Api.designBI,
+                  data: {
+                    method: Vue.Api.designBI.UpdateUserDefaultGroup,
+                    groupId: "0"
+                  }
+                });
+              }
+
+              loader
+                .ajax({
+                  url: Vue.Api.designBI,
+                  data: {
+                    method: Vue.Api.designBI.DeleteGroup,
+                    groupId: group.id,
+                    userCode: me.loginUserCode
+                  }
+                })
+                .then(r => {
+                  me.$message.success("已成功解散该团队");
+                  me.ParentNode.refreshNowGroup();
+                });
+            })
+            .catch(r => {});
+        })
+        .catch(r => {});
+    },
+    GroupUserLeaveFn() {
+      let me = this,
+        group = me.Group;
+      me.$msgbox({
+        type: "warning",
+        message: `真的要退出【${group.name}】团队吗？`,
+        showCancelButton: true
+      })
+        .then(r => {
+          loader
+            .ajax({
+              url: Vue.Api.designBI,
+              data: {
+                method: Vue.Api.designBI.Delete,
+                ids: JSON.stringify([group.userInGroupId]),
+                table: "userInGroup"
+              }
+            })
+            .then(r => {
+              me.$message.success("已成功退出该团队");
+              me.ParentNode.refreshNowGroup();
+            });
+        })
+        .catch(r => {});
+    }
   },
   mounted() {
     let me = this;

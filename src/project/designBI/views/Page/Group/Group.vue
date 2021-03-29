@@ -95,7 +95,12 @@
         ></Pager>
       </div>
       <div class="rightPart">
-        <OneGroup ref="oneGroup" v-if="cNowGroup" :Group="cNowGroup"></OneGroup>
+        <OneGroup
+          ref="oneGroup"
+          v-if="cNowGroup"
+          :Group="cNowGroup"
+          :ParentNode="me"
+        ></OneGroup>
         <div v-else>
           请在左侧选择一个团队
         </div>
@@ -136,6 +141,9 @@ export default {
     };
   },
   computed: {
+    me() {
+      return this;
+    },
     defaultGroup() {
       let me = this,
         id = me.defaultGroupId;
@@ -219,6 +227,19 @@ export default {
       } else {
         me.showDefault = false;
       }
+    },
+    refreshNowGroup() {
+      let me = this;
+
+      me.$store.dispatch("getPageGroups", me.loginUserCode).then(r => {
+        if (me.nowGroup) {
+          me.$nextTick(() => {
+            me.nowGroup = me.pageGroups.find(p => {
+              return p.id == me.nowGroup.id;
+            });
+          });
+        }
+      });
     }
   },
   watch: {

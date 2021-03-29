@@ -3,6 +3,7 @@ import Vue from "vue";
 
 Vue.config.productionTip = false;
 
+//## 1 首先我们对Vue 增加一些公用的功能性属性和方法：
 import VueExtend from "./plugins/VueExtend";
 Vue.use(VueExtend);
 

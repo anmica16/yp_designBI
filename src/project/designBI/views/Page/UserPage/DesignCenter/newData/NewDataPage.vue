@@ -526,7 +526,7 @@ export default {
             //## 2 对维度进行一次报告，成功的后续中进行上传
 
             me.$msgbox({
-              title: "添加关联控件",
+              title: "再次上传数据",
               message: h(reNewDataWinCtor, {
                 key: tool.uniqueStr(),
                 props: {

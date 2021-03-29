@@ -161,34 +161,27 @@ export default {
         if (ifPass) {
           me.logining = true;
 
-          loader
-            .ajax({
-              url: Vue.Api.designBI,
-              data: {
-                method: Vue.Api.designBI.Login,
-                ...me.loginInfo
-              }
-            })
-            .then(result => {
+          me.$store
+            .dispatch("loginRequest", me.loginInfo)
+            .then(({ result, goon }) => {
               me.logining = false;
               let user = result.data;
-              me.$store.dispatch("loginIn", user).then(goon => {
-                if (!goon) {
-                  return;
-                }
 
-                if (user.defaultGroup) {
-                  me.$router.push({ name: "DesignCenter-menu" });
-                } else {
-                  me.$msgbox({
-                    type: "warning",
-                    message:
-                      "用户没有设置默认团队，将跳转至团队设置页，请于该页设置！"
-                  }).catch(() => {});
+              if (!goon) {
+                return;
+              }
 
-                  me.$router.push({ name: "Group" });
-                }
-              });
+              if (user.defaultGroup) {
+                me.$router.push({ name: "DesignCenter-menu" });
+              } else {
+                me.$msgbox({
+                  type: "warning",
+                  message:
+                    "用户没有设置默认团队，将跳转至团队设置页，请于该页设置！"
+                }).catch(() => {});
+
+                me.$router.push({ name: "Group" });
+              }
             })
             .catch(r => {
               me.logining = false;

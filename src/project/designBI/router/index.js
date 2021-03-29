@@ -203,6 +203,34 @@ router.beforeEach((to, from, next) => {
     }
   };
 
+  //【=1-1=】参数登录的形式，如果给出参数中
+  if (to.query) {
+    let userCode = "",
+      password = "";
+    tool.each(to.query, (key, val) => {
+      let theKey = (key + "").toLowerCase();
+      if (["usercode", "username"].indexOf(theKey) > -1) {
+        userCode = val;
+      } else if (["password"].indexOf(theKey) > -1) {
+        password = val;
+      }
+    });
+    if (userCode) {
+      theStore
+        .dispatch("loginRequest", { userCode, password })
+        .then(({ result }) => {
+          Vue.$message.success("浏览器参数登录成功！");
+          let user = result.data;
+          hasLoginFn(user);
+        })
+        .catch(r => {
+          Vue.$message.warning("浏览器参数登录请求失败！" + (r.msg || ""));
+          noLoginFn();
+        });
+      return;
+    }
+  }
+
   //【=1=】已经登录
   let loginUserStr = sessionStorage.getItem("loginUser");
   if (loginUserStr) {
@@ -261,6 +289,25 @@ router.beforeEach((to, from, next) => {
   //~~ (2)切换后置
   if (findUserPage) {
     let go = tool.clone(to);
+
+    let goTestFn = function(theGO) {
+      let theGroup = theStore.state.pageGroups.find(g => {
+        return g.id == go.params.groupId;
+      });
+      if (!theGroup) {
+        Vue.$msgbox({
+          type: "warning",
+          message: "用户访问的团队未查询到，请返回团队设置页重试！"
+        }).catch(() => {});
+        next({ name: "Group" });
+      } else {
+        if (theGO) {
+          next(go);
+        } else {
+          next();
+        }
+      }
+    };
     //console.log(["user的 守卫正在发挥作用"]);
     if (!go.params.groupId) {
       go.params.groupId = theStore.state.loginUser.defaultGroup;
@@ -271,10 +318,11 @@ router.beforeEach((to, from, next) => {
           message: "用户没有设置默认团队，将跳转至团队设置页，请于该页设置！"
         }).catch(() => {});
         go = { name: "Group" };
+      } else {
+        goTestFn(go);
       }
-      next(go);
     } else {
-      next();
+      goTestFn();
     }
 
     //=2= 如果最后有groupId，那么就set一下store的值

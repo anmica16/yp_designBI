@@ -44,6 +44,7 @@ let Api_custom = {
     GetGroupUserList: "GetGroupUserList",
     GetInviteUserList: "GetInviteUserList",
     UpdateUserDefaultGroup: "UpdateUserDefaultGroup",
+    DeleteGroup: "DeleteGroup",
     //~ 6 消息传递有关
     SendMessage: "SendMessage",
     GetMessages: "GetMessages",
