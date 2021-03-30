@@ -81,6 +81,14 @@
           title="修改参数配置"
           @click="configParamItem"
         ></el-button>
+        <el-button
+          v-else-if="useType == 20"
+          type="primary"
+          icon="el-icon-cold-drink"
+          size="mini"
+          title="修改过滤配置"
+          @click="configCondition"
+        ></el-button>
 
         <!-- <el-button
           type="info"

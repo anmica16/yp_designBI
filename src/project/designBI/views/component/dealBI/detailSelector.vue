@@ -11,6 +11,7 @@
           :dimClass="'joinTagCard main'"
           preText="主表"
           :candyMaster="candyMaster"
+          :recordsFilter="recordsFilterFn"
           @confirmData="mainDataConfirm(true)"
           @revokeData="mainDataConfirm(false)"
         ></dataPropCoat>
@@ -362,6 +363,11 @@ export default {
     }
   },
   methods: {
+    recordsFilterFn(recs) {
+      return recs.filter(r => {
+        return ["procedure", "custom"].indexOf(r.dataSubType) < 0;
+      });
+    },
     changeJoin(joinTable) {
       this.nowJoinTable = joinTable;
     },

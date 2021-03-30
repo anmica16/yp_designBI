@@ -3,6 +3,9 @@ import tool from "@/plugins/js/tool";
 import detailSelector from "@designBI/views/component/dealBI/detailSelector.vue";
 import dataSelector from "@designBI/views/component/dealBI/dataSelector.vue";
 import paramSelector from "@designBI/views/component/dealBI/paramSelector.vue";
+import propertySelector from "@designBI/views/component/dealBI/propertySelector.vue";
+import { singleConds } from "@designBI/store";
+import { theStore } from "../../store";
 let Base = {
   props: {
     //是否不必须 交给使用者覆盖
@@ -416,7 +419,7 @@ let Instance = tool.mergeClone({}, Base, {
               res(false);
             }
           }
-        }).catch(() => { });
+        }).catch(() => {});
       });
     },
 
@@ -482,7 +485,7 @@ let Instance = tool.mergeClone({}, Base, {
               res(false);
             }
           }
-        }).catch(() => { });
+        }).catch(() => {});
       });
     },
 
@@ -540,7 +543,89 @@ let Instance = tool.mergeClone({}, Base, {
               res(false);
             }
           }
-        }).catch(() => { });
+        }).catch(() => {});
+      });
+    },
+
+    configCondition() {
+      let me = this,
+        h = me.$createElement;
+
+      return new Promise(res => {
+        me.$msgbox({
+          title: "添加过滤组件",
+          message: h(propertySelector, {
+            key: tool.uniqueStr(),
+            props: {
+              xtype: me.Instance.recordData.xtype,
+              newCondition: true,
+              Entity: me.Instance,
+              EditNode: me.EditNode,
+              isLoadByHand: true
+            }
+          }),
+          closeOnClickModal: true,
+          showCancelButton: true,
+          customClass: "newCondition",
+          beforeClose(action, ins, done) {
+            if (action === "confirm") {
+              let selector = ins.down("propertySelector");
+
+              //console.log(["这个ins 的 form？", ins, selector]);
+
+              //# 3-0 不属于单独条件的过滤组件，需要设定至少一个维度信息！
+              if (!singleConds[ins.xtype]) {
+                if (!selector.selProps.length) {
+                  me.$message.warning(
+                    "非单独条件的过滤组件需要设定至少一个维度信息！"
+                  );
+                  return;
+                }
+              }
+
+              //if (selector.selProps.length) {
+              me.Instance.setData({
+                propsData: {
+                  properties: selector.selProps.map(a => {
+                    let b = tool.apply({}, a);
+                    delete b.parentCoating;
+                    return b;
+                  })
+                },
+                editTime: tool.now(),
+                editOperId: theStore.state.loginUser.userCode
+              });
+
+              selector.confirmLoading = true;
+              //# 3 进行保存
+              me.Instance.save()
+                .then(r => {
+                  me.$message.success("过滤组件配置更改成功！");
+                  if (
+                    me.Instance.$bubble &&
+                    me.Instance.$bubble.host &&
+                    me.Instance.$bubble.host.getInfoProps
+                  ) {
+                    me.Instance.$bubble.host.getInfoProps();
+                  }
+                  done();
+                  res(me.Instance);
+                })
+                .catch(r => {
+                  me.$message.error(
+                    "过滤组件配置更改失败！请检查服务器运行状态"
+                  );
+                  res(false);
+                })
+                .finally(() => {
+                  selector.confirmLoading = false;
+                });
+            } else {
+              done();
+              res(false);
+            }
+          }
+        }).catch(() => {});
       });
     },
 

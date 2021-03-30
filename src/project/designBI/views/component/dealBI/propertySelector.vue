@@ -198,6 +198,20 @@ export default {
 
     me.propCoat = me.$refs.propCoat;
     me.conditionCmp = me.$refs.conditionCmp;
+
+    //表示是编辑页
+    if (me.isLoadByHand) {
+      let pts =
+        me.Entity.recordData.propsData &&
+        me.Entity.recordData.propsData.properties;
+      if (tool.isArray(pts)) {
+        let cPTS = tool.clone(pts);
+
+        cPTS.forEach(dim => {
+          me.propCoat.candyAddSimple({ Dim: dim });
+        });
+      }
+    }
   }
 };
 </script>

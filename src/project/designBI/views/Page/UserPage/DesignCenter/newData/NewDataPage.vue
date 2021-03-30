@@ -475,27 +475,24 @@ export default {
                       if (v.type === "string") {
                         rec[k] = rec[k] + "";
                         if (!tool.isString(rec[k])) {
-                          throw `转换为字符串类型失败，第【${
-                            i + 1
-                          }】行，关键字【${k}】，值【${oldVal}】->【${
+                          throw `转换为字符串类型失败，第【${i +
+                            1}】行，关键字【${k}】，值【${oldVal}】->【${
                             rec[k]
                           }】`;
                         }
                       } else if (v.type === "number") {
                         rec[k] = parseFloat(rec[k]);
                         if (!tool.isNumber(rec[k])) {
-                          throw `转换为数值类型失败，第【${
-                            i + 1
-                          }】行，关键字【${k}】，值【${oldVal}】->【${
+                          throw `转换为数值类型失败，第【${i +
+                            1}】行，关键字【${k}】，值【${oldVal}】->【${
                             rec[k]
                           }】`;
                         }
                       } else if (v.type === "date") {
                         rec[k] = tool.Date.toDateTime(rec[k]);
                         if (!tool.isDate(rec[k])) {
-                          throw `转换为日期类型失败，第【${
-                            i + 1
-                          }】行，关键字【${k}】，值【${oldVal}】->【${
+                          throw `转换为日期类型失败，第【${i +
+                            1}】行，关键字【${k}】，值【${oldVal}】->【${
                             rec[k]
                           }】`;
                         }
@@ -557,7 +554,7 @@ export default {
       me.newUpdFnBase(files).then(
         ({ analyseResult, name, theWorkSheet, dimension }) => {
           //console.log(["上传后，赋值前检查", analyseResult, dimension]);
-          let setFn = function () {
+          let setFn = function() {
             // # 4 成功 则赋值！
             me.workBook = analyseResult.wb; //不是很重要了
 

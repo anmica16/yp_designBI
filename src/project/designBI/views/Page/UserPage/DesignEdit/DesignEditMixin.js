@@ -22,7 +22,7 @@ import LoginUser from "@designBI/views/mixins/LoginUser";
 import userBtn from "@designBI/views/Page/PublicItem/userBtn.vue";
 import msgBtn from "@designBI/views/Page/PublicItem/msgBtn.vue";
 
-import { conditionCmps } from "@designBI/store";
+import { conditionCmps, singleConds } from "@designBI/store";
 
 export default {
   name: "DesignEdit2",
@@ -350,7 +350,7 @@ export default {
               res(false);
             }
           }
-        }).catch(() => { });
+        }).catch(() => {});
       });
     },
     //## 1 切换
@@ -462,6 +462,17 @@ export default {
               let selector = ins.down("propertySelector");
 
               //console.log(["这个ins 的 form？", ins, selector]);
+
+              //# 3-0 不属于单独条件的过滤组件，需要设定至少一个维度信息！
+              if (!singleConds[ins.xtype]) {
+                if (!selector.selProps.length) {
+                  me.$message.warning(
+                    "非单独条件的过滤组件需要设定至少一个维度信息！"
+                  );
+                  return;
+                }
+              }
+
               //if (selector.selProps.length) {
               readyIns.setData({
                 propsData: {
@@ -499,7 +510,7 @@ export default {
               res(false);
             }
           }
-        }).catch(() => { });
+        }).catch(() => {});
       });
     },
     //~ 4 关联控件增加
@@ -609,7 +620,7 @@ export default {
               res(false);
             }
           }
-        }).catch(() => { });
+        }).catch(() => {});
       });
     },
     returnToCenter() {
@@ -747,7 +758,7 @@ export default {
               res(false);
             }
           }
-        }).catch(() => { });
+        }).catch(() => {});
       });
     },
     //## 8 更新一个ins，这里为了使维度信息更新ok
@@ -761,14 +772,15 @@ export default {
       // }
       me.getLinkData(ins.recordData.linkDataId).then(r => {
         let theOne = me.down(item => {
-          return item.queryFlag == "OneItemEdit" && item.instanceCode == ins.instanceCode;
+          return (
+            item.queryFlag == "OneItemEdit" &&
+            item.instanceCode == ins.instanceCode
+          );
         });
         if (theOne) {
           theOne.reInitOneIns();
         }
       });
-
-
     }
   },
   watch: {
