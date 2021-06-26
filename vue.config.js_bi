@@ -55,34 +55,20 @@ module.exports = {
   // 一、设计器项目 请解除下列注释，并注释【二】中内容
   //=============
   //设计器
-  // chainWebpack: config => {
-  //   //## 6 将默认的模板换为下列地址中的
-  //   config.plugin("html").tap(options => {
-  //     options[0].template = "./src/project/designBI/assets/designBi.html";
-  //     options[0].hash = true;
-  //     return options;
-  //   });
-  // },
-  // publicPath: "/dist",
-  // outputDir: "../dist",
-
-  //=============
-  // 二、lserp项目 请解除下列注释，并注释【一】中内容
-  //=============
-  //-------------------
-  //outputDir: "../../Lskj.WebErp.View_7.0/Lserp_v8/dist"
-
-  //=============
-  // 三、个人博客
-  //=============
   chainWebpack: config => {
     //## 6 将默认的模板换为下列地址中的
     config.plugin("html").tap(options => {
-      options[0].template = "./src/project/ypPage/assets/index.html";
+      options[0].template = "./src/project/designBI/assets/designBi.html";
       options[0].hash = true;
       return options;
     });
   },
   publicPath: "/dist",
   outputDir: "../dist"
+
+  //=============
+  // 二、lserp项目 请解除下列注释，并注释【一】中内容
+  //=============
+  //-------------------
+  //outputDir: "../../Lskj.WebErp.View_7.0/Lserp_v8/dist"
 };
